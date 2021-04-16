@@ -9,7 +9,7 @@ under developing.
 # tetative way to build
 
 ```
-$ clang++ -std=c++17 -stdlib=libc++ -v Filter.hpp Pipe.hpp Pipe.cpp TestCase_PipeAndFilter.cpp; ./a.out
+$ clang++ -std=c++17 -stdlib=libc++ -v Filter.hpp Pipe.hpp Pipe.cpp Source.hpp Sink.hpp TestCase_PipeAndFilter.cpp; ./a.out
 ```
 
 TODO: Makefile will be prepared.

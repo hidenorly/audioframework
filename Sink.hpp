@@ -14,40 +14,17 @@
    limitations under the License.
 */
 
-#ifndef __PIPE_H__
-#define __PIPE_H__
+#ifndef __SINK_H__
+#define __SINK_H__
 
-#include "Filter.hpp"
-#include "Source.hpp"
-#include "Sink.hpp"
-#include <vector>
+#include <string>
 
-class Pipe
+class Sink
 {
 public:
-  Pipe();
-  ~Pipe();
-
-  void addFilterToHead(Filter* pFilter);
-  void addFilterToTail(Filter* pFilter);
-
-  Sink* attachSink(Sink* pSink);
-  Sink* detachSink(void);
-  Source* attachSource(Source* pSink);
-  Source* detachSource(void);
-
-  void run(void);
-  void stop(void);
-  bool isRunning(void);
-
-  void dump(void);
-  void clearFilers(void);
-
-protected:
-  std::vector<Filter*> mFilters;
-  Sink* mpSink;
-  Source* mpSource;
-  bool mbIsRunning;
+  Sink(){};
+  ~Sink(){};
+  std::string toString(void){return "Sink";}
 };
 
-#endif /* __PIPE_H__ */
+#endif /* __SINK_H__ */

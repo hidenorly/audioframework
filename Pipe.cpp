@@ -17,8 +17,9 @@
 #include "Pipe.hpp"
 #include "Filter.hpp"
 #include <iostream>
+#include <string>
 
-Pipe::Pipe()
+Pipe::Pipe():mpSink(nullptr), mpSource(nullptr), mbIsRunning(false)
 {
 
 }
@@ -46,10 +47,65 @@ void Pipe::clearFilers(void)
   mFilters.clear();
 }
 
-
-void Pipe::dumpFilter(void)
+Sink* Pipe::attachSink(Sink* pSink)
 {
-  std::cout << std::endl << "Dump Filter in current pipe" << std::endl;
+  Sink* pPrevSink = mpSink;
+  mpSink = pSink;
+
+  return pPrevSink;
+}
+
+Sink* Pipe::detachSink(void)
+{
+  Sink* pPrevSink = mpSink;
+  mpSink = nullptr;
+
+  return pPrevSink;
+}
+
+Source* Pipe::attachSource(Source* pSource)
+{
+  Source* pPrevSource = mpSource;
+  mpSource = pSource;
+  return pPrevSource;
+}
+
+Source* Pipe::detachSource(void)
+{
+  Source* pPrevSource = mpSource;
+  mpSource = nullptr;
+
+  return pPrevSource;
+}
+
+void Pipe::run(void)
+{
+  if( !mbIsRunning ){
+    // TODO : run thread
+    mbIsRunning = true;
+  }
+}
+
+void Pipe::stop(void)
+{
+  if( mbIsRunning ){
+    // TODO : stop thread
+    mbIsRunning = false;
+  }
+}
+
+bool Pipe::isRunning(void)
+{
+  return mbIsRunning;
+}
+
+void Pipe::dump(void)
+{
+  std::cout << std::endl;
+  std::cout << "Source:" << (mpSource ? mpSource->toString() : "") << std::endl;
+  std::cout << "Sink:" << (mpSink ? mpSink->toString() : "") << std::endl;
+
+  std::cout << "Filters:" << std::endl;
   for( Filter* pFilter : mFilters ) {
     std::cout << pFilter << std::endl;
   }

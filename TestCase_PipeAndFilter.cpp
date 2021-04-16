@@ -16,6 +16,10 @@
 
 #include "Pipe.hpp"
 #include "Filter.hpp"
+#include "Source.hpp"
+#include "Sink.hpp"
+#include <iostream>
+
 
 
 class TestCase_PipeAndFilter
@@ -40,17 +44,40 @@ public:
 
     Pipe* pPipe = new Pipe();
     pPipe->addFilterToTail(pFilter1);
-    pPipe->dumpFilter();
+    pPipe->dump();
 
     pPipe->addFilterToTail(pFilter2);
-    pPipe->dumpFilter();
+    pPipe->dump();
 
     pPipe->addFilterToHead(pFilter3);
-    pPipe->dumpFilter();
+    pPipe->dump();
 
-    pPipe->clearFilers();
-    pPipe->dumpFilter();
-    delete pPipe;
+    pPipe->clearFilers(); // delete filter instances also.
+    pPipe->dump();
+    delete pPipe; pPipe = nullptr;
+  }
+
+
+  void attachSourceSinkToPipeTest(void)
+  {
+    Pipe* pPipe = new Pipe();
+
+    pPipe->attachSink( new Sink() );
+    pPipe->attachSource( new Source() );
+    pPipe->dump();
+
+    pPipe->run();
+    std::cout << "Pipe is " << (pPipe->isRunning() ? "running" : "stopped") << std::endl;
+    pPipe->stop();
+    std::cout << "Pipe is " << (pPipe->isRunning() ? "running" : "stopped") << std::endl;
+
+    Sink* pSink = pPipe->detachSink();
+    Source* pSource = pPipe->detachSource();
+    pPipe->dump();
+
+    delete pPipe; pPipe = nullptr;
+    delete pSink; pSink = nullptr;
+    delete pSource; pSource = nullptr;
   }
 
 };
@@ -65,6 +92,7 @@ int main(void)
     testCase.Setup();
 
     testCase.AddFiltersTest();
+    testCase.attachSourceSinkToPipeTest();
 
     testCase.TearDown();
   }

@@ -14,6 +14,10 @@
    limitations under the License.
 */
 
+#include <gtest/gtest.h>
+
+#include "TestCase_PipeAndFilter.hpp"
+
 #include "Pipe.hpp"
 #include "Filter.hpp"
 #include "Source.hpp"
@@ -21,81 +25,73 @@
 #include <iostream>
 
 
-
-class TestCase_PipeAndFilter
+TestCase_PipeAndFilter::TestCase_PipeAndFilter()
 {
-public:
-  virtual void Setup()
-  {
+}
 
-  }
-
-  virtual void TearDown()
-  {
-
-  }
-
-
-  void AddFiltersTest(void)
-  {
-    Filter* pFilter1 = new Filter();
-    Filter* pFilter2 = new Filter();
-    Filter* pFilter3 = new Filter();
-
-    Pipe* pPipe = new Pipe();
-    pPipe->addFilterToTail(pFilter1);
-    pPipe->dump();
-
-    pPipe->addFilterToTail(pFilter2);
-    pPipe->dump();
-
-    pPipe->addFilterToHead(pFilter3);
-    pPipe->dump();
-
-    pPipe->clearFilers(); // delete filter instances also.
-    pPipe->dump();
-    delete pPipe; pPipe = nullptr;
-  }
-
-
-  void attachSourceSinkToPipeTest(void)
-  {
-    Pipe* pPipe = new Pipe();
-
-    pPipe->attachSink( new Sink() );
-    pPipe->attachSource( new Source() );
-    pPipe->dump();
-
-    pPipe->run();
-    std::cout << "Pipe is " << (pPipe->isRunning() ? "running" : "stopped") << std::endl;
-    pPipe->stop();
-    std::cout << "Pipe is " << (pPipe->isRunning() ? "running" : "stopped") << std::endl;
-
-    Sink* pSink = pPipe->detachSink();
-    Source* pSource = pPipe->detachSource();
-    pPipe->dump();
-
-    delete pPipe; pPipe = nullptr;
-    delete pSink; pSink = nullptr;
-    delete pSource; pSource = nullptr;
-  }
-
-};
-
-
-// TODO: replace it with gtest
-int main(void)
+TestCase_PipeAndFilter::~TestCase_PipeAndFilter()
 {
-  {
-    TestCase_PipeAndFilter testCase;
+}
 
-    testCase.Setup();
+void TestCase_PipeAndFilter::SetUp()
+{
+}
 
-    testCase.AddFiltersTest();
-    testCase.attachSourceSinkToPipeTest();
+void TestCase_PipeAndFilter::TearDown()
+{
+}
 
-    testCase.TearDown();
-  }
 
-  return 0;
+TEST_F(TestCase_PipeAndFilter, AddFiltersTest)
+{
+  Filter* pFilter1 = new Filter();
+  Filter* pFilter2 = new Filter();
+  Filter* pFilter3 = new Filter();
+
+  Pipe* pPipe = new Pipe();
+  pPipe->addFilterToTail(pFilter1);
+  pPipe->dump();
+
+  pPipe->addFilterToTail(pFilter2);
+  pPipe->dump();
+
+  pPipe->addFilterToHead(pFilter3);
+  pPipe->dump();
+
+  pPipe->clearFilers(); // delete filter instances also.
+  pPipe->dump();
+  delete pPipe; pPipe = nullptr;
+
+  EXPECT_TRUE(true);
+}
+
+
+TEST_F(TestCase_PipeAndFilter, attachSourceSinkToPipeTest)
+{
+  Pipe* pPipe = new Pipe();
+
+  EXPECT_EQ( nullptr, pPipe->attachSink( new Sink() ) );
+  EXPECT_EQ( nullptr, pPipe->attachSource( new Source() ) );
+  pPipe->dump();
+
+  pPipe->run();
+  EXPECT_TRUE(pPipe->isRunning());
+  pPipe->stop();
+  EXPECT_FALSE(pPipe->isRunning());
+
+  Sink* pSink = pPipe->detachSink();
+  EXPECT_NE(nullptr, pSink);
+  Source* pSource = pPipe->detachSource();
+  EXPECT_NE(nullptr, pSource);
+  pPipe->dump();
+
+  delete pPipe; pPipe = nullptr;
+  delete pSink; pSink = nullptr;
+  delete pSource; pSource = nullptr;
+}
+
+int main(int argc, char **argv)
+{
+  ::testing::InitGoogleTest(&argc, argv);
+  return RUN_ALL_TESTS();
 }

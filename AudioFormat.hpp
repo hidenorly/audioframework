@@ -20,17 +20,41 @@
 class AudioFormat
 {
 public:
-	enum {
+	enum ENCODING {
 		PCM_8BIT,
 		PCM_16BIT,
 		PCM_24BIT_PACKED,
 		PCM_32BIT,
 		PCM_FLOAT,
-		ENCODING_DEFAULT = PCM_16BIT,
-		PCM_UNKNOWN
-	} ENCODING;
+		PCM_UNKNOWN,
+		ENCODING_DEFAULT = PCM_16BIT
+	};
 
-	enum {
+	static int getSampleByte(ENCODING encoding)
+	{
+		int sampleByte = 0;
+
+		switch( encoding ){
+			case PCM_8BIT:
+				sampleByte = 1;
+				break;
+			case PCM_16BIT:
+			case PCM_UNKNOWN:
+				sampleByte = 2;
+				break;
+			case PCM_24BIT_PACKED:
+				sampleByte = 3;
+				break;
+			case PCM_32BIT:
+			case PCM_FLOAT:
+				sampleByte = 4;
+				break;
+		}
+
+		return sampleByte;
+	}
+
+	enum CHANNEL {
 		CHANNEL_MONO,
 		CHANNEL_STEREO,
 		CHANNEL_4CH,
@@ -39,11 +63,51 @@ public:
 		CHANNEL_5_1_2CH,
 		CHANNEL_5_0_2CH,
 		CHANNEL_7_1CH,
-		CHANNEL_DEFAULT = CHANNEL_STEREO,
-		CHANNEL_UNKNOWN
-	} CHANNEL;
+		CHANNEL_UNKNOWN,
+		CHANNEL_DEFAULT = CHANNEL_STEREO
+	};
 
-	enum {
+	static int getNumberOfChannels(CHANNEL channel)
+	{
+		int numOfChannels = 0;
+
+		switch( channel ){
+			case CHANNEL_MONO:
+				numOfChannels = 1;
+				break;
+			case CHANNEL_STEREO:
+			case CHANNEL_UNKNOWN:
+				numOfChannels = 2;
+				break;
+			case CHANNEL_4CH:
+				numOfChannels = 4;
+				break;
+			case CHANNEL_5CH:
+				numOfChannels = 5;
+				break;
+			case CHANNEL_5_1CH:
+				numOfChannels = 6;
+				break;
+			case CHANNEL_5_1_2CH:
+				numOfChannels = 8;
+				break;
+			case CHANNEL_5_0_2CH:
+				numOfChannels = 7;
+				break;
+			case CHANNEL_7_1CH:
+				numOfChannels = 8;
+				break;
+		}
+
+		return numOfChannels;
+	}
+
+	static int getChannelsSampleByte(ENCODING encoding, CHANNEL channel)
+	{
+		return getSampleByte(encoding) * getNumberOfChannels(channel);
+	}
+
+	enum PRESENTATION {
 		SPEAKER_MONO,
 		SPEAKER_STEREO,
 		SPEAKER_FL_FR_SL_SR,
@@ -54,9 +118,9 @@ public:
 		HEADPHONE_STEREO,
 		PRESENTATION_DEFAULT = SPEAKER_STEREO,
 		UNKNOWN
-	} PRESENTATION;
+	};
 
-	enum {
+	enum SAMPLING_RATE {
 		SAMPLING_RATE_8_KHZ = 8000,
 		SAMPLING_RATE_16_KHZ = 16000,
 		SAMPLING_RATE_44_1_KHZ = 44100,
@@ -66,7 +130,8 @@ public:
 		SAMPLING_RATE_192_KHZ = 192000,
 		SAMPLING_RATE_DEFAULT = SAMPLING_RATE_48_KHZ,
 		SAMPLING_RATE_UNKNOWN,
-	} SAMPLING_RATE;
+	};
+
 };
 
 #endif /* __AUDIO_FORMAT_H__ */

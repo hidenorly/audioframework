@@ -14,18 +14,28 @@
    limitations under the License.
 */
 
-#ifndef __FILTER_H__
-#define __FILTER_H__
-
-#include "Buffer.hpp"
 #include <iostream>
+#include <string>
+#include "Buffer.hpp"
 
-class Filter
+#ifndef __UTIL_HPP__
+#define __UTIL_HPP__
+
+class Util
 {
 public:
-  Filter(){};
-  virtual ~Filter(){};
-  virtual void process(ByteBuffer& inBuf, ByteBuffer& outBuf){ outBuf = inBuf; };
+  static void dumpBuffer(const ByteBuffer& buf)
+  {
+    std::cout << "samples: " << buf.size() << std::endl;
+    for(uint8_t aData : buf){
+      std::cout << (int)aData << ",";
+    }
+    std::cout << std::endl;
+  }
+  static void dumpBuffer(std::string message, const ByteBuffer& buf){
+      std::cout << message << std::endl;
+      dumpBuffer(buf);
+  }
 };
 
-#endif /* __FILTER_H__ */
+#endif /* __UTIL_HPP__ */

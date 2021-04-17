@@ -18,13 +18,19 @@
 #define __SOURCE_H__
 
 #include <string>
+#include <iostream>
+#include "Buffer.hpp"
 
 class Source
 {
 public:
   Source(){};
-  ~Source(){};
-  std::string toString(void){return "Source";}
+  virtual ~Source(){};
+  virtual void read(ByteBuffer& buf){
+    ByteBuffer bufZero(buf.size(), 0);
+    buf = bufZero;
+  };
+  virtual std::string toString(void){return "Source";};
 };
 
 #endif /* __SOURCE_H__ */

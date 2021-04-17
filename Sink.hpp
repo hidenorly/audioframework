@@ -18,13 +18,26 @@
 #define __SINK_H__
 
 #include <string>
+#include <iostream>
+#include "Buffer.hpp"
+#include "Util.hpp"
 
 class Sink
 {
+protected:
+  ByteBuffer mBuf;
+
 public:
   Sink(){};
-  ~Sink(){};
-  std::string toString(void){return "Sink";}
+  virtual ~Sink(){};
+  virtual void write(ByteBuffer& buf){
+    mBuf.reserve(buf.size() + mBuf.size() );
+    std::copy( buf.begin(), buf.end(), std::back_inserter(mBuf) );
+  };
+  virtual std::string toString(void){return "Sink";}
+  virtual void dump(void){
+    Util::dumpBuffer("Dump Sink data", mBuf);
+  }
 };
 
 #endif /* __SINK_H__ */

@@ -14,18 +14,23 @@
    limitations under the License.
 */
 
-#ifndef __FILTER_H__
-#define __FILTER_H__
+#ifndef __FILTER_EXAMPLES_HPP__
+#define __FILTER_EXAMPLES_HPP__
 
-#include "Buffer.hpp"
-#include <iostream>
+#include "Filter.hpp"
 
-class Filter
+class FilterIncrement : public Filter
 {
 public:
-  Filter(){};
-  virtual ~Filter(){};
-  virtual void process(ByteBuffer& inBuf, ByteBuffer& outBuf){ outBuf = inBuf; };
+  FilterIncrement(){};
+  virtual ~FilterIncrement(){};
+  virtual void process(ByteBuffer& inBuf, ByteBuffer& outBuf){
+    uint8_t* rawOutBuf = outBuf.data();
+    for(uint8_t aData : inBuf){
+      *rawOutBuf = (uint8_t)((aData + 1) & 0xFF);
+      rawOutBuf++;
+    }
+  };
 };
 
-#endif /* __FILTER_H__ */
+#endif /* __FILTER_EXAMPLES_HPP__ */

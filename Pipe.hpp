@@ -26,7 +26,7 @@ class Pipe
 {
 public:
   Pipe();
-  ~Pipe();
+  virtual ~Pipe();
 
   void addFilterToHead(Filter* pFilter);
   void addFilterToTail(Filter* pFilter);
@@ -44,6 +44,8 @@ public:
   void clearFilers(void);
 
 protected:
+  virtual void process(void);
+
   std::vector<Filter*> mFilters;
   Sink* mpSink;
   Source* mpSource;

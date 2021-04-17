@@ -16,6 +16,9 @@
 
 #include "Pipe.hpp"
 #include "Filter.hpp"
+#include "AudioFormat.hpp"
+#include "Buffer.hpp"
+#include "Util.hpp"
 #include <iostream>
 #include <string>
 
@@ -82,6 +85,8 @@ void Pipe::run(void)
 {
   if( !mbIsRunning ){
     // TODO : run thread
+    // temporary execute once
+    process();
     mbIsRunning = true;
   }
 }
@@ -110,3 +115,24 @@ void Pipe::dump(void)
     std::cout << pFilter << std::endl;
   }
 }
+
+void Pipe::process(void)
+{
+  if(mpSource && mpSink){
+    // tentative code. assume same window size.
+    const int tentativeWindowSize = 256; // TODO: getWindowSize from Filter.
+    // TODO : create different thread and connect FIFO buffer for different window size situation
+    int bufferSize = AudioFormat::getChannelsSampleByte(AudioFormat::ENCODING::PCM_16BIT, AudioFormat::CHANNEL::CHANNEL_STEREO) * tentativeWindowSize;
+    ByteBuffer inBuf(bufferSize);
+    ByteBuffer outBuf(bufferSize);
+
+    mpSource->read(inBuf);
+    for( Filter* pFilter : mFilters ) {
+      pFilter->process( inBuf, outBuf );
+      inBuf = outBuf;
+    }
+
+    mpSink->write(outBuf);
+  }
+}
+

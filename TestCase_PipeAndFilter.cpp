@@ -24,6 +24,8 @@
 #include "Sink.hpp"
 #include <iostream>
 
+#include "FilterExample.hpp"
+
 
 TestCase_PipeAndFilter::TestCase_PipeAndFilter()
 {
@@ -72,6 +74,9 @@ TEST_F(TestCase_PipeAndFilter, attachSourceSinkToPipeTest)
 
   EXPECT_EQ( nullptr, pPipe->attachSink( new Sink() ) );
   EXPECT_EQ( nullptr, pPipe->attachSource( new Source() ) );
+  pPipe->addFilterToTail( new FilterIncrement() );
+  pPipe->addFilterToTail( new Filter() );
+  pPipe->addFilterToTail( new Filter() );
   pPipe->dump();
 
   pPipe->run();
@@ -81,9 +86,12 @@ TEST_F(TestCase_PipeAndFilter, attachSourceSinkToPipeTest)
 
   Sink* pSink = pPipe->detachSink();
   EXPECT_NE(nullptr, pSink);
+  pSink->dump();
   Source* pSource = pPipe->detachSource();
   EXPECT_NE(nullptr, pSource);
   pPipe->dump();
+
+  pPipe->clearFilers(); // delete filter instances also.
 
   delete pPipe; pPipe = nullptr;
   delete pSink; pSink = nullptr;

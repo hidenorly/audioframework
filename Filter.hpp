@@ -14,8 +14,8 @@
    limitations under the License.
 */
 
-#ifndef __FILTER_H__
-#define __FILTER_H__
+#ifndef __FILTER_HPP__
+#define __FILTER_HPP__
 
 #include "Buffer.hpp"
 #include <iostream>
@@ -28,4 +28,4 @@ public:
   virtual void process(ByteBuffer& inBuf, ByteBuffer& outBuf){ outBuf = inBuf; };
 };
 
-#endif /* __FILTER_H__ */
+#endif /* __FILTER_HPP__ */

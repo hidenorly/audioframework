@@ -14,12 +14,12 @@
    limitations under the License.
 */
 
+#ifndef __UTIL_HPP__
+#define __UTIL_HPP__
+
 #include <iostream>
 #include <string>
 #include "Buffer.hpp"
-
-#ifndef __UTIL_HPP__
-#define __UTIL_HPP__
 
 class Util
 {
@@ -29,6 +29,7 @@ public:
     std::cout << "samples: " << buf.size() << std::endl;
     for(uint8_t aData : buf){
       std::cout << (int)aData << ",";
+//      std::cout << std::hex << (int)aData << ","; // std::hex causes data loss.
     }
     std::cout << std::endl;
   }

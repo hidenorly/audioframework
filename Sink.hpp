@@ -14,8 +14,8 @@
    limitations under the License.
 */
 
-#ifndef __SINK_H__
-#define __SINK_H__
+#ifndef __SINK_HPP__
+#define __SINK_HPP__
 
 #include <string>
 #include <iostream>
@@ -40,4 +40,4 @@ public:
   }
 };
 
-#endif /* __SINK_H__ */
+#endif /* __SINK_HPP__ */

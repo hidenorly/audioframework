@@ -14,11 +14,11 @@
    limitations under the License.
 */
 
-#ifndef __BUFFER_H__
-#define __BUFFER_H__
+#ifndef __BUFFER_HPP__
+#define __BUFFER_HPP__
 
 #include <vector>
 
 typedef std::vector<uint8_t> ByteBuffer;
 
-#endif /* __BUFFER_H__ */
+#endif /* __BUFFER_HPP__ */

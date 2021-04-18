@@ -14,8 +14,8 @@
    limitations under the License.
 */
 
-#ifndef __SOURCE_H__
-#define __SOURCE_H__
+#ifndef __SOURCE_HPP__
+#define __SOURCE_HPP__
 
 #include <string>
 #include <iostream>
@@ -33,4 +33,4 @@ public:
   virtual std::string toString(void){return "Source";};
 };
 
-#endif /* __SOURCE_H__ */
+#endif /* __SOURCE_HPP__ */

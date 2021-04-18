@@ -14,8 +14,8 @@
    limitations under the License.
 */
 
-#ifndef __PIPE_H__
-#define __PIPE_H__
+#ifndef __PIPE_HPP__
+#define __PIPE_HPP__
 
 #include "Filter.hpp"
 #include "Source.hpp"
@@ -52,4 +52,4 @@ protected:
   bool mbIsRunning;
 };
 
-#endif /* __PIPE_H__ */
+#endif /* __PIPE_HPP__ */

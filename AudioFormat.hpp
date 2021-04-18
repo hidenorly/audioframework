@@ -14,8 +14,8 @@
    limitations under the License.
 */
 
-#ifndef __AUDIO_FORMAT_H__
-#define __AUDIO_FORMAT_H__
+#ifndef __AUDIO_FORMAT_HPP__
+#define __AUDIO_FORMAT_HPP__
 
 class AudioFormat
 {
@@ -134,4 +134,4 @@ public:
 
 };
 
-#endif /* __AUDIO_FORMAT_H__ */
+#endif /* __AUDIO_FORMAT_HPP__ */

@@ -14,6 +14,9 @@
    limitations under the License.
 */
 
+#ifndef __TESTCASE_PIPEANDFILTER_HPP__
+#define __TESTCASE_PIPEANDFILTER_HPP__
+
 #include <gtest/gtest.h>
 
 class TestCase_PipeAndFilter : public ::testing::Test
@@ -27,3 +30,5 @@ protected:
   void AddFiltersTest(void);
   void attachSourceSinkToPipeTest(void);
 };
+
+#endif /* __TESTCASE_PIPEANDFILTER_HPP__ */

@@ -132,6 +132,7 @@ void Pipe::process(void)
       inBuf = outBuf;
     }
 
+    // TODO : May change as directly write to the following buffer from the last filter to avoid the copy.
     mpSink->write(outBuf);
   }
 }

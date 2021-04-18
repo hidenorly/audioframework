@@ -14,8 +14,8 @@
    limitations under the License.
 */
 
-#ifndef __STREAM_H__
-#define __STREAM_H__
+#ifndef __STREAM_HPP__
+#define __STREAM_HPP__
 
 #include "Buffer.hpp"
 
@@ -27,4 +27,4 @@ public:
   ByteBuffer* read(void);
 };
 
-#endif /* __STREAM_H__ */
+#endif /* __STREAM_HPP__ */

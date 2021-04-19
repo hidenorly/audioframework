@@ -18,14 +18,25 @@
 #define __FILTER_HPP__
 
 #include "Buffer.hpp"
+#include "AudioFormat.hpp"
 #include <iostream>
+#include <vector>
 
 class Filter
 {
+protected:
+  const float DEFAULT_WINDOW_SIZE_USEC = 5000; // 5msec
+
 public:
   Filter(){};
   virtual ~Filter(){};
   virtual void process(ByteBuffer& inBuf, ByteBuffer& outBuf){ outBuf = inBuf; };
+  virtual int getRequiredWindowSizeUsec(void){ return DEFAULT_WINDOW_SIZE_USEC; };
+  virtual std::vector<AudioFormat> getSupportedAudioFormats(void){
+    std::vector<AudioFormat> audioFormats;
+    audioFormats.push_back( AudioFormat() );
+    return audioFormats;
+  };
 };
 
 #endif /* __FILTER_HPP__ */

@@ -38,6 +38,19 @@ public:
   virtual void dump(void){
     Util::dumpBuffer("Dump Sink data", mBuf);
   }
+
+  enum PRESENTATION {
+    SPEAKER_MONO,
+    SPEAKER_STEREO,
+    SPEAKER_FL_FR_SL_SR,
+    SPEAKER_FL_FR_C_SL_SR,
+    SPEAKER_FL_FR_C_SL_SR_SW,
+    SPEAKER_FL_FR_C_SL_SR_SW_EL_ER, // Atmos Enabled L/R
+    HEADPHONE_MONO,
+    HEADPHONE_STEREO,
+    PRESENTATION_DEFAULT = SPEAKER_STEREO,
+    UNKNOWN
+  };
 };
 
 #endif /* __SINK_HPP__ */

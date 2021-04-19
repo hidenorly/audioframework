@@ -21,6 +21,8 @@
 #include "Util.hpp"
 #include <iostream>
 #include <string>
+#include <numeric>
+#include <stdexcept>
 
 Pipe::Pipe():mpSink(nullptr), mpSource(nullptr), mbIsRunning(false)
 {
@@ -120,9 +122,11 @@ void Pipe::process(void)
 {
   if(mpSource && mpSink){
     // tentative code. assume same window size.
-    const int tentativeWindowSize = 256; // TODO: getWindowSize from Filter.
     // TODO : create different thread and connect FIFO buffer for different window size situation
-    int bufferSize = AudioFormat::getChannelsSampleByte(AudioFormat::ENCODING::PCM_16BIT, AudioFormat::CHANNEL::CHANNEL_STEREO) * tentativeWindowSize;
+    AudioFormat usingAudioFormat = getFilterAudioFormat();
+    int bufferSize = usingAudioFormat.getChannelsSampleByte() * ((float)usingAudioFormat.getSamplingRate() * (float)getCommonWindowSizeUsec()/1000000.0f);
+
+    std::cout << "bufferSize = " << bufferSize << std::endl;
     ByteBuffer inBuf(bufferSize);
     ByteBuffer outBuf(bufferSize);
 
@@ -137,3 +141,38 @@ void Pipe::process(void)
   }
 }
 
+
+AudioFormat Pipe::getFilterAudioFormat(void)
+{
+  // TODO : Prepare different format choice example. Note that this is override-able.
+  AudioFormat theUsingFormat; // default AudioFormat is set
+
+  bool bPossibleToUseTheFormat = true;
+  for( Filter* pFilter : mFilters ) {
+    std::vector<AudioFormat> formats = pFilter->getSupportedAudioFormats();
+    bool bCompatible = false;
+    for( AudioFormat aFormat : formats ){
+      bCompatible |= theUsingFormat.equal(aFormat);
+    }
+    bPossibleToUseTheFormat &= bCompatible;
+    if( !bPossibleToUseTheFormat ) break;
+  }
+
+  if( !bPossibleToUseTheFormat ){
+    throw std::invalid_argument("There is no common audio format in the registered filters");
+  }
+
+  return theUsingFormat;
+}
+
+int Pipe::getCommonWindowSizeUsec(void)
+{
+  int result = 1;
+
+  for( Filter* pFilter : mFilters ) {
+    int windowSizeUsec = pFilter->getRequiredWindowSizeUsec();
+    result = std::lcm(result, windowSizeUsec);
+  }
+
+  return result;
+}

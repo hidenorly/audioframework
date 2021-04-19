@@ -44,7 +44,11 @@ public:
   void clearFilers(void);
 
 protected:
+  // Should override process() if you want to support different window size processing by several threads, etc.
   virtual void process(void);
+  // Should override getFilterAudioFormat() if you want to use different algorithm to choose using Audioformat
+  virtual AudioFormat getFilterAudioFormat(void);
+  int getCommonWindowSizeUsec(void);
 
   std::vector<Filter*> mFilters;
   Sink* mpSink;

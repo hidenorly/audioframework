@@ -107,19 +107,6 @@ public:
 		return getSampleByte(encoding) * getNumberOfChannels(channel);
 	}
 
-	enum PRESENTATION {
-		SPEAKER_MONO,
-		SPEAKER_STEREO,
-		SPEAKER_FL_FR_SL_SR,
-		SPEAKER_FL_FR_C_SL_SR,
-		SPEAKER_FL_FR_C_SL_SR_SW,
-		SPEAKER_FL_FR_C_SL_SR_SW_EL_ER, // Atmos Enabled L/R
-		HEADPHONE_MONO,
-		HEADPHONE_STEREO,
-		PRESENTATION_DEFAULT = SPEAKER_STEREO,
-		UNKNOWN
-	};
-
 	enum SAMPLING_RATE {
 		SAMPLING_RATE_8_KHZ = 8000,
 		SAMPLING_RATE_16_KHZ = 16000,
@@ -132,6 +119,40 @@ public:
 		SAMPLING_RATE_UNKNOWN,
 	};
 
+protected:
+	ENCODING mEncoding;
+	SAMPLING_RATE mSamplingRate;
+	CHANNEL mChannel;
+
+public:
+	AudioFormat(ENCODING encoding = ENCODING_DEFAULT, SAMPLING_RATE samplingRate = SAMPLING_RATE_DEFAULT, CHANNEL channel = CHANNEL_DEFAULT):mEncoding(encoding),mSamplingRate(samplingRate),mChannel(channel){};
+	virtual ~AudioFormat(){};
+
+	ENCODING getEncoding(void)
+	{
+		return mEncoding;
+	}
+
+	CHANNEL getChannels()
+	{
+		return mChannel;
+	}
+
+	int getChannelsSampleByte(void)
+	{
+		return getSampleByte(mEncoding) * getNumberOfChannels(mChannel);
+	}
+
+	int getSamplingRate(void){
+		return mSamplingRate;
+	}
+
+	bool equal(AudioFormat& arg2){
+		return ( (mEncoding == arg2.getEncoding()) && (mChannel == arg2.getChannels()) && (mSamplingRate == arg2.getSamplingRate()));
+	}
+
 };
+
+
 
 #endif /* __AUDIO_FORMAT_HPP__ */

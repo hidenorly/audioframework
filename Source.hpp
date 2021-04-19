@@ -20,8 +20,9 @@
 #include <string>
 #include <iostream>
 #include "Buffer.hpp"
+#include "AudioFormat.hpp"
 
-class Source
+class Source : public AudioBase
 {
 public:
   Source(){};

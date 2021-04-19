@@ -21,11 +21,14 @@
 #include <iostream>
 #include "Buffer.hpp"
 #include "Util.hpp"
+#include "AudioFormat.hpp"
+#include <vector>
 
-class Sink
+class Sink : public AudioBase
 {
 protected:
   ByteBuffer mBuf;
+  AudioFormat mAudioFormat;
 
 public:
   Sink(){};
@@ -51,6 +54,57 @@ public:
     PRESENTATION_DEFAULT = SPEAKER_STEREO,
     UNKNOWN
   };
+
+  virtual std::vector<PRESENTATION> getAvailablePresentations(void){
+    std::vector<PRESENTATION> supportedPresentations;
+    supportedPresentations.push_back( PRESENTATION_DEFAULT );
+    return supportedPresentations;
+  }
+
+  bool isAvailablePresentation(PRESENTATION presentation)
+  {
+    bool bResult = false;
+
+    std::vector<PRESENTATION> presentations = getAvailablePresentations();
+    for(PRESENTATION aPresentation : presentations){
+      bResult |= (aPresentation == presentation);
+      if( bResult ) break;
+    }
+
+    return bResult;
+  }
+
+protected:
+  PRESENTATION mPresentation;
+
+public:
+  bool setAudioFormat(AudioFormat audioFormat){
+    bool bSuccess = isAvailableFormat(audioFormat);
+
+    if( bSuccess ) {
+      mAudioFormat = audioFormat;
+    }
+
+    return bSuccess;
+  }
+  AudioFormat getAudioFormat(void){
+    return mAudioFormat;
+  }
+
+  bool setPresentation(PRESENTATION presentation){
+    bool bSuccess = isAvailablePresentation(presentation);
+
+    if( bSuccess ){
+      mPresentation = presentation;
+    }
+
+    return bSuccess;
+  }
+
+  PRESENTATION getPresentation(void){
+    return mPresentation;
+  }
+
 };
 
 #endif /* __SINK_HPP__ */

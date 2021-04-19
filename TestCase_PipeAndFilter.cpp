@@ -22,9 +22,10 @@
 #include "Filter.hpp"
 #include "Source.hpp"
 #include "Sink.hpp"
-#include <iostream>
-
+#include "AudioFormat.hpp"
 #include "FilterExample.hpp"
+
+#include <iostream>
 
 
 TestCase_PipeAndFilter::TestCase_PipeAndFilter()
@@ -72,8 +73,18 @@ TEST_F(TestCase_PipeAndFilter, attachSourceSinkToPipeTest)
 {
   Pipe* pPipe = new Pipe();
 
-  EXPECT_EQ( nullptr, pPipe->attachSink( new Sink() ) );
+  Sink* pSink = new Sink();
+  pSink->setAudioFormat( AudioFormat(
+    AudioFormat::ENCODING::PCM_16BIT, 
+    AudioFormat::SAMPLING_RATE::SAMPLING_RATE_48_KHZ,
+    AudioFormat::CHANNEL::CHANNEL_STEREO
+    )
+  );
+  pSink->setPresentation( Sink::PRESENTATION::SPEAKER_STEREO );
+  EXPECT_EQ( nullptr, pPipe->attachSink( pSink ) );
+
   EXPECT_EQ( nullptr, pPipe->attachSource( new Source() ) );
+
   pPipe->addFilterToTail( new FilterIncrement() );
   pPipe->addFilterToTail( new Filter() );
   pPipe->addFilterToTail( new Filter() );
@@ -84,7 +95,7 @@ TEST_F(TestCase_PipeAndFilter, attachSourceSinkToPipeTest)
   pPipe->stop();
   EXPECT_FALSE(pPipe->isRunning());
 
-  Sink* pSink = pPipe->detachSink();
+  pSink = pPipe->detachSink();
   EXPECT_NE(nullptr, pSink);
   pSink->dump();
   Source* pSource = pPipe->detachSource();

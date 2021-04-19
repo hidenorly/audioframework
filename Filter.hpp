@@ -22,7 +22,7 @@
 #include <iostream>
 #include <vector>
 
-class Filter
+class Filter : public AudioBase
 {
 protected:
   const float DEFAULT_WINDOW_SIZE_USEC = 5000; // 5msec

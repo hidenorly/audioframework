@@ -27,15 +27,20 @@
 class Sink : public AudioBase
 {
 protected:
-  ByteBuffer mBuf;
-  AudioFormat mAudioFormat;
+  AudioBuffer mBuf;
 
 public:
   Sink(){};
   virtual ~Sink(){};
-  virtual void write(ByteBuffer& buf){
-    mBuf.reserve(buf.size() + mBuf.size() );
-    std::copy( buf.begin(), buf.end(), std::back_inserter(mBuf) );
+  virtual void write(AudioBuffer& buf){
+    ByteBuffer internalBuffer = mBuf.getRawBuffer();
+    ByteBuffer externalBuffer = buf.getRawBuffer();
+
+    int newSize = externalBuffer.size() + internalBuffer.size();
+    internalBuffer.reserve( newSize );
+
+    std::copy( externalBuffer.begin(), externalBuffer.end(), std::back_inserter( internalBuffer ) );
+    mBuf.setRawBuffer( internalBuffer );
   };
   virtual std::string toString(void){return "Sink";}
   virtual void dump(void){
@@ -82,13 +87,13 @@ public:
     bool bSuccess = isAvailableFormat(audioFormat);
 
     if( bSuccess ) {
-      mAudioFormat = audioFormat;
+      mBuf.setAudioFormat( audioFormat );
     }
 
     return bSuccess;
   }
   AudioFormat getAudioFormat(void){
-    return mAudioFormat;
+    return mBuf.getAudioFormat();
   }
 
   bool setPresentation(PRESENTATION presentation){

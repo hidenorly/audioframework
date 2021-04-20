@@ -18,7 +18,31 @@
 #define __BUFFER_HPP__
 
 #include <vector>
+#include "AudioFormat.hpp"
 
 typedef std::vector<uint8_t> ByteBuffer;
+
+class AudioBuffer
+{
+protected:
+  AudioFormat mFormat;
+  ByteBuffer mBuf;
+
+public:
+  AudioBuffer(AudioFormat format, int samples);
+  AudioBuffer(AudioBuffer& buf);
+  AudioBuffer();
+  virtual ~AudioBuffer();
+
+  AudioFormat getAudioFormat(void){ return mFormat; };
+  int getSamples(void);
+  uint8_t* getRawBufferPointer(void){ return mBuf.data(); };
+  ByteBuffer& getRawBuffer(void){ return mBuf; };
+  AudioBuffer& operator=(AudioBuffer& buf);
+  bool isSameAudioFormat(AudioBuffer& buf);
+  void setAudioFormat( AudioFormat format );
+  void resize( int samples );
+  void setRawBuffer(ByteBuffer& buf) { mBuf = buf; };
+};
 
 #endif /* __BUFFER_HPP__ */

@@ -24,9 +24,9 @@ class FilterIncrement : public Filter
 public:
   FilterIncrement(){};
   virtual ~FilterIncrement(){};
-  virtual void process(ByteBuffer& inBuf, ByteBuffer& outBuf){
-    uint8_t* rawOutBuf = outBuf.data();
-    for(uint8_t aData : inBuf){
+  virtual void process(AudioBuffer& inBuf, AudioBuffer& outBuf){
+    uint8_t* rawOutBuf = outBuf.getRawBufferPointer();
+    for(uint8_t aData : inBuf.getRawBuffer()){
       *rawOutBuf = (uint8_t)((aData + 1) & 0xFF);
       rawOutBuf++;
     }

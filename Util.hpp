@@ -24,16 +24,23 @@
 class Util
 {
 public:
-  static void dumpBuffer(const ByteBuffer& buf)
+  static void dumpBuffer(AudioBuffer& buf)
   {
-    std::cout << "samples: " << buf.size() << std::endl;
-    for(uint8_t aData : buf){
+    AudioFormat format = buf.getAudioFormat();
+    std::cout << "sampling rate:" << format.getSamplingRate() <<
+      " format: " << format.getEncodingString() <<
+      " channels: " << (int)format.getNumberOfChannels() <<
+      " samples: " << buf.getSamples() <<
+      std::endl;
+
+    ByteBuffer rawBuffer = buf.getRawBuffer();
+    for(uint8_t aData : rawBuffer){
       std::cout << (int)aData << ",";
 //      std::cout << std::hex << (int)aData << ","; // std::hex causes data loss.
     }
     std::cout << std::endl;
   }
-  static void dumpBuffer(std::string message, const ByteBuffer& buf){
+  static void dumpBuffer(std::string message, AudioBuffer& buf){
       std::cout << message << std::endl;
       dumpBuffer(buf);
   }

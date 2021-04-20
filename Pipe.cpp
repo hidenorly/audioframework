@@ -124,20 +124,21 @@ void Pipe::process(void)
     // tentative code. assume same window size.
     // TODO : create different thread and connect FIFO buffer for different window size situation
     AudioFormat usingAudioFormat = getFilterAudioFormat();
-    int bufferSize = usingAudioFormat.getChannelsSampleByte() * ((float)usingAudioFormat.getSamplingRate() * (float)getCommonWindowSizeUsec()/1000000.0f);
 
-    std::cout << "bufferSize = " << bufferSize << std::endl;
-    ByteBuffer inBuf(bufferSize);
-    ByteBuffer outBuf(bufferSize);
+    int samples = (int)( (float)usingAudioFormat.getSamplingRate() * (float)getCommonWindowSizeUsec()/1000000.0f);
 
-    mpSource->read(inBuf);
+    AudioBuffer inBuf(  usingAudioFormat, samples );
+    AudioBuffer outBuf( usingAudioFormat, samples );
+
+    mpSource->read( inBuf );
+
     for( Filter* pFilter : mFilters ) {
       pFilter->process( inBuf, outBuf );
       inBuf = outBuf;
     }
 
     // TODO : May change as directly write to the following buffer from the last filter to avoid the copy.
-    mpSink->write(outBuf);
+    mpSink->write( outBuf );
   }
 }
 

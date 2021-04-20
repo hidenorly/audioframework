@@ -27,9 +27,10 @@ class Source : public AudioBase
 public:
   Source(){};
   virtual ~Source(){};
-  virtual void read(ByteBuffer& buf){
-    ByteBuffer bufZero(buf.size(), 0);
-    buf = bufZero;
+  virtual void read(AudioBuffer& buf){
+    ByteBuffer rawBuffer = buf.getRawBuffer();
+    ByteBuffer bufZero(rawBuffer.size(), 0);
+    rawBuffer = bufZero;
   };
   virtual std::string toString(void){return "Source";};
 };

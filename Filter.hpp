@@ -30,7 +30,7 @@ protected:
 public:
   Filter(){};
   virtual ~Filter(){};
-  virtual void process(ByteBuffer& inBuf, ByteBuffer& outBuf){ outBuf = inBuf; };
+  virtual void process(AudioBuffer& inBuf, AudioBuffer& outBuf){ outBuf = inBuf; };
   virtual int getRequiredWindowSizeUsec(void){ return DEFAULT_WINDOW_SIZE_USEC; };
   virtual std::vector<AudioFormat> getSupportedAudioFormats(void){
     std::vector<AudioFormat> audioFormats;

@@ -17,6 +17,8 @@
 #ifndef __AUDIO_FORMAT_HPP__
 #define __AUDIO_FORMAT_HPP__
 
+#include <string>
+
 class AudioFormat
 {
 public:
@@ -53,6 +55,7 @@ public:
 
     return sampleByte;
   }
+
 
   enum CHANNEL {
     CHANNEL_MONO,
@@ -132,6 +135,45 @@ public:
   {
     return mEncoding;
   }
+
+  int getNumberOfChannels(void)
+  {
+    return getNumberOfChannels(mChannel);
+  }
+
+
+  static std::string getEncodingString(ENCODING encoding)
+  {
+    std::string result = "PCM_UNKNOWN";
+
+    switch( encoding ){
+      case PCM_8BIT:
+        result = "PCM_8BIT";
+        break;
+      case PCM_16BIT:
+        result = "PCM_16BIT";
+        break;
+      case PCM_24BIT_PACKED:
+        result = "PCM_24BIT";
+        break;
+      case PCM_32BIT:
+        result = "PCM_32BIT";
+        break;
+      case PCM_FLOAT:
+        result = "PCM_FLOAT";
+        break;
+      case PCM_UNKNOWN:
+        result = "PCM_UNKNOWN";
+        break;
+    }
+
+    return result;
+  }
+
+  std::string getEncodingString(void){
+    return getEncodingString( mEncoding );
+  }
+
 
   CHANNEL getChannels()
   {

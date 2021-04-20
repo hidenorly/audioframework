@@ -18,7 +18,6 @@
 #define __SINK_HPP__
 
 #include <string>
-#include <iostream>
 #include "Buffer.hpp"
 #include "Util.hpp"
 #include "AudioFormat.hpp"

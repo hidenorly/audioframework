@@ -16,7 +16,6 @@
 
 
 #include "Buffer.hpp"
-#include <iostream>
 
 AudioBuffer::AudioBuffer(AudioFormat format, int samples)
 {

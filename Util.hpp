@@ -28,15 +28,15 @@ public:
   {
     AudioFormat format = buf.getAudioFormat();
     std::cout << "sampling rate:" << format.getSamplingRate() <<
-      " format: " << format.getEncodingString() <<
-      " channels: " << (int)format.getNumberOfChannels() <<
-      " samples: " << buf.getSamples() <<
+      " format:" << format.getEncodingString() <<
+      " channels:" << (int)format.getNumberOfChannels() <<
+      " samples:" << buf.getSamples() <<
       std::endl;
 
     ByteBuffer rawBuffer = buf.getRawBuffer();
     for(uint8_t aData : rawBuffer){
-      std::cout << (int)aData << ",";
-//      std::cout << std::hex << (int)aData << ","; // std::hex causes data loss.
+//      std::cout << (int)aData << ",";
+      std::cout << std::hex << (int)aData << ",";
     }
     std::cout << std::endl;
   }

@@ -19,7 +19,6 @@
 
 #include "Buffer.hpp"
 #include "AudioFormat.hpp"
-#include <iostream>
 #include <vector>
 
 class Filter : public AudioBase

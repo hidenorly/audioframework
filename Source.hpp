@@ -18,7 +18,6 @@
 #define __SOURCE_HPP__
 
 #include <string>
-#include <iostream>
 #include "Buffer.hpp"
 #include "AudioFormat.hpp"
 
@@ -29,8 +28,9 @@ public:
   virtual ~Source(){};
   virtual void read(AudioBuffer& buf){
     ByteBuffer rawBuffer = buf.getRawBuffer();
-    ByteBuffer bufZero(rawBuffer.size(), 0);
+    ByteBuffer bufZero(rawBuffer.size(), 128);
     rawBuffer = bufZero;
+    buf.setRawBuffer( rawBuffer );
   };
   virtual std::string toString(void){return "Source";};
 };

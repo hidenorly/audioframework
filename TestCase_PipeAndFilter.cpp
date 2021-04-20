@@ -88,6 +88,7 @@ TEST_F(TestCase_PipeAndFilter, attachSourceSinkToPipeTest)
   pPipe->addFilterToTail( new FilterIncrement() );
   pPipe->addFilterToTail( new Filter() );
   pPipe->addFilterToTail( new Filter() );
+  pPipe->addFilterToTail( new FilterIncrement() );
   pPipe->dump();
 
   pPipe->run();

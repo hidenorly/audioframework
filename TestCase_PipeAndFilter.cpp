@@ -93,6 +93,9 @@ TEST_F(TestCase_PipeAndFilter, attachSourceSinkToPipeTest)
 
   pPipe->run();
   EXPECT_TRUE(pPipe->isRunning());
+
+  std::this_thread::sleep_for(std::chrono::microseconds(10000));
+
   pPipe->stop();
   EXPECT_FALSE(pPipe->isRunning());
 

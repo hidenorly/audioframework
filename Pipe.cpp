@@ -85,20 +85,26 @@ Source* Pipe::detachSource(void)
 
 void Pipe::run(void)
 {
+  mMutexThreads.lock();
   if( !mbIsRunning ){
-    // TODO : run thread
-    // temporary execute once
-    process();
+    mThreads.push_back( std::thread(_execute, this) );
     mbIsRunning = true;
   }
+  mMutexThreads.unlock();
 }
 
 void Pipe::stop(void)
 {
+  mMutexThreads.lock();
   if( mbIsRunning ){
-    // TODO : stop thread
     mbIsRunning = false;
+    for( std::thread& aThread : mThreads ){
+      if( aThread.joinable() ){
+        aThread.join();
+      }
+    }
   }
+  mMutexThreads.unlock();
 }
 
 bool Pipe::isRunning(void)
@@ -121,27 +127,33 @@ void Pipe::dump(void)
 void Pipe::process(void)
 {
   if(mpSource && mpSink){
-    // tentative code. assume same window size.
-    // TODO : create different thread and connect FIFO buffer for different window size situation
-    AudioFormat usingAudioFormat = getFilterAudioFormat();
+    while(mbIsRunning){
+      // tentative code. assume same window size.
+      // TODO : create different thread and connect FIFO buffer for different window size situation
+      AudioFormat usingAudioFormat = getFilterAudioFormat();
 
-    int samples = (int)( (float)usingAudioFormat.getSamplingRate() * (float)getCommonWindowSizeUsec()/1000000.0f);
+      int samples = (int)( (float)usingAudioFormat.getSamplingRate() * (float)getCommonWindowSizeUsec()/1000000.0f);
 
-    AudioBuffer inBuf(  usingAudioFormat, samples );
-    AudioBuffer outBuf( usingAudioFormat, samples );
+      AudioBuffer inBuf(  usingAudioFormat, samples );
+      AudioBuffer outBuf( usingAudioFormat, samples );
 
-    mpSource->read( inBuf );
+      mpSource->read( inBuf );
 
-    for( Filter* pFilter : mFilters ) {
-      pFilter->process( inBuf, outBuf );
-      inBuf = outBuf;
+      for( Filter* pFilter : mFilters ) {
+        pFilter->process( inBuf, outBuf );
+        inBuf = outBuf;
+      }
+
+      // TODO : May change as directly write to the following buffer from the last filter to avoid the copy.
+      mpSink->write( outBuf );
     }
-
-    // TODO : May change as directly write to the following buffer from the last filter to avoid the copy.
-    mpSink->write( outBuf );
   }
 }
 
+void Pipe::_execute(Pipe* pThis)
+{
+  pThis->process();
+}
 
 AudioFormat Pipe::getFilterAudioFormat(void)
 {

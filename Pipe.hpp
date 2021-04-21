@@ -21,6 +21,8 @@
 #include "Source.hpp"
 #include "Sink.hpp"
 #include <vector>
+#include <mutex>
+#include <thread>
 
 class Pipe
 {
@@ -46,6 +48,7 @@ public:
 protected:
   // Should override process() if you want to support different window size processing by several threads, etc.
   virtual void process(void);
+  static void _execute(Pipe* pThis);
   // Should override getFilterAudioFormat() if you want to use different algorithm to choose using Audioformat
   virtual AudioFormat getFilterAudioFormat(void);
   int getCommonWindowSizeUsec(void);
@@ -53,7 +56,10 @@ protected:
   std::vector<Filter*> mFilters;
   Sink* mpSink;
   Source* mpSource;
-  bool mbIsRunning;
+
+  std::atomic<bool> mbIsRunning;
+  std::vector<std::thread> mThreads;
+  std::mutex mMutexThreads;
 };
 
 #endif /* __PIPE_HPP__ */

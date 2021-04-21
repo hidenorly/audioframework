@@ -32,6 +32,7 @@ Pipe::Pipe():mpSink(nullptr), mpSource(nullptr), mbIsRunning(false)
 Pipe::~Pipe()
 {
   clearFilers();
+  stop();
 }
 
 void Pipe::addFilterToHead(Filter* pFilter)
@@ -103,6 +104,7 @@ void Pipe::stop(void)
         aThread.join();
       }
     }
+    mThreads.clear();
   }
   mMutexThreads.unlock();
 }

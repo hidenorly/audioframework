@@ -47,7 +47,7 @@ void Pipe::addFilterToTail(Filter* pFilter)
 
 void Pipe::clearFilers(void)
 {
-  for( Filter* pFilter : mFilters ) {
+  for( auto& pFilter : mFilters ) {
     delete pFilter;
   }
   mFilters.clear();
@@ -99,7 +99,7 @@ void Pipe::stop(void)
   mMutexThreads.lock();
   if( mbIsRunning ){
     mbIsRunning = false;
-    for( std::thread& aThread : mThreads ){
+    for( auto& aThread : mThreads ){
       if( aThread.joinable() ){
         aThread.join();
       }
@@ -121,7 +121,7 @@ void Pipe::dump(void)
   std::cout << "Sink:" << (mpSink ? mpSink->toString() : "") << std::endl;
 
   std::cout << "Filters:" << std::endl;
-  for( Filter* pFilter : mFilters ) {
+  for( auto& pFilter : mFilters ) {
     std::cout << pFilter << std::endl;
   }
 }
@@ -141,7 +141,7 @@ void Pipe::process(void)
 
       mpSource->read( inBuf );
 
-      for( Filter* pFilter : mFilters ) {
+      for( auto& pFilter : mFilters ) {
         pFilter->process( inBuf, outBuf );
         inBuf = outBuf;
       }
@@ -163,10 +163,10 @@ AudioFormat Pipe::getFilterAudioFormat(void)
   AudioFormat theUsingFormat; // default AudioFormat is set
 
   bool bPossibleToUseTheFormat = true;
-  for( Filter* pFilter : mFilters ) {
+  for( auto& pFilter : mFilters ) {
     std::vector<AudioFormat> formats = pFilter->getSupportedAudioFormats();
     bool bCompatible = false;
-    for( AudioFormat aFormat : formats ){
+    for( auto& aFormat : formats ){
       bCompatible |= theUsingFormat.equal(aFormat);
     }
     bPossibleToUseTheFormat &= bCompatible;
@@ -184,7 +184,7 @@ int Pipe::getCommonWindowSizeUsec(void)
 {
   int result = 1;
 
-  for( Filter* pFilter : mFilters ) {
+  for( auto& pFilter : mFilters ) {
     int windowSizeUsec = pFilter->getRequiredWindowSizeUsec();
     result = std::lcm(result, windowSizeUsec);
   }

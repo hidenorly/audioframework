@@ -26,7 +26,7 @@ public:
   virtual ~FilterIncrement(){};
   virtual void process(AudioBuffer& inBuf, AudioBuffer& outBuf){
     uint8_t* rawOutBuf = outBuf.getRawBufferPointer();
-    for(uint8_t aData : inBuf.getRawBuffer()){
+    for(auto& aData : inBuf.getRawBuffer()){
       *rawOutBuf = (uint8_t)((aData + 1) & 0xFF);
       rawOutBuf++;
     }

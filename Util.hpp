@@ -34,7 +34,7 @@ public:
       std::endl;
 
     ByteBuffer rawBuffer = buf.getRawBuffer();
-    for(uint8_t aData : rawBuffer){
+    for(auto& aData : rawBuffer){
 //      std::cout << (int)aData << ",";
       std::cout << std::hex << (int)aData << ",";
     }

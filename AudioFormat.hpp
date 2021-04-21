@@ -208,7 +208,7 @@ public:
     bool bResult = false;
 
     std::vector<AudioFormat> audioFormats = getSupportedAudioFormats();
-    for(AudioFormat aFormat : audioFormats){
+    for(auto& aFormat : audioFormats){
       bResult |= format.equal(aFormat);
       if( bResult ) break;
     }

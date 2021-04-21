@@ -70,7 +70,7 @@ public:
     bool bResult = false;
 
     std::vector<PRESENTATION> presentations = getAvailablePresentations();
-    for(PRESENTATION aPresentation : presentations){
+    for(auto& aPresentation : presentations){
       bResult |= (aPresentation == presentation);
       if( bResult ) break;
     }

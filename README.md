@@ -11,7 +11,7 @@ under developing. It's in quite early stage.
 # Tentative way to build
 
 ```
-$ g++ -std=c++17 -stdlib=libc++ -pthread -v Pipe.cpp Buffer.cpp TestCase_PipeAndFilter.cpp  -lgtest_main -lgtest; ./a.out
+$ clang++ -std=c++17 -stdlib=libc++ -pthread -v Pipe.cpp Buffer.cpp TestCase_PipeAndFilter.cpp  -lgtest_main -lgtest; ./a.out
 ```
 
 * [] TODO: Makefile will be prepared.

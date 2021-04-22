@@ -43,6 +43,7 @@ public:
   void setAudioFormat( AudioFormat format );
   void resize( int samples );
   void setRawBuffer(ByteBuffer& buf) { mBuf = buf; };
+  void append(AudioBuffer& buf);
 };
 
 #endif /* __BUFFER_HPP__ */

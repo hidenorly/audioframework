@@ -73,3 +73,13 @@ void AudioBuffer::resize( int samples )
   mBuf = zeroBuf;
 }
 
+void AudioBuffer::append(AudioBuffer& buf)
+{
+    ByteBuffer extBuf = buf.getRawBuffer();
+
+    int newSize = extBuf.size() + mBuf.size();
+    mBuf.reserve( newSize );
+
+    std::copy( extBuf.begin(), extBuf.end(), std::back_inserter( mBuf ) );
+}
+

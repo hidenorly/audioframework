@@ -31,16 +31,7 @@ protected:
 public:
   Sink(){};
   virtual ~Sink(){};
-  virtual void write(AudioBuffer& buf){
-    ByteBuffer internalBuffer = mBuf.getRawBuffer();
-    ByteBuffer externalBuffer = buf.getRawBuffer();
-
-    int newSize = externalBuffer.size() + internalBuffer.size();
-    internalBuffer.reserve( newSize );
-
-    std::copy( externalBuffer.begin(), externalBuffer.end(), std::back_inserter( internalBuffer ) );
-    mBuf.setRawBuffer( internalBuffer );
-  };
+  virtual void write(AudioBuffer& buf){ mBuf.append( buf ); };
   virtual std::string toString(void){return "Sink";}
   virtual void dump(void){
     Util::dumpBuffer("Dump Sink data", mBuf);

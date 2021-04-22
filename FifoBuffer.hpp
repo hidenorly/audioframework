@@ -14,23 +14,31 @@
    limitations under the License.
 */
 
-#ifndef __TESTCASE_PIPEANDFILTER_HPP__
-#define __TESTCASE_PIPEANDFILTER_HPP__
+#ifndef __FIFOBUFFER_HPP__
+#define __FIFOBUFFER_HPP__
 
-#include <gtest/gtest.h>
+#include "Buffer.hpp"
+#include "AudioFormat.hpp"
+#include <mutex>
+#include <condition_variable>
 
-class TestCase_PipeAndFilter : public ::testing::Test
+class FifoBuffer
 {
 protected:
-  TestCase_PipeAndFilter();
-  virtual ~TestCase_PipeAndFilter();
-  virtual void SetUp();
-  virtual void TearDown();
+  AudioFormat mFormat;
+  ByteBuffer mBuf;
+  std::mutex mMutex;
+  std::condition_variable mEvent;
+  std::mutex mEventMutex;
 
-  void testAddFilters(void);
-  void testAttachSourceSinkToPipe(void);
+public:
+  FifoBuffer(AudioFormat& format);
+  virtual ~FifoBuffer();
 
-  void testFifoBuffer(void);
+  bool read(AudioBuffer& audioBuf);
+  bool write(AudioBuffer& audioBuf);
+
+  int getBufferedSamples(void);
 };
 
-#endif /* __TESTCASE_PIPEANDFILTER_HPP__ */
+#endif /* __FIFOBUFFER_HPP__ */

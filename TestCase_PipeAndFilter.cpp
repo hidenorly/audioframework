@@ -24,6 +24,7 @@
 #include "Sink.hpp"
 #include "AudioFormat.hpp"
 #include "FilterExample.hpp"
+#include "FifoBuffer.hpp"
 
 #include <iostream>
 
@@ -45,7 +46,7 @@ void TestCase_PipeAndFilter::TearDown()
 }
 
 
-TEST_F(TestCase_PipeAndFilter, AddFiltersTest)
+TEST_F(TestCase_PipeAndFilter, testAddFilters)
 {
   Filter* pFilter1 = new Filter();
   Filter* pFilter2 = new Filter();
@@ -69,7 +70,7 @@ TEST_F(TestCase_PipeAndFilter, AddFiltersTest)
 }
 
 
-TEST_F(TestCase_PipeAndFilter, attachSourceSinkToPipeTest)
+TEST_F(TestCase_PipeAndFilter, testAttachSourceSinkToPipe)
 {
   Pipe* pPipe = new Pipe();
 
@@ -111,6 +112,34 @@ TEST_F(TestCase_PipeAndFilter, attachSourceSinkToPipeTest)
   delete pPipe; pPipe = nullptr;
   delete pSink; pSink = nullptr;
   delete pSource; pSource = nullptr;
+}
+
+TEST_F(TestCase_PipeAndFilter, testFifoBuffer)
+{
+  AudioFormat defaultFormat;
+  FifoBuffer fifoBuf( defaultFormat );
+  int nSize = 256;
+  AudioBuffer readBuf( defaultFormat, nSize );
+  AudioBuffer writeBuf( defaultFormat, nSize );
+
+  EXPECT_TRUE( fifoBuf.write( writeBuf ) );
+  EXPECT_EQ( fifoBuf.getBufferedSamples(), nSize );
+
+  EXPECT_TRUE( fifoBuf.write( writeBuf ) );
+  EXPECT_EQ( fifoBuf.getBufferedSamples(), nSize*2 );
+
+  EXPECT_TRUE( fifoBuf.read( readBuf ) );
+  EXPECT_EQ( fifoBuf.getBufferedSamples(), nSize );
+
+  EXPECT_TRUE( fifoBuf.read( readBuf ) );
+  EXPECT_EQ( fifoBuf.getBufferedSamples(), 0 );
+
+  std::atomic<bool> bResult = false;
+  std::thread thx([&]{ bResult = fifoBuf.read( readBuf );});
+  std::this_thread::sleep_for(std::chrono::microseconds(100000));
+  EXPECT_TRUE( fifoBuf.write( writeBuf ) );
+  thx.join();
+  EXPECT_TRUE( bResult );
 }
 
 int main(int argc, char **argv)

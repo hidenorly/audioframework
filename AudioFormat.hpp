@@ -18,6 +18,7 @@
 #define __AUDIO_FORMAT_HPP__
 
 #include <string>
+#include <vector>
 
 class AudioFormat
 {

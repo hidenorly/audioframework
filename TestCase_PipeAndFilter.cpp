@@ -25,6 +25,7 @@
 #include "AudioFormat.hpp"
 #include "FilterExample.hpp"
 #include "FifoBuffer.hpp"
+#include "InterPipeBridge.hpp"
 
 #include <iostream>
 
@@ -74,9 +75,9 @@ TEST_F(TestCase_PipeAndFilter, testAttachSourceSinkToPipe)
 {
   Pipe* pPipe = new Pipe();
 
-  Sink* pSink = new Sink();
+  ISink* pSink = new Sink();
   pSink->setAudioFormat( AudioFormat(
-    AudioFormat::ENCODING::PCM_16BIT, 
+    AudioFormat::ENCODING::PCM_16BIT,
     AudioFormat::SAMPLING_RATE::SAMPLING_RATE_48_KHZ,
     AudioFormat::CHANNEL::CHANNEL_STEREO
     )
@@ -103,7 +104,7 @@ TEST_F(TestCase_PipeAndFilter, testAttachSourceSinkToPipe)
   pSink = pPipe->detachSink();
   EXPECT_NE(nullptr, pSink);
   pSink->dump();
-  Source* pSource = pPipe->detachSource();
+  ISource* pSource = pPipe->detachSource();
   EXPECT_NE(nullptr, pSource);
   pPipe->dump();
 
@@ -130,9 +131,11 @@ TEST_F(TestCase_PipeAndFilter, testFifoBuffer)
 
   EXPECT_TRUE( fifoBuf.read( readBuf ) );
   EXPECT_EQ( fifoBuf.getBufferedSamples(), nSize );
+  Util::dumpBuffer("readBuf:", readBuf);
 
   EXPECT_TRUE( fifoBuf.read( readBuf ) );
   EXPECT_EQ( fifoBuf.getBufferedSamples(), 0 );
+  Util::dumpBuffer("readBuf:", readBuf);
 
   std::atomic<bool> bResult = false;
   std::thread thx([&]{ bResult = fifoBuf.read( readBuf );});
@@ -141,6 +144,68 @@ TEST_F(TestCase_PipeAndFilter, testFifoBuffer)
   thx.join();
   EXPECT_TRUE( bResult );
 }
+
+TEST_F(TestCase_PipeAndFilter, testInterPipeBridge)
+{
+  AudioFormat theUsingFormat = AudioFormat();
+  Pipe* pPipe1 = new Pipe();
+  Pipe* pPipe2 = new Pipe();
+  InterPipeBridge interPipe( theUsingFormat );
+
+  // config pipe1
+  EXPECT_EQ( nullptr, pPipe1->attachSource( new Source() ) );
+  pPipe1->attachSink( dynamic_cast<ISink*>(&interPipe) );
+  pPipe1->addFilterToTail( new FilterIncrement() );
+  pPipe1->addFilterToTail( new Filter() );
+
+  // config pipe2
+  EXPECT_EQ( nullptr, pPipe2->attachSource( dynamic_cast<ISource*>(&interPipe) ) );
+  ISink* pSink = new Sink();
+  pSink->setAudioFormat( AudioFormat(
+    AudioFormat::ENCODING::PCM_16BIT,
+    AudioFormat::SAMPLING_RATE::SAMPLING_RATE_48_KHZ,
+    AudioFormat::CHANNEL::CHANNEL_STEREO
+    )
+  );
+  pSink->setPresentation( Sink::PRESENTATION::SPEAKER_STEREO );
+  EXPECT_EQ( nullptr, pPipe2->attachSink( pSink ) );
+  pPipe2->addFilterToTail( new FilterIncrement() );
+  pPipe2->addFilterToTail( new Filter() );
+
+  // run pipe1 & 2
+  pPipe1->run();
+  EXPECT_TRUE(pPipe1->isRunning());
+  pPipe2->run();
+  EXPECT_TRUE(pPipe2->isRunning());
+
+  std::this_thread::sleep_for(std::chrono::microseconds(10000));
+
+  // stop pipe1&2
+  pPipe1->stop();
+  EXPECT_FALSE(pPipe1->isRunning());
+  pPipe2->stop();
+  EXPECT_FALSE(pPipe2->isRunning());
+
+  // clean up
+  ISource* pSource = pPipe1->detachSource();
+  EXPECT_NE(nullptr, pSource);
+  pSink = pPipe2->detachSink();
+  EXPECT_NE(nullptr, pSink);
+
+  // check sink
+  pSink->dump();
+
+  // clean up
+  pPipe1->clearFilers(); // delete filter instances also.
+  pPipe2->clearFilers(); // delete filter instances also.
+
+  delete pPipe2; pPipe2 = nullptr;
+  delete pPipe1; pPipe1 = nullptr;
+
+  delete pSink; pSink = nullptr;
+  delete pSource; pSource = nullptr;
+}
+
 
 int main(int argc, char **argv)
 {

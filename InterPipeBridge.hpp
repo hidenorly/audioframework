@@ -14,33 +14,33 @@
    limitations under the License.
 */
 
-#ifndef __FIFOBUFFER_HPP__
-#define __FIFOBUFFER_HPP__
+#ifndef __INTERPIPEBRIDGE_HPP__
+#define __INTERPIPEBRIDGE_HPP__
 
 #include "Buffer.hpp"
+#include "FifoBuffer.hpp"
 #include "AudioFormat.hpp"
-#include <mutex>
-#include <condition_variable>
+#include "Sink.hpp"
+#include "Source.hpp"
+#include <string>
 
-class FifoBuffer
+class InterPipeBridge : public ISink, public ISource, public AudioBase
 {
 protected:
-  AudioFormat mFormat;
-  ByteBuffer mBuf;
-  std::mutex mMutex;
-  std::condition_variable mEvent;
-  std::mutex mEventMutex;
+  FifoBuffer mFifoBuffer;
 
 public:
-  FifoBuffer(AudioFormat& format);
-  FifoBuffer(){ FifoBuffer(AudioFormat()); };
-  virtual ~FifoBuffer();
+  InterPipeBridge(AudioFormat& format);
+  virtual ~InterPipeBridge(){};
 
-  bool read(AudioBuffer& audioBuf);
-  bool write(AudioBuffer& audioBuf);
+  virtual void read(AudioBuffer& buf);
+  virtual void write(AudioBuffer& buf);
 
-  int getBufferedSamples(void);
-  AudioFormat getAudioFormat(void){ return mFormat; };
+  virtual void dump(void){};
+  virtual std::string toString(void){return "InterPipeBridge";};
+
+  virtual bool setAudioFormat(AudioFormat audioFormat);
+  virtual AudioFormat getAudioFormat(void);
 };
 
-#endif /* __FIFOBUFFER_HPP__ */
+#endif /* __INTERPIPEBRIDGE_HPP__ */

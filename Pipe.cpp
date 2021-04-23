@@ -53,35 +53,35 @@ void Pipe::clearFilers(void)
   mFilters.clear();
 }
 
-Sink* Pipe::attachSink(Sink* pSink)
+ISink* Pipe::attachSink(ISink* pISink)
 {
-  Sink* pPrevSink = mpSink;
-  mpSink = pSink;
+  ISink* pPrevISink = mpSink;
+  mpSink = pISink;
 
-  return pPrevSink;
+  return pPrevISink;
 }
 
-Sink* Pipe::detachSink(void)
+ISink* Pipe::detachSink(void)
 {
-  Sink* pPrevSink = mpSink;
+  ISink* pPrevISink = mpSink;
   mpSink = nullptr;
 
-  return pPrevSink;
+  return pPrevISink;
 }
 
-Source* Pipe::attachSource(Source* pSource)
+ISource* Pipe::attachSource(ISource* pISource)
 {
-  Source* pPrevSource = mpSource;
-  mpSource = pSource;
-  return pPrevSource;
+  ISource* pPrevISource = mpSource;
+  mpSource = pISource;
+  return pPrevISource;
 }
 
-Source* Pipe::detachSource(void)
+ISource* Pipe::detachSource(void)
 {
-  Source* pPrevSource = mpSource;
+  ISource* pPrevISource = mpSource;
   mpSource = nullptr;
 
-  return pPrevSource;
+  return pPrevISource;
 }
 
 void Pipe::run(void)

@@ -20,8 +20,16 @@
 #include <string>
 #include "Buffer.hpp"
 #include "AudioFormat.hpp"
+#include "PipeAndFilterCommon.hpp"
 
-class Source : public AudioBase
+class ISource : public ISourceSinkCommon
+{
+public:
+  virtual void read(AudioBuffer& buf) = 0;
+  virtual ~ISource(){};
+};
+
+class Source : public AudioBase, public ISource
 {
 public:
   Source(){};

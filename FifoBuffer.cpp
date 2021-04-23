@@ -40,7 +40,7 @@ bool FifoBuffer::read(AudioBuffer& audioBuf)
       if( mBuf.size() >= size ){
         mMutex.lock();
         {
-          readBuffer = ByteBuffer( mBuf.begin(), mBuf.begin()+size-1 );
+          readBuffer = ByteBuffer( mBuf.begin(), mBuf.begin()+size );
           audioBuf.setRawBuffer( readBuffer );
           bReceived = true;
           if( mBuf.size() > size ){

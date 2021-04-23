@@ -33,10 +33,10 @@ public:
   void addFilterToHead(Filter* pFilter);
   void addFilterToTail(Filter* pFilter);
 
-  Sink* attachSink(Sink* pSink);
-  Sink* detachSink(void);
-  Source* attachSource(Source* pSink);
-  Source* detachSource(void);
+  ISink* attachSink(ISink* pSink);
+  ISink* detachSink(void);
+  ISource* attachSource(ISource* pSink);
+  ISource* detachSource(void);
 
   void run(void);
   void stop(void);
@@ -54,8 +54,8 @@ protected:
   int getCommonWindowSizeUsec(void);
 
   std::vector<Filter*> mFilters;
-  Sink* mpSink;
-  Source* mpSource;
+  ISink* mpSink;
+  ISource* mpSource;
 
   std::atomic<bool> mbIsRunning;
   std::vector<std::thread> mThreads;

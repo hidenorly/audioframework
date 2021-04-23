@@ -27,10 +27,10 @@ public:
   static void dumpBuffer(AudioBuffer& buf)
   {
     AudioFormat format = buf.getAudioFormat();
-    std::cout << "sampling rate:" << format.getSamplingRate() <<
+    std::cout << "sampling rate:" << (int)format.getSamplingRate() <<
       " format:" << format.getEncodingString() <<
       " channels:" << (int)format.getNumberOfChannels() <<
-      " samples:" << buf.getSamples() <<
+      " samples:" << (int)buf.getSamples() <<
       std::endl;
 
     ByteBuffer rawBuffer = buf.getRawBuffer();

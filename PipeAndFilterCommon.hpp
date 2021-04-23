@@ -14,24 +14,15 @@
    limitations under the License.
 */
 
-#ifndef __TESTCASE_PIPEANDFILTER_HPP__
-#define __TESTCASE_PIPEANDFILTER_HPP__
+#ifndef __PIPEANDFILTER_COMMON_HPP__
+#define __PIPEANDFILTER_COMMON_HPP__
 
-#include <gtest/gtest.h>
+#include <string>
 
-class TestCase_PipeAndFilter : public ::testing::Test
+class ISourceSinkCommon
 {
-protected:
-  TestCase_PipeAndFilter();
-  virtual ~TestCase_PipeAndFilter();
-  virtual void SetUp();
-  virtual void TearDown();
-
-  void testAddFilters(void);
-  void testAttachSourceSinkToPipe(void);
-
-  void testFifoBuffer(void);
-  void testInterPipeBridge(void);
+public:
+  virtual std::string toString(void){ return std::string("ISourceSinkCommon"); };
 };
 
-#endif /* __TESTCASE_PIPEANDFILTER_HPP__ */
+#endif /* __PIPEANDFILTER_COMMON_HPP__ */

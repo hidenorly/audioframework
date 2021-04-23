@@ -14,24 +14,31 @@
    limitations under the License.
 */
 
-#ifndef __TESTCASE_PIPEANDFILTER_HPP__
-#define __TESTCASE_PIPEANDFILTER_HPP__
+#include "InterPipeBridge.hpp"
 
-#include <gtest/gtest.h>
-
-class TestCase_PipeAndFilter : public ::testing::Test
+InterPipeBridge::InterPipeBridge(AudioFormat& format) : mFifoBuffer(format)
 {
-protected:
-  TestCase_PipeAndFilter();
-  virtual ~TestCase_PipeAndFilter();
-  virtual void SetUp();
-  virtual void TearDown();
 
-  void testAddFilters(void);
-  void testAttachSourceSinkToPipe(void);
+}
 
-  void testFifoBuffer(void);
-  void testInterPipeBridge(void);
-};
 
-#endif /* __TESTCASE_PIPEANDFILTER_HPP__ */
+void InterPipeBridge::read(AudioBuffer& buf)
+{
+  mFifoBuffer.read(buf);
+}
+
+void InterPipeBridge::write(AudioBuffer& buf)
+{
+  mFifoBuffer.write(buf);
+}
+
+bool InterPipeBridge::setAudioFormat(AudioFormat audioFormat)
+{
+  throw std::runtime_error( "setAudioFormat is unsupported" );
+	return false;
+}
+
+AudioFormat InterPipeBridge::getAudioFormat(void)
+{
+  return mFifoBuffer.getAudioFormat();
+}

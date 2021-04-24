@@ -21,16 +21,21 @@
 #include "AudioFormat.hpp"
 #include <vector>
 
-class Filter : public AudioBase
+class IFilter
 {
-protected:
-  const float DEFAULT_WINDOW_SIZE_USEC = 5000; // 5msec
+public:
+  static const int DEFAULT_WINDOW_SIZE_USEC = 5000; // 5msec
 
+  virtual ~IFilter(){};
+  virtual void process(AudioBuffer& inBuf, AudioBuffer& outBuf){ outBuf = inBuf; };
+  virtual int getRequiredWindowSizeUsec(void){ return DEFAULT_WINDOW_SIZE_USEC; };
+};
+
+class Filter : public IFilter, public AudioBase
+{
 public:
   Filter(){};
   virtual ~Filter(){};
-  virtual void process(AudioBuffer& inBuf, AudioBuffer& outBuf){ outBuf = inBuf; };
-  virtual int getRequiredWindowSizeUsec(void){ return DEFAULT_WINDOW_SIZE_USEC; };
   virtual std::vector<AudioFormat> getSupportedAudioFormats(void){
     std::vector<AudioFormat> audioFormats;
     audioFormats.push_back( AudioFormat() );

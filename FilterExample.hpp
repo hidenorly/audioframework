@@ -21,8 +21,11 @@
 
 class FilterIncrement : public Filter
 {
+protected:
+  int mWindowSize;
+
 public:
-  FilterIncrement(){};
+  FilterIncrement(int windowSize = DEFAULT_WINDOW_SIZE_USEC) : mWindowSize(windowSize){};
   virtual ~FilterIncrement(){};
   virtual void process(AudioBuffer& inBuf, AudioBuffer& outBuf){
     uint8_t* rawOutBuf = outBuf.getRawBufferPointer();
@@ -31,6 +34,8 @@ public:
       rawOutBuf++;
     }
   };
+  virtual int getRequiredWindowSizeUsec(void){ return mWindowSize; };
 };
+
 
 #endif /* __FILTER_EXAMPLES_HPP__ */

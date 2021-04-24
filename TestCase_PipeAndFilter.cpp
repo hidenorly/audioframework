@@ -26,6 +26,7 @@
 #include "FilterExample.hpp"
 #include "FifoBuffer.hpp"
 #include "InterPipeBridge.hpp"
+#include "PipeManager.hpp"
 
 #include <iostream>
 
@@ -73,7 +74,7 @@ TEST_F(TestCase_PipeAndFilter, testAddFilters)
 
 TEST_F(TestCase_PipeAndFilter, testAttachSourceSinkToPipe)
 {
-  Pipe* pPipe = new Pipe();
+  IPipe* pPipe = new Pipe();
 
   ISink* pSink = new Sink();
   pSink->setAudioFormat( AudioFormat(
@@ -202,6 +203,49 @@ TEST_F(TestCase_PipeAndFilter, testInterPipeBridge)
   delete pPipe2; pPipe2 = nullptr;
   delete pPipe1; pPipe1 = nullptr;
 
+  delete pSink; pSink = nullptr;
+  delete pSource; pSource = nullptr;
+}
+
+TEST_F(TestCase_PipeAndFilter, testPipeManager)
+{
+  IPipe* pPipe = new PipeManager();
+
+  ISink* pSink = new Sink();
+  pSink->setAudioFormat( AudioFormat(
+    AudioFormat::ENCODING::PCM_16BIT,
+    AudioFormat::SAMPLING_RATE::SAMPLING_RATE_48_KHZ,
+    AudioFormat::CHANNEL::CHANNEL_STEREO
+    )
+  );
+  pSink->setPresentation( Sink::PRESENTATION::SPEAKER_STEREO );
+  EXPECT_EQ( nullptr, pPipe->attachSink( pSink ) );
+
+  EXPECT_EQ( nullptr, pPipe->attachSource( new Source() ) );
+
+  pPipe->addFilterToTail( new FilterIncrement(IFilter::DEFAULT_WINDOW_SIZE_USEC * 2) );
+  pPipe->addFilterToTail( new Filter() );
+  pPipe->addFilterToTail( new Filter() );
+  pPipe->addFilterToTail( new FilterIncrement() );
+
+  pPipe->run();
+  EXPECT_TRUE(pPipe->isRunning());
+
+  std::this_thread::sleep_for(std::chrono::microseconds(10000));
+
+  pPipe->stop();
+  EXPECT_FALSE(pPipe->isRunning());
+
+  pSink = pPipe->detachSink();
+  EXPECT_NE(nullptr, pSink);
+  pSink->dump();
+  ISource* pSource = pPipe->detachSource();
+  EXPECT_NE(nullptr, pSource);
+  pPipe->dump();
+
+  pPipe->clearFilers(); // delete filter instances also.
+
+  delete pPipe; pPipe = nullptr;
   delete pSink; pSink = nullptr;
   delete pSource; pSource = nullptr;
 }

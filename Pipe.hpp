@@ -24,33 +24,58 @@
 #include <mutex>
 #include <thread>
 
-class Pipe
+
+class IPipe
+{
+public:
+  IPipe(){};
+  virtual ~IPipe(){};
+
+  virtual void addFilterToHead(Filter* pFilter) = 0;
+  virtual void addFilterToTail(Filter* pFilter) = 0;
+
+  virtual ISink* attachSink(ISink* pSink) = 0;
+  virtual ISink* detachSink(void) = 0;
+  virtual ISource* attachSource(ISource* pSource) = 0;
+  virtual ISource* detachSource(void) = 0;
+
+  virtual void run(void) = 0;
+  virtual void stop(void) = 0;
+  virtual bool isRunning(void) = 0;
+
+  virtual void dump(void) = 0;
+  virtual void clearFilers(void) = 0;
+  virtual AudioFormat getFilterAudioFormat(void) = 0;
+  virtual int getWindowSizeUsec(void) = 0;
+};
+
+class Pipe : public IPipe
 {
 public:
   Pipe();
   virtual ~Pipe();
 
-  void addFilterToHead(Filter* pFilter);
-  void addFilterToTail(Filter* pFilter);
+  virtual void addFilterToHead(Filter* pFilter);
+  virtual void addFilterToTail(Filter* pFilter);
 
-  ISink* attachSink(ISink* pSink);
-  ISink* detachSink(void);
-  ISource* attachSource(ISource* pSink);
-  ISource* detachSource(void);
+  virtual ISink* attachSink(ISink* pSink);
+  virtual ISink* detachSink(void);
+  virtual ISource* attachSource(ISource* pSource);
+  virtual ISource* detachSource(void);
 
-  void run(void);
-  void stop(void);
-  bool isRunning(void);
+  virtual void run(void);
+  virtual void stop(void);
+  virtual bool isRunning(void);
 
-  void dump(void);
-  void clearFilers(void);
+  virtual void dump(void);
+  virtual void clearFilers(void);
+  virtual AudioFormat getFilterAudioFormat(void);
 
 protected:
   // Should override process() if you want to support different window size processing by several threads, etc.
   virtual void process(void);
   static void _execute(Pipe* pThis);
   // Should override getFilterAudioFormat() if you want to use different algorithm to choose using Audioformat
-  virtual AudioFormat getFilterAudioFormat(void);
   int getCommonWindowSizeUsec(void);
 
   std::vector<Filter*> mFilters;
@@ -60,6 +85,9 @@ protected:
   std::atomic<bool> mbIsRunning;
   std::vector<std::thread> mThreads;
   std::mutex mMutexThreads;
+
+public:
+  virtual int getWindowSizeUsec(void){ return getCommonWindowSizeUsec(); };
 };
 
 #endif /* __PIPE_HPP__ */

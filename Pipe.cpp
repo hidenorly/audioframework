@@ -116,7 +116,6 @@ bool Pipe::isRunning(void)
 
 void Pipe::dump(void)
 {
-  std::cout << std::endl;
   std::cout << "Source:" << (mpSource ? mpSource->toString() : "") << std::endl;
   std::cout << "Sink:" << (mpSink ? mpSink->toString() : "") << std::endl;
 
@@ -124,6 +123,7 @@ void Pipe::dump(void)
   for( auto& pFilter : mFilters ) {
     std::cout << pFilter << std::endl;
   }
+  std::cout << std::endl;
 }
 
 void Pipe::process(void)

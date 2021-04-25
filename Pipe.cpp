@@ -130,8 +130,6 @@ void Pipe::process(void)
 {
   if(mpSource && mpSink){
     while(mbIsRunning){
-      // tentative code. assume same window size.
-      // TODO : create different thread and connect FIFO buffer for different window size situation
       AudioFormat usingAudioFormat = getFilterAudioFormat();
 
       int samples = (int)( (float)usingAudioFormat.getSamplingRate() * (float)getCommonWindowSizeUsec()/1000000.0f);

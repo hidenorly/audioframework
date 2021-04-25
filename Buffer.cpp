@@ -59,6 +59,12 @@ int AudioBuffer::getSamples(void)
   return mBuf.size() / mFormat.getChannelsSampleByte();
 }
 
+int AudioBuffer::getWindowSizeUsec(void)
+{
+  return 1000 * getSamples() / mFormat.getSamplingRate();
+}
+
+
 void AudioBuffer::setAudioFormat( AudioFormat format )
 {
   int samples = getSamples();

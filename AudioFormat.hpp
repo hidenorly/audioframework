@@ -125,11 +125,11 @@ public:
 
 protected:
   ENCODING mEncoding;
-  SAMPLING_RATE mSamplingRate;
+  int mSamplingRate;
   CHANNEL mChannel;
 
 public:
-  AudioFormat(ENCODING encoding = ENCODING_DEFAULT, SAMPLING_RATE samplingRate = SAMPLING_RATE_DEFAULT, CHANNEL channel = CHANNEL_DEFAULT):mEncoding(encoding),mSamplingRate(samplingRate),mChannel(channel){};
+  AudioFormat(ENCODING encoding = ENCODING_DEFAULT, int samplingRate = SAMPLING_RATE_DEFAULT, CHANNEL channel = CHANNEL_DEFAULT):mEncoding(encoding),mSamplingRate(samplingRate),mChannel(channel){};
   virtual ~AudioFormat(){};
 
   ENCODING getEncoding(void)

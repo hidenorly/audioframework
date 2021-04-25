@@ -36,6 +36,7 @@ public:
 
   AudioFormat getAudioFormat(void){ return mFormat; };
   int getSamples(void);
+  int getWindowSizeUsec(void);
   uint8_t* getRawBufferPointer(void){ return mBuf.data(); };
   ByteBuffer& getRawBuffer(void){ return mBuf; };
   AudioBuffer& operator=(AudioBuffer& buf);

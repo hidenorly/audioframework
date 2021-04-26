@@ -28,21 +28,25 @@ public:
   static void convertPcm8ToPcm32(uint8_t* pSrc, uint32_t* pDst, int nSamples = 1);
   static void convertPcm8ToFloat(uint8_t* pSrc, float* pDst, int nSamples = 1);
 
+  // from Pcm16
   static void convertPcm16ToPcm8(uint16_t* pSrc, uint8_t* pDst, int nSamples = 1);
   static void convertPcm16ToPcm24(uint16_t* pSrc, uint8_t* pDst, int nSamples = 1);
   static void convertPcm16ToPcm32(uint16_t* pSrc, uint32_t* pDst, int nSamples = 1);
   static void convertPcm16ToFloat(uint16_t* pSrc, float* pDst, int nSamples = 1);
 
+  // from Pcm24
   static void convertPcm24ToPcm8(uint8_t* pSrc, uint8_t* pDst, int nSamples = 1);
   static void convertPcm24ToPcm16(uint8_t* pSrc, uint16_t* pDst, int nSamples = 1);
   static void convertPcm24ToPcm32(uint8_t* pSrc, uint32_t* pDst, int nSamples = 1);
   static void convertPcm24ToFloat(uint8_t* pSrc, float* pDst, int nSamples = 1);
 
+  // from Pcm32
   static void convertPcm32ToPcm8(uint32_t* pSrc, uint8_t* pDst, int nSamples = 1);
   static void convertPcm32ToPcm24(uint32_t* pSrc, uint8_t* pDst, int nSamples = 1);
   static void convertPcm32ToPcm16(uint32_t* pSrc, uint16_t* pDst, int nSamples = 1);
   static void convertPcm32ToFloat(uint32_t* pSrc, float* pDst, int nSamples = 1);
 
+  // from PcmFloat
   static void convertFloatToPcm8(float* pSrc, uint8_t* pDst, int nSamples = 1);
   static void convertFloatToPcm24(float* pSrc, uint8_t* pDst, int nSamples = 1);
   static void convertFloatToPcm16(float* pSrc, uint16_t* pDst, int nSamples = 1);

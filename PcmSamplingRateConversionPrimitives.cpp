@@ -17,6 +17,14 @@
 #include "PcmSamplingRateConversionPrimitives.hpp"
 
 // TODO: rewrite with template
+// DO NOT USE THIS TINY SRC in the production device
+// SHOULD REPLACE WITH HIGH QUALITY SRC
+
+#ifndef USE_TINY_SRC_IMPL
+  #define USE_TINY_SRC_IMPL 1
+#endif /* USE_TINY_SRC_IMPL */
+
+#if USE_TINY_SRC_IMPL
 
 bool PcmSamplingRateConvert::convert(uint8_t* pSrc, uint8_t* pDst, int32_t srcRate, int32_t dstRate, int nSamples)
 {
@@ -82,3 +90,5 @@ bool PcmSamplingRateConvert::convert(float* pSrc, float* pDst, int32_t srcRate, 
   }
   return true;
 }
+
+#endif /* USE_TINY_SRC_IMPL */

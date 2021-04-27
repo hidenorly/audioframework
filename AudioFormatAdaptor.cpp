@@ -59,120 +59,58 @@ bool AudioFormatAdaptor::encodingConversion(AudioBuffer& srcBuf, AudioBuffer& ds
 
   assert(nSrcSamples == nDstSamples);
 
-  bool bNotHandle = false;
+  struct CONVERT_FUNC_TABLE
+  {
+  public:
+    AudioFormat::ENCODING srcEncoding;
+    AudioFormat::ENCODING dstEncoding;
+    void (*convert)(uint8_t* pSrc, uint8_t* pDst, int nSamples);
 
-  switch( srcFormat.getEncoding() ){
-    case AudioFormat::ENCODING::PCM_8BIT:
-      switch( dstEncoding ){
-        case AudioFormat::ENCODING::PCM_8BIT:
-        case AudioFormat::ENCODING::PCM_UNKNOWN:
-          bNotHandle = true;
-          break;
-        case AudioFormat::ENCODING::PCM_16BIT:
-          PcmFormatConvert::convertPcm8ToPcm16( srcRawBuf, reinterpret_cast<uint16_t*>(dstRawBuf), nSrcSamples );
-          break;
-        case AudioFormat::ENCODING::PCM_24BIT_PACKED:
-          PcmFormatConvert::convertPcm8ToPcm24( srcRawBuf, reinterpret_cast<uint8_t*>(dstRawBuf), nSrcSamples );
-          break;
-        case AudioFormat::ENCODING::PCM_32BIT:
-          PcmFormatConvert::convertPcm8ToPcm32( srcRawBuf, reinterpret_cast<uint32_t*>(dstRawBuf), nSrcSamples );
-          break;
-        case AudioFormat::ENCODING::PCM_FLOAT:
-          PcmFormatConvert::convertPcm8ToFloat( srcRawBuf, reinterpret_cast<float*>(dstRawBuf), nSrcSamples );
-          break;
-      }
-      break;
+    CONVERT_FUNC_TABLE(AudioFormat::ENCODING srcEncoding, AudioFormat::ENCODING dstEncoding, void (*convert)(uint8_t* pSrc, uint8_t* pDst, int nSamples)):srcEncoding(srcEncoding),dstEncoding(dstEncoding),convert(convert){};
+  };
 
-    case AudioFormat::ENCODING::PCM_16BIT:
-      switch( dstEncoding ){
-        case AudioFormat::ENCODING::PCM_8BIT:
-          PcmFormatConvert::convertPcm16ToPcm8( reinterpret_cast<uint16_t*>(srcRawBuf), reinterpret_cast<uint8_t*>(dstRawBuf), nSrcSamples );
-          break;
-        case AudioFormat::ENCODING::PCM_16BIT:
-        case AudioFormat::ENCODING::PCM_UNKNOWN:
-          bNotHandle = true;
-          break;
-        case AudioFormat::ENCODING::PCM_24BIT_PACKED:
-          PcmFormatConvert::convertPcm16ToPcm24( reinterpret_cast<uint16_t*>(srcRawBuf), reinterpret_cast<uint8_t*>(dstRawBuf), nSrcSamples );
-          break;
-        case AudioFormat::ENCODING::PCM_32BIT:
-          PcmFormatConvert::convertPcm16ToPcm32( reinterpret_cast<uint16_t*>(srcRawBuf), reinterpret_cast<uint32_t*>(dstRawBuf), nSrcSamples );
-          break;
-        case AudioFormat::ENCODING::PCM_FLOAT:
-          PcmFormatConvert::convertPcm16ToFloat( reinterpret_cast<uint16_t*>(srcRawBuf), reinterpret_cast<float*>(dstRawBuf), nSrcSamples );
-          break;
-      }
-      break;
+  static CONVERT_FUNC_TABLE convertFuncTable[]=
+  {
+    CONVERT_FUNC_TABLE(AudioFormat::ENCODING::PCM_8BIT, AudioFormat::ENCODING::PCM_16BIT, PcmFormatConvert::convertPcm8ToPcm16),
+    CONVERT_FUNC_TABLE(AudioFormat::ENCODING::PCM_8BIT, AudioFormat::ENCODING::PCM_24BIT_PACKED, PcmFormatConvert::convertPcm8ToPcm24),
+    CONVERT_FUNC_TABLE(AudioFormat::ENCODING::PCM_8BIT, AudioFormat::ENCODING::PCM_32BIT, PcmFormatConvert::convertPcm8ToPcm32),
+    CONVERT_FUNC_TABLE(AudioFormat::ENCODING::PCM_8BIT, AudioFormat::ENCODING::PCM_FLOAT, PcmFormatConvert::convertPcm8ToFloat),
 
-    case AudioFormat::ENCODING::PCM_24BIT_PACKED:
-      switch( dstEncoding ){
-        case AudioFormat::ENCODING::PCM_8BIT:
-          PcmFormatConvert::convertPcm24ToPcm8( reinterpret_cast<uint8_t*>(srcRawBuf), reinterpret_cast<uint8_t*>(dstRawBuf), nSrcSamples );
-          break;
-        case AudioFormat::ENCODING::PCM_16BIT:
-          PcmFormatConvert::convertPcm24ToPcm16( reinterpret_cast<uint8_t*>(srcRawBuf), reinterpret_cast<uint16_t*>(dstRawBuf), nSrcSamples );
-        break;
-        case AudioFormat::ENCODING::PCM_UNKNOWN:
-        case AudioFormat::ENCODING::PCM_24BIT_PACKED:
-          bNotHandle = true;
-          break;
-        case AudioFormat::ENCODING::PCM_32BIT:
-          PcmFormatConvert::convertPcm24ToPcm32( reinterpret_cast<uint8_t*>(srcRawBuf), reinterpret_cast<uint32_t*>(dstRawBuf), nSrcSamples );
-          break;
-        case AudioFormat::ENCODING::PCM_FLOAT:
-          PcmFormatConvert::convertPcm24ToFloat( reinterpret_cast<uint8_t*>(srcRawBuf), reinterpret_cast<float*>(dstRawBuf), nSrcSamples );
-          break;
-      }
-      break;
+    CONVERT_FUNC_TABLE(AudioFormat::ENCODING::PCM_16BIT, AudioFormat::ENCODING::PCM_8BIT, PcmFormatConvert::convertPcm16ToPcm8),
+    CONVERT_FUNC_TABLE(AudioFormat::ENCODING::PCM_16BIT, AudioFormat::ENCODING::PCM_24BIT_PACKED, PcmFormatConvert::convertPcm16ToPcm24),
+    CONVERT_FUNC_TABLE(AudioFormat::ENCODING::PCM_16BIT, AudioFormat::ENCODING::PCM_32BIT, PcmFormatConvert::convertPcm16ToPcm32),
+    CONVERT_FUNC_TABLE(AudioFormat::ENCODING::PCM_16BIT, AudioFormat::ENCODING::PCM_FLOAT, PcmFormatConvert::convertPcm16ToFloat),
 
-    case AudioFormat::ENCODING::PCM_32BIT:
-      switch( dstEncoding ){
-        case AudioFormat::ENCODING::PCM_8BIT:
-          PcmFormatConvert::convertPcm32ToPcm8( reinterpret_cast<uint32_t*>(srcRawBuf), reinterpret_cast<uint8_t*>(dstRawBuf), nSrcSamples );
-          break;
-        case AudioFormat::ENCODING::PCM_16BIT:
-          PcmFormatConvert::convertPcm32ToPcm16( reinterpret_cast<uint32_t*>(srcRawBuf), reinterpret_cast<uint16_t*>(dstRawBuf), nSrcSamples );
-          break;
-        case AudioFormat::ENCODING::PCM_24BIT_PACKED:
-          PcmFormatConvert::convertPcm32ToPcm24( reinterpret_cast<uint32_t*>(srcRawBuf), reinterpret_cast<uint8_t*>(dstRawBuf), nSrcSamples );
-          break;
-        case AudioFormat::ENCODING::PCM_UNKNOWN:
-        case AudioFormat::ENCODING::PCM_32BIT:
-          bNotHandle = true;
-          break;
-        case AudioFormat::ENCODING::PCM_FLOAT:
-          PcmFormatConvert::convertPcm32ToFloat( reinterpret_cast<uint32_t*>(srcRawBuf), reinterpret_cast<float*>(dstRawBuf), nSrcSamples );
-          break;
-      }
-      break;
+    CONVERT_FUNC_TABLE(AudioFormat::ENCODING::PCM_24BIT_PACKED, AudioFormat::ENCODING::PCM_8BIT, PcmFormatConvert::convertPcm24ToPcm8),
+    CONVERT_FUNC_TABLE(AudioFormat::ENCODING::PCM_24BIT_PACKED, AudioFormat::ENCODING::PCM_16BIT, PcmFormatConvert::convertPcm24ToPcm16),
+    CONVERT_FUNC_TABLE(AudioFormat::ENCODING::PCM_24BIT_PACKED, AudioFormat::ENCODING::PCM_32BIT, PcmFormatConvert::convertPcm24ToPcm32),
+    CONVERT_FUNC_TABLE(AudioFormat::ENCODING::PCM_24BIT_PACKED, AudioFormat::ENCODING::PCM_FLOAT, PcmFormatConvert::convertPcm24ToFloat),
 
-    case AudioFormat::ENCODING::PCM_FLOAT:
-      switch( dstEncoding ){
-        case AudioFormat::ENCODING::PCM_8BIT:
-          PcmFormatConvert::convertFloatToPcm8( reinterpret_cast<float*>(srcRawBuf), reinterpret_cast<uint8_t*>(dstRawBuf), nSrcSamples );
-          break;
-        case AudioFormat::ENCODING::PCM_16BIT:
-          PcmFormatConvert::convertFloatToPcm16( reinterpret_cast<float*>(srcRawBuf), reinterpret_cast<uint16_t*>(dstRawBuf), nSrcSamples );
-          break;
-        case AudioFormat::ENCODING::PCM_24BIT_PACKED:
-          PcmFormatConvert::convertFloatToPcm24( reinterpret_cast<float*>(srcRawBuf), reinterpret_cast<uint8_t*>(dstRawBuf), nSrcSamples );
-          break;
-        case AudioFormat::ENCODING::PCM_32BIT:
-          PcmFormatConvert::convertFloatToPcm32( reinterpret_cast<float*>(srcRawBuf), reinterpret_cast<uint32_t*>(dstRawBuf), nSrcSamples );
-          break;
-        case AudioFormat::ENCODING::PCM_UNKNOWN:
-        case AudioFormat::ENCODING::PCM_FLOAT:
-          bNotHandle = true;
-          break;
-      }
-      break;
+    CONVERT_FUNC_TABLE(AudioFormat::ENCODING::PCM_32BIT, AudioFormat::ENCODING::PCM_8BIT, PcmFormatConvert::convertPcm32ToPcm8),
+    CONVERT_FUNC_TABLE(AudioFormat::ENCODING::PCM_32BIT, AudioFormat::ENCODING::PCM_16BIT, PcmFormatConvert::convertPcm32ToPcm16),
+    CONVERT_FUNC_TABLE(AudioFormat::ENCODING::PCM_32BIT, AudioFormat::ENCODING::PCM_24BIT_PACKED, PcmFormatConvert::convertPcm32ToPcm24),
+    CONVERT_FUNC_TABLE(AudioFormat::ENCODING::PCM_32BIT, AudioFormat::ENCODING::PCM_FLOAT, PcmFormatConvert::convertPcm32ToFloat),
 
-    case AudioFormat::ENCODING::PCM_UNKNOWN:
-      bNotHandle = true;
+    CONVERT_FUNC_TABLE(AudioFormat::ENCODING::PCM_FLOAT, AudioFormat::ENCODING::PCM_8BIT, PcmFormatConvert::convertFloatToPcm8),
+    CONVERT_FUNC_TABLE(AudioFormat::ENCODING::PCM_FLOAT, AudioFormat::ENCODING::PCM_16BIT, PcmFormatConvert::convertFloatToPcm16),
+    CONVERT_FUNC_TABLE(AudioFormat::ENCODING::PCM_FLOAT, AudioFormat::ENCODING::PCM_24BIT_PACKED, PcmFormatConvert::convertFloatToPcm24),
+    CONVERT_FUNC_TABLE(AudioFormat::ENCODING::PCM_FLOAT, AudioFormat::ENCODING::PCM_32BIT, PcmFormatConvert::convertFloatToPcm32),
+
+    CONVERT_FUNC_TABLE(AudioFormat::ENCODING::PCM_UNKNOWN, AudioFormat::ENCODING::PCM_UNKNOWN, nullptr)
+  };
+
+  CONVERT_FUNC_TABLE* pSelectedFunc = nullptr;
+  AudioFormat::ENCODING srcEncoding = srcFormat.getEncoding();
+  for(int i=0; (convertFuncTable[i].srcEncoding!=AudioFormat::ENCODING::PCM_UNKNOWN) && (convertFuncTable[i].dstEncoding!=AudioFormat::ENCODING::PCM_UNKNOWN) && (convertFuncTable[i].convert != nullptr); i++){
+    if( (convertFuncTable[i].srcEncoding == srcEncoding ) && (convertFuncTable[i].dstEncoding == dstEncoding) ){
+      pSelectedFunc = &convertFuncTable[i];
       break;
+    }
   }
 
-  if( bNotHandle ){
+  if( pSelectedFunc && pSelectedFunc->convert ){
+    pSelectedFunc->convert( srcRawBuf, dstRawBuf, nSrcSamples);
+  } else {
     dstBuf = srcBuf;
   }
 

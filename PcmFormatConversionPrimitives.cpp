@@ -17,6 +17,10 @@
 #include "PcmFormatConversionPrimitives.hpp"
 
 // from Pcm8
+void PcmFormatConvert::convertPcm8ToPcm16(uint8_t* pSrc, uint8_t* pDst, int nSamples){ PcmFormatConvert::convertPcm8ToPcm16(pSrc, reinterpret_cast<uint16_t*>(pDst), nSamples); }
+void PcmFormatConvert::convertPcm8ToPcm32(uint8_t* pSrc, uint8_t* pDst, int nSamples){ PcmFormatConvert::convertPcm8ToPcm32(pSrc, reinterpret_cast<uint32_t*>(pDst), nSamples); }
+void PcmFormatConvert::convertPcm8ToFloat(uint8_t* pSrc, uint8_t* pDst, int nSamples){ PcmFormatConvert::convertPcm8ToFloat(pSrc, reinterpret_cast<float*>(pDst), nSamples); }
+
 void PcmFormatConvert::convertPcm8ToPcm16(uint8_t* pSrc, uint16_t* pDst, int nSamples)
 {
   for(int i=0; i<nSamples; i++){
@@ -48,6 +52,11 @@ void PcmFormatConvert::convertPcm8ToFloat(uint8_t* pSrc, float* pDst, int nSampl
 }
 
 // from Pcm16
+void PcmFormatConvert::convertPcm16ToPcm8(uint8_t* pSrc, uint8_t* pDst, int nSamples){ PcmFormatConvert::convertPcm16ToPcm8(reinterpret_cast<uint16_t*>(pSrc), pDst, nSamples); }
+void PcmFormatConvert::convertPcm16ToPcm24(uint8_t* pSrc, uint8_t* pDst, int nSamples){ PcmFormatConvert::convertPcm16ToPcm24(reinterpret_cast<uint16_t*>(pSrc), pDst, nSamples); }
+void PcmFormatConvert::convertPcm16ToPcm32(uint8_t* pSrc, uint8_t* pDst, int nSamples){ PcmFormatConvert::convertPcm16ToPcm32(reinterpret_cast<uint16_t*>(pSrc), reinterpret_cast<uint32_t*>(pDst), nSamples); }
+void PcmFormatConvert::convertPcm16ToFloat(uint8_t* pSrc, uint8_t* pDst, int nSamples){ PcmFormatConvert::convertPcm16ToFloat(reinterpret_cast<uint16_t*>(pSrc), reinterpret_cast<float*>(pDst), nSamples); }
+
 void PcmFormatConvert::convertPcm16ToPcm8(uint16_t* pSrc, uint8_t* pDst, int nSamples)
 {
   for(int i=0; i<nSamples; i++){
@@ -79,6 +88,10 @@ void PcmFormatConvert::convertPcm16ToFloat(uint16_t* pSrc, float* pDst, int nSam
 }
 
 // from pcm24
+void PcmFormatConvert::convertPcm24ToPcm16(uint8_t* pSrc, uint8_t* pDst, int nSamples){ PcmFormatConvert::convertPcm24ToPcm16(pSrc, reinterpret_cast<uint16_t*>(pDst), nSamples); }
+void PcmFormatConvert::convertPcm24ToPcm32(uint8_t* pSrc, uint8_t* pDst, int nSamples){ PcmFormatConvert::convertPcm24ToPcm32(pSrc, reinterpret_cast<uint32_t*>(pDst), nSamples); }
+void PcmFormatConvert::convertPcm24ToFloat(uint8_t* pSrc, uint8_t* pDst, int nSamples){ PcmFormatConvert::convertPcm24ToFloat(pSrc, reinterpret_cast<float*>(pDst), nSamples); }
+
 void PcmFormatConvert::convertPcm24ToPcm8(uint8_t* pSrc, uint8_t* pDst, int nSamples)
 {
   for(int i=0; i<nSamples; i++){
@@ -117,6 +130,11 @@ void PcmFormatConvert::convertPcm24ToFloat(uint8_t* pSrc, float* pDst, int nSamp
 
 
 // from pcm32
+void PcmFormatConvert::convertPcm32ToPcm8(uint8_t* pSrc, uint8_t* pDst, int nSamples){ PcmFormatConvert::convertPcm32ToPcm8(reinterpret_cast<uint32_t*>(pSrc), pDst, nSamples); }
+void PcmFormatConvert::convertPcm32ToPcm24(uint8_t* pSrc, uint8_t* pDst, int nSamples){ PcmFormatConvert::convertPcm32ToPcm24(reinterpret_cast<uint32_t*>(pSrc), pDst, nSamples); }
+void PcmFormatConvert::convertPcm32ToPcm16(uint8_t* pSrc, uint8_t* pDst, int nSamples){ PcmFormatConvert::convertPcm32ToPcm16(reinterpret_cast<uint32_t*>(pSrc), reinterpret_cast<uint16_t*>(pDst), nSamples); }
+void PcmFormatConvert::convertPcm32ToFloat(uint8_t* pSrc, uint8_t* pDst, int nSamples){ PcmFormatConvert::convertPcm32ToFloat(reinterpret_cast<uint32_t*>(pSrc), reinterpret_cast<float*>(pDst), nSamples); }
+
 void PcmFormatConvert::convertPcm32ToPcm8(uint32_t* pSrc, uint8_t* pDst, int nSamples)
 {
   for(int i=0; i<nSamples; i++){
@@ -151,6 +169,11 @@ void PcmFormatConvert::convertPcm32ToFloat(uint32_t* pSrc, float* pDst, int nSam
 
 
 // from float32
+void PcmFormatConvert::convertFloatToPcm8(uint8_t* pSrc, uint8_t* pDst, int nSamples){ PcmFormatConvert::convertFloatToPcm8(reinterpret_cast<float*>(pSrc), pDst, nSamples); }
+void PcmFormatConvert::convertFloatToPcm24(uint8_t* pSrc, uint8_t* pDst, int nSamples){ PcmFormatConvert::convertFloatToPcm24(reinterpret_cast<float*>(pSrc), pDst, nSamples); }
+void PcmFormatConvert::convertFloatToPcm16(uint8_t* pSrc, uint8_t* pDst, int nSamples){ PcmFormatConvert::convertFloatToPcm16(reinterpret_cast<float*>(pSrc), reinterpret_cast<uint16_t*>(pDst), nSamples); }
+void PcmFormatConvert::convertFloatToPcm32(uint8_t* pSrc, uint8_t* pDst, int nSamples){ PcmFormatConvert::convertFloatToPcm32(reinterpret_cast<float*>(pSrc), reinterpret_cast<uint32_t*>(pDst), nSamples); }
+
 void PcmFormatConvert::convertFloatToPcm8(float* pSrc, uint8_t* pDst, int nSamples)
 {
   for(int i=0; i<nSamples; i++){

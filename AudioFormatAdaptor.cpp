@@ -109,7 +109,7 @@ bool AudioFormatAdaptor::encodingConversion(AudioBuffer& srcBuf, AudioBuffer& ds
   }
 
   if( pSelectedFunc && pSelectedFunc->convert ){
-    pSelectedFunc->convert( srcRawBuf, dstRawBuf, nSrcSamples);
+    pSelectedFunc->convert( srcRawBuf, dstRawBuf, nSrcSamples );
   } else {
     dstBuf = srcBuf;
   }

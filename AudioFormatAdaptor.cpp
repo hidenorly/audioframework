@@ -135,30 +135,30 @@ bool AudioFormatAdaptor::samplingRateConversion(AudioBuffer& srcBuf, AudioBuffer
 
   int nSamples = (srcSamplingRate > dstSamplingRate) ? nSrcSamples : nDstSamples;
 
-  bool bNotHandle = false;
+  bool bHandled = false;
 
   switch( srcFormat.getEncoding() ){
     case AudioFormat::ENCODING::PCM_8BIT:
-      bNotHandle = !PcmSamplingRateConvert::convert(srcRawBuf, dstRawBuf, srcFormat.getSamplingRate(), dstSamplingRate, nSamples);
+      bHandled = PcmSamplingRateConvert::convert(srcRawBuf, dstRawBuf, srcFormat.getSamplingRate(), dstSamplingRate, nSamples);
       break;
     case AudioFormat::ENCODING::PCM_16BIT:
-      bNotHandle = !PcmSamplingRateConvert::convert(reinterpret_cast<uint16_t*>(srcRawBuf), reinterpret_cast<uint16_t*>(dstRawBuf), srcFormat.getSamplingRate(), dstSamplingRate, nSamples);
+      bHandled = PcmSamplingRateConvert::convert(reinterpret_cast<uint16_t*>(srcRawBuf), reinterpret_cast<uint16_t*>(dstRawBuf), srcFormat.getSamplingRate(), dstSamplingRate, nSamples);
       break;
     case AudioFormat::ENCODING::PCM_32BIT:
-      bNotHandle = !PcmSamplingRateConvert::convert(reinterpret_cast<uint32_t*>(srcRawBuf), reinterpret_cast<uint32_t*>(dstRawBuf), srcFormat.getSamplingRate(), dstSamplingRate, nSamples);
+      bHandled = PcmSamplingRateConvert::convert(reinterpret_cast<uint32_t*>(srcRawBuf), reinterpret_cast<uint32_t*>(dstRawBuf), srcFormat.getSamplingRate(), dstSamplingRate, nSamples);
       break;
     case AudioFormat::ENCODING::PCM_FLOAT:
-      bNotHandle = !PcmSamplingRateConvert::convert(reinterpret_cast<float*>(srcRawBuf), reinterpret_cast<float*>(dstRawBuf), srcFormat.getSamplingRate(), dstSamplingRate, nSamples);
+      bHandled = PcmSamplingRateConvert::convert(reinterpret_cast<float*>(srcRawBuf), reinterpret_cast<float*>(dstRawBuf), srcFormat.getSamplingRate(), dstSamplingRate, nSamples);
       break;
     case AudioFormat::ENCODING::PCM_24BIT_PACKED:
-      bNotHandle = !PcmSamplingRateConvert::convert24(srcRawBuf, dstRawBuf, srcFormat.getSamplingRate(), dstSamplingRate, nSamples);
+      bHandled = PcmSamplingRateConvert::convert24(srcRawBuf, dstRawBuf, srcFormat.getSamplingRate(), dstSamplingRate, nSamples);
       break;
     case AudioFormat::ENCODING::PCM_UNKNOWN:
-      bNotHandle = true;
+      bHandled = false;
       break;
   }
 
-  if( bNotHandle ){
+  if( !bHandled ){
     dstBuf = srcBuf;
   }
 

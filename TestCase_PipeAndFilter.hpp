@@ -33,6 +33,7 @@ protected:
   void testFifoBuffer(void);
   void testInterPipeBridge(void);
   void testPipeManager(void);
+  void testMultipleSink(void);
 };
 
 #endif /* __TESTCASE_PIPEANDFILTER_HPP__ */

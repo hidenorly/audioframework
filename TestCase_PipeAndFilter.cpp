@@ -27,6 +27,7 @@
 #include "FifoBuffer.hpp"
 #include "InterPipeBridge.hpp"
 #include "PipeManager.hpp"
+#include "MultipleSink.hpp"
 
 #include <iostream>
 
@@ -248,6 +249,34 @@ TEST_F(TestCase_PipeAndFilter, testPipeManager)
   delete pPipe; pPipe = nullptr;
   delete pSink; pSink = nullptr;
   delete pSource; pSource = nullptr;
+}
+
+TEST_F(TestCase_PipeAndFilter, testMultipleSink)
+{
+  MultipleSink* pMultiSink = new MultipleSink();
+
+  ISink* pSink1 = new Sink();
+  MultipleSink::ChannelMapper chMap1;
+  chMap1.insert( std::make_pair(AudioFormat::CH::L, AudioFormat::CH::L) ); // dst, src
+  chMap1.insert( std::make_pair(AudioFormat::CH::R, AudioFormat::CH::L) ); // dst, src
+  pMultiSink->addSink( pSink1, chMap1 );
+  pMultiSink->dump();
+
+  ISink* pSink2 = new Sink();
+  MultipleSink::ChannelMapper chMap2;
+  chMap2.insert( std::make_pair(AudioFormat::CH::L, AudioFormat::CH::R) ); // dst, src
+  chMap2.insert( std::make_pair(AudioFormat::CH::R, AudioFormat::CH::R) ); // dst, src
+
+  pMultiSink->addSink( pSink2, chMap2 );
+  pMultiSink->dump();
+
+  AudioBuffer buf( AudioFormat(), 256 );
+  ByteBuffer rawBuffer = buf.getRawBuffer();
+  ByteBuffer bufZero(rawBuffer.size(), 128);
+  rawBuffer = bufZero;
+  buf.setRawBuffer( rawBuffer );
+  pMultiSink->write( buf );
+  pMultiSink->dump();
 }
 
 

@@ -57,6 +57,18 @@ public:
     return sampleByte;
   }
 
+  enum CH {
+    L,
+    FL=L,
+    R,
+    FR=R,
+    C,
+    SL,
+    SR,
+    SW,
+    SBL,
+    SBR
+  };
 
   enum CHANNEL {
     CHANNEL_MONO,

@@ -28,11 +28,20 @@
 
 bool PcmSamplingRateConvert::convert(uint8_t* pSrc, uint8_t* pDst, int32_t srcRate, int32_t dstRate, int nSamples)
 {
-  for(int i=0; i<nSamples; i++){
-    if( ((i*dstRate) % srcRate) == 0 ){
-      pSrc++;
-    } else {
-      *pDst++ = *pSrc++;
+  if( dstRate > srcRate ){
+    for(int i=0; i<nSamples; i++){
+      if( ((i*dstRate) % srcRate) == 0 ){
+        pSrc++;
+      } else {
+        *pDst++ = *pSrc++;
+      }
+    }
+  } else {
+    for(int i=0; i<nSamples; i++){
+      *pDst++ = *pSrc;
+      if( ((i*srcRate) % dstRate) == 0 ){
+        pSrc++;
+      }
     }
   }
   return true;
@@ -40,15 +49,28 @@ bool PcmSamplingRateConvert::convert(uint8_t* pSrc, uint8_t* pDst, int32_t srcRa
 
 bool PcmSamplingRateConvert::convert24(uint8_t* pSrc, uint8_t* pDst, int32_t srcRate, int32_t dstRate, int nSamples)
 {
-  for(int i=0; i<nSamples; i++){
-    if( ((i*dstRate) % srcRate) == 0 ){
-      pSrc++;
-      pSrc++;
-      pSrc++;
-    } else {
-      *pDst++ = *pSrc++;
-      *pDst++ = *pSrc++;
-      *pDst++ = *pSrc++;
+  if( dstRate > srcRate ){
+    for(int i=0; i<nSamples; i++){
+      if( ((i*dstRate) % srcRate) == 0 ){
+        pSrc++;
+        pSrc++;
+        pSrc++;
+      } else {
+        *pDst++ = *pSrc++;
+        *pDst++ = *pSrc++;
+        *pDst++ = *pSrc++;
+      }
+    }
+  } else {
+    for(int i=0; i<nSamples; i++){
+      *pDst++ = *pSrc;
+      *pDst++ = *(pSrc+1);
+      *pDst++ = *(pSrc+2);
+      if( ((i*srcRate) % dstRate) == 0 ){
+        pSrc++;
+        pSrc++;
+        pSrc++;
+      }
     }
   }
   return true;
@@ -57,11 +79,20 @@ bool PcmSamplingRateConvert::convert24(uint8_t* pSrc, uint8_t* pDst, int32_t src
 
 bool PcmSamplingRateConvert::convert(uint16_t* pSrc, uint16_t* pDst, int32_t srcRate, int32_t dstRate, int nSamples)
 {
-  for(int i=0; i<nSamples; i++){
-    if( ((i*dstRate) % srcRate) == 0 ){
-      pSrc++;
-    } else {
-      *pDst++ = *pSrc++;
+  if( dstRate > srcRate ){
+    for(int i=0; i<nSamples; i++){
+      if( ((i*dstRate) % srcRate) == 0 ){
+        pSrc++;
+      } else {
+        *pDst++ = *pSrc++;
+      }
+    }
+  } else {
+    for(int i=0; i<nSamples; i++){
+      *pDst++ = *pSrc;
+      if( ((i*srcRate) % dstRate) == 0 ){
+        pSrc++;
+      }
     }
   }
   return true;
@@ -69,11 +100,20 @@ bool PcmSamplingRateConvert::convert(uint16_t* pSrc, uint16_t* pDst, int32_t src
 
 bool PcmSamplingRateConvert::convert(uint32_t* pSrc, uint32_t* pDst, int32_t srcRate, int32_t dstRate, int nSamples)
 {
-  for(int i=0; i<nSamples; i++){
-    if( ((i*dstRate) % srcRate) == 0 ){
-      pSrc++;
-    } else {
-      *pDst++ = *pSrc++;
+  if( dstRate > srcRate ){
+    for(int i=0; i<nSamples; i++){
+      if( ((i*dstRate) % srcRate) == 0 ){
+        pSrc++;
+      } else {
+        *pDst++ = *pSrc++;
+      }
+    }
+  } else {
+    for(int i=0; i<nSamples; i++){
+      *pDst++ = *pSrc;
+      if( ((i*srcRate) % dstRate) == 0 ){
+        pSrc++;
+      }
     }
   }
   return true;
@@ -81,11 +121,20 @@ bool PcmSamplingRateConvert::convert(uint32_t* pSrc, uint32_t* pDst, int32_t src
 
 bool PcmSamplingRateConvert::convert(float* pSrc, float* pDst, int32_t srcRate, int32_t dstRate, int nSamples)
 {
-  for(int i=0; i<nSamples; i++){
-    if( ((i*dstRate) % srcRate) == 0 ){
-      pSrc++;
-    } else {
-      *pDst++ = *pSrc++;
+  if( dstRate > srcRate ){
+    for(int i=0; i<nSamples; i++){
+      if( ((i*dstRate) % srcRate) == 0 ){
+        pSrc++;
+      } else {
+        *pDst++ = *pSrc++;
+      }
+    }
+  } else {
+    for(int i=0; i<nSamples; i++){
+      *pDst++ = *pSrc;
+      if( ((i*srcRate) % dstRate) == 0 ){
+        pSrc++;
+      }
     }
   }
   return true;

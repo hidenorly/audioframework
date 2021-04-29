@@ -37,6 +37,10 @@ public:
   virtual void read(AudioBuffer& buf){
     ByteBuffer rawBuffer = buf.getRawBuffer();
     ByteBuffer bufZero(rawBuffer.size(), 128);
+    uint8_t* ptr = bufZero.data();
+    for(int i=0; i<bufZero.size(); i++){
+      *ptr++ = i % 256;
+    }
     rawBuffer = bufZero;
     buf.setRawBuffer( rawBuffer );
   };

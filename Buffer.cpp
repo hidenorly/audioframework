@@ -17,6 +17,40 @@
 
 #include "Buffer.hpp"
 
+AudioSample::AudioSample(AudioFormat format, ByteBuffer buf) : mFormat(format), mBuf(buf)
+{
+
+}
+
+
+AudioSample::AudioSample(AudioFormat format) : mFormat(format)
+{
+  int nSize = format.getChannelsSampleByte();
+  mBuf.reserve( nSize );
+  ByteBuffer zeroBuf( nSize, 0 );
+  AudioSample(format, zeroBuf);
+}
+
+AudioSample::~AudioSample()
+{
+
+}
+
+uint8_t* AudioSample::getData(AudioFormat::CH channel)
+{
+  uint8_t* result = mBuf.data();
+  result = result + mFormat.getOffSetByteInSample( channel );
+  return result;
+}
+
+void AudioSample::setData(AudioFormat::CH channel, uint8_t* pData)
+{
+  uint8_t* buf = mBuf.data();
+  buf = buf + mFormat.getOffSetByteInSample( channel );
+  memcpy( buf, pData, mFormat.getSampleByte() );
+}
+
+
 AudioBuffer::AudioBuffer(AudioFormat format, int samples)
 {
   setAudioFormat( format );
@@ -87,5 +121,28 @@ void AudioBuffer::append(AudioBuffer& buf)
     mBuf.reserve( newSize );
 
     std::copy( extBuf.begin(), extBuf.end(), std::back_inserter( mBuf ) );
+}
+
+AudioSample AudioBuffer::getSample(int nOffset)
+{
+  int bufSize = mFormat.getChannelsSampleByte();
+  ByteBuffer dstBuf( bufSize, 0 );
+  uint8_t* rawDstBuf = dstBuf.data();
+  uint8_t* rawSrcBuf = mBuf.data();
+
+  memcpy( rawDstBuf, rawSrcBuf+bufSize*nOffset, bufSize );
+
+  AudioSample sample( mFormat, dstBuf );
+
+  return sample;
+}
+
+void AudioBuffer::setSample(int nOffset, AudioSample& sample)
+{
+  int bufSize = mFormat.getChannelsSampleByte();
+  uint8_t* rawDstBuf = mBuf.data();
+  uint8_t* rawSrcBuf = sample.getRawBufferPointer();
+
+  memcpy( rawDstBuf+bufSize*nOffset, rawSrcBuf, bufSize );
 }
 

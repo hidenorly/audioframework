@@ -22,6 +22,22 @@
 
 typedef std::vector<uint8_t> ByteBuffer;
 
+class AudioSample
+{
+protected:
+  AudioFormat mFormat;
+  ByteBuffer mBuf;
+
+public:
+  AudioSample(AudioFormat format = AudioFormat());
+  AudioSample(AudioFormat format, ByteBuffer buf);
+  virtual ~AudioSample();
+  uint8_t* getData(AudioFormat::CH channel);
+  void setData(AudioFormat::CH channel, uint8_t* pData);
+  ByteBuffer getRawBuffer(){ return mBuf; };
+  uint8_t* getRawBufferPointer(){ return mBuf.data(); };
+};
+
 class AudioBuffer
 {
 protected:
@@ -45,6 +61,8 @@ public:
   void resize( int samples );
   void setRawBuffer(ByteBuffer& buf) { mBuf = buf; };
   void append(AudioBuffer& buf);
+  AudioSample getSample(int nOffset);
+  void setSample(int nOffset, AudioSample& sample);
 };
 
 #endif /* __BUFFER_HPP__ */

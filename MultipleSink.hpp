@@ -1,4 +1,4 @@
-/* 
+/*
   Copyright (C) 2021 hidenorly
 
    Licensed under the Apache License, Version 2.0 (the "License");
@@ -43,10 +43,11 @@ public:
 
   virtual bool setAudioFormat(AudioFormat audioFormat);
   virtual AudioFormat getAudioFormat(void);
+
   virtual void dump(void);
 
 protected:
-  AudioBuffer selectedChannels(AudioBuffer& srcBuf, ChannelMapper& mapper);
+  AudioBuffer getSelectedChannelData(AudioBuffer& srcBuf, AudioFormat sinkAudioFormat, ChannelMapper& mapper);
 };
 
 #endif /* __MULTIPLESINK_HPP__ */

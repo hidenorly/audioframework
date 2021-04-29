@@ -60,6 +60,7 @@ public:
   enum CH {
     L,
     FL=L,
+    MONO=L,
     R,
     FR=R,
     C,
@@ -193,9 +194,14 @@ public:
     return mChannel;
   }
 
+  int getSampleByte(void)
+  {
+    return getSampleByte(mEncoding);
+  }
+
   int getChannelsSampleByte(void)
   {
-    return getSampleByte(mEncoding) * getNumberOfChannels(mChannel);
+    return getSampleByte() * getNumberOfChannels(mChannel);
   }
 
   int getSamplingRate(void){
@@ -206,6 +212,83 @@ public:
     return ( (mEncoding == arg2.getEncoding()) && (mChannel == arg2.getChannels()) && (mSamplingRate == arg2.getSamplingRate()));
   }
 
+  static int getOffSetInSample(AudioFormat::CHANNEL channel, AudioFormat::CH ch)
+  {
+    struct formatOffset
+    {
+    public:
+      AudioFormat::CHANNEL channel;
+      AudioFormat::CH ch;
+      int offSet;
+      formatOffset(AudioFormat::CHANNEL channel, AudioFormat::CH ch, int offSet):channel(channel),ch(ch),offSet(offSet){};
+    };
+
+    static formatOffset formatOffsetTable[]=
+    {
+      formatOffset(AudioFormat::CHANNEL::CHANNEL_MONO, AudioFormat::CH::MONO, 0),
+
+      formatOffset(AudioFormat::CHANNEL::CHANNEL_STEREO, AudioFormat::CH::L, 0),
+      formatOffset(AudioFormat::CHANNEL::CHANNEL_STEREO, AudioFormat::CH::R, 1),
+
+      formatOffset(AudioFormat::CHANNEL::CHANNEL_4CH, AudioFormat::CH::FL, 0),
+      formatOffset(AudioFormat::CHANNEL::CHANNEL_4CH, AudioFormat::CH::FR, 1),
+      formatOffset(AudioFormat::CHANNEL::CHANNEL_4CH, AudioFormat::CH::SL, 2),
+      formatOffset(AudioFormat::CHANNEL::CHANNEL_4CH, AudioFormat::CH::SR, 3),
+
+      formatOffset(AudioFormat::CHANNEL::CHANNEL_5CH, AudioFormat::CH::FL, 0),
+      formatOffset(AudioFormat::CHANNEL::CHANNEL_5CH, AudioFormat::CH::C,  1),
+      formatOffset(AudioFormat::CHANNEL::CHANNEL_5CH, AudioFormat::CH::FR, 2),
+      formatOffset(AudioFormat::CHANNEL::CHANNEL_5CH, AudioFormat::CH::SL, 3),
+      formatOffset(AudioFormat::CHANNEL::CHANNEL_5CH, AudioFormat::CH::SR, 4),
+
+      formatOffset(AudioFormat::CHANNEL::CHANNEL_5_1CH, AudioFormat::CH::FL, 0),
+      formatOffset(AudioFormat::CHANNEL::CHANNEL_5_1CH, AudioFormat::CH::C,  1),
+      formatOffset(AudioFormat::CHANNEL::CHANNEL_5_1CH, AudioFormat::CH::FR, 2),
+      formatOffset(AudioFormat::CHANNEL::CHANNEL_5_1CH, AudioFormat::CH::SL, 3),
+      formatOffset(AudioFormat::CHANNEL::CHANNEL_5_1CH, AudioFormat::CH::SR, 4),
+      formatOffset(AudioFormat::CHANNEL::CHANNEL_5_1CH, AudioFormat::CH::SW, 5),
+
+      formatOffset(AudioFormat::CHANNEL::CHANNEL_5_0_2CH, AudioFormat::CH::FL, 0),
+      formatOffset(AudioFormat::CHANNEL::CHANNEL_5_0_2CH, AudioFormat::CH::C,  1),
+      formatOffset(AudioFormat::CHANNEL::CHANNEL_5_0_2CH, AudioFormat::CH::FR, 2),
+      formatOffset(AudioFormat::CHANNEL::CHANNEL_5_0_2CH, AudioFormat::CH::SL, 3),
+      formatOffset(AudioFormat::CHANNEL::CHANNEL_5_0_2CH, AudioFormat::CH::SR, 4),
+      formatOffset(AudioFormat::CHANNEL::CHANNEL_5_0_2CH, AudioFormat::CH::SBL, 5),
+      formatOffset(AudioFormat::CHANNEL::CHANNEL_5_0_2CH, AudioFormat::CH::SBR, 6),
+
+      formatOffset(AudioFormat::CHANNEL::CHANNEL_5_1_2CH, AudioFormat::CH::FL, 0),
+      formatOffset(AudioFormat::CHANNEL::CHANNEL_5_1_2CH, AudioFormat::CH::C,  1),
+      formatOffset(AudioFormat::CHANNEL::CHANNEL_5_1_2CH, AudioFormat::CH::FR, 2),
+      formatOffset(AudioFormat::CHANNEL::CHANNEL_5_1_2CH, AudioFormat::CH::SL, 3),
+      formatOffset(AudioFormat::CHANNEL::CHANNEL_5_1_2CH, AudioFormat::CH::SR, 4),
+      formatOffset(AudioFormat::CHANNEL::CHANNEL_5_1_2CH, AudioFormat::CH::SBL, 5),
+      formatOffset(AudioFormat::CHANNEL::CHANNEL_5_1_2CH, AudioFormat::CH::SBR, 6),
+      formatOffset(AudioFormat::CHANNEL::CHANNEL_5_1_2CH, AudioFormat::CH::SW, 7),
+
+      formatOffset(AudioFormat::CHANNEL::CHANNEL_7_1CH, AudioFormat::CH::FL, 0),
+      formatOffset(AudioFormat::CHANNEL::CHANNEL_7_1CH, AudioFormat::CH::C,  1),
+      formatOffset(AudioFormat::CHANNEL::CHANNEL_7_1CH, AudioFormat::CH::FR, 2),
+      formatOffset(AudioFormat::CHANNEL::CHANNEL_7_1CH, AudioFormat::CH::SL, 3),
+      formatOffset(AudioFormat::CHANNEL::CHANNEL_7_1CH, AudioFormat::CH::SR, 4),
+      formatOffset(AudioFormat::CHANNEL::CHANNEL_7_1CH, AudioFormat::CH::SBL, 5),
+      formatOffset(AudioFormat::CHANNEL::CHANNEL_7_1CH, AudioFormat::CH::SBR, 6),
+      formatOffset(AudioFormat::CHANNEL::CHANNEL_7_1CH, AudioFormat::CH::SW, 7),
+
+      formatOffset(AudioFormat::CHANNEL_UNKNOWN, AudioFormat::CH::MONO, 0)
+    };
+
+    for(int i=0; (formatOffsetTable[i].channel!=AudioFormat::CHANNEL_UNKNOWN); i++){
+      if( ( formatOffsetTable[i].channel == channel ) && ( formatOffsetTable[i].ch == ch ) ){
+        return formatOffsetTable[i].offSet;
+      }
+    }
+
+    return 0;
+  }
+
+  int getOffSetByteInSample(AudioFormat::CH ch){
+    return getSampleByte() * getOffSetInSample(mChannel, ch);
+  }
 };
 
 class AudioBase

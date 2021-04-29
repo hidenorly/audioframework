@@ -1,4 +1,4 @@
-/* 
+/*
   Copyright (C) 2021 hidenorly
 
    Licensed under the Apache License, Version 2.0 (the "License");
@@ -42,19 +42,27 @@ void MultipleSink::clearSinks(void)
   mChannelMaps.clear();
 }
 
-AudioBuffer MultipleSink::selectedChannels(AudioBuffer& srcBuf, ChannelMapper& mapper)
+AudioBuffer MultipleSink::getSelectedChannelData(AudioBuffer& srcBuf, AudioFormat sinkAudioFormat, ChannelMapper& mapper)
 {
-  // TODO: extract corresponding channel's data & reconstruct the buffer
-  AudioBuffer selectedBuf( srcBuf.getAudioFormat(), srcBuf.getSamples() );
-  selectedBuf = srcBuf;
-  return selectedBuf;
+  // extract corresponding channel's data & reconstruct the buffer
+  int nSrcSamples = srcBuf.getSamples();
+  AudioBuffer dstBuf( sinkAudioFormat, nSrcSamples );
+  for(int i=0; i<nSrcSamples; i++){
+    AudioSample aSrcSample = srcBuf.getSample(i);
+    AudioSample aDstSample(sinkAudioFormat);
+    for(const auto& [dstCh, srcCh] : mapper){
+      aDstSample.setData( dstCh, aSrcSample.getData(srcCh) );
+    }
+    dstBuf.setSample(i, aDstSample);
+  }
+  return dstBuf;
 }
 
 void MultipleSink::write(AudioBuffer& buf)
 {
   for(auto& pSink : mpSinks ){
     ChannelMapper mapper = mChannelMaps[ pSink ];
-    AudioBuffer selectedBuf = selectedChannels( buf, mapper );
+    AudioBuffer selectedBuf = getSelectedChannelData( buf, pSink->getAudioFormat(), mapper );
     pSink->write( selectedBuf );
   }
 }
@@ -67,7 +75,7 @@ void MultipleSink::dump(void)
     std::cout << "Sink:" << pSink << std::endl;
     ChannelMapper mapper = mChannelMaps[ pSink ];
     for( const auto& [dstCh, srcCh] : mapper ){
-      std::cout << "SrcCh:" << srcCh << " -> DstCh:" << dstCh << std::endl; 
+      std::cout << "SrcCh:" << srcCh << " -> DstCh:" << dstCh << std::endl;
     }
     pSink->dump();
   }

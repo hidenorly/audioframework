@@ -271,10 +271,8 @@ TEST_F(TestCase_PipeAndFilter, testMultipleSink)
   pMultiSink->dump();
 
   AudioBuffer buf( AudioFormat(), 256 );
-  ByteBuffer rawBuffer = buf.getRawBuffer();
-  ByteBuffer bufZero(rawBuffer.size(), 128);
-  rawBuffer = bufZero;
-  buf.setRawBuffer( rawBuffer );
+  Source source;
+  source.read( buf );
   pMultiSink->write( buf );
   pMultiSink->dump();
 }

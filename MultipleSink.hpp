@@ -19,23 +19,22 @@
 
 #include "Sink.hpp"
 #include "AudioFormat.hpp"
+#include "Buffer.hpp"
 #include <vector>
 #include <map>
 
 
 class MultipleSink : public ISink
 {
-public:
-  typedef std::map<AudioFormat::CH, AudioFormat::CH> ChannelMapper;
 protected:
   std::vector<ISink*> mpSinks;
-  std::map<ISink*, ChannelMapper> mChannelMaps;
+  std::map<ISink*, AudioFormat::ChannelMapper> mChannelMaps;
   AudioFormat mFormat;
 
 public:
   MultipleSink(AudioFormat audioFormat = AudioFormat());
   virtual ~MultipleSink();
-  virtual void addSink(ISink* pSink, ChannelMapper& map);
+  virtual void addSink(ISink* pSink, AudioFormat::ChannelMapper& map);
   virtual void clearSinks(void);
 
   virtual void write(AudioBuffer& buf);
@@ -45,9 +44,6 @@ public:
   virtual AudioFormat getAudioFormat(void);
 
   virtual void dump(void);
-
-protected:
-  AudioBuffer getSelectedChannelData(AudioBuffer& srcBuf, AudioFormat sinkAudioFormat, ChannelMapper& mapper);
 };
 
 #endif /* __MULTIPLESINK_HPP__ */

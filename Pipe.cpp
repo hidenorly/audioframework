@@ -99,6 +99,7 @@ void Pipe::stop(void)
   mMutexThreads.lock();
   if( mbIsRunning ){
     mbIsRunning = false;
+    std::this_thread::sleep_for(std::chrono::microseconds(100));
     for( auto& aThread : mThreads ){
       if( aThread.joinable() ){
         aThread.join();

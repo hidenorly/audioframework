@@ -19,6 +19,7 @@
 
 #include <vector>
 #include "AudioFormat.hpp"
+#include <map>
 
 typedef std::vector<uint8_t> ByteBuffer;
 
@@ -63,6 +64,7 @@ public:
   void append(AudioBuffer& buf);
   AudioSample getSample(int nOffset);
   void setSample(int nOffset, AudioSample& sample);
+  AudioBuffer getSelectedChannelData(AudioFormat outAudioFormat, AudioFormat::ChannelMapper& mapper);
 };
 
 #endif /* __BUFFER_HPP__ */

@@ -174,19 +174,25 @@ TEST_F(TestCase_PipeAndFilter, testInterPipeBridge)
   pPipe2->addFilterToTail( new FilterIncrement() );
   pPipe2->addFilterToTail( new Filter() );
 
+  std::cout << "run" << std::endl;
   // run pipe1 & 2
   pPipe1->run();
   EXPECT_TRUE(pPipe1->isRunning());
   pPipe2->run();
   EXPECT_TRUE(pPipe2->isRunning());
+  std::cout << "running" << std::endl;
 
   std::this_thread::sleep_for(std::chrono::microseconds(10000));
 
+  std::cout << "stop" << std::endl;
+  interPipe.unlock();
   // stop pipe1&2
   pPipe1->stop();
   EXPECT_FALSE(pPipe1->isRunning());
+  interPipe.unlock();
   pPipe2->stop();
   EXPECT_FALSE(pPipe2->isRunning());
+  std::cout << "stopped" << std::endl;
 
   // clean up
   ISource* pSource = pPipe1->detachSource();
@@ -229,13 +235,17 @@ TEST_F(TestCase_PipeAndFilter, testPipeManager)
   pPipe->addFilterToTail( new Filter() );
   pPipe->addFilterToTail( new FilterIncrement() );
 
+  std::cout << "run" << std::endl;
   pPipe->run();
   EXPECT_TRUE(pPipe->isRunning());
+  std::cout << "running" << std::endl;
 
   std::this_thread::sleep_for(std::chrono::microseconds(10000));
 
+  std::cout << "stop" << std::endl;
   pPipe->stop();
   EXPECT_FALSE(pPipe->isRunning());
+  std::cout << "stopped" << std::endl;
 
   pSink = pPipe->detachSink();
   EXPECT_NE(nullptr, pSink);
@@ -256,14 +266,14 @@ TEST_F(TestCase_PipeAndFilter, testMultipleSink)
   MultipleSink* pMultiSink = new MultipleSink();
 
   ISink* pSink1 = new Sink();
-  MultipleSink::ChannelMapper chMap1;
+  AudioFormat::ChannelMapper chMap1;
   chMap1.insert( std::make_pair(AudioFormat::CH::L, AudioFormat::CH::L) ); // dst, src
   chMap1.insert( std::make_pair(AudioFormat::CH::R, AudioFormat::CH::L) ); // dst, src
   pMultiSink->addSink( pSink1, chMap1 );
   pMultiSink->dump();
 
   ISink* pSink2 = new Sink();
-  MultipleSink::ChannelMapper chMap2;
+  AudioFormat::ChannelMapper chMap2;
   chMap2.insert( std::make_pair(AudioFormat::CH::L, AudioFormat::CH::R) ); // dst, src
   chMap2.insert( std::make_pair(AudioFormat::CH::R, AudioFormat::CH::R) ); // dst, src
 

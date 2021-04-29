@@ -30,6 +30,7 @@ protected:
   std::mutex mMutex;
   std::condition_variable mEvent;
   std::mutex mEventMutex;
+  std::atomic<bool> mUnlock;
 
 public:
   FifoBuffer(AudioFormat& format);
@@ -38,6 +39,7 @@ public:
 
   bool read(AudioBuffer& audioBuf);
   bool write(AudioBuffer& audioBuf);
+  void unlock(void);
 
   int getBufferedSamples(void);
   AudioFormat getAudioFormat(void){ return mFormat; };

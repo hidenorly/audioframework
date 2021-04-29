@@ -19,6 +19,7 @@
 
 #include <string>
 #include <vector>
+#include <map>
 
 class AudioFormat
 {
@@ -289,6 +290,8 @@ public:
   int getOffSetByteInSample(AudioFormat::CH ch){
     return getSampleByte() * getOffSetInSample(mChannel, ch);
   }
+
+  typedef std::map<CH, CH> ChannelMapper;
 };
 
 class AudioBase

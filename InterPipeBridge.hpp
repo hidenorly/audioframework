@@ -31,7 +31,7 @@ protected:
 
 public:
   InterPipeBridge(AudioFormat& format);
-  virtual ~InterPipeBridge(){};
+  virtual ~InterPipeBridge(){ mFifoBuffer.unlock(); };
 
   virtual void read(AudioBuffer& buf);
   virtual void write(AudioBuffer& buf);
@@ -41,6 +41,8 @@ public:
 
   virtual bool setAudioFormat(AudioFormat audioFormat);
   virtual AudioFormat getAudioFormat(void);
+
+  void unlock(void){ mFifoBuffer.unlock(); };
 };
 
 #endif /* __INTERPIPEBRIDGE_HPP__ */

@@ -16,8 +16,9 @@
 
 #include "FifoBuffer.hpp"
 #include <iterator>
+#include <thread>
 
-FifoBuffer::FifoBuffer(AudioFormat& format):mFormat(format)
+FifoBuffer::FifoBuffer(AudioFormat& format):mFormat(format),mUnlock(false)
 {
 
 }
@@ -36,7 +37,7 @@ bool FifoBuffer::read(AudioBuffer& audioBuf)
     int size = readBuffer.size();
 
     std::atomic<bool> bReceived = false;
-    while( !bReceived ){
+    while( !bReceived && !mUnlock){
       if( mBuf.size() >= size ){
         mMutex.lock();
         {
@@ -89,3 +90,12 @@ int FifoBuffer::getBufferedSamples(void)
 {
   return mBuf.size() / mFormat.getChannelsSampleByte();
 }
+
+void FifoBuffer::unlock(void)
+{
+  mUnlock = true;
+  mEvent.notify_all();
+  std::this_thread::sleep_for(std::chrono::microseconds(100));
+  mUnlock = false;
+}
+

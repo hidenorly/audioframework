@@ -27,7 +27,7 @@ MultipleSink::~MultipleSink()
 }
 
 
-void MultipleSink::addSink(ISink* pSink, ChannelMapper& map)
+void MultipleSink::addSink(ISink* pSink, AudioFormat::ChannelMapper& map)
 {
   mpSinks.push_back( pSink );
   mChannelMaps.insert( std::make_pair(pSink, map) );
@@ -42,28 +42,13 @@ void MultipleSink::clearSinks(void)
   mChannelMaps.clear();
 }
 
-AudioBuffer MultipleSink::getSelectedChannelData(AudioBuffer& srcBuf, AudioFormat sinkAudioFormat, ChannelMapper& mapper)
-{
-  // extract corresponding channel's data & reconstruct the buffer
-  int nSrcSamples = srcBuf.getSamples();
-  AudioBuffer dstBuf( sinkAudioFormat, nSrcSamples );
-  for(int i=0; i<nSrcSamples; i++){
-    AudioSample aSrcSample = srcBuf.getSample(i);
-    AudioSample aDstSample(sinkAudioFormat);
-    for(const auto& [dstCh, srcCh] : mapper){
-      aDstSample.setData( dstCh, aSrcSample.getData(srcCh) );
-    }
-    dstBuf.setSample(i, aDstSample);
-  }
-  return dstBuf;
-}
 
 void MultipleSink::write(AudioBuffer& buf)
 {
   for(auto& pSink : mpSinks ){
-    ChannelMapper mapper = mChannelMaps[ pSink ];
-    AudioBuffer selectedBuf = getSelectedChannelData( buf, pSink->getAudioFormat(), mapper );
-    pSink->write( selectedBuf );
+    AudioFormat::ChannelMapper mapper = mChannelMaps[ pSink ];
+    AudioBuffer selectedChannelData = buf.getSelectedChannelData( pSink->getAudioFormat(), mapper );
+    pSink->write( selectedChannelData );
   }
 }
 
@@ -73,7 +58,7 @@ void MultipleSink::dump(void)
 
   for(auto& pSink : mpSinks ){
     std::cout << "Sink:" << pSink << std::endl;
-    ChannelMapper mapper = mChannelMaps[ pSink ];
+    AudioFormat::ChannelMapper mapper = mChannelMaps[ pSink ];
     for( const auto& [dstCh, srcCh] : mapper ){
       std::cout << "SrcCh:" << srcCh << " -> DstCh:" << dstCh << std::endl;
     }

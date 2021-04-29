@@ -180,6 +180,9 @@ void PipeManager::run(void)
 void PipeManager::stop(void)
 {
   for( auto& pPipe : mPipes ){
+    for( auto& pInterPipeBridge : mInterPipeBridges ) {
+      pInterPipeBridge->unlock();
+    }
     pPipe->stop();
   }
 }

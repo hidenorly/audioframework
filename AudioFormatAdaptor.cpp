@@ -17,6 +17,7 @@
 #include "AudioFormatAdaptor.hpp"
 #include "PcmFormatConversionPrimitives.hpp"
 #include "PcmSamplingRateConversionPrimitives.hpp"
+#include "ChannelConversionPrimitives.hpp"
 
 bool AudioFormatAdaptor::convert(AudioBuffer& srcBuf, AudioBuffer& dstBuf)
 {
@@ -168,5 +169,18 @@ bool AudioFormatAdaptor::samplingRateConversion(AudioBuffer& srcBuf, AudioBuffer
 
 bool AudioFormatAdaptor::channelConversion(AudioBuffer& srcBuf, AudioBuffer& dstBuf, AudioFormat::CHANNEL dstChannel)
 {
+  AudioFormat srcFormat = srcBuf.getAudioFormat();
+  AudioFormat dstFormat(srcFormat.getEncoding(), srcFormat.getSamplingRate(), dstChannel );
+  dstBuf.setAudioFormat(dstFormat);
+
+  uint8_t* srcRawBuf = srcBuf.getRawBufferPointer();
+  uint8_t* dstRawBuf = dstBuf.getRawBufferPointer();
+  int nSrcSamples = srcBuf.getSamples();
+  int nDstSamples = dstBuf.getSamples();
+
+  assert(nSrcSamples == nDstSamples);
+
+  ChannelConverter::convert(srcRawBuf, dstRawBuf, srcFormat.getChannels(), dstChannel, nDstSamples);
+
   return dstBuf.getAudioFormat().getChannels() == dstChannel;
 }

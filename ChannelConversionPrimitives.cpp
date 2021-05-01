@@ -63,22 +63,26 @@ bool ChannelConverter::convert(uint8_t* pSrc, uint8_t* pDst, AudioFormat::CHANNE
 
 bool ChannelConverter::convert(uint16_t* pSrc, uint16_t* pDst, AudioFormat::CHANNEL srcChannel, AudioFormat::CHANNEL dstChannel, int nSamples)
 {
-  return true;
+  bool result = false;
+  return result;
 }
 
 bool ChannelConverter::convert24(uint8_t* pSrc, uint8_t* pDst, AudioFormat::CHANNEL srcChannel, AudioFormat::CHANNEL dstChannel, int nSamples)
 {
-  return true;
+  bool result = false;
+  return result;
 }
 
 bool ChannelConverter::convert(uint32_t* pSrc, uint32_t* pDst, AudioFormat::CHANNEL srcChannel, AudioFormat::CHANNEL dstChannel, int nSamples)
 {
-  return true;
+  bool result = false;
+  return result;
 }
 
 bool ChannelConverter::convert(float* pSrc, float* pDst, AudioFormat::CHANNEL srcChannel, AudioFormat::CHANNEL dstChannel, int nSamples)
 {
-  return true;
+  bool result = false;
+  return result;
 }
 
 #endif /* USE_TINY_CC_IMPL */

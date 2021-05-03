@@ -34,6 +34,8 @@ protected:
   void testInterPipeBridge(void);
   void testPipeManager(void);
   void testMultipleSink(void);
+
+  void testParameterManager(void);
 };
 
 #endif /* __TESTCASE_PIPEANDFILTER_HPP__ */

@@ -451,7 +451,7 @@ bool ChannelConverter::channelConversion(AudioBuffer& srcBuf, AudioBuffer& dstBu
 
   std::vector<ChannelConverter::ChannelMapList> chConvMapList = getChannelConversionMapList(srcFormat.getChannels(), dstFormat.getChannels());
 
-  if( chConvMapList.size() ){
+  if( !chConvMapList.empty() ){
     // TODO: Check case of mix e.g. L->C, R->C then L+R -> C
     // The following getSelectedChannelData expects no mix case.
     AudioFormat::ChannelMapper mapper;

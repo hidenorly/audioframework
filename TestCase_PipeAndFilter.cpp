@@ -28,6 +28,7 @@
 #include "InterPipeBridge.hpp"
 #include "PipeManager.hpp"
 #include "MultipleSink.hpp"
+#include "ParameterManager.hpp"
 
 #include <iostream>
 
@@ -285,6 +286,29 @@ TEST_F(TestCase_PipeAndFilter, testMultipleSink)
   source.read( buf );
   pMultiSink->write( buf );
   pMultiSink->dump();
+}
+
+TEST_F(TestCase_PipeAndFilter, testParameterManager)
+{
+  ParameterManager* pParams = ParameterManager::getManager();
+
+  pParams->setParameter("paramA", "ABC");
+  EXPECT_TRUE( pParams->getParameter("paramA", "HOGE") == "ABC" );
+  pParams->setParameterBool("paramB", true);
+  EXPECT_TRUE( pParams->getParameterBool("paramB", false) == true );
+  pParams->setParameterInt("paramC", 1);
+  EXPECT_TRUE( pParams->getParameterInt("paramC", 0) == 1 );
+  EXPECT_TRUE( pParams->getParameterInt("paramD", -1) == -1 );
+
+  std::vector<std::string> keys = {"paramA", "paramB", "paramC"};
+  std::vector<ParameterManager::Param> params = pParams->getParameters(keys);
+  EXPECT_EQ( params.size(), 3 );
+
+  std::vector<std::string> keys2;
+  std::vector<ParameterManager::Param> paramsAll = pParams->getParameters(keys);
+  for(auto& aParam : paramsAll){
+    std::cout << aParam.key << " = " << aParam.value << std::endl;
+  }
 }
 
 

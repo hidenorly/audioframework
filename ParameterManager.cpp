@@ -40,28 +40,32 @@ ParameterManager::~ParameterManager()
 
 void ParameterManager::setParameter(std::string key, std::string value)
 {
-  mParams.insert( std::make_pair(key, value) );
+  if( ( 0 == key.find("ro.") ) && contains(key) ){
+    // already the ro. parameter is set.
+  } else {
+    mParams.insert( std::make_pair(key, value) );
+  }
 }
 
 void ParameterManager::setParameterInt(std::string key, int value)
 {
-  mParams.insert( std::make_pair(key, std::to_string(value)) );
+  setParameter( key, std::to_string(value) );
 }
 
 void ParameterManager::setParameterFloat(std::string key, float value)
 {
-  mParams.insert( std::make_pair(key, std::to_string(value)) );
+  setParameter( key, std::to_string(value) );
 }
 
 void ParameterManager::setParameterBool(std::string key, bool value)
 {
-  mParams.insert( std::make_pair(key, value ? "true" : "false") );
+  setParameter( key, value ? "true" : "false" );
 }
 
 void ParameterManager::setParameters(std::vector<ParameterManager::Param>& params)
 {
   for(auto& aParam : params){
-    mParams.insert( std::make_pair(aParam.key, aParam.value) );
+    setParameter( aParam.key, aParam.value );
   }
 }
 

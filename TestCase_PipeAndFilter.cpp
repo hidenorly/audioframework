@@ -304,6 +304,11 @@ TEST_F(TestCase_PipeAndFilter, testParameterManager)
   std::vector<ParameterManager::Param> params = pParams->getParameters(keys);
   EXPECT_EQ( params.size(), 3 );
 
+  pParams->setParameterInt("ro.paramD", 1);
+  EXPECT_TRUE( pParams->getParameterInt("ro.paramD", 0) == 1 );
+  pParams->setParameterInt("ro.paramD", 2);
+  EXPECT_TRUE( pParams->getParameterInt("ro.paramD", 0) == 1 );
+
   std::vector<ParameterManager::Param> paramsAll = pParams->getParameters();
   for(auto& aParam : paramsAll){
     std::cout << aParam.key << " = " << aParam.value << std::endl;

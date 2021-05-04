@@ -92,7 +92,7 @@ bool ParameterManager::getParameterBool(std::string key, bool defaultValue)
   return contains(key) ? (mParams[key] == "true" ? true : defaultValue) : defaultValue;
 }
 
-std::vector<ParameterManager::Param> ParameterManager::getParameters(std::vector<std::string>& keys)
+std::vector<ParameterManager::Param> ParameterManager::getParameters(std::vector<std::string> keys)
 {
   std::vector<Param> result;
 

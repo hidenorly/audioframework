@@ -52,7 +52,8 @@ public:
   int getParameterInt(std::string key, int defaultValue = 0);
   float getParameterFloat(std::string key, float defaultValue = 0.0f);
   bool getParameterBool(std::string key, bool defaultValue = false);
-  std::vector<ParameterManager::Param> getParameters(std::vector<std::string>& keys);
+  // get all parameters if no keys specified
+  std::vector<ParameterManager::Param> getParameters(std::vector<std::string> keys = std::vector<std::string>{});
   bool contains(std::string key);
 
 protected:

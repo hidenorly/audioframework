@@ -28,7 +28,7 @@ ParameterManager* ParameterManager::getManager(void)
 }
 
 
-ParameterManager::ParameterManager()
+ParameterManager::ParameterManager():mListnerId(0)
 {
 
 }
@@ -40,10 +40,22 @@ ParameterManager::~ParameterManager()
 
 void ParameterManager::setParameter(std::string key, std::string value)
 {
-  if( ( 0 == key.find("ro.") ) && contains(key) ){
-    // already the ro. parameter is set.
-  } else {
-    mParams.insert( std::make_pair(key, value) );
+  bool bChanged = false;
+
+  if( contains(key) ){
+    // check ro.* (=read only)
+    if( 0 == key.find("ro.") ) return;
+
+    bChanged =( mParams[key] != value );
+  }
+
+  mParams.insert_or_assign( key, value );
+
+  if( bChanged && callbackKeyContains(key) ){
+    auto listeners = mListeners[key];
+    for(auto& aListener : listeners){
+      aListener.callback(key, value);
+    }
   }
 }
 
@@ -112,4 +124,69 @@ std::vector<ParameterManager::Param> ParameterManager::getParameters(std::vector
   }
 
   return result;
+}
+
+bool ParameterManager::callbackKeyContains(std::string key)
+{
+  decltype(mListeners)::iterator it = mListeners.find(key);
+  return ( it == mListeners.end() ) ? false : true;
+}
+
+void ParameterManager::ensureCallbacks(std::string key)
+{
+  if( !callbackKeyContains(key) ){
+    std::vector<LISTENER> listeners;
+    mListeners.insert_or_assign( key, listeners );
+  }
+}
+
+int ParameterManager::registerCallback(std::string key, CALLBACK callback)
+{
+  ensureCallbacks( key );
+
+  std::vector<LISTENER> listeners = mListeners[ key ];
+  int listenerId = mListnerId++;
+  listeners.push_back( LISTENER(listenerId, callback) );
+
+  mListeners.insert_or_assign( key, listeners );
+  mListenerIdReverse.insert_or_assign( listenerId, key );
+
+  return listenerId;
+}
+
+std::string ParameterManager::getKeyFromListernerId(int listenerId)
+{
+  std::string result;
+
+  decltype(mListenerIdReverse)::iterator it = mListenerIdReverse.find(listenerId);
+  if( it != mListenerIdReverse.end() ){
+    result = it->second;
+  }
+  return result;
+}
+
+void ParameterManager::unregisterCallback(int callbackId)
+{
+  int listenerId = callbackId;
+  std::string key = getKeyFromListernerId(listenerId);
+  if( !key.empty() ){
+    std::vector<LISTENER> listeners = mListeners[ key ];
+    for(auto it=listeners.begin(); it!=listeners.end(); it++){
+      if( it->listenerId == listenerId ){
+        listeners.erase( it );
+        break;
+      }
+    }
+    if( !listeners.empty() ){
+      mListeners.insert_or_assign( key, listeners );
+    } else {
+      auto it = mListeners.find( key );
+      mListeners.erase( it );
+    }
+  }
+  auto it = mListenerIdReverse.find(listenerId);
+  if( it!=mListenerIdReverse.end() ) {
+    // found
+    mListenerIdReverse.erase(it);
+  }
 }

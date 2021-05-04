@@ -56,8 +56,25 @@ public:
   std::vector<ParameterManager::Param> getParameters(std::vector<std::string> keys = std::vector<std::string>{});
   bool contains(std::string key);
 
+  typedef std::function<void(std::string key, std::string value)> CALLBACK;
+  int registerCallback(std::string key, CALLBACK callback);
+  void unregisterCallback(int callbackId);
+
 protected:
+  int mListnerId;
+  bool callbackKeyContains(std::string key);
+  std::string getKeyFromListernerId(int listenerId);
+  void ensureCallbacks(std::string key);
   std::map<std::string, std::string> mParams;
+  struct LISTENER
+  {
+  public:
+    int listenerId;
+    CALLBACK callback;
+    LISTENER(int listenerId, CALLBACK callback): listenerId(listenerId), callback(callback){};
+  };
+  std::map<std::string, std::vector<LISTENER>> mListeners;
+  std::map<int, std::string> mListenerIdReverse;
 };
 
 

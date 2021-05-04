@@ -309,6 +309,22 @@ TEST_F(TestCase_PipeAndFilter, testParameterManager)
   pParams->setParameterInt("ro.paramD", 2);
   EXPECT_TRUE( pParams->getParameterInt("ro.paramD", 0) == 1 );
 
+  ParameterManager::CALLBACK callback = [](std::string key, std::string value){
+    std::cout << "[" << key << "] = " << value << std::endl;
+  };
+  int callbackId = pParams->registerCallback("paramC", callback);
+  int callbackId2 = pParams->registerCallback("ro.paramD", callback);
+  pParams->setParameterInt("paramC", 1);
+  pParams->setParameterInt("paramC", 2);
+  pParams->setParameterInt("paramC", 3);
+  pParams->setParameterInt("ro.paramD", 3);
+
+  pParams->unregisterCallback(callbackId);
+  pParams->unregisterCallback(callbackId2);
+  pParams->unregisterCallback(10000);
+  pParams->setParameterInt("paramC", 4);
+
+  // dump all
   std::vector<ParameterManager::Param> paramsAll = pParams->getParameters();
   for(auto& aParam : paramsAll){
     std::cout << aParam.key << " = " << aParam.value << std::endl;

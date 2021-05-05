@@ -14,40 +14,34 @@
    limitations under the License.
 */
 
-#ifndef __STREAM_HPP__
-#define __STREAM_HPP__
+#ifndef __STREAMSINK_HPP__
+#define __STREAMSINK_HPP__
 
 #include "Buffer.hpp"
+#include "AudioFormat.hpp"
+#include "Sink.hpp"
+#include "Stream.hpp"
 #include <string>
-#include <fstream>
 
-class IStream
-{
-public:
-  virtual bool isEof(void){ return true; };
-  virtual int read(ByteBuffer& buf){ return 0; };
-  virtual ByteBuffer* read(void){ return nullptr; };
-  virtual void write(ByteBuffer& buf){};
-  virtual void close(void){};
-};
-
-class FileStream : public IStream
+class StreamSink : public ISink, public AudioBase
 {
 protected:
-  std::fstream mStream;
-  void ensureFile(std::string path);
-  bool mOpened;
-  uint64_t mPos;
+  IStream*  mpStream;
+  AudioFormat mFormat;
 
 public:
-  FileStream(std::string path);
-  virtual ~FileStream();
+  StreamSink(AudioFormat format, IStream* pStream);
+  virtual ~StreamSink();
 
-  virtual bool isEof(void);
-  virtual int read(ByteBuffer& buf);
-  virtual ByteBuffer* read(void);
-  virtual void write(ByteBuffer& buf);
+  virtual void serialize(AudioBuffer& srcAudioBuf, ByteBuffer& outStreamBuf);
+  virtual void write(AudioBuffer& buf);
   virtual void close(void);
+
+  virtual void dump(void){};
+  virtual std::string toString(void){return "StreamSink";};
+
+  virtual bool setAudioFormat(AudioFormat audioFormat);
+  virtual AudioFormat getAudioFormat(void);
 };
 
-#endif /* __STREAM_HPP__ */
+#endif /* __STREAMSINK_HPP__ */

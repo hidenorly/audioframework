@@ -209,7 +209,7 @@ public:
     return mSamplingRate;
   }
 
-  bool equal(AudioFormat& arg2){
+  bool equal(AudioFormat arg2){
     return ( (mEncoding == arg2.getEncoding()) && (mChannel == arg2.getChannels()) && (mSamplingRate == arg2.getSamplingRate()));
   }
 

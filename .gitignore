@@ -31,5 +31,8 @@
 *.out
 *.app
 
+#test.bin
+test.bin
+
 # For Mac
 .DS_Store

@@ -34,6 +34,7 @@ protected:
   void testInterPipeBridge(void);
   void testPipeManager(void);
   void testMultipleSink(void);
+  void testStreamSink(void);
 
   void testParameterManager(void);
 };

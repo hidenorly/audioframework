@@ -28,6 +28,8 @@
 #include "InterPipeBridge.hpp"
 #include "PipeManager.hpp"
 #include "MultipleSink.hpp"
+#include "Stream.hpp"
+#include "StreamSink.hpp"
 #include "ParameterManager.hpp"
 
 #include <iostream>
@@ -287,6 +289,22 @@ TEST_F(TestCase_PipeAndFilter, testMultipleSink)
   pMultiSink->write( buf );
   pMultiSink->dump();
 }
+
+TEST_F(TestCase_PipeAndFilter, testStreamSink)
+{
+  IStream* pStream = new FileStream("test.bin");
+  StreamSink* pSink = new StreamSink(AudioFormat(), pStream);
+  AudioBuffer audioBuf(AudioFormat(), 256);
+  ByteBuffer buf = audioBuf.getRawBuffer();
+  for(int i=0; i<buf.size(); i++){
+      buf[i] = i % 256;
+  }
+  audioBuf.setRawBuffer( buf );
+  pSink->write( audioBuf );
+
+  pSink->close();
+}
+
 
 TEST_F(TestCase_PipeAndFilter, testParameterManager)
 {

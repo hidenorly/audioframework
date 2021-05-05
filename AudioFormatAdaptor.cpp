@@ -38,7 +38,6 @@ bool AudioFormatAdaptor::convert(AudioBuffer& srcBuf, AudioBuffer& dstBuf)
   }
   if( srcFormat.getChannels() != dstChannel ){
     channelConversion(srcBuf, dstBuf, dstChannel);
-    srcBuf = dstBuf;
   }
 
   return srcBuf.getAudioFormat().equal( dstFormat );
@@ -121,8 +120,7 @@ bool AudioFormatAdaptor::encodingConversion(AudioBuffer& srcBuf, AudioBuffer& ds
 bool AudioFormatAdaptor::samplingRateConversion(AudioBuffer& srcBuf, AudioBuffer& dstBuf, int dstSamplingRate)
 {
   AudioFormat srcFormat = srcBuf.getAudioFormat();
-  int nSrcSampleByte = AudioFormat::getSampleByte( srcFormat.getEncoding() );
-  int nSrcSamples = srcBuf.getRawBuffer().size() / nSrcSampleByte;
+  int nSrcSamples = srcBuf.getSamples();
   uint8_t* srcRawBuf = srcBuf.getRawBufferPointer();
   int srcSamplingRate = srcFormat.getSamplingRate();
 

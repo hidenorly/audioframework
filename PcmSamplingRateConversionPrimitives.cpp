@@ -28,7 +28,7 @@
 
 bool PcmSamplingRateConvert::convert(uint8_t* pSrc, uint8_t* pDst, int32_t srcRate, int32_t dstRate, int nSamples)
 {
-  if( dstRate > srcRate ){
+  if( dstRate < srcRate ){
     for(int i=0; i<nSamples; i++){
       if( ((i*dstRate) % srcRate) == 0 ){
         pSrc++;
@@ -49,7 +49,7 @@ bool PcmSamplingRateConvert::convert(uint8_t* pSrc, uint8_t* pDst, int32_t srcRa
 
 bool PcmSamplingRateConvert::convert24(uint8_t* pSrc, uint8_t* pDst, int32_t srcRate, int32_t dstRate, int nSamples)
 {
-  if( dstRate > srcRate ){
+  if( dstRate < srcRate ){
     for(int i=0; i<nSamples; i++){
       if( ((i*dstRate) % srcRate) == 0 ){
         pSrc++;
@@ -79,7 +79,7 @@ bool PcmSamplingRateConvert::convert24(uint8_t* pSrc, uint8_t* pDst, int32_t src
 
 bool PcmSamplingRateConvert::convert(uint16_t* pSrc, uint16_t* pDst, int32_t srcRate, int32_t dstRate, int nSamples)
 {
-  if( dstRate > srcRate ){
+  if( dstRate < srcRate ){
     for(int i=0; i<nSamples; i++){
       if( ((i*dstRate) % srcRate) == 0 ){
         pSrc++;
@@ -100,7 +100,7 @@ bool PcmSamplingRateConvert::convert(uint16_t* pSrc, uint16_t* pDst, int32_t src
 
 bool PcmSamplingRateConvert::convert(uint32_t* pSrc, uint32_t* pDst, int32_t srcRate, int32_t dstRate, int nSamples)
 {
-  if( dstRate > srcRate ){
+  if( dstRate < srcRate ){
     for(int i=0; i<nSamples; i++){
       if( ((i*dstRate) % srcRate) == 0 ){
         pSrc++;
@@ -121,7 +121,7 @@ bool PcmSamplingRateConvert::convert(uint32_t* pSrc, uint32_t* pDst, int32_t src
 
 bool PcmSamplingRateConvert::convert(float* pSrc, float* pDst, int32_t srcRate, int32_t dstRate, int nSamples)
 {
-  if( dstRate > srcRate ){
+  if( dstRate < srcRate ){
     for(int i=0; i<nSamples; i++){
       if( ((i*dstRate) % srcRate) == 0 ){
         pSrc++;

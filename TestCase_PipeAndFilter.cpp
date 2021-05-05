@@ -306,6 +306,22 @@ TEST_F(TestCase_PipeAndFilter, testStreamSink)
 }
 
 
+TEST_F(TestCase_PipeAndFilter, testStreamSink_DifferentFormat)
+{
+  IStream* pStream = new FileStream("test_32b96k.bin");
+  StreamSink* pSink = new StreamSink(AudioFormat(AudioFormat::ENCODING::PCM_32BIT, AudioFormat::SAMPLING_RATE::SAMPLING_RATE_96_KHZ, AudioFormat::CHANNEL::CHANNEL_STEREO), pStream);
+  AudioBuffer audioBuf(AudioFormat(), 256);
+  ByteBuffer buf = audioBuf.getRawBuffer();
+  for(int i=0; i<buf.size(); i++){
+      buf[i] = i % 256;
+  }
+  audioBuf.setRawBuffer( buf );
+  pSink->write( audioBuf );
+
+  pSink->close();
+}
+
+
 TEST_F(TestCase_PipeAndFilter, testParameterManager)
 {
   ParameterManager* pParams = ParameterManager::getManager();

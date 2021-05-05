@@ -35,6 +35,7 @@ protected:
   void testPipeManager(void);
   void testMultipleSink(void);
   void testStreamSink(void);
+  void testStreamSink_DifferentFormat(void);
 
   void testParameterManager(void);
 };

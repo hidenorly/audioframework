@@ -32,7 +32,7 @@ void FileStream::ensureFile(std::string path)
 FileStream::FileStream(std::string path)
 {
   ensureFile( path );
-  mStream.open( path, std::ios::in | std::ios::out | std::ios::binary | std::ios::trunc );
+  mStream.open( path, std::ios::in | std::ios::out | std::ios::binary );
   mOpened = true;
   mPos = 0;
 }
@@ -54,6 +54,9 @@ int FileStream::read(ByteBuffer& buf)
   if( mOpened ){
     mStream.read( reinterpret_cast<char*>(buf.data()), buf.size() );
     nSize = mStream.gcount();
+    if( buf.size() != nSize ){
+      buf.resize( nSize );
+    }
   }
 
   return nSize;

@@ -14,20 +14,20 @@
    limitations under the License.
 */
 
-#include "StreamSink.hpp"
+#include "StreamSource.hpp"
 #include "AudioFormatAdaptor.hpp"
 
-StreamSink::StreamSink(AudioFormat format, IStream* pStream): mFormat(format), mpStream(pStream)
+StreamSource::StreamSource(AudioFormat format, IStream* pStream): mFormat(format), mpStream(pStream)
 {
 
 }
 
-StreamSink::~StreamSink()
+StreamSource::~StreamSource()
 {
   close();
 }
 
-void StreamSink::close(void)
+void StreamSource::close(void)
 {
   if( mpStream ){
     mpStream->close();
@@ -35,40 +35,38 @@ void StreamSink::close(void)
   }
 }
 
-void StreamSink::serialize(AudioBuffer& srcAudioBuf, ByteBuffer& outStreamBuf)
+void StreamSource::parse(ByteBuffer& inStreamBuf, AudioBuffer& dstAudioBuf)
 {
-  ByteBuffer rawSrcBuffer = srcAudioBuf.getRawBuffer();
-  // TODO: serialize to the expected format
-  std::copy(rawSrcBuffer.begin(), rawSrcBuffer.end(), outStreamBuf.begin());
+  // TODO: serialize the inStreamBuf as the expected format and output to dstAudioBuf
+  dstAudioBuf.setRawBuffer( inStreamBuf );
 }
 
 
-void StreamSink::write(AudioBuffer& buf)
+void StreamSource::read(AudioBuffer& buf)
 {
   if( mpStream ){
+    ByteBuffer inStreamBuf( buf.getRawBuffer().size() );
+    mpStream->read( inStreamBuf );
+    parse( inStreamBuf, buf );
+
     // convert if necessary
     if( !mFormat.equal( buf.getAudioFormat() ) ){
       AudioBuffer dstAudioBuffer( mFormat, buf.getSamples() );
       AudioFormatAdaptor::convert( buf, dstAudioBuffer );
       buf = dstAudioBuffer;
     }
- 
-    ByteBuffer outStreamBuf( buf.getRawBuffer().size() );
-    serialize( buf, outStreamBuf );
-
-    mpStream->write( outStreamBuf );
   }
 }
 
-bool StreamSink::setAudioFormat(AudioFormat audioFormat)
+bool StreamSource::setAudioFormat(AudioFormat audioFormat)
 {
   mFormat = audioFormat;
-  // TODO: Change the serializer's format.
+  // TODO: Change the parser's format.
 
   return true;
 }
 
-AudioFormat StreamSink::getAudioFormat(void)
+AudioFormat StreamSource::getAudioFormat(void)
 {
   return mFormat;
 }

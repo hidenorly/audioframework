@@ -37,6 +37,8 @@ protected:
   void testStreamSink(void);
   void testStreamSink_DifferentFormat(void);
 
+  void testStreamSource(void);
+
   void testParameterManager(void);
 };
 

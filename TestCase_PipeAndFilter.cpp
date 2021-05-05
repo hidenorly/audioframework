@@ -30,6 +30,7 @@
 #include "MultipleSink.hpp"
 #include "Stream.hpp"
 #include "StreamSink.hpp"
+#include "StreamSource.hpp"
 #include "ParameterManager.hpp"
 
 #include <iostream>
@@ -319,6 +320,18 @@ TEST_F(TestCase_PipeAndFilter, testStreamSink_DifferentFormat)
   pSink->write( audioBuf );
 
   pSink->close();
+}
+
+TEST_F(TestCase_PipeAndFilter, testStreamSource)
+{
+  IStream* pStream = new FileStream("test.bin");
+  StreamSource* pSource = new StreamSource(AudioFormat(), pStream);
+  AudioBuffer audioBuf(AudioFormat(), 256);
+  pSource->read( audioBuf );
+
+  Util::dumpBuffer( audioBuf );
+
+  pSource->close();
 }
 
 

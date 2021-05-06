@@ -24,7 +24,7 @@
 class IStream
 {
 public:
-  virtual bool isEof(void){ return true; };
+  virtual bool isEndOfStream(void){ return true; };
   virtual int read(ByteBuffer& buf){ return 0; };
   virtual ByteBuffer* read(void){ return nullptr; };
   virtual void write(ByteBuffer& buf){};
@@ -43,7 +43,7 @@ public:
   FileStream(std::string path);
   virtual ~FileStream();
 
-  virtual bool isEof(void);
+  virtual bool isEndOfStream(void);
   virtual int read(ByteBuffer& buf);
   virtual ByteBuffer* read(void);
   virtual void write(ByteBuffer& buf);

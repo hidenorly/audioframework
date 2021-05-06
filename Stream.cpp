@@ -28,7 +28,6 @@ void FileStream::ensureFile(std::string path)
   }
 }
 
-
 FileStream::FileStream(std::string path)
 {
   ensureFile( path );
@@ -42,7 +41,7 @@ FileStream::~FileStream()
   close();
 }
 
-bool FileStream::isEof(void)
+bool FileStream::isEndOfStream(void)
 {
   return mOpened ? mStream.eof() : true;
 }

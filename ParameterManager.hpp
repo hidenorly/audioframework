@@ -54,7 +54,6 @@ public:
   bool getParameterBool(std::string key, bool defaultValue = false);
   // get all parameters if no keys specified
   std::vector<ParameterManager::Param> getParameters(std::vector<std::string> keys = std::vector<std::string>{});
-  bool contains(std::string key);
 
   typedef std::function<void(std::string key, std::string value)> CALLBACK;
   int registerCallback(std::string key, CALLBACK callback);
@@ -62,9 +61,6 @@ public:
 
 protected:
   int mListnerId;
-  bool callbackKeyContains(std::string key);
-  std::string getKeyFromListernerId(int listenerId);
-  void ensureCallbacks(std::string key);
   std::map<std::string, std::string> mParams;
   struct LISTENER
   {
@@ -74,8 +70,12 @@ protected:
     LISTENER(int listenerId, CALLBACK callback): listenerId(listenerId), callback(callback){};
   };
   std::map<std::string, std::vector<LISTENER>> mListeners;
+  std::map<std::string, std::vector<LISTENER>> mWildCardListeners;
   std::map<int, std::string> mListenerIdReverse;
-};
 
+  void removeListenerWithListenerId(std::vector<LISTENER>& listeners, int listenerId);
+  std::string getKeyFromListernerId(int listenerId);
+  void executeNotify(std::string key, std::string value, std::vector<LISTENER> listeners);
+};
 
 #endif /* __PARAMETER_MANAGER_HPP__ */

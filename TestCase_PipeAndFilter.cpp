@@ -52,7 +52,6 @@ void TestCase_PipeAndFilter::TearDown()
 {
 }
 
-
 TEST_F(TestCase_PipeAndFilter, testAddFilters)
 {
   Filter* pFilter1 = new Filter();
@@ -75,7 +74,6 @@ TEST_F(TestCase_PipeAndFilter, testAddFilters)
 
   EXPECT_TRUE(true);
 }
-
 
 TEST_F(TestCase_PipeAndFilter, testAttachSourceSinkToPipe)
 {
@@ -306,7 +304,6 @@ TEST_F(TestCase_PipeAndFilter, testStreamSink)
   pSink->close();
 }
 
-
 TEST_F(TestCase_PipeAndFilter, testStreamSink_DifferentFormat)
 {
   IStream* pStream = new FileStream("test_32b96k.bin");
@@ -334,10 +331,14 @@ TEST_F(TestCase_PipeAndFilter, testStreamSource)
   pSource->close();
 }
 
-
 TEST_F(TestCase_PipeAndFilter, testParameterManager)
 {
   ParameterManager* pParams = ParameterManager::getManager();
+
+  ParameterManager::CALLBACK callbackW = [](std::string key, std::string value){
+    std::cout << "callback(param*)): [" << key << "] = " << value << std::endl;
+  };
+  int callbackIdW = pParams->registerCallback("param*", callbackW);
 
   pParams->setParameter("paramA", "ABC");
   EXPECT_TRUE( pParams->getParameter("paramA", "HOGE") == "ABC" );
@@ -356,19 +357,21 @@ TEST_F(TestCase_PipeAndFilter, testParameterManager)
   pParams->setParameterInt("ro.paramD", 2);
   EXPECT_TRUE( pParams->getParameterInt("ro.paramD", 0) == 1 );
 
-  ParameterManager::CALLBACK callback = [](std::string key, std::string value){
-    std::cout << "[" << key << "] = " << value << std::endl;
+  ParameterManager::CALLBACK callback2 = [](std::string key, std::string value){
+    std::cout << "callback(exact match): [" << key << "] = " << value << std::endl;
   };
-  int callbackId = pParams->registerCallback("paramC", callback);
-  int callbackId2 = pParams->registerCallback("ro.paramD", callback);
+  int callbackId1 = pParams->registerCallback("paramC", callback2);
+  int callbackId2 = pParams->registerCallback("ro.paramD", callback2);
   pParams->setParameterInt("paramC", 1);
   pParams->setParameterInt("paramC", 2);
   pParams->setParameterInt("paramC", 3);
   pParams->setParameterInt("ro.paramD", 3);
 
-  pParams->unregisterCallback(callbackId);
+  pParams->unregisterCallback(callbackIdW);
+  pParams->unregisterCallback(callbackId1);
   pParams->unregisterCallback(callbackId2);
   pParams->unregisterCallback(10000);
+  std::cout << "unregistered all notifier" << std::endl;
   pParams->setParameterInt("paramC", 4);
 
   // dump all

@@ -35,7 +35,7 @@ IPipe* PipeManager::getHeadPipe(bool bCreateInstance)
 {
   IPipe* result = nullptr;
   if( bCreateInstance && mPipes.empty() ){
-    mPipes.insert(mPipes.begin(), new Pipe() );
+    mPipes.insert( mPipes.begin(), new Pipe() );
   }
   return mPipes.empty() ? nullptr : mPipes.front();
 }
@@ -54,13 +54,13 @@ void PipeManager::createAndConnectPipesToHead(IPipe* pCurrentPipe)
     IPipe* pNewPipe = new Pipe();
     AudioFormat theUsingFormat = pCurrentPipe->getFilterAudioFormat();
 
-    InterPipeBridge* pInterBridge = new InterPipeBridge(theUsingFormat);
-    mInterPipeBridges.insert(mInterPipeBridges.begin(), pInterBridge );
+    InterPipeBridge* pInterBridge = new InterPipeBridge( theUsingFormat );
+    mInterPipeBridges.insert( mInterPipeBridges.begin(), pInterBridge );
 
     ISource* pSource = pCurrentPipe->attachSource( (ISource*)pInterBridge );
     pNewPipe->attachSource( pSource );
     pNewPipe->attachSink( (ISink*)pInterBridge );
-    mPipes.insert(mPipes.begin(), pNewPipe );
+    mPipes.insert( mPipes.begin(), pNewPipe );
   }
 }
 
@@ -117,7 +117,7 @@ ISink* PipeManager::attachSink(ISink* pSink)
 
   IPipe* pPipe = getTailPipe();
   if( pPipe ){
-    ISink* pSinkFromPipe = pPipe->attachSink(pSink);
+    ISink* pSinkFromPipe = pPipe->attachSink( pSink );
     mSinkAttached = true;
     pResult = pSinkFromPipe ? pSinkFromPipe : pResult;
   }
@@ -147,7 +147,7 @@ ISource* PipeManager::attachSource(ISource* pSource)
 
   IPipe* pPipe = getHeadPipe();
   if( pPipe ){
-    ISource* pSourceFromPipe = pPipe->attachSource(pSource);
+    ISource* pSourceFromPipe = pPipe->attachSource( pSource );
     mSourceAttached = true;
     pResult = pSourceFromPipe ? pSourceFromPipe : pResult;
   }
@@ -238,7 +238,7 @@ int PipeManager::getWindowSizeUsec(void)
 {
   int result = 0;
 
-  for(auto& pPipe : mPipes ){
+  for( auto& pPipe : mPipes ){
     int nSize = pPipe->getWindowSizeUsec();
     if( nSize > result ){
       result = nSize; // return max window size
@@ -253,17 +253,15 @@ void PipeManager::ensureSourceSink(void)
   if( !mSourceAttached && mpSource ){
     IPipe* pHeadPipe = getHeadPipe();
     if( pHeadPipe ){
-      pHeadPipe->attachSource(mpSource);
+      pHeadPipe->attachSource( mpSource );
       mSourceAttached = true;
     }
   }
   if( !mSinkAttached && mpSink ){
     IPipe* pTailPipe = getTailPipe();
     if( pTailPipe ){
-      pTailPipe->attachSink(mpSink);
+      pTailPipe->attachSink( mpSink );
       mSinkAttached = true;
     }
   }
 }
-
-

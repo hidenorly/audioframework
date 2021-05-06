@@ -23,7 +23,7 @@ void FileStream::ensureFile(std::string path)
 {
   if( !std::filesystem::exists( path ) ){
     // TODO: ensure path recursively
-    std::ofstream stream(path, std::ios::out | std::ios::binary | std::ios::trunc);
+    std::ofstream stream( path, std::ios::out | std::ios::binary | std::ios::trunc );
     stream.close();
   }
 }
@@ -79,7 +79,7 @@ void FileStream::write(ByteBuffer& buf)
     // mStream.write( reinterpret_cast<char*>(buf.data()), buf.size() );
     // THE ABOVE SHOULD WORK BUT DOESN'T WORK THEN THE FOLLOWING IS WORKAROUND.
     for(int i=0; i<buf.size(); i++){
-      mStream.seekp(mPos++);
+      mStream.seekp( mPos++ );
       mStream.write( reinterpret_cast<char*>(&buf[i]), sizeof(char) );
     }
   }

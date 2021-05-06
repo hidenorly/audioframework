@@ -44,7 +44,7 @@ void StreamSource::parse(ByteBuffer& inStreamBuf, AudioBuffer& dstAudioBuf)
 
 void StreamSource::read(AudioBuffer& buf)
 {
-  if( mpStream ){
+  if( mpStream && !mpStream->isEndOfStream() ){
     ByteBuffer inStreamBuf( buf.getRawBuffer().size() );
     mpStream->read( inStreamBuf );
     parse( inStreamBuf, buf );

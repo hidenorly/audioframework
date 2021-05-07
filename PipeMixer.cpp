@@ -15,8 +15,11 @@
 */
 
 #include "PipeMixer.hpp"
+#include "Buffer.hpp"
+#include "Mixer.hpp"
+#include <vector>
 
-PipeMixer::PipeMixer(AudioFormat format, ISink* pSink) : mFormat(format), mpSink(pSink)
+PipeMixer::PipeMixer(AudioFormat format, ISink* pSink) : mFormat(format), mpSink(pSink), mpThread(nullptr)
 {
 
 }
@@ -55,17 +58,73 @@ ISink* PipeMixer::detachSink(void)
 
 void PipeMixer::run(void)
 {
-
+  mMutexThreads.lock();
+  if( !mbIsRunning && !mpThread ){
+    mpThread = new std::thread(_execute, this);
+    mbIsRunning = true;
+  }
+  mMutexThreads.unlock();
 }
 void PipeMixer::stop(void)
 {
-
+  mMutexThreads.lock();
+  if( mbIsRunning ){
+    mbIsRunning = false;
+    std::this_thread::sleep_for(std::chrono::microseconds(100));
+    while( mpThread ){
+      for( auto& pPipeBridge : mpInterPipeBridges ){
+        pPipeBridge->unlock();
+      }
+      if( mpThread->joinable() ){
+          mpThread->join();
+          delete mpThread;
+          mpThread = nullptr;
+      }
+    }
+  }
+  mMutexThreads.unlock();
 }
 
 bool PipeMixer::isRunning(void)
 {
-  return false;
+  return mbIsRunning;
 }
+
+void PipeMixer::process(void)
+{
+  if( mpSink && mpInterPipeBridges.size() ){
+
+    int nSamples = 256;
+    AudioBuffer outBuf( mFormat, nSamples );
+    std::vector<AudioBuffer*> buffers;
+    for(int i=0; i<mpInterPipeBridges.size(); i++){
+      buffers.push_back( new AudioBuffer(mFormat, nSamples) );
+    }
+
+    while(mbIsRunning){
+      for(int i=0; mbIsRunning && i<mpInterPipeBridges.size(); i++){
+        mpInterPipeBridges[i]->read( *buffers[i] );
+      }
+      if( mbIsRunning ){
+        Mixer::process( buffers, &outBuf );
+      }
+      if( mbIsRunning && mpSink ){
+        mpSink->write( outBuf );
+      }
+    }
+
+    for( AudioBuffer* pBuffer : buffers ){
+      delete pBuffer;
+    }
+    buffers.clear();
+  }
+}
+
+void PipeMixer::_execute(PipeMixer* pThis)
+{
+  pThis->process();
+}
+
 
 ISink* PipeMixer::allocateSinkAdaptor(void)
 {

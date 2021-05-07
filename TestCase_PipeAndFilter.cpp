@@ -357,6 +357,7 @@ TEST_F(TestCase_PipeAndFilter, testPipeMixer)
   pStream1->run();
   pStream2->run();
   pPipeMixer->run();
+  std::cout << "started" << std::endl;
 
   std::this_thread::sleep_for(std::chrono::microseconds(10000));
 

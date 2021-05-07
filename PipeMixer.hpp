@@ -17,11 +17,12 @@
 #ifndef __PIPEMIXER_HPP__
 #define __PIPEMIXER_HPP__
 
-#include "PipeAndFilterCommon.hpp"
 #include "Sink.hpp"
 #include "InterPipeBridge.hpp"
 #include "AudioFormat.hpp"
 #include <vector>
+#include <mutex>
+#include <thread>
 
 class PipeMixer 
 {
@@ -29,6 +30,12 @@ protected:
   AudioFormat mFormat;
   ISink* mpSink;
   std::vector<InterPipeBridge*> mpInterPipeBridges;
+
+  std::atomic<bool> mbIsRunning;
+  std::thread* mpThread;
+  std::mutex mMutexThreads;
+  virtual void process(void);
+  static void _execute(PipeMixer* pThis);
 
 public:
   PipeMixer(AudioFormat format = AudioFormat(), ISink* pSink = nullptr );

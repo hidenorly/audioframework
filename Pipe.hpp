@@ -44,7 +44,7 @@ public:
   virtual bool isRunning(void) = 0;
 
   virtual void dump(void) = 0;
-  virtual void clearFilers(void) = 0;
+  virtual void clearFilters(void) = 0;
   virtual AudioFormat getFilterAudioFormat(void) = 0;
   virtual int getWindowSizeUsec(void) = 0;
 };
@@ -68,7 +68,7 @@ public:
   virtual bool isRunning(void);
 
   virtual void dump(void);
-  virtual void clearFilers(void);
+  virtual void clearFilters(void);
   virtual AudioFormat getFilterAudioFormat(void);
 
 protected:

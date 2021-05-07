@@ -31,6 +31,7 @@
 #include "Stream.hpp"
 #include "StreamSink.hpp"
 #include "StreamSource.hpp"
+#include "PipeMixer.hpp"
 #include "ParameterManager.hpp"
 
 #include <iostream>
@@ -68,7 +69,7 @@ TEST_F(TestCase_PipeAndFilter, testAddFilters)
   pPipe->addFilterToHead(pFilter3);
   pPipe->dump();
 
-  pPipe->clearFilers(); // delete filter instances also.
+  pPipe->clearFilters(); // delete filter instances also.
   pPipe->dump();
   delete pPipe; pPipe = nullptr;
 
@@ -112,7 +113,7 @@ TEST_F(TestCase_PipeAndFilter, testAttachSourceSinkToPipe)
   EXPECT_NE(nullptr, pSource);
   pPipe->dump();
 
-  pPipe->clearFilers(); // delete filter instances also.
+  pPipe->clearFilters(); // delete filter instances also.
 
   delete pPipe; pPipe = nullptr;
   delete pSink; pSink = nullptr;
@@ -206,8 +207,8 @@ TEST_F(TestCase_PipeAndFilter, testInterPipeBridge)
   pSink->dump();
 
   // clean up
-  pPipe1->clearFilers(); // delete filter instances also.
-  pPipe2->clearFilers(); // delete filter instances also.
+  pPipe1->clearFilters(); // delete filter instances also.
+  pPipe2->clearFilters(); // delete filter instances also.
 
   delete pPipe2; pPipe2 = nullptr;
   delete pPipe1; pPipe1 = nullptr;
@@ -256,7 +257,7 @@ TEST_F(TestCase_PipeAndFilter, testPipeManager)
   EXPECT_NE(nullptr, pSource);
   pPipe->dump();
 
-  pPipe->clearFilers(); // delete filter instances also.
+  pPipe->clearFilters(); // delete filter instances also.
 
   delete pPipe; pPipe = nullptr;
   delete pSink; pSink = nullptr;
@@ -329,6 +330,70 @@ TEST_F(TestCase_PipeAndFilter, testStreamSource)
   Util::dumpBuffer( audioBuf );
 
   pSource->close();
+}
+
+
+TEST_F(TestCase_PipeAndFilter, testPipeMixer)
+{
+  IPipe* pStream1 = new Pipe();
+  IPipe* pStream2 = new Pipe();
+
+  PipeMixer* pPipeMixer = new PipeMixer();
+
+  ISource* pSource1 = new Source();
+  pStream1->attachSource( pSource1 );
+  pStream1->attachSink( pPipeMixer->allocateSinkAdaptor() );
+  pStream1->addFilterToTail( new FilterIncrement() );
+
+  ISource* pSource2 = new Source();
+  pStream2->attachSource( pSource2 );
+  pStream2->attachSink( pPipeMixer->allocateSinkAdaptor() );
+  pStream2->addFilterToTail( new FilterIncrement() );
+
+  ISink* pSink = new Sink();
+  pPipeMixer->attachSink( pSink );
+
+  std::cout << "start" << std::endl;
+  pStream1->run();
+  pStream2->run();
+  pPipeMixer->run();
+
+  std::this_thread::sleep_for(std::chrono::microseconds(10000));
+
+  std::cout << "stop" << std::endl;
+  pPipeMixer->stop();
+  pStream1->stop();
+  pStream2->stop();
+  EXPECT_FALSE(pPipeMixer->isRunning());
+  std::cout << "stopped" << std::endl;
+
+  // finalize stream1, the source and the sink
+  ISink* pSink1 = pStream1->detachSink();
+  EXPECT_NE(nullptr, pSink1);
+  pPipeMixer->releaseSinkAdaptor( pSink1 );
+  pSource1 = pStream1->detachSource();
+  EXPECT_NE(nullptr, pSource1);
+  delete pSource1; pSource1 = nullptr;
+  pStream1->clearFilters();
+
+  // finalize stream2, the source and the sink
+  ISink* pSink2 = pStream2->detachSink();
+  EXPECT_NE(nullptr, pSink2);
+  pPipeMixer->releaseSinkAdaptor( pSink2 );
+  pSource2 = pStream2->detachSource();
+  EXPECT_NE(nullptr, pSource2);
+  delete pSource2; pSource2 = nullptr;
+  pStream2->clearFilters();
+
+  // finalize pipemixer
+  pSink = pPipeMixer->detachSink();
+  EXPECT_NE(nullptr, pSink);
+  pSink->dump();
+
+  delete pStream1;    pStream1 = nullptr;
+  delete pStream2;    pStream2 = nullptr;
+  delete pSink;       pSink = nullptr;
+  delete pPipeMixer;  pPipeMixer = nullptr;
 }
 
 TEST_F(TestCase_PipeAndFilter, testParameterManager)

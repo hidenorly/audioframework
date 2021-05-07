@@ -40,7 +40,7 @@ public:
   virtual bool isRunning(void);
 
   virtual void dump(void);
-  virtual void clearFilers(void);
+  virtual void clearFilters(void);
 
   virtual AudioFormat getFilterAudioFormat(void);
   virtual int getWindowSizeUsec(void);

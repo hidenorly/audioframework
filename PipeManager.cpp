@@ -27,8 +27,8 @@ PipeManager::PipeManager() : mpSink(nullptr), mpSource(nullptr), mSinkAttached(f
 
 PipeManager::~PipeManager()
 {
-  clearFilers();
   stop();
+  clearFilters();
 }
 
 IPipe* PipeManager::getHeadPipe(bool bCreateInstance)
@@ -214,10 +214,10 @@ void PipeManager::dump(void)
   }
 }
 
-void PipeManager::clearFilers(void)
+void PipeManager::clearFilters(void)
 {
   for( auto& pPipe : mPipes ){
-    pPipe->clearFilers();
+    pPipe->clearFilters();
     delete pPipe;
   }
   mPipes.clear();

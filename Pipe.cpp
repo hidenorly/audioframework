@@ -31,7 +31,7 @@ Pipe::Pipe():mpSink(nullptr), mpSource(nullptr), mbIsRunning(false)
 
 Pipe::~Pipe()
 {
-  clearFilers();
+  clearFilters();
   stop();
 }
 
@@ -45,7 +45,7 @@ void Pipe::addFilterToTail(Filter* pFilter)
   mFilters.push_back(pFilter);
 }
 
-void Pipe::clearFilers(void)
+void Pipe::clearFilters(void)
 {
   for( auto& pFilter : mFilters ) {
     delete pFilter;

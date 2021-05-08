@@ -63,13 +63,14 @@ The expection is to implement android audio hal, surround amplifier, mediaplayer
 
 under developing. It's in quite early stage.
 
-# Tentative way to build
+# Build
 
 ```
-$ clang++ -std=c++2a -stdlib=libc++ -pthread -v Pipe.cpp Buffer.cpp FifoBuffer.cpp InterPipeBridge.cpp PipeManager.cpp PcmFormatConversionPrimitives.cpp AudioFormatAdaptor.cpp PcmSamplingRateConversionPrimitives.cpp ChannelConversionPrimitives.cpp MultipleSink.cpp ParameterManager.cpp Stream.cpp StreamSink.cpp StreamSource.cpp PipeMixer.cpp Mixer.cpp TestCase_PipeAndFilter.cpp -lgtest_main -lgtest; ./a.out
+$ make
+
 ```
 
-* [] TODO: Makefile will be prepared.
+* [] TODO: Separate test and afw in Makefile
 
 # External Dependencies
 

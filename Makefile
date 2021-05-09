@@ -20,9 +20,9 @@ OBJ_DIR=./out
 
 # --- source code config --------------
 INCS = $(wildcard $(INC_DIR)/*.hpp)
-SRCS = $(wildcard $(SRC_DIR)/*.cpp)
+AFW_SRCS = $(wildcard $(SRC_DIR)/*.cpp)
 TEST_SRCS = $(wildcard $(TEST_DIR)/*.cpp)
-INTEG_SRCS = $(SRCS) $(TEST_SRCS)
+INTEG_SRCS = $(AFW_SRCS) $(TEST_SRCS)
 
 # --- build gtest (integrated) --------
 INTEG_TARGET = $(BIN_DIR)/afw_test
@@ -32,24 +32,25 @@ default: $(INTEG_TARGET)
 .PHONY: default
 
 $(INTEG_TARGET): $(INTEG_SRCS)
+	@[ -d $(BIN_DIR) ] || mkdir -p $(BIN_DIR)
 	$(CXX) $(CXXFLAGS) -I$(INC_DIR) $(LDLIBS) -o $@ $^ -lgtest_main -lgtest
 
 
 # --- Build for AFW -------------------
 AFW_TARGET = $(LIB_DIR)/libafw.a
-AFW_OBJS = $(addprefix $(OBJ_DIR)/, $(notdir $(SRCS:.cpp=.o)))
+AFW_OBJS = $(addprefix $(OBJ_DIR)/, $(notdir $(AFW_SRCS:.cpp=.o)))
 
-afwlib: $(AFW_TARGET)
-.PHONY: afwlib
+afw: $(AFW_TARGET)
+.PHONY: afw
 
 $(AFW_TARGET): $(AFW_OBJS)
 	@[ -d $(LIB_DIR) ] || mkdir -p $(LIB_DIR)
 	ar rc $(AFW_TARGET) $(AFW_OBJS)
 	ranlib $@
-#	$(AR) rvs $(TARGET) $(OBJS)
+#	$(AR) rvs $(AFW_TARGET) $(AFW_OBJS)
 #	ranlib -c $@
 
-$(AFW_OBJS): $(SRCS)
+$(AFW_OBJS): $(AFW_SRCS)
 	@[ -d $(OBJ_DIR) ] || mkdir -p $(OBJ_DIR)
 	$(CXX) $(CXXFLAGS) -I$(INC_DIR) $(LDLIBS) -o $@ -c $<
 

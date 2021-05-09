@@ -24,6 +24,9 @@ class Mixer
 {
 public:
   static bool process( std::vector<AudioBuffer*> pInBuffers, AudioBuffer* pOutBuffer );
+protected:
+  static bool doMix( std::vector<AudioBuffer*> pInBuffers, AudioBuffer* pOutBuffer );
+  static bool doMixPrimitive( AudioBuffer* pInBuffer1, AudioBuffer* pInBuffer2, AudioBuffer* pOutBuffer );
 };
 
 #endif /* __MIXER_HPP__ */

@@ -66,7 +66,7 @@ under developing. It's in quite early stage.
 # Build
 
 ```
-$ make
+$ make; ./bin/afw_test;
 
 ```
 

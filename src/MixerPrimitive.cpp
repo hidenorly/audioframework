@@ -22,28 +22,67 @@
 
 #if USE_TINY_MIXER_PRIMITIVE_IMPL
 
+#include <cstdint>
+#include <algorithm>
+#include <functional>
+
 bool MixerPrimitive::mix( int8_t* pRawInBuf1, int8_t* pRawInBuf2, int8_t* pRawOutBuf, int nChannelSamples)
 {
+  for(int i=0; i<nChannelSamples; i++){
+    int16_t mixed = (*pRawInBuf1) + (*pRawInBuf2);
+    *pRawOutBuf = std::max<int16_t>(INT8_MIN, std::min<int16_t>(mixed, INT8_MAX));
+    pRawInBuf1++;
+    pRawInBuf2++;
+    pRawOutBuf++;
+  }
   return true;
 }
 
 bool MixerPrimitive::mix( int16_t* pRawInBuf1, int16_t* pRawInBuf2, int16_t* pRawOutBuf, int nChannelSamples)
 {
+  for(int i=0; i<nChannelSamples; i++){
+    int32_t mixed = (*pRawInBuf1) + (*pRawInBuf2);
+    *pRawOutBuf = std::max<int32_t>(INT16_MIN, std::min<int32_t>(mixed, INT16_MAX));
+    pRawInBuf1++;
+    pRawInBuf2++;
+    pRawOutBuf++;
+  }
   return true;
 }
 
 bool MixerPrimitive::mix( int32_t* pRawInBuf1, int32_t* pRawInBuf2, int32_t* pRawOutBuf, int nChannelSamples)
 {
+  for(int i=0; i<nChannelSamples; i++){
+    int64_t mixed = (*pRawInBuf1) + (*pRawInBuf2);
+    *pRawOutBuf = std::max<int64_t>(-INT32_MIN, std::min<int64_t>(mixed, INT32_MAX));
+    pRawInBuf1++;
+    pRawInBuf2++;
+    pRawOutBuf++;
+  }
   return true;
 }
 
 bool MixerPrimitive::mix( float* pRawInBuf1, float* pRawInBuf2, float* pRawOutBuf, int nChannelSamples)
 {
+  for(int i=0; i<nChannelSamples; i++){
+    float mixed = (*pRawInBuf1) + (*pRawInBuf2);
+    *pRawOutBuf = std::max<float>(-1.0f, std::min<float>(mixed, 1.0f));
+    pRawInBuf1++;
+    pRawInBuf2++;
+    pRawOutBuf++;
+  }
   return true;
 }
 
 bool MixerPrimitive::mix24( int8_t* pRawInBuf1, int8_t* pRawInBuf2, int8_t* pRawOutBuf, int nChannelSamples)
 {
+  for(int i=0; i<nChannelSamples; i++){
+    int32_t mixed = ((int32_t)(*pRawInBuf1) << 16) + (int32_t)(*(pRawInBuf1+1) << 8) + (int32_t)(*(pRawInBuf1+2)) + ((int32_t)(*pRawInBuf2) << 16) + (int32_t)(*(pRawInBuf2+1) << 8)+ (int32_t)(*(pRawInBuf2+2));
+    *pRawOutBuf = std::max<int32_t>(-8388608, std::min<int32_t>(mixed, 8388607));
+    pRawInBuf1 = pRawInBuf1 + 3;
+    pRawInBuf2 = pRawInBuf2 + 3;
+    pRawOutBuf = pRawOutBuf + 3;
+  }
   return true;
 }
 

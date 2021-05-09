@@ -28,6 +28,7 @@ The expection is to implement android audio hal, surround amplifier, mediaplayer
         * Note that the implementation is quite tiny.
           You need to replace high quality implementation. See the .cpp, you need to define the macro to disable the default implementations.
           * ```USE_TINY_MIXER_IMPL 0```
+          * ```USE_TINY_MIXER_PRIMITIVE_IMPL 0```
   * Utilities
     * AudioBuffer
     * AudioFormatAdaptor

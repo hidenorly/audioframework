@@ -33,6 +33,7 @@
 #include "StreamSource.hpp"
 #include "PipeMixer.hpp"
 #include "ParameterManager.hpp"
+#include "Util.hpp"
 
 #include <iostream>
 

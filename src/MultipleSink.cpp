@@ -15,6 +15,8 @@
 */
 
 #include "MultipleSink.hpp"
+#include <iostream>
+
 
 MultipleSink::MultipleSink(AudioFormat audioFormat):mFormat(audioFormat)
 {

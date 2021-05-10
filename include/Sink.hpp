@@ -20,14 +20,13 @@
 #include "PipeAndFilterCommon.hpp"
 #include <string>
 #include "Buffer.hpp"
-#include "Util.hpp"
 #include "AudioFormat.hpp"
 #include <vector>
 
 class ISink : public ISourceSinkCommon
 {
 public:
-  virtual void write(AudioBuffer& buf) = 0;
+  ISink();
   virtual ~ISink(){};
 
   enum PRESENTATION {
@@ -45,45 +44,24 @@ public:
 
 protected:
   PRESENTATION mPresentation;
+  float mVolume;
 
 public:
-  virtual std::vector<PRESENTATION> getAvailablePresentations(void){
-    std::vector<PRESENTATION> supportedPresentations;
-    supportedPresentations.push_back( PRESENTATION_DEFAULT );
-    return supportedPresentations;
-  }
+  virtual void write(AudioBuffer& buf) = 0;
 
-  virtual bool isAvailablePresentation(PRESENTATION presentation)
-  {
-    bool bResult = false;
+  virtual std::vector<PRESENTATION> getAvailablePresentations(void);
+  virtual bool isAvailablePresentation(PRESENTATION presentation);
 
-    std::vector<PRESENTATION> presentations = getAvailablePresentations();
-    for(auto& aPresentation : presentations){
-      bResult |= (aPresentation == presentation);
-      if( bResult ) break;
-    }
-
-    return bResult;
-  }
-
-  virtual bool setPresentation(PRESENTATION presentation){
-    bool bSuccess = isAvailablePresentation(presentation);
-
-    if( bSuccess ){
-      mPresentation = presentation;
-    }
-
-    return bSuccess;
-  }
-
-  virtual PRESENTATION getPresentation(void){
-    return mPresentation;
-  }
+  virtual bool setPresentation(PRESENTATION presentation);
+  virtual PRESENTATION getPresentation(void);
 
   virtual bool setAudioFormat(AudioFormat audioFormat) = 0;
   virtual AudioFormat getAudioFormat(void) = 0;
 
-  virtual void dump(void){};
+  virtual float getVolume(void);
+  virtual bool setVolume(float volumePercentage);
+
+  virtual void dump(void) = 0;
 };
 
 class Sink : public ISink, public AudioBase
@@ -94,24 +72,11 @@ protected:
 public:
   Sink(){};
   virtual ~Sink(){};
-  virtual void write(AudioBuffer& buf){ mBuf.append( buf ); };
+  virtual void write(AudioBuffer& buf);
   virtual std::string toString(void){ return "Sink"; };
-  virtual void dump(void){
-    Util::dumpBuffer("Dump Sink data", mBuf);
-  }
-
-  virtual bool setAudioFormat(AudioFormat audioFormat){
-    bool bSuccess = isAvailableFormat(audioFormat);
-
-    if( bSuccess ) {
-      mBuf.setAudioFormat( audioFormat );
-    }
-
-    return bSuccess;
-  }
-  virtual AudioFormat getAudioFormat(void){
-    return mBuf.getAudioFormat();
-  }
+  virtual void dump(void);
+  virtual bool setAudioFormat(AudioFormat audioFormat);
+  virtual AudioFormat getAudioFormat(void);
 };
 
 #endif /* __SINK_HPP__ */

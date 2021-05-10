@@ -15,3 +15,84 @@
 */
 
 #include "Sink.hpp"
+#include "Util.hpp"
+
+ISink::ISink() : mVolume(100.0f)
+{
+
+}
+
+std::vector<ISink::PRESENTATION> ISink::getAvailablePresentations(void)
+{
+  std::vector<PRESENTATION> supportedPresentations;
+  supportedPresentations.push_back( PRESENTATION_DEFAULT );
+  return supportedPresentations;
+}
+
+bool ISink::isAvailablePresentation(ISink::PRESENTATION presentation)
+{
+  bool bResult = false;
+
+  std::vector<PRESENTATION> presentations = getAvailablePresentations();
+  for(auto& aPresentation : presentations){
+    bResult |= (aPresentation == presentation);
+    if( bResult ) break;
+  }
+
+  return bResult;
+}
+
+bool ISink::setPresentation(PRESENTATION presentation)
+{
+  bool bSuccess = isAvailablePresentation(presentation);
+
+  if( bSuccess ){
+    mPresentation = presentation;
+  }
+
+  return bSuccess;
+}
+
+ISink::PRESENTATION ISink::getPresentation(void)
+{
+  return mPresentation;
+}
+
+float ISink::getVolume(void)
+{
+  return mVolume;
+};
+
+bool ISink::setVolume(float volumePercentage)
+{
+//  mVolume = volumePercentage;
+  return false;
+};
+
+
+
+void Sink::write(AudioBuffer& buf)
+{
+  mBuf.append( buf );
+};
+
+void Sink::dump(void)
+{
+  Util::dumpBuffer("Dump Sink data", mBuf);
+}
+
+bool Sink::setAudioFormat(AudioFormat audioFormat)
+{
+  bool bSuccess = isAvailableFormat(audioFormat);
+
+  if( bSuccess ) {
+    mBuf.setAudioFormat( audioFormat );
+  }
+
+  return bSuccess;
+}
+
+AudioFormat Sink::getAudioFormat(void)
+{
+  return mBuf.getAudioFormat();
+}

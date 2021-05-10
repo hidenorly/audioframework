@@ -32,6 +32,7 @@
 #include "StreamSink.hpp"
 #include "StreamSource.hpp"
 #include "PipeMixer.hpp"
+#include "PipedSink.hpp"
 #include "ParameterManager.hpp"
 #include "Util.hpp"
 
@@ -396,6 +397,43 @@ TEST_F(TestCase_PipeAndFilter, testPipeMixer)
   delete pStream2;    pStream2 = nullptr;
   delete pSink;       pSink = nullptr;
   delete pPipeMixer;  pPipeMixer = nullptr;
+}
+
+TEST_F(TestCase_PipeAndFilter, testPipedSink)
+{
+  ISource* pSource = new Source();
+  ISink* pActualSink = new Sink();
+
+  PipedSink* pPipedSink = new PipedSink();
+  pPipedSink->attachSink( pActualSink );
+  pPipedSink->addFilterToTail( new FilterIncrement() );
+
+  IPipe* pPipe = new Pipe();
+  pPipe->addFilterToTail( new FilterIncrement() );
+  pPipe->attachSource( pSource );
+  pPipe->attachSink( pPipedSink );
+
+  pPipe->run();
+  pPipedSink->run();
+
+  std::this_thread::sleep_for(std::chrono::microseconds(10000));
+  pPipedSink->stop();
+  pPipe->stop();
+  pPipedSink->dump();
+
+  ISink* pActualSink2 = pPipedSink->detachSink();
+  EXPECT_EQ( pActualSink, pActualSink2 );
+  pPipedSink->clearFilters();
+
+  ISink* pPipedSink2 = pPipe->detachSink();
+  EXPECT_EQ( pPipedSink, pPipedSink2 );
+  ISource* pSource2 = pPipe->detachSource();
+  EXPECT_EQ( pSource, pSource2 );
+  pPipe->clearFilters();
+
+  delete pPipedSink; pPipedSink = nullptr;
+  delete pActualSink; pActualSink = nullptr;
+  delete pSource; pSource = nullptr;
 }
 
 TEST_F(TestCase_PipeAndFilter, testParameterManager)

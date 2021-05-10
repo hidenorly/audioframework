@@ -39,6 +39,8 @@ protected:
 
   void testStreamSource(void);
 
+  void testPipedSink(void);
+
   void testPipeMixer(void);
 
   void testParameterManager(void);

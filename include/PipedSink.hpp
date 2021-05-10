@@ -1,4 +1,4 @@
-/* 
+/*
   Copyright (C) 2021 hidenorly
 
    Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,35 +14,43 @@
    limitations under the License.
 */
 
-#ifndef __INTERPIPEBRIDGE_HPP__
-#define __INTERPIPEBRIDGE_HPP__
+#ifndef __PIPEDSINK_HPP__
+#define __PIPEDSINK_HPP__
 
-#include "Buffer.hpp"
-#include "FifoBuffer.hpp"
-#include "AudioFormat.hpp"
 #include "Sink.hpp"
-#include "Source.hpp"
+#include "Buffer.hpp"
+#include "InterPipeBridge.hpp"
+#include "AudioFormat.hpp"
+#include "Pipe.hpp"
 #include <string>
 
-class InterPipeBridge : public ISink, public ISource, public AudioBase
+class PipedSink : public ISink, public AudioBase
 {
 protected:
-  FifoBuffer mFifoBuffer;
+  ISink* mpSink;
+  IPipe* mpPipe;
+  InterPipeBridge* mpInterPipeBridge;
 
 public:
-  InterPipeBridge(AudioFormat format = AudioFormat());
-  virtual ~InterPipeBridge(){ mFifoBuffer.unlock(); };
+  PipedSink();
+  virtual ~PipedSink();
 
-  virtual void read(AudioBuffer& buf);
+  virtual ISink* attachSink(ISink* pSink);
+  virtual ISink* detachSink(void);
+
+  virtual void addFilterToHead(Filter* pFilter);
+  virtual void addFilterToTail(Filter* pFilter);
+  virtual void run(void);
+  virtual void stop(void);
+  virtual bool isRunning(void);
+  virtual void clearFilters(void);
+
   virtual void write(AudioBuffer& buf);
-
-  virtual void dump(void){};
-  virtual std::string toString(void){return "InterPipeBridge";};
+  virtual std::string toString(void){ return "PipedSink"; };
+  virtual void dump(void);
 
   virtual bool setAudioFormat(AudioFormat audioFormat);
   virtual AudioFormat getAudioFormat(void);
-
-  void unlock(void){ mFifoBuffer.unlock(); };
 };
 
-#endif /* __INTERPIPEBRIDGE_HPP__ */
+#endif /* __PIPEDSINK_HPP__ */

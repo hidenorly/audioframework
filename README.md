@@ -86,8 +86,8 @@ $ make; ./bin/afw_test;
   * [] Add volume filter with ParameterManager
   * [] Add delay filter with ParameterManager
 * Sink
-  * [] Add filter enabled sink
-  * [] Add volume
+  * [done] Add filter enabled sink
+  * [on-going] Add volume
 * Source
   * [] Add filter enabled source
   * [] Add Sin curve surce

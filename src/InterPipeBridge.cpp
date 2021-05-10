@@ -16,7 +16,7 @@
 
 #include "InterPipeBridge.hpp"
 
-InterPipeBridge::InterPipeBridge(AudioFormat& format) : mFifoBuffer(format)
+InterPipeBridge::InterPipeBridge(AudioFormat format) : mFifoBuffer(format)
 {
 
 }

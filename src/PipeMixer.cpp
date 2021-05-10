@@ -58,16 +58,16 @@ ISink* PipeMixer::detachSink(void)
 
 void PipeMixer::run(void)
 {
-  mMutexThreads.lock();
+  mMutexThread.lock();
   if( !mbIsRunning && !mpThread ){
     mpThread = new std::thread(_execute, this);
     mbIsRunning = true;
   }
-  mMutexThreads.unlock();
+  mMutexThread.unlock();
 }
 void PipeMixer::stop(void)
 {
-  mMutexThreads.lock();
+  mMutexThread.lock();
   if( mbIsRunning ){
     mbIsRunning = false;
     std::this_thread::sleep_for(std::chrono::microseconds(100));
@@ -82,7 +82,7 @@ void PipeMixer::stop(void)
       }
     }
   }
-  mMutexThreads.unlock();
+  mMutexThread.unlock();
 }
 
 bool PipeMixer::isRunning(void)

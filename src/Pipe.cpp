@@ -24,7 +24,7 @@
 #include <numeric>
 #include <stdexcept>
 
-Pipe::Pipe():mpSink(nullptr), mpSource(nullptr), mbIsRunning(false)
+Pipe::Pipe():mpSink(nullptr), mpSource(nullptr), mbIsRunning(false), mpThread(nullptr)
 {
 
 }
@@ -86,28 +86,29 @@ ISource* Pipe::detachSource(void)
 
 void Pipe::run(void)
 {
-  mMutexThreads.lock();
-  if( !mbIsRunning ){
-    mThreads.push_back( std::thread(_execute, this) );
+  mMutexThread.lock();
+  if( !mbIsRunning && !mpThread ){
+    mpThread = new std::thread(_execute, this);
     mbIsRunning = true;
   }
-  mMutexThreads.unlock();
+  mMutexThread.unlock();
 }
 
 void Pipe::stop(void)
 {
-  mMutexThreads.lock();
+  mMutexThread.lock();
   if( mbIsRunning ){
     mbIsRunning = false;
     std::this_thread::sleep_for(std::chrono::microseconds(100));
-    for( auto& aThread : mThreads ){
-      if( aThread.joinable() ){
-        aThread.join();
+    while( mpThread ){
+      if( mpThread->joinable() ){
+          mpThread->join();
+          delete mpThread;
+          mpThread = nullptr;
       }
     }
-    mThreads.clear();
   }
-  mMutexThreads.unlock();
+  mMutexThread.unlock();
 }
 
 bool Pipe::isRunning(void)

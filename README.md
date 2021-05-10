@@ -71,8 +71,36 @@ $ make; ./bin/afw_test;
 
 ```
 
-* [] TODO: Separate test and afw in Makefile
-
 # External Dependencies
 
 * gtest : https://github.com/google/googletest.git
+
+
+# Plans to implement
+
+* Build
+  * [] Separate test and afw in Makefile : partially done. ```make``` equals ```make afw; make test;```.
+  * [] Filter, Source, Sink development kit
+* Filter example
+  * [] Add reverb with ParameterManager
+  * [] Add volume filter with ParameterManager
+  * [] Add delay filter with ParameterManager
+* Sink
+  * [] Add filter enabled sink
+  * [] Add volume
+* Source
+  * [] Add filter enabled source
+  * [] Add Sin curve surce
+* Strategy
+  * [] Add dynamic pipe change
+* All
+  * [] Compressed data support
+    * [] Sink, Pipe, Source
+    * [] Decoder
+    * [] Encoder
+    * [] Player (ES controller)
+  * [] A/V sync support
+    * [] Tiny speed controller (with TinySRC)
+* OSAL
+  * Example Sink for ALSA and/or MacOSX
+  * Example Source for ALSA and/or MacOSX

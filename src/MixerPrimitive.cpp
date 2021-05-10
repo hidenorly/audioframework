@@ -77,7 +77,7 @@ bool MixerPrimitive::mix( float* pRawInBuf1, float* pRawInBuf2, float* pRawOutBu
 bool MixerPrimitive::mix24( int8_t* pRawInBuf1, int8_t* pRawInBuf2, int8_t* pRawOutBuf, int nChannelSamples)
 {
   for(int i=0; i<nChannelSamples; i++){
-    int32_t mixed = ((int32_t)(*pRawInBuf1) << 16) + (int32_t)(*(pRawInBuf1+1) << 8) + (int32_t)(*(pRawInBuf1+2)) + ((int32_t)(*pRawInBuf2) << 16) + (int32_t)(*(pRawInBuf2+1) << 8)+ (int32_t)(*(pRawInBuf2+2));
+    int32_t mixed = (int32_t)(*pRawInBuf1) + (int32_t)(*(pRawInBuf1+1) << 8) + (int32_t)(*(pRawInBuf1+2) << 16) + (int32_t)(*pRawInBuf2) + (int32_t)(*(pRawInBuf2+1) << 8)+ (int32_t)(*(pRawInBuf2+2) << 16);
     *pRawOutBuf = std::max<int32_t>(-8388608, std::min<int32_t>(mixed, 8388607));
     pRawInBuf1 = pRawInBuf1 + 3;
     pRawInBuf2 = pRawInBuf2 + 3;

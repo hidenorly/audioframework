@@ -83,8 +83,8 @@ protected:
   ISource* mpSource;
 
   std::atomic<bool> mbIsRunning;
-  std::vector<std::thread> mThreads;
-  std::mutex mMutexThreads;
+  std::thread* mpThread;
+  std::mutex mMutexThread;
 
 public:
   virtual int getWindowSizeUsec(void){ return getCommonWindowSizeUsec(); };

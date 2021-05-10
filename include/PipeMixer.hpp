@@ -33,7 +33,7 @@ protected:
 
   std::atomic<bool> mbIsRunning;
   std::thread* mpThread;
-  std::mutex mMutexThreads;
+  std::mutex mMutexThread;
   virtual void process(void);
   static void _execute(PipeMixer* pThis);
 

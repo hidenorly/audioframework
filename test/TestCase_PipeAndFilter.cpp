@@ -275,7 +275,6 @@ TEST_F(TestCase_PipeAndFilter, testMultipleSink)
   chMap1.insert( std::make_pair(AudioFormat::CH::L, AudioFormat::CH::L) ); // dst, src
   chMap1.insert( std::make_pair(AudioFormat::CH::R, AudioFormat::CH::L) ); // dst, src
   pMultiSink->addSink( pSink1, chMap1 );
-  pMultiSink->dump();
 
   ISink* pSink2 = new Sink();
   AudioFormat::ChannelMapper chMap2;
@@ -283,7 +282,6 @@ TEST_F(TestCase_PipeAndFilter, testMultipleSink)
   chMap2.insert( std::make_pair(AudioFormat::CH::R, AudioFormat::CH::R) ); // dst, src
 
   pMultiSink->addSink( pSink2, chMap2 );
-  pMultiSink->dump();
 
   AudioBuffer buf( AudioFormat(), 256 );
   Source source;
@@ -418,6 +416,12 @@ TEST_F(TestCase_PipeAndFilter, testPipedSink)
   pPipedSink->run();
 
   std::this_thread::sleep_for(std::chrono::microseconds(1000));
+
+  std::cout << "source latency: " << std::dec << pSource->getLatencyUSec() << std::endl;
+  std::cout << "pipe latency: " << pPipe->getLatencyUSec() << std::endl;
+  std::cout << "actual sink latency: " << pActualSink->getLatencyUSec() << std::endl;
+  std::cout << "piped sink latency: " << pPipedSink->getLatencyUSec() << std::endl;
+
   pPipedSink->stop();
   pPipe->stop();
   pPipedSink->dump();

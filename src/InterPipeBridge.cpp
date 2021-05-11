@@ -16,13 +16,13 @@
 
 #include "InterPipeBridge.hpp"
 
-InterPipeBridge::InterPipeBridge(AudioFormat format) : ISink(), mFifoBuffer(format)
+InterPipeBridge::InterPipeBridge(AudioFormat format) : ISource(), ISink(), mFifoBuffer(format)
 {
 
 }
 
 
-void InterPipeBridge::read(AudioBuffer& buf)
+void InterPipeBridge::readPrimitive(AudioBuffer& buf)
 {
   mFifoBuffer.read(buf);
 }

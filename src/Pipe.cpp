@@ -191,3 +191,18 @@ int Pipe::getCommonWindowSizeUsec(void)
 
   return result;
 }
+
+int Pipe::getWindowSizeUsec(void)
+{
+  return getCommonWindowSizeUsec();
+}
+
+int Pipe::getLatencyUSec(void)
+{
+  int nProcessingTimeUsec = 0;
+  for( auto& pFilter : mFilters ) {
+    nProcessingTimeUsec += pFilter->getExpectedProcessingUSec();
+  }
+
+  return getCommonWindowSizeUsec() + nProcessingTimeUsec;
+}

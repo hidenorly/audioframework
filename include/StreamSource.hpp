@@ -30,7 +30,7 @@ protected:
 public:
   StreamSource(AudioFormat format = AudioFormat(), IStream* pStream = nullptr);
   virtual ~StreamSource();
-  virtual void read(AudioBuffer& buf);
+  virtual void readPrimitive(AudioBuffer& buf);
   virtual void close(void);
   virtual std::string toString(void){return "StreamSource";};
 

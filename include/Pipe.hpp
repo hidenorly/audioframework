@@ -47,6 +47,7 @@ public:
   virtual void clearFilters(void) = 0;
   virtual AudioFormat getFilterAudioFormat(void) = 0;
   virtual int getWindowSizeUsec(void) = 0;
+  virtual int getLatencyUSec(void) = 0;
 };
 
 class Pipe : public IPipe
@@ -70,6 +71,8 @@ public:
   virtual void dump(void);
   virtual void clearFilters(void);
   virtual AudioFormat getFilterAudioFormat(void);
+  virtual int getWindowSizeUsec(void);
+  virtual int getLatencyUSec(void);
 
 protected:
   // Should override process() if you want to support different window size processing by several threads, etc.
@@ -85,9 +88,6 @@ protected:
   std::atomic<bool> mbIsRunning;
   std::thread* mpThread;
   std::mutex mMutexThread;
-
-public:
-  virtual int getWindowSizeUsec(void){ return getCommonWindowSizeUsec(); };
 };
 
 #endif /* __PIPE_HPP__ */

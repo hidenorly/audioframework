@@ -15,3 +15,46 @@
 */
 
 #include "Filter.hpp"
+
+IFilter::~IFilter()
+{
+
+}
+
+void IFilter::process(AudioBuffer& inBuf, AudioBuffer& outBuf)
+{
+  outBuf = inBuf;
+}
+
+int IFilter::getRequiredWindowSizeUsec(void)
+{
+  return DEFAULT_WINDOW_SIZE_USEC;
+}
+
+int IFilter::getLatencyUSec(void)
+{
+  return DEFAULT_WINDOW_SIZE_USEC; // usually window size + processing time
+}
+
+
+Filter::Filter()
+{
+
+}
+
+Filter::~Filter()
+{
+
+}
+
+std::vector<AudioFormat> Filter::getSupportedAudioFormats(void)
+{
+    std::vector<AudioFormat> audioFormats;
+    audioFormats.push_back( AudioFormat() );
+    return audioFormats;
+}
+
+int Filter::getExpectedProcessingUSec(void)
+{
+  return DEFAULT_PROCESSING_TIME_USEC;
+}

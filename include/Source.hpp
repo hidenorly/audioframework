@@ -24,26 +24,22 @@
 
 class ISource : public ISourceSinkCommon
 {
+protected:
+  int mLatencyUsec;
 public:
-  virtual void read(AudioBuffer& buf) = 0;
-  virtual ~ISource(){};
+  ISource();
+  virtual ~ISource();
+  virtual void read(AudioBuffer& buf);
+  virtual void readPrimitive(AudioBuffer& buf) = 0;
+  virtual int getLatencyUSec(void);
 };
 
 class Source : public AudioBase, public ISource
 {
 public:
-  Source(){};
-  virtual ~Source(){};
-  virtual void read(AudioBuffer& buf){
-    ByteBuffer rawBuffer = buf.getRawBuffer();
-    ByteBuffer bufZero(rawBuffer.size(), 128);
-    uint8_t* ptr = bufZero.data();
-    for(int i=0; i<bufZero.size(); i++){
-      *ptr++ = i % 256;
-    }
-    rawBuffer = bufZero;
-    buf.setRawBuffer( rawBuffer );
-  };
+  Source();
+  virtual ~Source();
+  virtual void readPrimitive(AudioBuffer& buf);
   virtual std::string toString(void){return "Source";};
 };
 

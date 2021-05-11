@@ -85,12 +85,29 @@ $ make; ./bin/afw_test;
   * [] Add reverb with ParameterManager
   * [] Add volume filter with ParameterManager
   * [] Add delay filter with ParameterManager
+* Pipe
+  * [done] window size LCM based Pipe
+  * [done] min window size based Pipe
+  * [done] PipeMixer
+  * [done] Add get latency
 * Sink
-  * [done] Add filter enabled sink
-  * [done] Add volume
+  * [done] StreamSink : output to the stream
+  * [done] MultiSink
+  * [done] Add filter enabled sink (PipedSink)
+  * [done] Add volume (setVolume() in ISink)
+  * [done] Add get latency
 * Source
+  * [done] StreamSource : input from the stream
+  * [done] Add get latency
   * [] Add filter enabled source
   * [] Add Sin curve surce
+* Util
+  * [done] PCM encoding converter
+  * [done] Sampling rate converter
+  * [done] Channel converter
+  * [done] Volume
+  * [done] FileStream
+  * [done] InterPipeBridge (FIFOed Source and Sink)
 * Strategy
   * [] Add dynamic pipe change
 * All

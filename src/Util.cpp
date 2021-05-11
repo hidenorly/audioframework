@@ -26,12 +26,12 @@ void Util::dumpBuffer(AudioBuffer* pBuf)
       " samples:" << (int)pBuf->getSamples() <<
       std::endl;
 
+    std::cout << std::hex;
     ByteBuffer rawBuffer = pBuf->getRawBuffer();
     for(auto& aData : rawBuffer){
-//      std::cout << (int)aData << ",";
-      std::cout << std::hex << (int)aData << ",";
+      std::cout << (int)aData << ",";
     }
-    std::cout << std::endl;
+    std::cout << std::dec << std::endl;
   }
 }
 

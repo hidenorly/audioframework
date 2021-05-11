@@ -17,7 +17,7 @@
 #include "StreamSource.hpp"
 #include "AudioFormatAdaptor.hpp"
 
-StreamSource::StreamSource(AudioFormat format, IStream* pStream): mFormat(format), mpStream(pStream)
+StreamSource::StreamSource(AudioFormat format, IStream* pStream): ISource(), mFormat(format), mpStream(pStream)
 {
 
 }
@@ -42,7 +42,7 @@ void StreamSource::parse(ByteBuffer& inStreamBuf, AudioBuffer& dstAudioBuf)
 }
 
 
-void StreamSource::read(AudioBuffer& buf)
+void StreamSource::readPrimitive(AudioBuffer& buf)
 {
   if( mpStream && !mpStream->isEndOfStream() ){
     ByteBuffer inStreamBuf( buf.getRawBuffer().size() );

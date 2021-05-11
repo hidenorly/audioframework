@@ -44,6 +44,7 @@ public:
 
   virtual AudioFormat getFilterAudioFormat(void);
   virtual int getWindowSizeUsec(void);
+  virtual int getLatencyUSec(void);
 
 protected:
   IPipe* getHeadPipe(bool bCreateInstance = false);

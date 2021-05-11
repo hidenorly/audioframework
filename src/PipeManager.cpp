@@ -19,6 +19,7 @@
 #include "InterPipeBridge.hpp"
 #include <vector>
 #include <iostream>
+#include <algorithm>
 
 PipeManager::PipeManager() : mpSink(nullptr), mpSource(nullptr), mSinkAttached(false), mSourceAttached(false)
 {
@@ -264,4 +265,14 @@ void PipeManager::ensureSourceSink(void)
       mSinkAttached = true;
     }
   }
+}
+
+int PipeManager::getLatencyUSec(void)
+{
+  int nLatency = 0;
+  for( auto& pPipe : mPipes ){
+    nLatency = std::max( nLatency, pPipe->getLatencyUSec() );
+  }
+
+  return nLatency;
 }

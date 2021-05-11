@@ -18,7 +18,7 @@
 #include "Util.hpp"
 #include "Volume.hpp"
 
-ISink::ISink() : mVolume(100.0f)
+ISink::ISink() : mVolume(100.0f), mLatencyUsec(0)
 {
 
 }
@@ -72,13 +72,23 @@ bool ISink::setVolume(float volumePercentage)
 
 void ISink::write(AudioBuffer& buf)
 {
+  int nSamples = buf.getSamples();
+  AudioFormat format = buf.getAudioFormat();
+  if( nSamples ){
+    mLatencyUsec = 1000000 * nSamples / format.getSamplingRate();
+  }
   if( 100.0f == mVolume ){
     writePrimitive( buf );
   } else {
-    AudioBuffer volumedBuf( buf.getAudioFormat(), buf.getSamples() );
+    AudioBuffer volumedBuf( format, nSamples );
     Volume::process( &buf, &volumedBuf, mVolume );
     writePrimitive( volumedBuf );
   }
+}
+
+int ISink::getLatencyUSec(void)
+{
+  return mLatencyUsec;
 }
 
 Sink::Sink():ISink()

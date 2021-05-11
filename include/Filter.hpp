@@ -26,21 +26,22 @@ class IFilter
 public:
   static const int DEFAULT_WINDOW_SIZE_USEC = 5000; // 5msec
 
-  virtual ~IFilter(){};
-  virtual void process(AudioBuffer& inBuf, AudioBuffer& outBuf){ outBuf = inBuf; };
-  virtual int getRequiredWindowSizeUsec(void){ return DEFAULT_WINDOW_SIZE_USEC; };
+  virtual ~IFilter();
+  virtual void process(AudioBuffer& inBuf, AudioBuffer& outBuf);
+  virtual int getRequiredWindowSizeUsec(void);
+  virtual int getLatencyUSec(void);
+  virtual int getExpectedProcessingUSec(void) = 0;
 };
 
 class Filter : public IFilter, public AudioBase
 {
 public:
-  Filter(){};
-  virtual ~Filter(){};
-  virtual std::vector<AudioFormat> getSupportedAudioFormats(void){
-    std::vector<AudioFormat> audioFormats;
-    audioFormats.push_back( AudioFormat() );
-    return audioFormats;
-  };
+  static const int DEFAULT_PROCESSING_TIME_USEC = 100; // 0.1msec
+
+  Filter();
+  virtual ~Filter();
+  virtual std::vector<AudioFormat> getSupportedAudioFormats(void);
+  virtual int getExpectedProcessingUSec(void);
 };
 
 #endif /* __FILTER_HPP__ */

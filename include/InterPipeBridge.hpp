@@ -33,7 +33,7 @@ public:
   InterPipeBridge(AudioFormat format = AudioFormat());
   virtual ~InterPipeBridge(){ mFifoBuffer.unlock(); };
 
-  virtual void read(AudioBuffer& buf);
+  virtual void readPrimitive(AudioBuffer& buf);
   virtual void writePrimitive(AudioBuffer& buf);
 
   virtual void dump(void){};

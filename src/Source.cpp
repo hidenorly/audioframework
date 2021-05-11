@@ -15,3 +15,51 @@
 */
 
 #include "Source.hpp"
+
+ISource::ISource():mLatencyUsec(0)
+{
+
+}
+
+ISource::~ISource()
+{
+
+}
+
+void ISource::read(AudioBuffer& buf)
+{
+  int nSamples = buf.getSamples();
+  AudioFormat format = buf.getAudioFormat();
+  if( nSamples ){
+    mLatencyUsec = 1000000 * nSamples / format.getSamplingRate();
+  }
+  readPrimitive(buf);
+}
+
+int ISource::getLatencyUSec(void)
+{
+  return mLatencyUsec;
+}
+
+
+Source::Source():ISource()
+{
+
+}
+
+Source::~Source()
+{
+
+}
+
+void Source::readPrimitive(AudioBuffer& buf)
+{
+  ByteBuffer rawBuffer = buf.getRawBuffer();
+  ByteBuffer bufZero(rawBuffer.size(), 128);
+  uint8_t* ptr = bufZero.data();
+  for(int i=0; i<bufZero.size(); i++){
+    *ptr++ = i % 256;
+  }
+  rawBuffer = bufZero;
+  buf.setRawBuffer( rawBuffer );
+}

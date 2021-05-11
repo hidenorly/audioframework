@@ -17,7 +17,7 @@
 #include "PipedSink.hpp"
 #include "PipeManager.hpp"
 
-PipedSink::PipedSink() : mpSink(nullptr)
+PipedSink::PipedSink() : ISink(), mpSink(nullptr)
 {
   mpInterPipeBridge = new InterPipeBridge();
   mpPipe = new PipeManager();
@@ -70,7 +70,7 @@ ISink* PipedSink::detachSink(void)
   return prevSink;
 }
 
-void PipedSink::write(AudioBuffer& buf)
+void PipedSink::writePrimitive(AudioBuffer& buf)
 {
   if( mpSink && mpInterPipeBridge ){
     mpInterPipeBridge->write( buf );

@@ -7,7 +7,7 @@ ifeq ($(UNAME),Darwin)
 	CXX=clang++
 endif
 
-CXXFLAGS := -std=c++2a -pthread -v
+CXXFLAGS := -std=c++2a -pthread
 LDLIBS := -stdlib=libc++
 
 # project config

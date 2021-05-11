@@ -26,57 +26,51 @@
 #include <algorithm>
 #include <functional>
 
-bool VolumePrimitive::volume( int8_t* pRawInBuf, int8_t* pRawOutBuf, float volume, int nChannelSamples)
+bool VolumePrimitive::volume(int8_t* pRawInBuf, int8_t* pRawOutBuf, float volume, int nChannelSamples)
 {
   for(int i=0; i<nChannelSamples; i++){
-    int16_t volumed = ((float)(*pRawInBuf) * volume / 100.0f);
-    *pRawOutBuf = std::max<int16_t>(INT8_MIN, std::min<int16_t>(volumed, INT8_MAX));
-    pRawInBuf++;
-    pRawOutBuf++;
+    int16_t volumed = ((float)(*pRawInBuf++) * volume / 100.0f);
+    *pRawOutBuf++ = (int8_t)(std::max<int16_t>(INT8_MIN, std::min<int16_t>(volumed, INT8_MAX)));
   }
   return true;
 }
 
-bool VolumePrimitive::volume( int16_t* pRawInBuf, int16_t* pRawOutBuf, float volume, int nChannelSamples)
+bool VolumePrimitive::volume(int16_t* pRawInBuf, int16_t* pRawOutBuf, float volume, int nChannelSamples)
 {
   for(int i=0; i<nChannelSamples; i++){
-    int32_t volumed = ((float)(*pRawInBuf) * volume / 100.0f);
-    *pRawOutBuf = std::max<int32_t>(INT16_MIN, std::min<int32_t>(volumed, INT16_MAX));
-    pRawInBuf++;
-    pRawOutBuf++;
+    int32_t volumed = ((float)(*pRawInBuf++) * volume / 100.0f);
+    *pRawOutBuf++ = (int16_t)(std::max<int32_t>(INT16_MIN, std::min<int32_t>(volumed, INT16_MAX)));
   }
   return true;
 }
 
-bool VolumePrimitive::volume( int32_t* pRawInBuf, int32_t* pRawOutBuf, float volume, int nChannelSamples)
+bool VolumePrimitive::volume(int32_t* pRawInBuf, int32_t* pRawOutBuf, float volume, int nChannelSamples)
 {
   for(int i=0; i<nChannelSamples; i++){
-    float volumed = ((float)(*pRawInBuf) * volume / 100.0f);
-    *pRawOutBuf = std::max<float>(INT32_MIN, std::min<float>(volumed, INT32_MAX));
-    pRawInBuf++;
-    pRawOutBuf++;
+    float volumed = ((float)(*pRawInBuf++) * volume / 100.0f);
+    *pRawOutBuf++ = (int32_t)(std::max<float>(INT32_MIN, std::min<float>(volumed, INT32_MAX)));
   }
   return true;
 }
 
-bool VolumePrimitive::volume( float* pRawInBuf, float* pRawOutBuf, float volume, int nChannelSamples)
+bool VolumePrimitive::volume(float* pRawInBuf, float* pRawOutBuf, float volume, int nChannelSamples)
 {
   for(int i=0; i<nChannelSamples; i++){
-    float volumed = ((float)(*pRawInBuf) * volume / 100.0f);
-    *pRawOutBuf = std::max<float>(-1.0f, std::min<float>(volumed, 1.0f));
-    pRawInBuf++;
-    pRawOutBuf++;
+    float volumed = ((float)(*pRawInBuf++) * volume / 100.0f);
+    *pRawOutBuf++ = std::max<float>(-1.0f, std::min<float>(volumed, 1.0f));
   }
   return true;
 }
 
-bool VolumePrimitive::volume24( int8_t* pRawInBuf, int8_t* pRawOutBuf, float volume, int nChannelSamples)
+bool VolumePrimitive::volume24(int8_t* pRawInBuf, int8_t* pRawOutBuf, float volume, int nChannelSamples)
 {
   for(int i=0; i<nChannelSamples; i++){
     float volumed =  ((float)((int32_t)(*pRawInBuf) + (int32_t)(*(pRawInBuf+1) << 8) + (int32_t)(*(pRawInBuf+2) << 16)) * volume / 100.0f);
-    *pRawOutBuf = std::max<float>(-8388608.0f, std::min<float>(volumed, 8388607.0f));
+    int32_t tmp = (int32_t)(std::max<float>(-8388608.0f, std::min<float>(volumed, 8388607.0f)));
+    *pRawOutBuf++ = tmp & 0xFF;
+    *pRawOutBuf++ = (tmp & 0xFF00) >> 8;
+    *pRawOutBuf++ = (tmp & 0xFF0000) >> 16;
     pRawInBuf = pRawInBuf + 3;
-    pRawOutBuf = pRawOutBuf + 3;
   }
   return true;
 }

@@ -34,7 +34,7 @@ public:
   virtual ~StreamSink();
 
   virtual void serialize(AudioBuffer& srcAudioBuf, ByteBuffer& outStreamBuf);
-  virtual void write(AudioBuffer& buf);
+  virtual void writePrimitive(AudioBuffer& buf);
   virtual void close(void);
 
   virtual void dump(void){};

@@ -18,7 +18,7 @@
 #include <iostream>
 
 
-MultipleSink::MultipleSink(AudioFormat audioFormat):mFormat(audioFormat)
+MultipleSink::MultipleSink(AudioFormat audioFormat):ISink(), mFormat(audioFormat)
 {
 
 }
@@ -45,7 +45,7 @@ void MultipleSink::clearSinks(void)
 }
 
 
-void MultipleSink::write(AudioBuffer& buf)
+void MultipleSink::writePrimitive(AudioBuffer& buf)
 {
   for(auto& pSink : mpSinks ){
     AudioFormat::ChannelMapper mapper = mChannelMaps[ pSink ];

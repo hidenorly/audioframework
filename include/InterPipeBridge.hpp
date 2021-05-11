@@ -34,7 +34,7 @@ public:
   virtual ~InterPipeBridge(){ mFifoBuffer.unlock(); };
 
   virtual void read(AudioBuffer& buf);
-  virtual void write(AudioBuffer& buf);
+  virtual void writePrimitive(AudioBuffer& buf);
 
   virtual void dump(void){};
   virtual std::string toString(void){return "InterPipeBridge";};

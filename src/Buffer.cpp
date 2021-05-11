@@ -70,7 +70,6 @@ AudioBuffer::~AudioBuffer()
 AudioBuffer::AudioBuffer()
 {
   setAudioFormat( AudioFormat() );
-  resize( 0 );
 }
 
 AudioBuffer& AudioBuffer::operator=(AudioBuffer& buf)

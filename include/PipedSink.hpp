@@ -45,7 +45,7 @@ public:
   virtual bool isRunning(void);
   virtual void clearFilters(void);
 
-  virtual void write(AudioBuffer& buf);
+  virtual void writePrimitive(AudioBuffer& buf);
   virtual std::string toString(void){ return "PipedSink"; };
   virtual void dump(void);
 

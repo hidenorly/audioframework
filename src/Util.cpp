@@ -15,3 +15,38 @@
 */
 
 #include "Util.hpp"
+
+void Util::dumpBuffer(AudioBuffer* pBuf)
+{
+  if(pBuf){
+    AudioFormat format = pBuf->getAudioFormat();
+    std::cout << "sampling rate:" << (int)format.getSamplingRate() <<
+      " format:" << format.getEncodingString() <<
+      " channels:" << (int)format.getNumberOfChannels() <<
+      " samples:" << (int)pBuf->getSamples() <<
+      std::endl;
+
+    ByteBuffer rawBuffer = pBuf->getRawBuffer();
+    for(auto& aData : rawBuffer){
+//      std::cout << (int)aData << ",";
+      std::cout << std::hex << (int)aData << ",";
+    }
+    std::cout << std::endl;
+  }
+}
+
+void Util::dumpBuffer(AudioBuffer& buf)
+{
+  dumpBuffer(&buf);
+}
+
+void Util::dumpBuffer(std::string message, AudioBuffer* buf)
+{
+  std::cout << message << std::endl;
+  dumpBuffer(buf);
+}
+
+void Util::dumpBuffer(std::string message, AudioBuffer& buf)
+{
+  dumpBuffer(message, &buf);
+}

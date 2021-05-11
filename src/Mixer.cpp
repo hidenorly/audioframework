@@ -70,6 +70,7 @@ bool Mixer::process( std::vector<AudioBuffer*> pInBuffers, AudioBuffer* pOutBuff
 bool Mixer::doMix( std::vector<AudioBuffer*> pInBuffers, AudioBuffer* pOutBuffer )
 {
   bool result = false;
+  AudioBuffer* pFinalOutBuffer = pOutBuffer;
   if( !pInBuffers.empty() && pOutBuffer ){
     AudioFormat format = pOutBuffer->getAudioFormat();
     int nSamples = pOutBuffer->getSamples();
@@ -83,6 +84,10 @@ bool Mixer::doMix( std::vector<AudioBuffer*> pInBuffers, AudioBuffer* pOutBuffer
       AudioBuffer* pInBuffer2 = pInBuffers[i];
       result = doMixPrimitive( pInBuffer1, pInBuffer2, pOutBuffer );
       if( !result ) break;
+      if( (i+1) == pInBuffers.size() ){
+        // end then copy to the final buffer
+       *pFinalOutBuffer = *pOutBuffer;
+      }
       AudioBuffer* pTmp = pInBuffer1;
       pInBuffer1 = pOutBuffer;
       pOutBuffer = pTmp;

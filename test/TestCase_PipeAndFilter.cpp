@@ -103,7 +103,7 @@ TEST_F(TestCase_PipeAndFilter, testAttachSourceSinkToPipe)
   pPipe->run();
   EXPECT_TRUE(pPipe->isRunning());
 
-  std::this_thread::sleep_for(std::chrono::microseconds(10000));
+  std::this_thread::sleep_for(std::chrono::microseconds(1000));
 
   pPipe->stop();
   EXPECT_FALSE(pPipe->isRunning());
@@ -146,7 +146,7 @@ TEST_F(TestCase_PipeAndFilter, testFifoBuffer)
 
   std::atomic<bool> bResult = false;
   std::thread thx([&]{ bResult = fifoBuf.read( readBuf );});
-  std::this_thread::sleep_for(std::chrono::microseconds(100000));
+  std::this_thread::sleep_for(std::chrono::microseconds(1000));
   EXPECT_TRUE( fifoBuf.write( writeBuf ) );
   thx.join();
   EXPECT_TRUE( bResult );
@@ -187,7 +187,7 @@ TEST_F(TestCase_PipeAndFilter, testInterPipeBridge)
   EXPECT_TRUE(pPipe2->isRunning());
   std::cout << "running" << std::endl;
 
-  std::this_thread::sleep_for(std::chrono::microseconds(10000));
+  std::this_thread::sleep_for(std::chrono::microseconds(1000));
 
   std::cout << "stop" << std::endl;
   interPipe.unlock();
@@ -245,7 +245,7 @@ TEST_F(TestCase_PipeAndFilter, testPipeManager)
   EXPECT_TRUE(pPipe->isRunning());
   std::cout << "running" << std::endl;
 
-  std::this_thread::sleep_for(std::chrono::microseconds(10000));
+  std::this_thread::sleep_for(std::chrono::microseconds(1000));
 
   std::cout << "stop" << std::endl;
   pPipe->stop();
@@ -361,7 +361,7 @@ TEST_F(TestCase_PipeAndFilter, testPipeMixer)
   pPipeMixer->run();
   std::cout << "started" << std::endl;
 
-  std::this_thread::sleep_for(std::chrono::microseconds(10000));
+  std::this_thread::sleep_for(std::chrono::microseconds(1000));
 
   std::cout << "stop" << std::endl;
   pPipeMixer->stop();
@@ -403,6 +403,7 @@ TEST_F(TestCase_PipeAndFilter, testPipedSink)
 {
   ISource* pSource = new Source();
   ISink* pActualSink = new Sink();
+  pActualSink->setVolume(50.0);
 
   PipedSink* pPipedSink = new PipedSink();
   pPipedSink->attachSink( pActualSink );
@@ -416,7 +417,7 @@ TEST_F(TestCase_PipeAndFilter, testPipedSink)
   pPipe->run();
   pPipedSink->run();
 
-  std::this_thread::sleep_for(std::chrono::microseconds(10000));
+  std::this_thread::sleep_for(std::chrono::microseconds(1000));
   pPipedSink->stop();
   pPipe->stop();
   pPipedSink->dump();

@@ -1,4 +1,4 @@
-/* 
+/*
   Copyright (C) 2021 hidenorly
 
    Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,31 +14,16 @@
    limitations under the License.
 */
 
-#include "InterPipeBridge.hpp"
+#ifndef __VOLUME_HPP__
+#define __VOLUME_HPP__
 
-InterPipeBridge::InterPipeBridge(AudioFormat format) : ISink(), mFifoBuffer(format)
+#include "Buffer.hpp"
+
+class Volume
 {
+public:
+  static bool process( AudioBuffer* pInBuf, AudioBuffer* pOutBuf, float volume );
+  static bool process( AudioBuffer& inBuf, AudioBuffer& outBuf, float volume );
+};
 
-}
-
-
-void InterPipeBridge::read(AudioBuffer& buf)
-{
-  mFifoBuffer.read(buf);
-}
-
-void InterPipeBridge::writePrimitive(AudioBuffer& buf)
-{
-  mFifoBuffer.write(buf);
-}
-
-bool InterPipeBridge::setAudioFormat(AudioFormat audioFormat)
-{
-  throw std::runtime_error( "setAudioFormat is unsupported" );
-	return false;
-}
-
-AudioFormat InterPipeBridge::getAudioFormat(void)
-{
-  return mFifoBuffer.getAudioFormat();
-}
+#endif /* __VOLUME_HPP__ */

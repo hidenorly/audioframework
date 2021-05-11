@@ -24,26 +24,10 @@
 class Util
 {
 public:
-  static void dumpBuffer(AudioBuffer& buf)
-  {
-    AudioFormat format = buf.getAudioFormat();
-    std::cout << "sampling rate:" << (int)format.getSamplingRate() <<
-      " format:" << format.getEncodingString() <<
-      " channels:" << (int)format.getNumberOfChannels() <<
-      " samples:" << (int)buf.getSamples() <<
-      std::endl;
-
-    ByteBuffer rawBuffer = buf.getRawBuffer();
-    for(auto& aData : rawBuffer){
-//      std::cout << (int)aData << ",";
-      std::cout << std::hex << (int)aData << ",";
-    }
-    std::cout << std::endl;
-  }
-  static void dumpBuffer(std::string message, AudioBuffer& buf){
-      std::cout << message << std::endl;
-      dumpBuffer(buf);
-  }
+  static void dumpBuffer(AudioBuffer* pBuf);
+  static void dumpBuffer(AudioBuffer& buf);
+  static void dumpBuffer(std::string message, AudioBuffer* buf);
+  static void dumpBuffer(std::string message, AudioBuffer& buf);
 };
 
 #endif /* __UTIL_HPP__ */

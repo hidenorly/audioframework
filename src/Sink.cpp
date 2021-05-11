@@ -16,6 +16,7 @@
 
 #include "Sink.hpp"
 #include "Util.hpp"
+#include "Volume.hpp"
 
 ISink::ISink() : mVolume(100.0f)
 {
@@ -61,20 +62,34 @@ ISink::PRESENTATION ISink::getPresentation(void)
 float ISink::getVolume(void)
 {
   return mVolume;
-};
+}
 
 bool ISink::setVolume(float volumePercentage)
 {
-//  mVolume = volumePercentage;
-  return false;
-};
+  mVolume = volumePercentage;
+  return true;
+}
 
+void ISink::write(AudioBuffer& buf)
+{
+  if( 100.0f == mVolume ){
+    writePrimitive( buf );
+  } else {
+    AudioBuffer volumedBuf( buf.getAudioFormat(), buf.getSamples() );
+    Volume::process( &buf, &volumedBuf, mVolume );
+    writePrimitive( volumedBuf );
+  }
+}
 
+Sink::Sink():ISink()
+{
 
-void Sink::write(AudioBuffer& buf)
+}
+
+void Sink::writePrimitive(AudioBuffer& buf)
 {
   mBuf.append( buf );
-};
+}
 
 void Sink::dump(void)
 {

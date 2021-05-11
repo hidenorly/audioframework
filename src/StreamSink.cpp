@@ -17,7 +17,7 @@
 #include "StreamSink.hpp"
 #include "AudioFormatAdaptor.hpp"
 
-StreamSink::StreamSink(AudioFormat format, IStream* pStream): mFormat(format), mpStream(pStream)
+StreamSink::StreamSink(AudioFormat format, IStream* pStream): ISink(), mFormat(format), mpStream(pStream)
 {
 
 }
@@ -43,7 +43,7 @@ void StreamSink::serialize(AudioBuffer& srcAudioBuf, ByteBuffer& outStreamBuf)
 }
 
 
-void StreamSink::write(AudioBuffer& buf)
+void StreamSink::writePrimitive(AudioBuffer& buf)
 {
   if( mpStream ){
     // convert if necessary

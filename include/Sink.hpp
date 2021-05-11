@@ -46,8 +46,11 @@ protected:
   PRESENTATION mPresentation;
   float mVolume;
 
+protected:
+  virtual void writePrimitive(AudioBuffer& buf) = 0;
+
 public:
-  virtual void write(AudioBuffer& buf) = 0;
+  virtual void write(AudioBuffer& buf);
 
   virtual std::vector<PRESENTATION> getAvailablePresentations(void);
   virtual bool isAvailablePresentation(PRESENTATION presentation);
@@ -70,9 +73,9 @@ protected:
   AudioBuffer mBuf;
 
 public:
-  Sink(){};
+  Sink();
   virtual ~Sink(){};
-  virtual void write(AudioBuffer& buf);
+  virtual void writePrimitive(AudioBuffer& buf);
   virtual std::string toString(void){ return "Sink"; };
   virtual void dump(void);
   virtual bool setAudioFormat(AudioFormat audioFormat);

@@ -50,6 +50,16 @@ void AudioSample::setData(AudioFormat::CH channel, uint8_t* pData)
   memcpy( buf, pData, mFormat.getSampleByte() );
 }
 
+ByteBuffer AudioSample::getRawBuffer()
+{
+  return mBuf;
+}
+
+uint8_t* AudioSample::getRawBufferPointer()
+{
+  return mBuf.data();
+}
+
 
 AudioBuffer::AudioBuffer(AudioFormat format, int samples)
 {
@@ -96,7 +106,6 @@ int AudioBuffer::getWindowSizeUsec(void)
 {
   return 1000 * getSamples() / mFormat.getSamplingRate();
 }
-
 
 void AudioBuffer::setAudioFormat( AudioFormat format )
 {
@@ -161,3 +170,22 @@ AudioBuffer AudioBuffer::getSelectedChannelData(AudioFormat outAudioFormat, Audi
   return dstBuf;
 }
 
+AudioFormat AudioBuffer::getAudioFormat(void)
+{
+  return mFormat;
+}
+
+uint8_t* AudioBuffer::getRawBufferPointer(void)
+{
+  return mBuf.data();
+}
+
+ByteBuffer& AudioBuffer::getRawBuffer(void)
+{
+  return mBuf;
+}
+
+void AudioBuffer::setRawBuffer(ByteBuffer& buf)
+{
+  mBuf = buf;
+}

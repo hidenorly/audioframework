@@ -35,8 +35,8 @@ public:
   virtual ~AudioSample();
   uint8_t* getData(AudioFormat::CH channel);
   void setData(AudioFormat::CH channel, uint8_t* pData);
-  ByteBuffer getRawBuffer(){ return mBuf; };
-  uint8_t* getRawBufferPointer(){ return mBuf.data(); };
+  ByteBuffer getRawBuffer();
+  uint8_t* getRawBufferPointer();
 };
 
 class AudioBuffer
@@ -51,16 +51,16 @@ public:
   AudioBuffer();
   virtual ~AudioBuffer();
 
-  AudioFormat getAudioFormat(void){ return mFormat; };
+  AudioFormat getAudioFormat(void);
   int getSamples(void);
   int getWindowSizeUsec(void);
-  uint8_t* getRawBufferPointer(void){ return mBuf.data(); };
-  ByteBuffer& getRawBuffer(void){ return mBuf; };
+  uint8_t* getRawBufferPointer(void);
+  ByteBuffer& getRawBuffer(void);
   AudioBuffer& operator=(AudioBuffer& buf);
   bool isSameAudioFormat(AudioBuffer& buf);
   void setAudioFormat( AudioFormat format );
   void resize( int samples );
-  void setRawBuffer(ByteBuffer& buf) { mBuf = buf; };
+  void setRawBuffer(ByteBuffer& buf);
   void append(AudioBuffer& buf);
   AudioSample getSample(int nOffset);
   void setSample(int nOffset, AudioSample& sample);

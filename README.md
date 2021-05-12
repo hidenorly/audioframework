@@ -41,6 +41,11 @@ The expection is to implement android audio hal, surround amplifier, mediaplayer
           You need to replace high quality implementation. See the .cpp, you need to define the macro to disable the default implementations.
           * ```USE_TINY_CC_IMPL 0```
           * ```USE_TINY_SRC_IMPL 0```
+    * Volume
+      * Note that the implementation is quite tiny.
+      You need to replace high quality implementation. See the .cpp, you need to define the macro to disable the default implementations.
+        * ```USE_TINY_VOLUME_PRIMITIVE_IMPL 0```
+
     * Stream
       * Abstraction of input/out from the others
         * e.g. FileStream can provide file input/output.
@@ -108,10 +113,22 @@ $ make; ./bin/afw_test;
   * [done] Volume
   * [done] FileStream
   * [done] InterPipeBridge (FIFOed Source and Sink)
+  * ParameterManager
+    * [done] basic set/get_ro, pub/sub with wild card
+    * [] parameter hierachy support
+    * [] persist support
+    * [] default value database
+  * Plug-in
+    * Filter Plug-in manager
+    * Sink Plug-in manager
+    * Source Plug-in manager
+    * Strategy Plug-in manager
+    * Util impl. plug-in : SRC, Encoding, Channel, Mixer, Volume
 * Strategy
   * [] Add dynamic pipe change
 * All
   * [] Compressed data support
+    * [] AudioFormat
     * [] Sink, Pipe, Source
     * [] Decoder
     * [] Encoder

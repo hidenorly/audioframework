@@ -48,10 +48,10 @@ protected:
   int mLatencyUsec;
 
 protected:
-  virtual void writePrimitive(AudioBuffer& buf) = 0;
+  virtual void writePrimitive(IAudioBuffer& buf) = 0;
 
 public:
-  virtual void write(AudioBuffer& buf);
+  virtual void write(IAudioBuffer& buf);
 
   virtual std::vector<PRESENTATION> getAvailablePresentations(void);
   virtual bool isAvailablePresentation(PRESENTATION presentation);
@@ -78,7 +78,7 @@ protected:
 public:
   Sink();
   virtual ~Sink(){};
-  virtual void writePrimitive(AudioBuffer& buf);
+  virtual void writePrimitive(IAudioBuffer& buf);
   virtual std::string toString(void){ return "Sink"; };
   virtual void dump(void);
   virtual bool setAudioFormat(AudioFormat audioFormat);

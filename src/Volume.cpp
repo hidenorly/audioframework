@@ -52,6 +52,7 @@ bool Volume::process( AudioBuffer* pInBuf, AudioBuffer* pOutBuf, float volume )
             bHandled = VolumePrimitive::volume24( pRawInBuf, pRawOutBuf, volume, nChannelSamples );
             break;
           case AudioFormat::ENCODING::PCM_UNKNOWN:
+          default:
             bHandled = false;
             break;
         }

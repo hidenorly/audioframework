@@ -37,7 +37,7 @@ public:
   virtual void addSink(ISink* pSink, AudioFormat::ChannelMapper& map);
   virtual void clearSinks(void);
 
-  virtual void writePrimitive(AudioBuffer& buf);
+  virtual void writePrimitive(IAudioBuffer& buf);
   virtual std::string toString(void){ return "MultipleSink"; };
 
   virtual bool setAudioFormat(AudioFormat audioFormat);

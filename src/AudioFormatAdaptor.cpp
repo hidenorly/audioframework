@@ -40,7 +40,7 @@ bool AudioFormatAdaptor::convert(AudioBuffer& srcBuf, AudioBuffer& dstBuf)
     channelConversion(srcBuf, dstBuf, dstChannel);
   }
 
-  return srcBuf.getAudioFormat().equal( dstFormat );
+  return dstBuf.getAudioFormat().equal( dstFormat );
 }
 
 bool AudioFormatAdaptor::encodingConversion(AudioBuffer& srcBuf, AudioBuffer& dstBuf, AudioFormat::ENCODING dstEncoding)
@@ -153,6 +153,7 @@ bool AudioFormatAdaptor::samplingRateConversion(AudioBuffer& srcBuf, AudioBuffer
       bHandled = PcmSamplingRateConvert::convert24(srcRawBuf, dstRawBuf, srcFormat.getSamplingRate(), dstSamplingRate, nSamples);
       break;
     case AudioFormat::ENCODING::PCM_UNKNOWN:
+    default:
       bHandled = false;
       break;
   }

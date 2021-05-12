@@ -26,12 +26,15 @@ ISource::~ISource()
 
 }
 
-void ISource::read(AudioBuffer& buf)
+void ISource::read(IAudioBuffer& buf)
 {
-  int nSamples = buf.getSamples();
-  AudioFormat format = buf.getAudioFormat();
-  if( nSamples ){
-    mLatencyUsec = 1000000 * nSamples / format.getSamplingRate();
+  AudioBuffer* pBuf = dynamic_cast<AudioBuffer*>(&buf);
+  if( pBuf ){
+    int nSamples = pBuf->getSamples();
+    AudioFormat format = pBuf->getAudioFormat();
+    if( nSamples ){
+      mLatencyUsec = 1000000 * nSamples / format.getSamplingRate();
+    }
   }
   readPrimitive(buf);
 }
@@ -52,7 +55,7 @@ Source::~Source()
 
 }
 
-void Source::readPrimitive(AudioBuffer& buf)
+void Source::readPrimitive(IAudioBuffer& buf)
 {
   ByteBuffer rawBuffer = buf.getRawBuffer();
   ByteBuffer bufZero(rawBuffer.size(), 128);

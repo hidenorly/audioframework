@@ -60,6 +60,47 @@ uint8_t* AudioSample::getRawBufferPointer()
   return mBuf.data();
 }
 
+IAudioBuffer::~IAudioBuffer()
+{
+
+}
+
+uint8_t* IAudioBuffer::getRawBufferPointer(void)
+{
+  return mBuf.data();
+}
+
+ByteBuffer& IAudioBuffer::getRawBuffer(void)
+{
+  return mBuf;
+}
+
+void IAudioBuffer::setRawBuffer(ByteBuffer& buf)
+{
+  mBuf = buf;
+}
+
+AudioFormat IAudioBuffer::getAudioFormat(void)
+{
+  return mFormat;
+}
+
+bool IAudioBuffer::isSameAudioFormat(IAudioBuffer& buf)
+{
+  return mFormat.equal( buf.getAudioFormat() );
+}
+
+void IAudioBuffer::append(IAudioBuffer& buf)
+{
+  if( isSameAudioFormat( buf )){
+    ByteBuffer extBuf = buf.getRawBuffer();
+
+    int newSize = extBuf.size() + mBuf.size();
+    mBuf.reserve( newSize );
+
+    std::copy( extBuf.begin(), extBuf.end(), std::back_inserter( mBuf ) );
+  }
+}
 
 AudioBuffer::AudioBuffer(AudioFormat format, int samples)
 {
@@ -91,12 +132,6 @@ AudioBuffer& AudioBuffer::operator=(AudioBuffer& buf)
   return *this;
 }
 
-bool AudioBuffer::isSameAudioFormat(AudioBuffer& buf)
-{
-  AudioFormat target = buf.getAudioFormat();
-  return mFormat.equal( target );
-}
-
 int AudioBuffer::getSamples(void)
 {
   return mBuf.size() / mFormat.getChannelsSampleByte();
@@ -119,16 +154,6 @@ void AudioBuffer::resize( int samples )
   int bufSize = mFormat.getChannelsSampleByte() * samples;
   ByteBuffer zeroBuf( bufSize, 0 );
   mBuf = zeroBuf;
-}
-
-void AudioBuffer::append(AudioBuffer& buf)
-{
-    ByteBuffer extBuf = buf.getRawBuffer();
-
-    int newSize = extBuf.size() + mBuf.size();
-    mBuf.reserve( newSize );
-
-    std::copy( extBuf.begin(), extBuf.end(), std::back_inserter( mBuf ) );
 }
 
 AudioSample AudioBuffer::getSample(int nOffset)
@@ -170,22 +195,23 @@ AudioBuffer AudioBuffer::getSelectedChannelData(AudioFormat outAudioFormat, Audi
   return dstBuf;
 }
 
-AudioFormat AudioBuffer::getAudioFormat(void)
+CompressAudioBuffer::CompressAudioBuffer(AudioFormat format, int nChunkSize) : mChunkSize(nChunkSize)
 {
-  return mFormat;
+  mFormat = format;
+  mBuf.reserve( nChunkSize*3 ); // at least tripple buffer
 }
 
-uint8_t* AudioBuffer::getRawBufferPointer(void)
+CompressAudioBuffer& CompressAudioBuffer::operator=(CompressAudioBuffer& buf)
 {
-  return mBuf.data();
+  mBuf = buf.getRawBuffer();
+  mFormat = buf.getAudioFormat();
+
+  return *this;
 }
 
-ByteBuffer& AudioBuffer::getRawBuffer(void)
+void CompressAudioBuffer::setAudioFormat( AudioFormat format, int nChunkSize )
 {
-  return mBuf;
-}
-
-void AudioBuffer::setRawBuffer(ByteBuffer& buf)
-{
-  mBuf = buf;
+  mFormat = format;
+  mBuf.clear();
+  mBuf.reserve( nChunkSize );
 }

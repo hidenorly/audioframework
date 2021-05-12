@@ -35,14 +35,14 @@ void StreamSource::close(void)
   }
 }
 
-void StreamSource::parse(ByteBuffer& inStreamBuf, AudioBuffer& dstAudioBuf)
+void StreamSource::parse(ByteBuffer& inStreamBuf, IAudioBuffer& dstAudioBuf)
 {
   // TODO: serialize the inStreamBuf as the expected format and output to dstAudioBuf
   dstAudioBuf.setRawBuffer( inStreamBuf );
 }
 
 
-void StreamSource::readPrimitive(AudioBuffer& buf)
+void StreamSource::readPrimitive(IAudioBuffer& buf)
 {
   if( mpStream && !mpStream->isEndOfStream() ){
     ByteBuffer inStreamBuf( buf.getRawBuffer().size() );
@@ -51,9 +51,12 @@ void StreamSource::readPrimitive(AudioBuffer& buf)
 
     // convert if necessary
     if( !mFormat.equal( buf.getAudioFormat() ) ){
-      AudioBuffer dstAudioBuffer( mFormat, buf.getSamples() );
-      AudioFormatAdaptor::convert( buf, dstAudioBuffer );
-      buf = dstAudioBuffer;
+      AudioBuffer* pBuf = dynamic_cast<AudioBuffer*>(&buf);
+      if( pBuf ){
+        AudioBuffer dstAudioBuffer( mFormat, pBuf->getSamples() );
+        AudioFormatAdaptor::convert( *pBuf, dstAudioBuffer );
+        *pBuf = dstAudioBuffer;
+      }
     }
   }
 }

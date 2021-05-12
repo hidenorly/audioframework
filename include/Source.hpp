@@ -29,8 +29,8 @@ protected:
 public:
   ISource();
   virtual ~ISource();
-  virtual void read(AudioBuffer& buf);
-  virtual void readPrimitive(AudioBuffer& buf) = 0;
+  virtual void read(IAudioBuffer& buf);
+  virtual void readPrimitive(IAudioBuffer& buf) = 0;
   virtual int getLatencyUSec(void);
 };
 
@@ -39,7 +39,7 @@ class Source : public AudioBase, public ISource
 public:
   Source();
   virtual ~Source();
-  virtual void readPrimitive(AudioBuffer& buf);
+  virtual void readPrimitive(IAudioBuffer& buf);
   virtual std::string toString(void){return "Source";};
 };
 

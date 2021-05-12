@@ -70,18 +70,23 @@ bool ISink::setVolume(float volumePercentage)
   return true;
 }
 
-void ISink::write(AudioBuffer& buf)
+void ISink::write(IAudioBuffer& buf)
 {
-  int nSamples = buf.getSamples();
-  AudioFormat format = buf.getAudioFormat();
-  if( nSamples ){
-    mLatencyUsec = 1000000 * nSamples / format.getSamplingRate();
+  int nSamples = 0;
+  AudioFormat format;
+  AudioBuffer* pBuf = dynamic_cast<AudioBuffer*>(&buf);
+  if( pBuf ){
+    nSamples = pBuf->getSamples();
+    format = pBuf->getAudioFormat();
+    if( nSamples ){
+      mLatencyUsec = 1000000 * nSamples / format.getSamplingRate();
+    }
   }
-  if( 100.0f == mVolume ){
+  if( 100.0f == mVolume || !pBuf ){
     writePrimitive( buf );
   } else {
     AudioBuffer volumedBuf( format, nSamples );
-    Volume::process( &buf, &volumedBuf, mVolume );
+    Volume::process( pBuf, &volumedBuf, mVolume );
     writePrimitive( volumedBuf );
   }
 }
@@ -96,7 +101,7 @@ Sink::Sink():ISink()
 
 }
 
-void Sink::writePrimitive(AudioBuffer& buf)
+void Sink::writePrimitive(IAudioBuffer& buf)
 {
   mBuf.append( buf );
 }

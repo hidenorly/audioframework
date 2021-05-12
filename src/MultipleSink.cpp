@@ -45,12 +45,17 @@ void MultipleSink::clearSinks(void)
 }
 
 
-void MultipleSink::writePrimitive(AudioBuffer& buf)
+void MultipleSink::writePrimitive(IAudioBuffer& buf)
 {
+  AudioBuffer* pBuf = dynamic_cast<AudioBuffer*>(&buf);
   for(auto& pSink : mpSinks ){
-    AudioFormat::ChannelMapper mapper = mChannelMaps[ pSink ];
-    AudioBuffer selectedChannelData = buf.getSelectedChannelData( pSink->getAudioFormat(), mapper );
-    pSink->write( selectedChannelData );
+    if( pBuf ){
+      AudioFormat::ChannelMapper mapper = mChannelMaps[ pSink ];
+      AudioBuffer selectedChannelData = pBuf->getSelectedChannelData( pSink->getAudioFormat(), mapper );
+      pSink->write( selectedChannelData );
+    } else {
+      pSink->write( buf );
+    }
   }
 }
 

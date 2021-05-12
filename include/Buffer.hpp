@@ -39,11 +39,24 @@ public:
   uint8_t* getRawBufferPointer();
 };
 
-class AudioBuffer
+class IAudioBuffer
 {
 protected:
   AudioFormat mFormat;
   ByteBuffer mBuf;
+
+public:
+  virtual ~IAudioBuffer();
+  virtual uint8_t* getRawBufferPointer(void);
+  virtual ByteBuffer& getRawBuffer(void);
+  virtual void setRawBuffer(ByteBuffer& buf);
+  virtual AudioFormat getAudioFormat(void);
+  virtual bool isSameAudioFormat(IAudioBuffer& buf);
+  virtual void append(IAudioBuffer& buf);
+};
+
+class AudioBuffer : public IAudioBuffer
+{
 
 public:
   AudioBuffer(AudioFormat format, int samples);
@@ -51,20 +64,26 @@ public:
   AudioBuffer();
   virtual ~AudioBuffer();
 
-  AudioFormat getAudioFormat(void);
   int getSamples(void);
   int getWindowSizeUsec(void);
-  uint8_t* getRawBufferPointer(void);
-  ByteBuffer& getRawBuffer(void);
   AudioBuffer& operator=(AudioBuffer& buf);
-  bool isSameAudioFormat(AudioBuffer& buf);
   void setAudioFormat( AudioFormat format );
   void resize( int samples );
-  void setRawBuffer(ByteBuffer& buf);
-  void append(AudioBuffer& buf);
   AudioSample getSample(int nOffset);
   void setSample(int nOffset, AudioSample& sample);
   AudioBuffer getSelectedChannelData(AudioFormat outAudioFormat, AudioFormat::ChannelMapper& mapper);
+};
+
+class CompressAudioBuffer : public IAudioBuffer
+{
+protected:
+  int mChunkSize;
+  static const int DEFAULT_CHUNK_SIZE = 256;
+
+public:
+  CompressAudioBuffer(AudioFormat format, int nChunkSize = DEFAULT_CHUNK_SIZE);
+  CompressAudioBuffer& operator=(CompressAudioBuffer& buf);
+  void setAudioFormat( AudioFormat format, int nChunkSize = DEFAULT_CHUNK_SIZE );
 };
 
 #endif /* __BUFFER_HPP__ */

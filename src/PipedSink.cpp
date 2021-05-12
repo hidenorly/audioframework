@@ -70,7 +70,7 @@ ISink* PipedSink::detachSink(void)
   return prevSink;
 }
 
-void PipedSink::writePrimitive(AudioBuffer& buf)
+void PipedSink::writePrimitive(IAudioBuffer& buf)
 {
   if( mpSink && mpInterPipeBridge ){
     mpInterPipeBridge->write( buf );

@@ -28,7 +28,7 @@ FifoBuffer::~FifoBuffer()
 
 }
 
-bool FifoBuffer::read(AudioBuffer& audioBuf)
+bool FifoBuffer::read(IAudioBuffer& audioBuf)
 {
   bool bResult = audioBuf.getAudioFormat().equal( mFormat );
 
@@ -61,7 +61,7 @@ bool FifoBuffer::read(AudioBuffer& audioBuf)
   return bResult;
 }
 
-bool FifoBuffer::write(AudioBuffer& audioBuf)
+bool FifoBuffer::write(IAudioBuffer& audioBuf)
 {
   bool bResult = audioBuf.getAudioFormat().equal( mFormat );
 

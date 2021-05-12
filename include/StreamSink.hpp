@@ -33,8 +33,8 @@ public:
   StreamSink(AudioFormat format, IStream* pStream);
   virtual ~StreamSink();
 
-  virtual void serialize(AudioBuffer& srcAudioBuf, ByteBuffer& outStreamBuf);
-  virtual void writePrimitive(AudioBuffer& buf);
+  virtual void serialize(IAudioBuffer& srcAudioBuf, ByteBuffer& outStreamBuf);
+  virtual void writePrimitive(IAudioBuffer& buf);
   virtual void close(void);
 
   virtual void dump(void){};

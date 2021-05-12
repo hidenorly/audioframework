@@ -22,12 +22,12 @@ InterPipeBridge::InterPipeBridge(AudioFormat format) : ISource(), ISink(), mFifo
 }
 
 
-void InterPipeBridge::readPrimitive(AudioBuffer& buf)
+void InterPipeBridge::readPrimitive(IAudioBuffer& buf)
 {
   mFifoBuffer.read(buf);
 }
 
-void InterPipeBridge::writePrimitive(AudioBuffer& buf)
+void InterPipeBridge::writePrimitive(IAudioBuffer& buf)
 {
   mFifoBuffer.write(buf);
 }

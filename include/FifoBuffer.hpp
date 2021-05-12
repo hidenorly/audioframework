@@ -37,8 +37,8 @@ public:
   FifoBuffer(){ FifoBuffer(AudioFormat()); };
   virtual ~FifoBuffer();
 
-  bool read(AudioBuffer& audioBuf);
-  bool write(AudioBuffer& audioBuf);
+  bool read(IAudioBuffer& audioBuf);
+  bool write(IAudioBuffer& audioBuf);
   void unlock(void);
 
   int getBufferedSamples(void);

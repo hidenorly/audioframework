@@ -35,7 +35,7 @@ void StreamSink::close(void)
   }
 }
 
-void StreamSink::serialize(AudioBuffer& srcAudioBuf, ByteBuffer& outStreamBuf)
+void StreamSink::serialize(IAudioBuffer& srcAudioBuf, ByteBuffer& outStreamBuf)
 {
   ByteBuffer rawSrcBuffer = srcAudioBuf.getRawBuffer();
   // TODO: serialize to the expected format
@@ -43,14 +43,15 @@ void StreamSink::serialize(AudioBuffer& srcAudioBuf, ByteBuffer& outStreamBuf)
 }
 
 
-void StreamSink::writePrimitive(AudioBuffer& buf)
+void StreamSink::writePrimitive(IAudioBuffer& buf)
 {
   if( mpStream ){
     // convert if necessary
-    if( !mFormat.equal( buf.getAudioFormat() ) ){
-      AudioBuffer dstAudioBuffer( mFormat, buf.getSamples() );
-      AudioFormatAdaptor::convert( buf, dstAudioBuffer );
-      buf = dstAudioBuffer;
+    AudioBuffer* pBuf = dynamic_cast<AudioBuffer*>(&buf);
+    if( pBuf && !mFormat.equal( pBuf->getAudioFormat() ) ){
+      AudioBuffer dstAudioBuffer( mFormat, pBuf->getSamples() );
+      AudioFormatAdaptor::convert( *pBuf, dstAudioBuffer );
+      *pBuf = dstAudioBuffer;
     }
  
     ByteBuffer outStreamBuf( buf.getRawBuffer().size() );

@@ -83,14 +83,13 @@ bool Mixer::doMix( std::vector<AudioBuffer*> pInBuffers, AudioBuffer* pOutBuffer
     for(int i=1; i<pInBuffers.size(); i++){
       AudioBuffer* pInBuffer2 = pInBuffers[i];
       result = doMixPrimitive( pInBuffer1, pInBuffer2, pOutBuffer );
-      if( !result ) break;
       if( (i+1) == pInBuffers.size() ){
         // end then copy to the final buffer
-       *pFinalOutBuffer = *pOutBuffer;
+        *pFinalOutBuffer = result ? *pOutBuffer : *pInBuffer1;
       }
-      AudioBuffer* pTmp = pInBuffer1;
-      pInBuffer1 = pOutBuffer;
-      pOutBuffer = pTmp;
+      if( result ){
+        std::swap(pInBuffer1, pOutBuffer);
+      }
     }
   }
   return result;

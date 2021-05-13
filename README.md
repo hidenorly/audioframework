@@ -129,8 +129,9 @@ $ make; ./bin/afw_test;
 * All
   * [] Compressed data support
     * [] AudioFormat
+    * [done] IAudioBufer, CompressedAudioBuffer
     * [] Sink, Pipe, Source
-    * [] Decoder
+    * [done] Decoder
     * [] Encoder
     * [] Player (ES controller)
   * [] A/V sync support

@@ -20,22 +20,19 @@
 #include "Sink.hpp"
 #include "InterPipeBridge.hpp"
 #include "AudioFormat.hpp"
+#include "ThreadBase.hpp"
 #include <vector>
 #include <mutex>
 #include <thread>
 
-class PipeMixer 
+class PipeMixer : public ThreadBase
 {
 protected:
   AudioFormat mFormat;
   ISink* mpSink;
   std::vector<InterPipeBridge*> mpInterPipeBridges;
 
-  std::atomic<bool> mbIsRunning;
-  std::thread* mpThread;
-  std::mutex mMutexThread;
   virtual void process(void);
-  static void _execute(PipeMixer* pThis);
 
 public:
   PipeMixer(AudioFormat format = AudioFormat(), ISink* pSink = nullptr );
@@ -45,10 +42,6 @@ public:
 
   virtual ISink* attachSink(ISink* pSink);
   virtual ISink* detachSink(void);
-
-  virtual void run(void);
-  virtual void stop(void);
-  virtual bool isRunning(void);
 
   virtual ISink* allocateSinkAdaptor(void);
   virtual void releaseSinkAdaptor(ISink* pSink);

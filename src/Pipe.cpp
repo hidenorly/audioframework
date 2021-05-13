@@ -24,7 +24,7 @@
 #include <numeric>
 #include <stdexcept>
 
-Pipe::Pipe():mpSink(nullptr), mpSource(nullptr), mbIsRunning(false), mpThread(nullptr)
+Pipe::Pipe():IPipe(), mpSink(nullptr), mpSource(nullptr)
 {
 
 }
@@ -84,38 +84,6 @@ ISource* Pipe::detachSource(void)
   return pPrevISource;
 }
 
-void Pipe::run(void)
-{
-  mMutexThread.lock();
-  if( !mbIsRunning && !mpThread ){
-    mpThread = new std::thread(_execute, this);
-    mbIsRunning = true;
-  }
-  mMutexThread.unlock();
-}
-
-void Pipe::stop(void)
-{
-  mMutexThread.lock();
-  if( mbIsRunning ){
-    mbIsRunning = false;
-    std::this_thread::sleep_for(std::chrono::microseconds(100));
-    while( mpThread ){
-      if( mpThread->joinable() ){
-          mpThread->join();
-          delete mpThread;
-          mpThread = nullptr;
-      }
-    }
-  }
-  mMutexThread.unlock();
-}
-
-bool Pipe::isRunning(void)
-{
-  return mbIsRunning;
-}
-
 void Pipe::dump(void)
 {
   std::cout << "Source:" << (mpSource ? mpSource->toString() : "") << std::endl;
@@ -150,11 +118,6 @@ void Pipe::process(void)
       mpSink->write( outBuf );
     }
   }
-}
-
-void Pipe::_execute(Pipe* pThis)
-{
-  pThis->process();
 }
 
 AudioFormat Pipe::getFilterAudioFormat(void)

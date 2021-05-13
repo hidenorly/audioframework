@@ -54,6 +54,7 @@ bool Volume::process( AudioBuffer* pInBuf, AudioBuffer* pOutBuf, float volume )
           case AudioFormat::ENCODING::PCM_UNKNOWN:
           default:
             bHandled = false;
+            *pOutBuf = *pInBuf;
             break;
         }
       } else {

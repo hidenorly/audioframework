@@ -19,7 +19,7 @@
 #include "Mixer.hpp"
 #include <vector>
 
-PipeMixer::PipeMixer(AudioFormat format, ISink* pSink) : mFormat(format), mpSink(pSink), mpThread(nullptr)
+PipeMixer::PipeMixer(AudioFormat format, ISink* pSink) : ThreadBase(), mFormat(format), mpSink(pSink)
 {
 
 }
@@ -56,40 +56,6 @@ ISink* PipeMixer::detachSink(void)
   return pPrevSink;
 }
 
-void PipeMixer::run(void)
-{
-  mMutexThread.lock();
-  if( !mbIsRunning && !mpThread ){
-    mpThread = new std::thread(_execute, this);
-    mbIsRunning = true;
-  }
-  mMutexThread.unlock();
-}
-void PipeMixer::stop(void)
-{
-  mMutexThread.lock();
-  if( mbIsRunning ){
-    mbIsRunning = false;
-    std::this_thread::sleep_for(std::chrono::microseconds(100));
-    while( mpThread ){
-      for( auto& pPipeBridge : mpInterPipeBridges ){
-        pPipeBridge->unlock();
-      }
-      if( mpThread->joinable() ){
-          mpThread->join();
-          delete mpThread;
-          mpThread = nullptr;
-      }
-    }
-  }
-  mMutexThread.unlock();
-}
-
-bool PipeMixer::isRunning(void)
-{
-  return mbIsRunning;
-}
-
 void PipeMixer::process(void)
 {
   if( mpSink && mpInterPipeBridges.size() ){
@@ -119,12 +85,6 @@ void PipeMixer::process(void)
     buffers.clear();
   }
 }
-
-void PipeMixer::_execute(PipeMixer* pThis)
-{
-  pThis->process();
-}
-
 
 ISink* PipeMixer::allocateSinkAdaptor(void)
 {

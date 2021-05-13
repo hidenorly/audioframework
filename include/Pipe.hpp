@@ -20,15 +20,14 @@
 #include "Filter.hpp"
 #include "Source.hpp"
 #include "Sink.hpp"
+#include "ThreadBase.hpp"
 #include <vector>
-#include <mutex>
-#include <thread>
 
 
-class IPipe
+class IPipe : public ThreadBase
 {
 public:
-  IPipe(){};
+  IPipe():ThreadBase(){};
   virtual ~IPipe(){};
 
   virtual void addFilterToHead(Filter* pFilter) = 0;
@@ -38,10 +37,6 @@ public:
   virtual ISink* detachSink(void) = 0;
   virtual ISource* attachSource(ISource* pSource) = 0;
   virtual ISource* detachSource(void) = 0;
-
-  virtual void run(void) = 0;
-  virtual void stop(void) = 0;
-  virtual bool isRunning(void) = 0;
 
   virtual void dump(void) = 0;
   virtual void clearFilters(void) = 0;
@@ -64,10 +59,6 @@ public:
   virtual ISource* attachSource(ISource* pSource);
   virtual ISource* detachSource(void);
 
-  virtual void run(void);
-  virtual void stop(void);
-  virtual bool isRunning(void);
-
   virtual void dump(void);
   virtual void clearFilters(void);
   virtual AudioFormat getFilterAudioFormat(void);
@@ -77,17 +68,12 @@ public:
 protected:
   // Should override process() if you want to support different window size processing by several threads, etc.
   virtual void process(void);
-  static void _execute(Pipe* pThis);
   // Should override getFilterAudioFormat() if you want to use different algorithm to choose using Audioformat
   int getCommonWindowSizeUsec(void);
 
   std::vector<Filter*> mFilters;
   ISink* mpSink;
   ISource* mpSource;
-
-  std::atomic<bool> mbIsRunning;
-  std::thread* mpThread;
-  std::mutex mMutexThread;
 };
 
 #endif /* __PIPE_HPP__ */

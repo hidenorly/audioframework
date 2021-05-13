@@ -30,23 +30,29 @@ void ThreadBase::run(void)
 {
   mMutexThread.lock();
   if( !mbIsRunning && !mpThread ){
-    mpThread = new std::thread(_execute, this);
     mbIsRunning = true;
+    mpThread = new std::thread(_execute, this);
   }
   mMutexThread.unlock();
+}
+
+void ThreadBase::unlockToStop(void)
+{
+  // DO UNLOCK THE BLOCKING FOR STOPPING YOUR PROCESS
 }
 
 void ThreadBase::stop(void)
 {
   mMutexThread.lock();
-  if( mpThread ){
+  if( mbIsRunning ){
     mbIsRunning = false;
-    std::this_thread::sleep_for(std::chrono::microseconds(100));
     while( mpThread ){
+      unlockToStop();
+      std::this_thread::sleep_for(std::chrono::microseconds(100));
       if( mpThread->joinable() ){
-          mpThread->join();
-          delete mpThread;
-          mpThread = nullptr;
+        mpThread->join();
+        delete mpThread;
+        mpThread = nullptr;
       }
     }
   }

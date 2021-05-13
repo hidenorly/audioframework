@@ -33,6 +33,7 @@ protected:
   std::vector<InterPipeBridge*> mpInterPipeBridges;
 
   virtual void process(void);
+  virtual void unlockToStop(void);
 
 public:
   PipeMixer(AudioFormat format = AudioFormat(), ISink* pSink = nullptr );

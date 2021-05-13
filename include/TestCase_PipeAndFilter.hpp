@@ -32,16 +32,16 @@ protected:
 
   void testFifoBuffer(void);
   void testInterPipeBridge(void);
+
   void testPipeManager(void);
   void testMultipleSink(void);
   void testStreamSink(void);
   void testStreamSink_DifferentFormat(void);
-
   void testStreamSource(void);
-
   void testPipedSink(void);
-
   void testPipeMixer(void);
+
+  void testDecoder(void);
 
   void testParameterManager(void);
 };

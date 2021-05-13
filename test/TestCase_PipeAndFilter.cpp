@@ -33,6 +33,7 @@
 #include "StreamSource.hpp"
 #include "PipeMixer.hpp"
 #include "PipedSink.hpp"
+#include "Decoder.hpp"
 #include "ParameterManager.hpp"
 #include "Util.hpp"
 
@@ -439,6 +440,56 @@ TEST_F(TestCase_PipeAndFilter, testPipedSink)
   delete pPipedSink; pPipedSink = nullptr;
   delete pActualSink; pActualSink = nullptr;
   delete pSource; pSource = nullptr;
+}
+
+TEST_F(TestCase_PipeAndFilter, testDecoder)
+{
+  std::vector<DecoderParam> params;
+  DecoderParam param1("testKey1", "abc"); params.push_back(param1);
+  DecoderParam param2("testKey2", 3840);  params.push_back(param2);
+  DecoderParam param3("testKey3", true);  params.push_back(param3);
+  IDecoder* pDecoder = new NullDecoder();
+  pDecoder->configure(params);
+
+  ISource* pSource = new Source();
+  pDecoder->attachSource( pSource );
+  ISource* pSourceAdaptor = pDecoder->allocateSourceAdaptor();
+  ISink* pSink = new Sink();
+
+  IPipe* pPipe = new Pipe();
+  pPipe->attachSource( pSourceAdaptor );
+  pPipe->attachSink( pSink );
+  pPipe->addFilterToTail( new FilterIncrement() );
+
+  pDecoder->run();
+  pPipe->run();
+
+  std::this_thread::sleep_for(std::chrono::microseconds(1000));
+
+  pPipe->stop();
+  pDecoder->stop();
+
+  pSink->dump();
+
+  ISource* pDetachedSource = pPipe->attachSource( pSourceAdaptor );
+  EXPECT_NE( pDetachedSource, nullptr );
+  EXPECT_EQ( pDetachedSource, pSourceAdaptor );
+  pDecoder->releaseSourceAdaptor( pDetachedSource ); pSourceAdaptor = pDetachedSource = nullptr;
+
+  ISink* pDetachedSink = pPipe->detachSink();
+  EXPECT_NE( pDetachedSink, nullptr );
+  EXPECT_EQ( pDetachedSink, pSink );
+  delete pDetachedSink; pSink = pDetachedSink = nullptr;
+
+  pPipe->clearFilters();
+  delete pPipe; pPipe = nullptr;
+
+  ISource* pDetachedDecoderSource = pDecoder->detachSource();
+  EXPECT_NE( pDetachedDecoderSource, nullptr );
+  EXPECT_EQ( pDetachedDecoderSource, pSource );
+  delete pDetachedSource; pDetachedSource = nullptr;
+
+  delete pDecoder; pDecoder = nullptr;
 }
 
 TEST_F(TestCase_PipeAndFilter, testParameterManager)

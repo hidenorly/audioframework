@@ -48,6 +48,14 @@ ISource* IDecoder::attachSource(ISource* pSource)
   return pPrevSource;
 }
 
+ISource* IDecoder::detachSource(void)
+{
+  ISource* pPrevSource = mpSource;
+  mpSource = nullptr;
+  return pPrevSource;
+}
+
+
 ISource* IDecoder::allocateSourceAdaptor(void)
 {
   InterPipeBridge* pSource = new InterPipeBridge();
@@ -82,9 +90,12 @@ void NullDecoder::process(void)
   AudioFormat format(AudioFormat::ENCODING::COMPRESSED);
   CompressAudioBuffer esBuf( format );
   AudioBuffer outBuf;
-  while( isRunning() && mpSource && !mpInterPipeBridges.empty() ){
+  while( mbIsRunning && mpSource && !mpInterPipeBridges.empty() ){
     mpSource->read( esBuf );
     // do decode the buf
+    ByteBuffer tmpBuffer(256, 0);
+    outBuf.setRawBuffer(tmpBuffer);
+
     for( auto& pInterPipe : mpInterPipeBridges ){
       pInterPipe->write( outBuf );
     }

@@ -58,7 +58,7 @@ ISink* PipeMixer::detachSink(void)
 
 void PipeMixer::process(void)
 {
-  if( mpSink && mpInterPipeBridges.size() ){
+  if( mpSink && !mpInterPipeBridges.empty() ){
 
     int nSamples = 256;
     AudioBuffer outBuf( mFormat, nSamples );
@@ -67,7 +67,7 @@ void PipeMixer::process(void)
       buffers.push_back( new AudioBuffer(mFormat, nSamples) );
     }
 
-    while(mbIsRunning){
+    while( mbIsRunning ){
       for(int i=0; mbIsRunning && i<mpInterPipeBridges.size(); i++){
         mpInterPipeBridges[i]->read( *buffers[i] );
       }
@@ -83,6 +83,13 @@ void PipeMixer::process(void)
       delete pBuffer;
     }
     buffers.clear();
+  }
+}
+
+void PipeMixer::unlockToStop(void)
+{
+  for( auto& pPipeBridge : mpInterPipeBridges ){
+    pPipeBridge->unlock();
   }
 }
 

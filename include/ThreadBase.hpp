@@ -34,6 +34,7 @@ public:
 protected:
   virtual void process(void);
   static void _execute(ThreadBase* pThis);
+  virtual void unlockToStop(void);
 
   std::atomic<bool> mbIsRunning;
   std::thread* mpThread;

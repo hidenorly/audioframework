@@ -99,7 +99,7 @@ void Pipe::dump(void)
 void Pipe::process(void)
 {
   if(mpSource && mpSink){
-    while(mbIsRunning){
+    while( mbIsRunning ){
       AudioFormat usingAudioFormat = getFilterAudioFormat();
 
       int samples = (int)( (float)usingAudioFormat.getSamplingRate() * (float)getCommonWindowSizeUsec()/1000000.0f);

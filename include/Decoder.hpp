@@ -57,6 +57,7 @@ public:
   virtual void configure(DecoderParam param);
   virtual void configure(std::vector<DecoderParam> params);
   virtual ISource* attachSource(ISource* pSource);
+  virtual ISource* detachSource(void);
   virtual ISource* allocateSourceAdaptor(void);
   virtual void releaseSourceAdaptor(ISource* pSource);
 };

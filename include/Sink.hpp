@@ -46,6 +46,7 @@ protected:
   PRESENTATION mPresentation;
   float mVolume;
   int mLatencyUsec;
+  int64_t mSinkPosition;
 
 protected:
   virtual void writePrimitive(IAudioBuffer& buf) = 0;
@@ -66,6 +67,7 @@ public:
   virtual bool setVolume(float volumePercentage);
 
   virtual int getLatencyUSec(void);
+  virtual int64_t getSinkPts(void);
 
   virtual void dump(void) = 0;
 };

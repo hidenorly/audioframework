@@ -417,12 +417,18 @@ TEST_F(TestCase_PipeAndFilter, testPipedSink)
   pPipe->run();
   pPipedSink->run();
 
-  std::this_thread::sleep_for(std::chrono::microseconds(1000));
+  std::this_thread::sleep_for(std::chrono::microseconds(500));
 
   std::cout << "source latency: " << std::dec << pSource->getLatencyUSec() << std::endl;
   std::cout << "pipe latency: " << pPipe->getLatencyUSec() << std::endl;
   std::cout << "actual sink latency: " << pActualSink->getLatencyUSec() << std::endl;
   std::cout << "piped sink latency: " << pPipedSink->getLatencyUSec() << std::endl;
+
+  std::cout << "source PTS: " << pSource->getSourcePts() << std::endl;
+  std::cout << "actual sink PTS: " << pActualSink->getSinkPts() << std::endl;
+  std::this_thread::sleep_for(std::chrono::microseconds(500));
+  std::cout << "source PTS: " << pSource->getSourcePts() << std::endl;
+  std::cout << "actual sink PTS: " << pActualSink->getSinkPts() << std::endl;
 
   pPipedSink->stop();
   pPipe->stop();
@@ -467,6 +473,12 @@ TEST_F(TestCase_PipeAndFilter, testDecoder)
 
   std::this_thread::sleep_for(std::chrono::microseconds(1000));
 
+  std::cout << "source PTS: " << pSource->getSourcePts() << std::endl;
+  std::cout << "sink PTS: " << pSink->getSinkPts() << std::endl;
+  std::this_thread::sleep_for(std::chrono::microseconds(1000));
+  std::cout << "source PTS: " << pSource->getSourcePts() << std::endl;
+  std::cout << "sink PTS: " << pSink->getSinkPts() << std::endl;
+
   pPipe->stop();
   pDecoder->stop();
 
@@ -510,7 +522,9 @@ TEST_F(TestCase_PipeAndFilter, testPlayer)
 
   pPlayer->play();
   pPipe->run();
+  std::cout << "sink PTS: " << pSink->getSinkPts() << std::endl;
   std::this_thread::sleep_for(std::chrono::microseconds(1000));
+  std::cout << "sink PTS: " << pSink->getSinkPts() << std::endl;
 
   pPlayer->pause();
   std::this_thread::sleep_for(std::chrono::microseconds(1000));

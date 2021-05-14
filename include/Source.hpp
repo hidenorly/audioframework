@@ -26,12 +26,14 @@ class ISource : public ISourceSinkCommon
 {
 protected:
   int mLatencyUsec;
+  int64_t mSourcePosition;
 public:
   ISource();
   virtual ~ISource();
   virtual void read(IAudioBuffer& buf);
   virtual void readPrimitive(IAudioBuffer& buf) = 0;
   virtual int getLatencyUSec(void);
+  virtual int64_t getSourcePts(void);
 };
 
 class Source : public AudioBase, public ISource

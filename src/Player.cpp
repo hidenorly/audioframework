@@ -15,8 +15,6 @@
 */
 
 #include "Player.hpp"
-#include "PipeManager.hpp"
-#include "InterPipeBridge.hpp"
 
 Player::Player():mpDecoder(nullptr), mbIsSetupDone(false), mbIsPaused(false), mPosition(0)
 {
@@ -27,7 +25,6 @@ Player::~Player()
 {
 
 }
-
 
 ISource* Player::prepare(ISource* pSource, IDecoder* pDecoder)
 {

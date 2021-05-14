@@ -18,7 +18,7 @@
 #include "Util.hpp"
 #include "Volume.hpp"
 
-ISink::ISink() : mVolume(100.0f), mLatencyUsec(0)
+ISink::ISink() : mVolume(100.0f), mLatencyUsec(0), mSinkPosition(0)
 {
 
 }
@@ -80,6 +80,7 @@ void ISink::write(IAudioBuffer& buf)
     format = pBuf->getAudioFormat();
     if( nSamples ){
       mLatencyUsec = 1000000 * nSamples / format.getSamplingRate();
+      mSinkPosition += mLatencyUsec;
     }
   }
   if( 100.0f == mVolume || !pBuf ){
@@ -95,6 +96,12 @@ int ISink::getLatencyUSec(void)
 {
   return mLatencyUsec;
 }
+
+int64_t ISink::getSinkPts(void)
+{
+  return mSinkPosition;
+}
+
 
 Sink::Sink():ISink()
 {

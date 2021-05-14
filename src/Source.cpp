@@ -16,7 +16,7 @@
 
 #include "Source.hpp"
 
-ISource::ISource():mLatencyUsec(0)
+ISource::ISource():mLatencyUsec(0), mSourcePosition(0)
 {
 
 }
@@ -34,6 +34,7 @@ void ISource::read(IAudioBuffer& buf)
     AudioFormat format = pBuf->getAudioFormat();
     if( nSamples ){
       mLatencyUsec = 1000000 * nSamples / format.getSamplingRate();
+      mSourcePosition += mLatencyUsec;
     }
   }
   readPrimitive(buf);
@@ -42,6 +43,11 @@ void ISource::read(IAudioBuffer& buf)
 int ISource::getLatencyUSec(void)
 {
   return mLatencyUsec;
+}
+
+int64_t ISource::getSourcePts(void)
+{
+  return mSourcePosition;
 }
 
 

@@ -198,7 +198,7 @@ AudioBuffer AudioBuffer::getSelectedChannelData(AudioFormat outAudioFormat, Audi
 CompressAudioBuffer::CompressAudioBuffer(AudioFormat format, int nChunkSize) : mChunkSize(nChunkSize)
 {
   mFormat = format;
-  mBuf.reserve( nChunkSize*3 ); // at least tripple buffer
+  mBuf.reserve( nChunkSize * 3 ); // at least tripple buffer
 }
 
 CompressAudioBuffer& CompressAudioBuffer::operator=(CompressAudioBuffer& buf)
@@ -213,5 +213,5 @@ void CompressAudioBuffer::setAudioFormat( AudioFormat format, int nChunkSize )
 {
   mFormat = format;
   mBuf.clear();
-  mBuf.reserve( nChunkSize );
+  mBuf.reserve( nChunkSize * 3);
 }

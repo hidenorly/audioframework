@@ -106,7 +106,11 @@ void NullDecoder::configure(DecoderParam param)
 void NullDecoder::process(void)
 {
   AudioFormat format(AudioFormat::ENCODING::COMPRESSED);
+
   CompressAudioBuffer esBuf( format );
+  ByteBuffer rawBuf(256*3,0);
+  esBuf.setRawBuffer(rawBuf);
+
   AudioBuffer outBuf;
   while( mbIsRunning && mpSource && !mpInterPipeBridges.empty() ){
     mpSource->read( esBuf );

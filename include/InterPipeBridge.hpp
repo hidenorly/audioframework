@@ -24,7 +24,7 @@
 #include "Source.hpp"
 #include <string>
 
-class InterPipeBridge : public ISink, public ISource, public AudioBase
+class InterPipeBridge : public ISink, public ISource, public AudioBase, public IUnlockable
 {
 protected:
   FifoBuffer mFifoBuffer;
@@ -42,7 +42,7 @@ public:
   virtual bool setAudioFormat(AudioFormat audioFormat);
   virtual AudioFormat getAudioFormat(void);
 
-  void unlock(void){ mFifoBuffer.unlock(); };
+  virtual void unlock(void){ mFifoBuffer.unlock(); };
 };
 
 #endif /* __INTERPIPEBRIDGE_HPP__ */

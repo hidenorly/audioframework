@@ -68,6 +68,7 @@ public:
 protected:
   // Should override process() if you want to support different window size processing by several threads, etc.
   virtual void process(void);
+  virtual void unlockToStop(void);
   // Should override getFilterAudioFormat() if you want to use different algorithm to choose using Audioformat
   int getCommonWindowSizeUsec(void);
 

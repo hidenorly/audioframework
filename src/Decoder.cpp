@@ -70,6 +70,16 @@ void IDecoder::releaseSourceAdaptor(ISource* pSource)
   std::erase( mpInterPipeBridges, pInterPipeBridge );
 }
 
+void IDecoder::seek(int64_t position)
+{
+
+}
+
+int64_t IDecoder::getPosition(void)
+{
+  return 0;
+}
+
 NullDecoder::NullDecoder():IDecoder()
 {
 

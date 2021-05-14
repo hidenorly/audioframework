@@ -96,6 +96,16 @@ void Pipe::dump(void)
   std::cout << std::endl;
 }
 
+void Pipe::unlockToStop(void)
+{
+  IUnlockable* pSource = dynamic_cast<IUnlockable*>(mpSource);
+  if( pSource ) pSource->unlock();
+
+  IUnlockable* pSink = dynamic_cast<IUnlockable*>(mpSink);
+  if( pSink ) pSink->unlock();
+}
+
+
 void Pipe::process(void)
 {
   if(mpSource && mpSink){

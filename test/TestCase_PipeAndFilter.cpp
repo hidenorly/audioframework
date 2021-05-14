@@ -34,6 +34,7 @@
 #include "PipeMixer.hpp"
 #include "PipedSink.hpp"
 #include "Decoder.hpp"
+#include "Player.hpp"
 #include "ParameterManager.hpp"
 #include "Util.hpp"
 
@@ -491,6 +492,49 @@ TEST_F(TestCase_PipeAndFilter, testDecoder)
 
   delete pDecoder; pDecoder = nullptr;
 }
+
+TEST_F(TestCase_PipeAndFilter, testPlayer)
+{
+  ISource* pSource = new Source();
+  ISink* pSink = new Sink();
+
+  IDecoder* pDecoder = new NullDecoder();
+  IPlayer* pPlayer = new Player();
+  ISource* pSourceAdaptor = pPlayer->prepare( pSource, pDecoder ); // handover the source and decoder
+  EXPECT_EQ( pPlayer->isReady(), true );
+
+  IPipe* pPipe = new Pipe();
+  pPipe->attachSource( pSourceAdaptor );
+  pPipe->attachSink( pSink );
+  pPipe->addFilterToTail( new FilterIncrement() );
+
+  std::cout << "player:stop" << std::endl;
+  pPlayer->play();
+  std::cout << "pipe:stop" << std::endl;
+  pPipe->run();
+  std::this_thread::sleep_for(std::chrono::microseconds(1000));
+  pPlayer->stop();
+  pPipe->stop();
+
+  pSink->dump();
+  ISource* pDetachedSource = pPipe->attachSource( pSourceAdaptor );
+  EXPECT_NE( pDetachedSource, nullptr );
+  EXPECT_EQ( pDetachedSource, pSourceAdaptor );
+
+  ISource* pDetachedPlayerSource = pPlayer->terminate( pDetachedSource );
+  EXPECT_NE( pDetachedPlayerSource, nullptr );
+  EXPECT_EQ( pDetachedPlayerSource, pSource );
+  delete pDetachedPlayerSource; pSource = pDetachedPlayerSource = nullptr;
+
+  ISink* pDetachedSink = pPipe->detachSink();
+  EXPECT_NE( pDetachedSink, nullptr );
+  EXPECT_EQ( pDetachedSink, pSink );
+  delete pDetachedSink; pSink = pDetachedSink = nullptr;
+
+  pPipe->clearFilters();
+  delete pPipe; pPipe = nullptr;
+}
+
 
 TEST_F(TestCase_PipeAndFilter, testParameterManager)
 {

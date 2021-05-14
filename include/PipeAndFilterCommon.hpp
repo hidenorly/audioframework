@@ -19,6 +19,12 @@
 
 #include <string>
 
+class IUnlockable
+{
+public:
+  virtual void unlock(void) = 0;
+};
+
 class ISourceSinkCommon
 {
 public:

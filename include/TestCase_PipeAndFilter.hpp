@@ -42,6 +42,7 @@ protected:
   void testPipeMixer(void);
 
   void testDecoder(void);
+  void testPlayer(void);
 
   void testParameterManager(void);
 };

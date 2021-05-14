@@ -18,7 +18,7 @@
 #include "PipeManager.hpp"
 #include "InterPipeBridge.hpp"
 
-Player::Player():mpDecoder(nullptr), mpPipe(nullptr), mbIsSetupDone(false), mbIsPaused(false), mPosition(0)
+Player::Player():mpDecoder(nullptr), mbIsSetupDone(false), mbIsPaused(false), mPosition(0)
 {
 
 }
@@ -31,15 +31,12 @@ Player::~Player()
 
 ISource* Player::prepare(ISource* pSource, IDecoder* pDecoder)
 {
-  InterPipeBridge* pDec2Pipe = nullptr;
+  ISource* pDec2Pipe = nullptr;
 
   if( !mpDecoder && pSource && pDecoder ){
     mpDecoder = pDecoder;
     pDecoder->attachSource( pSource );
-    pDec2Pipe = new InterPipeBridge();
-    mpPipe = new PipeManager();
-    mpPipe->attachSource( pDecoder->allocateSourceAdaptor() );
-    mpPipe->attachSink( dynamic_cast<ISink*>(pDec2Pipe) );
+    pDec2Pipe = pDecoder->allocateSourceAdaptor();
     mbIsSetupDone = true;
     mbIsPaused = false;
   }
@@ -50,23 +47,9 @@ ISource* Player::prepare(ISource* pSource, IDecoder* pDecoder)
 ISource* Player::terminate(ISource* pSource)
 {
   ISource* pDecoderSource = nullptr;
-  InterPipeBridge* pDec2Pipe = nullptr;
-  if( mpPipe ){
-    mpPipe->stop();
-    ISink* pSink = mpPipe->detachSink();
-    if( dynamic_cast<InterPipeBridge*>(pSource) == pSink ){
-      delete pSink;
-      pSink = nullptr;
-      pSource = nullptr;
-    }
-    pDec2Pipe = dynamic_cast<InterPipeBridge*>( mpPipe->detachSource() );
-    delete mpPipe; mpPipe = nullptr;
-  }
   if( mpDecoder ){
     mpDecoder->stop();
-    if( pDec2Pipe ){
-      mpDecoder->releaseSourceAdaptor( pDec2Pipe );
-    }
+    mpDecoder->releaseSourceAdaptor( pSource );
     pDecoderSource = mpDecoder->detachSource();
     delete mpDecoder; mpDecoder = nullptr;
   }
@@ -83,36 +66,33 @@ bool Player::isReady(void)
 
 void Player::play(int64_t ptsUSec)
 {
-  if( mbIsSetupDone && mpDecoder && mpPipe ){
+  if( mbIsSetupDone && mpDecoder ){
     mpDecoder->seek( ptsUSec );
     mpDecoder->run();
-    mpPipe->run();  
     mbIsPaused = false;
   }
 }
 
 void Player::stop(void)
 {
-  if( mbIsSetupDone && mpDecoder && mpPipe ){
+  if( mbIsSetupDone && mpDecoder ){
     mpDecoder->stop();
-    mpPipe->stop();  
     mbIsPaused = false;
   }
 }
 
 void Player::pause(void)
 {
-  if( mbIsSetupDone && mpDecoder && mpPipe ){
+  if( mbIsSetupDone && mpDecoder ){
     mPosition = mpDecoder->getPosition();
     mpDecoder->stop();
-    mpPipe->stop();
     mbIsPaused = true;
   }
 }
 
 void Player::resume(void)
 {
-  if( mbIsSetupDone && mpDecoder && mpPipe ){
+  if( mbIsSetupDone && mpDecoder ){
     if( mbIsPaused ){
       play( mPosition );
     }
@@ -122,12 +102,10 @@ void Player::resume(void)
 
 void Player::seek(int64_t ptsUSec)
 {
-  if( mbIsSetupDone && mpDecoder && mpPipe ){
+  if( mbIsSetupDone && mpDecoder ){
     mpDecoder->stop();
-    mpPipe->stop();  
     mpDecoder->seek( ptsUSec );
     mpDecoder->run();
-    mpPipe->run();  
   }
 }
 

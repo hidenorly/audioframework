@@ -41,7 +41,6 @@ class Player : public IPlayer
 {
 protected:
   IDecoder* mpDecoder;
-  IPipe* mpPipe;
   bool mbIsSetupDone;
   bool mbIsPaused;
   int64_t mPosition;

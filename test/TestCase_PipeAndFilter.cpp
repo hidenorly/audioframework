@@ -508,11 +508,15 @@ TEST_F(TestCase_PipeAndFilter, testPlayer)
   pPipe->attachSink( pSink );
   pPipe->addFilterToTail( new FilterIncrement() );
 
-  std::cout << "player:stop" << std::endl;
   pPlayer->play();
-  std::cout << "pipe:stop" << std::endl;
   pPipe->run();
   std::this_thread::sleep_for(std::chrono::microseconds(1000));
+
+  pPlayer->pause();
+  std::this_thread::sleep_for(std::chrono::microseconds(1000));
+  pPlayer->resume();
+  std::this_thread::sleep_for(std::chrono::microseconds(1000));
+
   pPlayer->stop();
   pPipe->stop();
 

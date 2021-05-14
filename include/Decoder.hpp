@@ -49,6 +49,7 @@ class IDecoder : public ThreadBase
 protected:
   ISource* mpSource;
   std::vector<InterPipeBridge*> mpInterPipeBridges;
+  virtual void unlockToStop(void);
 
 public:
   IDecoder();

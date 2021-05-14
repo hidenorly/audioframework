@@ -424,11 +424,11 @@ TEST_F(TestCase_PipeAndFilter, testPipedSink)
   std::cout << "actual sink latency: " << pActualSink->getLatencyUSec() << std::endl;
   std::cout << "piped sink latency: " << pPipedSink->getLatencyUSec() << std::endl;
 
-  std::cout << "source PTS: " << pSource->getSourcePts() << std::endl;
-  std::cout << "actual sink PTS: " << pActualSink->getSinkPts() << std::endl;
+  std::cout << "source PTS: " << pSource->getSourcePts();
+  std::cout << " / actual sink PTS: " << pActualSink->getSinkPts() << std::endl;
   std::this_thread::sleep_for(std::chrono::microseconds(500));
-  std::cout << "source PTS: " << pSource->getSourcePts() << std::endl;
-  std::cout << "actual sink PTS: " << pActualSink->getSinkPts() << std::endl;
+  std::cout << "source PTS: " << pSource->getSourcePts();
+  std::cout << " / actual sink PTS: " << pActualSink->getSinkPts() << std::endl;
 
   pPipedSink->stop();
   pPipe->stop();
@@ -473,14 +473,17 @@ TEST_F(TestCase_PipeAndFilter, testDecoder)
 
   std::this_thread::sleep_for(std::chrono::microseconds(1000));
 
-  std::cout << "source PTS: " << pSource->getSourcePts() << std::endl;
-  std::cout << "sink PTS: " << pSink->getSinkPts() << std::endl;
+  std::cout << "source PTS: " << pSource->getSourcePts();
+  std::cout << " / sink PTS: " << pSink->getSinkPts() << std::endl;
   std::this_thread::sleep_for(std::chrono::microseconds(1000));
-  std::cout << "source PTS: " << pSource->getSourcePts() << std::endl;
-  std::cout << "sink PTS: " << pSink->getSinkPts() << std::endl;
+  std::cout << "source PTS: " << pSource->getSourcePts();
+  std::cout << " / sink PTS: " << pSink->getSinkPts() << std::endl;
 
+  std::cout << "Pipe::stop" << std::endl;
   pPipe->stop();
+  std::cout << "Decoder::stop" << std::endl;
   pDecoder->stop();
+  std::cout << "Decoder::stopped" << std::endl;
 
   pSink->dump();
 
@@ -522,17 +525,23 @@ TEST_F(TestCase_PipeAndFilter, testPlayer)
 
   pPlayer->play();
   pPipe->run();
-  std::cout << "sink PTS: " << pSink->getSinkPts() << std::endl;
+  std::cout << "source PTS: " << pSource->getSourcePts();
+  std::cout << " / sink PTS: " << pSink->getSinkPts() << std::endl;
   std::this_thread::sleep_for(std::chrono::microseconds(1000));
-  std::cout << "sink PTS: " << pSink->getSinkPts() << std::endl;
+  std::cout << "source PTS: " << pSource->getSourcePts();
+  std::cout << " / sink PTS: " << pSink->getSinkPts() << std::endl;
 
+  std::cout << "pause" << std::endl;
   pPlayer->pause();
   std::this_thread::sleep_for(std::chrono::microseconds(1000));
+  std::cout << "resume" << std::endl;
   pPlayer->resume();
   std::this_thread::sleep_for(std::chrono::microseconds(1000));
 
+  std::cout << "stop" << std::endl;
   pPlayer->stop();
   pPipe->stop();
+  std::cout << "stopped" << std::endl;
 
   pSink->dump();
   ISource* pDetachedSource = pPipe->attachSource( pSourceAdaptor );

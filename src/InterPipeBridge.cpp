@@ -29,6 +29,13 @@ void InterPipeBridge::readPrimitive(IAudioBuffer& buf)
 
 void InterPipeBridge::writePrimitive(IAudioBuffer& buf)
 {
+  AudioBuffer* pBuf = dynamic_cast<AudioBuffer*>(&buf);
+  if( pBuf ){
+    int nSamples = pBuf->getSamples();
+    if( nSamples ){
+      mFifoBuffer.setFifoSizeLimit( nSamples*3 ); // at least tripple buffer
+    }
+  }
   mFifoBuffer.write(buf);
 }
 

@@ -27,10 +27,18 @@ class FifoBuffer
 protected:
   AudioFormat mFormat;
   ByteBuffer mBuf;
-  std::mutex mMutex;
-  std::condition_variable mEvent;
-  std::mutex mEventMutex;
-  std::atomic<bool> mUnlock;
+  int mFifoSizeLimit;
+
+  std::mutex mBufMutex;
+  std::condition_variable mReadBlockEvent;
+  std::mutex mReadBlockEventMutex;
+  std::atomic<bool> mReadBlocked;
+  std::atomic<bool> mUnlockReadBlock;
+
+  std::condition_variable mWriteBlockEvent;
+  std::mutex mWriteBlockEventMutex;
+  std::atomic<bool> mWriteBlocked;
+  std::atomic<bool> mUnlockWriteBlock;
 
 public:
   FifoBuffer(AudioFormat& format);
@@ -43,6 +51,7 @@ public:
 
   int getBufferedSamples(void);
   AudioFormat getAudioFormat(void){ return mFormat; };
+  void setFifoSizeLimit(int nSampleLimit);
 };
 
 #endif /* __FIFOBUFFER_HPP__ */

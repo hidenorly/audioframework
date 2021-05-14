@@ -80,6 +80,14 @@ int64_t IDecoder::getPosition(void)
   return 0;
 }
 
+void IDecoder::unlockToStop(void)
+{
+  for( auto& pInterPipeBridge : mpInterPipeBridges ){
+    pInterPipeBridge->unlock();
+  }
+}
+
+
 NullDecoder::NullDecoder():IDecoder()
 {
 

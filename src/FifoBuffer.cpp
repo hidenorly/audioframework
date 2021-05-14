@@ -17,8 +17,9 @@
 #include "FifoBuffer.hpp"
 #include <iterator>
 #include <thread>
+#include <iostream>
 
-FifoBuffer::FifoBuffer(AudioFormat& format):mFormat(format),mUnlock(false)
+FifoBuffer::FifoBuffer(AudioFormat& format):mFormat(format), mReadBlocked(false), mWriteBlocked(false), mUnlockReadBlock(false), mUnlockWriteBlock(false), mFifoSizeLimit(0)
 {
 
 }
@@ -37,9 +38,9 @@ bool FifoBuffer::read(IAudioBuffer& audioBuf)
     int size = readBuffer.size();
 
     std::atomic<bool> bReceived = false;
-    while( !bReceived && !mUnlock){
+    while( !bReceived && !mUnlockReadBlock){
       if( mBuf.size() >= size ){
-        mMutex.lock();
+        mBufMutex.lock();
         {
           readBuffer = ByteBuffer( mBuf.begin(), mBuf.begin()+size );
           audioBuf.setRawBuffer( readBuffer );
@@ -50,10 +51,19 @@ bool FifoBuffer::read(IAudioBuffer& audioBuf)
             mBuf.clear();
           }
         }
-        mMutex.unlock();
+        mBufMutex.unlock();
+
+        {
+          std::lock_guard<std::mutex> lock(mWriteBlockEventMutex);
+          mWriteBlockEvent.notify_all();
+        }
       } else {
-        std::unique_lock<std::mutex> lock(mEventMutex);
-        mEvent.wait(lock);
+        if( !mReadBlocked && !mWriteBlocked ){
+          mReadBlocked = true;
+          std::unique_lock<std::mutex> lock(mReadBlockEventMutex);
+          mReadBlockEvent.wait(lock);
+          mReadBlocked = false;
+        }
       }
     }
   }
@@ -66,20 +76,31 @@ bool FifoBuffer::write(IAudioBuffer& audioBuf)
   bool bResult = audioBuf.getAudioFormat().equal( mFormat );
 
   if(  bResult ){
-    mMutex.lock();
-    {
-      ByteBuffer extBuf = audioBuf.getRawBuffer();
+    ByteBuffer extBuf = audioBuf.getRawBuffer();
+    int nSizeExtBuf = extBuf.size();
+    std::atomic<bool> bSent = false;
+    while( !bSent && !mUnlockWriteBlock){
+      if( !mReadBlocked && !mWriteBlocked && mFifoSizeLimit && ( mFifoSizeLimit > mBuf.size() ) && ( (mBuf.size()+nSizeExtBuf) > mFifoSizeLimit ) ){
+          mWriteBlocked = true;
+          std::unique_lock<std::mutex> lock(mWriteBlockEventMutex);
+          mWriteBlockEvent.wait(lock);
+          mWriteBlocked = false;
+      } else {
+        mBufMutex.lock();
+        {
+          int newSize = nSizeExtBuf + mBuf.size();
+          mBuf.reserve( newSize );
 
-      int newSize = extBuf.size() + mBuf.size();
-      mBuf.reserve( newSize );
+          std::copy( extBuf.begin(), extBuf.end(), std::back_inserter( mBuf ) );
+          bSent = true;
+        }
+        mBufMutex.unlock();
 
-      std::copy( extBuf.begin(), extBuf.end(), std::back_inserter( mBuf ) );
-    }
-    mMutex.unlock();
-
-    {
-      std::lock_guard<std::mutex> lock(mEventMutex);
-      mEvent.notify_all();
+        {
+          std::lock_guard<std::mutex> lock(mReadBlockEventMutex);
+          mReadBlockEvent.notify_all();
+        }
+      }
     }
   }
 
@@ -93,9 +114,18 @@ int FifoBuffer::getBufferedSamples(void)
 
 void FifoBuffer::unlock(void)
 {
-  mUnlock = true;
-  mEvent.notify_all();
+  mUnlockReadBlock = true;
+  mUnlockWriteBlock = true;
+  mReadBlockEvent.notify_all();
+  mWriteBlockEvent.notify_all();
   std::this_thread::sleep_for(std::chrono::microseconds(100));
-  mUnlock = false;
+  mUnlockReadBlock = false;
+  mUnlockWriteBlock = false;
+}
+
+void FifoBuffer::setFifoSizeLimit(int nSampleLimit)
+{
+  int nChannelSampleByte = mFormat.getChannelsSampleByte();
+  mFifoSizeLimit = nChannelSampleByte ? (nSampleLimit * nChannelSampleByte) : nSampleLimit;
 }
 

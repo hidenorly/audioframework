@@ -103,7 +103,9 @@ ISink* PipeMixer::allocateSinkAdaptor(void)
 void PipeMixer::releaseSinkAdaptor(ISink* pSink)
 {
   InterPipeBridge* pInterPipeBridge = dynamic_cast<InterPipeBridge*>(pSink);
-  delete pInterPipeBridge;
-  std::erase( mpInterPipeBridges, pInterPipeBridge );
+  if( pInterPipeBridge ){
+    delete pInterPipeBridge;
+    std::erase( mpInterPipeBridges, pInterPipeBridge );
+  }
 }
 

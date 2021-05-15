@@ -152,8 +152,7 @@ void AudioBuffer::setAudioFormat( AudioFormat format )
 void AudioBuffer::resize( int samples )
 {
   int bufSize = mFormat.getChannelsSampleByte() * samples;
-  ByteBuffer zeroBuf( bufSize, 0 );
-  mBuf = zeroBuf;
+  mBuf.resize( bufSize );
 }
 
 AudioSample AudioBuffer::getSample(int nOffset)
@@ -198,7 +197,7 @@ AudioBuffer AudioBuffer::getSelectedChannelData(AudioFormat outAudioFormat, Audi
 CompressAudioBuffer::CompressAudioBuffer(AudioFormat format, int nChunkSize) : mChunkSize(nChunkSize)
 {
   mFormat = format;
-  mBuf.reserve( nChunkSize * 3 ); // at least tripple buffer
+  mBuf = ByteBuffer( nChunkSize, 0 );
 }
 
 CompressAudioBuffer& CompressAudioBuffer::operator=(CompressAudioBuffer& buf)
@@ -211,7 +210,11 @@ CompressAudioBuffer& CompressAudioBuffer::operator=(CompressAudioBuffer& buf)
 
 void CompressAudioBuffer::setAudioFormat( AudioFormat format, int nChunkSize )
 {
+  if( !mFormat.equal(format) ){
+    mBuf.clear();
+    mBuf = ByteBuffer( nChunkSize, 0 );
+  } else {
+    mBuf.resize( nChunkSize );
+  }
   mFormat = format;
-  mBuf.clear();
-  mBuf.reserve( nChunkSize * 3);
 }

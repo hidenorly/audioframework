@@ -28,6 +28,8 @@ public:
   virtual int read(ByteBuffer& buf){ return 0; };
   virtual ByteBuffer* read(void){ return nullptr; };
   virtual void write(ByteBuffer& buf){};
+  virtual bool writeLine(std::string& line){ return false; };
+  virtual bool readLine(std::string& line){ return false; };
   virtual void close(void){};
 };
 
@@ -47,6 +49,8 @@ public:
   virtual int read(ByteBuffer& buf);
   virtual ByteBuffer* read(void);
   virtual void write(ByteBuffer& buf);
+  virtual bool writeLine(std::string& line);
+  virtual bool readLine(std::string& line);
   virtual void close(void);
 };
 

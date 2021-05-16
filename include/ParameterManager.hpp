@@ -21,6 +21,8 @@
 #include <vector>
 #include <string>
 
+#include "Stream.hpp"
+
 class ParameterManager;
 
 class ParameterManager
@@ -58,6 +60,9 @@ public:
   typedef std::function<void(std::string key, std::string value)> CALLBACK;
   int registerCallback(std::string key, CALLBACK callback);
   void unregisterCallback(int callbackId);
+
+  bool storeToStream(IStream* pStream);
+  bool restoreFromStream(IStream* pStream);
 
 protected:
   int mListnerId;

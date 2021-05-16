@@ -210,3 +210,22 @@ void ParameterManager::unregisterCallback(int callbackId)
   }
   mListenerIdReverse.erase( listenerId );
 }
+
+
+bool ParameterManager::storeToStream(IStream* pStream)
+{
+  bool result = false;
+  if( pStream ){
+    for( auto& [aKey, value] : mParams ){
+      std::string buf = "\"" + aKey + "\":\"" + value + "\"";
+      pStream->writeLine( buf );
+    }
+  }
+  return result;
+}
+
+bool ParameterManager::restoreFromStream(IStream* pStream)
+{
+  bool result = false;
+  return result;
+}

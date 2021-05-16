@@ -85,6 +85,29 @@ void FileStream::write(ByteBuffer& buf)
   }
 }
 
+
+bool FileStream::writeLine(std::string& line)
+{
+  bool result = !isEndOfStream();
+
+  if( result ){
+    mStream << line << std::endl;
+  }
+
+  return result;
+}
+
+bool FileStream::readLine(std::string& line)
+{
+  bool result = !isEndOfStream();
+
+  if( result ){
+    result = std::getline( mStream, line ) ? true : false;
+  }
+
+  return result;
+}
+
 void FileStream::close(void)
 {
   if( mOpened ){

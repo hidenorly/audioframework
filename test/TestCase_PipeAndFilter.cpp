@@ -687,6 +687,10 @@ TEST_F(TestCase_PipeAndFilter, testParameterManager)
   for(auto& aParam : paramsAll){
     std::cout << aParam.key << " = " << aParam.value << std::endl;
   }
+
+  FileStream* pFileStream = new FileStream("TestProperties");
+  pParams->storeToStream( pFileStream );
+  pFileStream->close();
 }
 
 

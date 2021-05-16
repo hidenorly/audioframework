@@ -128,12 +128,12 @@ $ make; ./bin/afw_test;
   * [] Add dynamic pipe change
 * All
   * [] Compressed data support
-    * [] AudioFormat
+    * [done] AudioFormat
     * [done] IAudioBufer, CompressedAudioBuffer
-    * [] Sink, Pipe, Source
+    * [done] Sink, Source
     * [done] Decoder
-    * [] Encoder
-    * [] Player (ES controller)
+    * [done] Encoder
+    * [done] Player (ES controller)
   * [] A/V sync support
     * [] Tiny speed controller (with TinySRC)
 * OSAL

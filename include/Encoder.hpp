@@ -1,4 +1,4 @@
-/* 
+/*
   Copyright (C) 2021 hidenorly
 
    Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,11 +14,11 @@
    limitations under the License.
 */
 
-#ifndef __DECODER_HPP__
-#define __DECODER_HPP__
+#ifndef __ENCODER_HPP__
+#define __ENCODER_HPP__
 
 #include "Buffer.hpp"
-#include "Source.hpp"
+#include "Sink.hpp"
 #include "InterPipeBridge.hpp"
 #include "ThreadBase.hpp"
 #include <string>
@@ -26,32 +26,33 @@
 #include <thread>
 #include "Media.hpp"
 
-class IDecoder : public ThreadBase
+class IEncoder : public ThreadBase
 {
 protected:
-  ISource* mpSource;
+  ISink* mpSink;
   std::vector<InterPipeBridge*> mpInterPipeBridges;
   virtual void unlockToStop(void);
 
 public:
-  IDecoder();
-  virtual ~IDecoder();
+  IEncoder();
+  virtual ~IEncoder();
 
   virtual void configure(MediaParam param);
   virtual void configure(std::vector<MediaParam> params);
-  virtual ISource* attachSource(ISource* pSource);
-  virtual ISource* detachSource(void);
-  virtual ISource* allocateSourceAdaptor(void);
-  virtual void releaseSourceAdaptor(ISource* pSource);
-  virtual void seek(int64_t position);
+
+  virtual ISink* allocateSinkAdaptor(void); // as encoder's source
+  virtual void releaseSinkAdaptor(ISink* pSink);
+
+  virtual ISink* attachSink(ISink* pSink);
+  virtual ISink* detachSink(void);
   virtual int64_t getPosition(void);
 };
 
-class NullDecoder : public IDecoder
+class NullEncoder : public IEncoder
 {
 public:
-  NullDecoder();
-  ~NullDecoder();
+  NullEncoder();
+  ~NullEncoder();
 
   virtual void configure(MediaParam param);
 
@@ -59,4 +60,4 @@ protected:
   virtual void process(void);
 };
 
-#endif /* __DECODER_HPP__ */
+#endif /* __ENCODER_HPP__ */

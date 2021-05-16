@@ -33,7 +33,10 @@
 #include "StreamSource.hpp"
 #include "PipeMixer.hpp"
 #include "PipedSink.hpp"
+#include "Media.hpp"
 #include "Decoder.hpp"
+#include "Encoder.hpp"
+#include "EncodedSink.hpp"
 #include "Player.hpp"
 #include "ParameterManager.hpp"
 #include "Util.hpp"
@@ -451,10 +454,10 @@ TEST_F(TestCase_PipeAndFilter, testPipedSink)
 
 TEST_F(TestCase_PipeAndFilter, testDecoder)
 {
-  std::vector<DecoderParam> params;
-  DecoderParam param1("testKey1", "abc"); params.push_back(param1);
-  DecoderParam param2("testKey2", 3840);  params.push_back(param2);
-  DecoderParam param3("testKey3", true);  params.push_back(param3);
+  std::vector<MediaParam> params;
+  MediaParam param1("testKey1", "abc"); params.push_back(param1);
+  MediaParam param2("testKey2", 3840);  params.push_back(param2);
+  MediaParam param3("testKey3", true);  params.push_back(param3);
   IDecoder* pDecoder = new NullDecoder();
   pDecoder->configure(params);
 
@@ -510,6 +513,7 @@ TEST_F(TestCase_PipeAndFilter, testDecoder)
 
 TEST_F(TestCase_PipeAndFilter, testPlayer)
 {
+  // player(source, decoder) --via source adaptor -> pipe(filter) -> sink
   ISource* pSource = new Source();
   ISink* pSink = new Sink();
 
@@ -544,22 +548,94 @@ TEST_F(TestCase_PipeAndFilter, testPlayer)
   std::cout << "stopped" << std::endl;
 
   pSink->dump();
-  ISource* pDetachedSource = pPipe->attachSource( pSourceAdaptor );
-  EXPECT_NE( pDetachedSource, nullptr );
-  EXPECT_EQ( pDetachedSource, pSourceAdaptor );
 
-  ISource* pDetachedPlayerSource = pPlayer->terminate( pDetachedSource );
+  // detach source (=player's source adaptor) from pipe
+  ISource* pDetachedSourceAdaptor = pPipe->detachSource();
+  EXPECT_NE( pDetachedSourceAdaptor, nullptr );
+  EXPECT_EQ( pDetachedSourceAdaptor, pSourceAdaptor );
+
+  // release the Detached Source Adaptor & detach the decoder(=player)'s source from player. note that player terminate will delete the decoder instance
+  ISource* pDetachedPlayerSource = pPlayer->terminate( pDetachedSourceAdaptor );
   EXPECT_NE( pDetachedPlayerSource, nullptr );
   EXPECT_EQ( pDetachedPlayerSource, pSource );
   delete pDetachedPlayerSource; pSource = pDetachedPlayerSource = nullptr;
 
+  // detach sink from pipe
   ISink* pDetachedSink = pPipe->detachSink();
   EXPECT_NE( pDetachedSink, nullptr );
   EXPECT_EQ( pDetachedSink, pSink );
   delete pDetachedSink; pSink = pDetachedSink = nullptr;
 
+  // clear (delete) the filters
   pPipe->clearFilters();
+
+  // then dispose the pipe
   delete pPipe; pPipe = nullptr;
+}
+
+TEST_F(TestCase_PipeAndFilter, testEncoder)
+{
+  std::vector<MediaParam> params;
+  MediaParam param1("testKey1", "abc"); params.push_back(param1);
+  MediaParam param2("testKey2", 3840);  params.push_back(param2);
+  MediaParam param3("testKey3", true);  params.push_back(param3);
+  IEncoder* pEncoder = new NullEncoder();
+  pEncoder->configure(params);
+
+  ISource* pSource = new Source();
+  ISink* pSink = new EncodedSink();
+  IPipe* pPipe = new Pipe();
+  pPipe->attachSource( pSource );
+  pPipe->addFilterToTail( new FilterIncrement() );
+  ISink* pSinkAdaptor = pEncoder->allocateSinkAdaptor();
+  pPipe->attachSink( pSinkAdaptor );
+  pEncoder->attachSink( pSink );
+
+  pEncoder->run();
+  pPipe->run();
+
+  std::this_thread::sleep_for(std::chrono::microseconds(1000));
+
+  std::cout << "source PTS: " << pSource->getSourcePts();
+  std::cout << " / sink PTS: " << pSink->getSinkPts() << std::endl;
+  std::this_thread::sleep_for(std::chrono::microseconds(1000));
+  std::cout << "source PTS: " << pSource->getSourcePts();
+  std::cout << " / sink PTS: " << pSink->getSinkPts() << std::endl;
+
+  std::cout << "Pipe::stop" << std::endl;
+  pPipe->stop();
+  std::cout << "Encoder::stop" << std::endl;
+  pEncoder->stop();
+  std::cout << "Encoder::stopped" << std::endl;
+
+  pSink->dump();
+
+  // detach sink from encoder
+  ISink* pDetachedSink = pEncoder->detachSink();
+  EXPECT_NE( pDetachedSink, nullptr );
+  EXPECT_EQ( pDetachedSink, pSink );
+  delete pSink; pDetachedSink = pSink = nullptr;
+
+  // detach sink adaptor from pipe (=release encoder's sink adaptor)
+  ISink* pDetachedSinkEnc = pPipe->detachSink();
+  EXPECT_NE( pDetachedSinkEnc, nullptr );
+  EXPECT_EQ( pDetachedSinkEnc, pSinkAdaptor );
+  pEncoder->releaseSinkAdaptor( pSinkAdaptor ); pSinkAdaptor = pDetachedSinkEnc = nullptr;
+
+  // detach source from pipe
+  ISource* pDetachedSource = pPipe->detachSource();
+  EXPECT_NE( pDetachedSource, nullptr );
+  EXPECT_EQ( pDetachedSource, pSource );
+  delete pDetachedSource; pDetachedSource = pSource = nullptr;
+
+  // clear filter in the pipe
+  pPipe->clearFilters();
+
+  // then clear pipe
+  delete pPipe; pPipe = nullptr;
+
+  // then clear encoder
+  delete pEncoder; pEncoder = nullptr;
 }
 
 

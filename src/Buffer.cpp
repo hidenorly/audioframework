@@ -102,6 +102,11 @@ void IAudioBuffer::append(IAudioBuffer& buf)
   }
 }
 
+void IAudioBuffer::setAudioFormat( AudioFormat format )
+{
+  mFormat = format;
+}
+
 AudioBuffer::AudioBuffer(AudioFormat format, int samples)
 {
   setAudioFormat( format );
@@ -217,4 +222,14 @@ void CompressAudioBuffer::setAudioFormat( AudioFormat format, int nChunkSize )
     mBuf.resize( nChunkSize );
   }
   mFormat = format;
+}
+
+void CompressAudioBuffer::append(CompressAudioBuffer& buf)
+{
+  ByteBuffer extBuf = buf.getRawBuffer();
+
+  int newSize = extBuf.size() + mBuf.size();
+  mBuf.reserve( newSize );
+
+  std::copy( extBuf.begin(), extBuf.end(), std::back_inserter( mBuf ) );
 }

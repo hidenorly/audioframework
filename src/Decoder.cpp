@@ -29,14 +29,14 @@ IDecoder::~IDecoder()
 
 }
 
-void IDecoder::configure(DecoderParam param)
+void IDecoder::configure(MediaParam param)
 {
 
 }
 
-void IDecoder::configure(std::vector<DecoderParam> params)
+void IDecoder::configure(std::vector<MediaParam> params)
 {
-  for(DecoderParam& aParam : params){
+  for(MediaParam& aParam : params){
     configure(aParam);
   }
 }
@@ -54,7 +54,6 @@ ISource* IDecoder::detachSource(void)
   mpSource = nullptr;
   return pPrevSource;
 }
-
 
 ISource* IDecoder::allocateSourceAdaptor(void)
 {
@@ -98,7 +97,7 @@ NullDecoder::~NullDecoder()
 
 }
 
-void NullDecoder::configure(DecoderParam param)
+void NullDecoder::configure(MediaParam param)
 {
 
 }

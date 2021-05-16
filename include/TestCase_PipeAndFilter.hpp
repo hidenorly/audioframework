@@ -43,6 +43,7 @@ protected:
 
   void testDecoder(void);
   void testPlayer(void);
+  void testEncoder(void);
 
   void testParameterManager(void);
 };

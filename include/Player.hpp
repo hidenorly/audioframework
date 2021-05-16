@@ -50,7 +50,7 @@ public:
   virtual ~Player();
 
   virtual ISource* prepare(ISource* pSource, IDecoder* pDecoder);
-  virtual ISource* terminate(ISource* pSource);
+  virtual ISource* terminate(ISource* pSourceAdaptor);
   virtual bool isReady(void);
 
   virtual void play(int64_t ptsUSec = 0);

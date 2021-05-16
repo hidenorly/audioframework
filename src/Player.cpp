@@ -41,12 +41,12 @@ ISource* Player::prepare(ISource* pSource, IDecoder* pDecoder)
   return pDec2Pipe;
 }
 
-ISource* Player::terminate(ISource* pSource)
+ISource* Player::terminate(ISource* pSourceAdaptor)
 {
   ISource* pDecoderSource = nullptr;
   if( mpDecoder ){
     mpDecoder->stop();
-    mpDecoder->releaseSourceAdaptor( pSource );
+    mpDecoder->releaseSourceAdaptor( pSourceAdaptor );
     pDecoderSource = mpDecoder->detachSource();
     delete mpDecoder; mpDecoder = nullptr;
   }

@@ -53,6 +53,7 @@ public:
   virtual AudioFormat getAudioFormat(void);
   virtual bool isSameAudioFormat(IAudioBuffer& buf);
   virtual void append(IAudioBuffer& buf);
+  virtual void setAudioFormat( AudioFormat format );
 };
 
 class AudioBuffer : public IAudioBuffer
@@ -67,7 +68,7 @@ public:
   int getSamples(void);
   int getWindowSizeUsec(void);
   AudioBuffer& operator=(AudioBuffer& buf);
-  void setAudioFormat( AudioFormat format );
+  virtual void setAudioFormat( AudioFormat format );
   void resize( int samples );
   AudioSample getSample(int nOffset);
   void setSample(int nOffset, AudioSample& sample);
@@ -81,9 +82,10 @@ protected:
   static const int DEFAULT_CHUNK_SIZE = 256;
 
 public:
-  CompressAudioBuffer(AudioFormat format, int nChunkSize = DEFAULT_CHUNK_SIZE);
+  CompressAudioBuffer(AudioFormat format = AudioFormat(AudioFormat::ENCODING::COMPRESSED), int nChunkSize = DEFAULT_CHUNK_SIZE);
   CompressAudioBuffer& operator=(CompressAudioBuffer& buf);
-  void setAudioFormat( AudioFormat format, int nChunkSize = DEFAULT_CHUNK_SIZE );
+  virtual void setAudioFormat( AudioFormat format, int nChunkSize = DEFAULT_CHUNK_SIZE );
+  virtual void append(CompressAudioBuffer& buf);
 };
 
 #endif /* __BUFFER_HPP__ */

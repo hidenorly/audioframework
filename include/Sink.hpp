@@ -75,11 +75,11 @@ public:
 class Sink : public ISink, public AudioBase
 {
 protected:
-  AudioBuffer mBuf;
+  IAudioBuffer* mpBuf;
 
 public:
   Sink();
-  virtual ~Sink(){};
+  virtual ~Sink();
   virtual void writePrimitive(IAudioBuffer& buf);
   virtual std::string toString(void){ return "Sink"; };
   virtual void dump(void);

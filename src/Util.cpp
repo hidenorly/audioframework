@@ -16,15 +16,22 @@
 
 #include "Util.hpp"
 
-void Util::dumpBuffer(AudioBuffer* pBuf)
+void Util::dumpBuffer(IAudioBuffer* pBuf)
 {
   if(pBuf){
     AudioFormat format = pBuf->getAudioFormat();
-    std::cout << "sampling rate:" << (int)format.getSamplingRate() <<
-      " format:" << format.getEncodingString() <<
-      " channels:" << (int)format.getNumberOfChannels() <<
-      " samples:" << (int)pBuf->getSamples() <<
-      std::endl;
+    AudioBuffer* pAudioBuf = dynamic_cast<AudioBuffer*>(pBuf);
+    if( pAudioBuf ){
+      std::cout << "sampling rate:" << (int)format.getSamplingRate() <<
+        " format:" << format.getEncodingString() <<
+        " channels:" << (int)format.getNumberOfChannels() <<
+        " samples:" << (int)pAudioBuf->getSamples() <<
+        std::endl;
+      } else {
+      std::cout << " format:" << format.getEncodingString() <<
+        " data size:" << (int)pBuf->getRawBuffer().size() <<
+        std::endl;
+      }
 
     std::cout << std::hex;
     ByteBuffer rawBuffer = pBuf->getRawBuffer();
@@ -35,18 +42,18 @@ void Util::dumpBuffer(AudioBuffer* pBuf)
   }
 }
 
-void Util::dumpBuffer(AudioBuffer& buf)
+void Util::dumpBuffer(IAudioBuffer& buf)
 {
   dumpBuffer(&buf);
 }
 
-void Util::dumpBuffer(std::string message, AudioBuffer* buf)
+void Util::dumpBuffer(std::string message, IAudioBuffer* buf)
 {
   std::cout << message << std::endl;
   dumpBuffer(buf);
 }
 
-void Util::dumpBuffer(std::string message, AudioBuffer& buf)
+void Util::dumpBuffer(std::string message, IAudioBuffer& buf)
 {
   dumpBuffer(message, &buf);
 }

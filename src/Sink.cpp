@@ -80,15 +80,21 @@ void ISink::write(IAudioBuffer& buf)
     format = pBuf->getAudioFormat();
     if( nSamples ){
       mLatencyUsec = 1000000 * nSamples / format.getSamplingRate();
-      mSinkPosition += mLatencyUsec;
     }
+    mSinkPosition += (mLatencyUsec ? mLatencyUsec : buf.getRawBuffer().size());
+  } else {
+    mSinkPosition += buf.getRawBuffer().size();
   }
   if( 100.0f == mVolume || !pBuf ){
     writePrimitive( buf );
   } else {
+    // pBuf is already checked in the above
     AudioBuffer volumedBuf( format, nSamples );
-    Volume::process( pBuf, &volumedBuf, mVolume );
-    writePrimitive( volumedBuf );
+    if( Volume::process( pBuf, &volumedBuf, mVolume ) ){
+      writePrimitive( volumedBuf );
+    } else {
+      writePrimitive( buf );
+    }
   }
 }
 
@@ -105,17 +111,26 @@ int64_t ISink::getSinkPts(void)
 
 Sink::Sink():ISink()
 {
-
+  mpBuf = new AudioBuffer();
 }
+
+Sink::~Sink()
+{
+  delete mpBuf;
+  mpBuf = nullptr;
+}
+
 
 void Sink::writePrimitive(IAudioBuffer& buf)
 {
-  mBuf.append( buf );
+  if( mpBuf ){
+    mpBuf->append( buf );
+  }
 }
 
 void Sink::dump(void)
 {
-  Util::dumpBuffer("Dump Sink data", mBuf);
+  Util::dumpBuffer("Dump Sink data", mpBuf);
 }
 
 bool Sink::setAudioFormat(AudioFormat audioFormat)
@@ -123,7 +138,9 @@ bool Sink::setAudioFormat(AudioFormat audioFormat)
   bool bSuccess = isAvailableFormat(audioFormat);
 
   if( bSuccess ) {
-    mBuf.setAudioFormat( audioFormat );
+    if( mpBuf ){
+      mpBuf->setAudioFormat( audioFormat );
+    }
   }
 
   return bSuccess;
@@ -131,5 +148,5 @@ bool Sink::setAudioFormat(AudioFormat audioFormat)
 
 AudioFormat Sink::getAudioFormat(void)
 {
-  return mBuf.getAudioFormat();
+  return mpBuf ? mpBuf->getAudioFormat() : AudioFormat();
 }

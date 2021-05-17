@@ -1,4 +1,4 @@
-/* 
+/*
   Copyright (C) 2021 hidenorly
 
    Licensed under the Apache License, Version 2.0 (the "License");
@@ -41,8 +41,10 @@ protected:
   static ParameterManager mParamManager;
   ParameterManager();
   virtual ~ParameterManager();
+  std::string trimParamString(std::string value);
 
 public:
+  // for all of ParameterManager users
   static ParameterManager* getManager(void);
   void setParameter(std::string key, std::string value);
   void setParameterInt(std::string key, int value);
@@ -61,8 +63,10 @@ public:
   int registerCallback(std::string key, CALLBACK callback);
   void unregisterCallback(int callbackId);
 
+  // administrative API
   bool storeToStream(IStream* pStream);
-  bool restoreFromStream(IStream* pStream);
+  bool restoreFromStream(IStream* pStream, bool bOverride = true);
+  void resetAllOfParams(void);
 
 protected:
   int mListnerId;

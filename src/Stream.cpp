@@ -17,7 +17,6 @@
 #include "Stream.hpp"
 #include <fstream>
 #include <filesystem>
-#include <iostream>
 
 void FileStream::ensureFile(std::string path)
 {

@@ -46,6 +46,7 @@ protected:
   void testEncoder(void);
 
   void testParameterManager(void);
+  void testStringTokenizer(void);
 };
 
 #endif /* __TESTCASE_PIPEANDFILTER_HPP__ */

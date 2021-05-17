@@ -15,6 +15,7 @@
 */
 
 #include "ParameterManager.hpp"
+#include "StringTokenizer.hpp"
 #include <map>
 #include <vector>
 #include <string>
@@ -48,6 +49,9 @@ void ParameterManager::executeNotify(std::string key, std::string value, std::ve
 void ParameterManager::setParameter(std::string key, std::string value)
 {
   bool bChanged = true;
+
+  key = trimParamString(key);
+  value = trimParamString(value);
 
   if( mParams.contains( key ) ){
     // check ro.* (=read only)
@@ -219,13 +223,56 @@ bool ParameterManager::storeToStream(IStream* pStream)
     for( auto& [aKey, value] : mParams ){
       std::string buf = "\"" + aKey + "\":\"" + value + "\"";
       pStream->writeLine( buf );
+      result = true;
     }
   }
   return result;
 }
 
-bool ParameterManager::restoreFromStream(IStream* pStream)
+std::string ParameterManager::trimParamString(std::string value)
+{
+  const static std::string trimString = " \r\n\"";
+
+  int nPos = value.find_last_not_of( trimString );
+  if( nPos != std::string::npos ){
+    value = value.substr( 0, nPos+1 );
+  }
+
+  nPos = value.find_first_not_of( trimString );
+  if( nPos != std::string::npos ){
+    value = value.substr( nPos );
+  }
+
+  return value;
+}
+
+
+bool ParameterManager::restoreFromStream(IStream* pStream, bool bOverride)
 {
   bool result = false;
+
+  if( pStream ){
+    std::string aLine;
+    while( !pStream->isEndOfStream() ){
+      if( pStream->readLine( aLine ) ){
+        StringTokenizer tok( aLine, "\":\"");
+        if( tok.hasNext() ){
+          result = true;
+          std::string key = trimParamString( tok.getNext() );
+          std::string value = trimParamString( tok.getNext() );
+          if( bOverride || !mParams.contains( key ) ){
+            setParameter( key, value );
+          }
+        }
+      }
+    }
+  }
+
   return result;
 }
+
+void ParameterManager::resetAllOfParams(void)
+{
+  mParams.clear();
+}
+

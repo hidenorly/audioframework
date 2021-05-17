@@ -116,8 +116,8 @@ $ make; ./bin/afw_test;
   * ParameterManager
     * [done] basic set/get_ro, pub/sub with wild card
     * [] parameter hierachy support
-    * [] persist support
-    * [] default value database
+    * [done] persist support
+    * [done] default value database
   * Plug-in
     * Filter Plug-in manager
     * Sink Plug-in manager

@@ -39,6 +39,7 @@
 #include "EncodedSink.hpp"
 #include "Player.hpp"
 #include "ParameterManager.hpp"
+#include "StringTokenizer.hpp"
 #include "Util.hpp"
 
 #include <iostream>
@@ -688,11 +689,93 @@ TEST_F(TestCase_PipeAndFilter, testParameterManager)
     std::cout << aParam.key << " = " << aParam.value << std::endl;
   }
 
-  FileStream* pFileStream = new FileStream("TestProperties");
+  const std::string paramFilePath = "TestProperties";
+
+  if( std::filesystem::exists( paramFilePath) ){
+    std::filesystem::remove( paramFilePath );
+  }
+
+  std::cout << "store to stream" << std::endl;
+  FileStream* pFileStream = new FileStream( paramFilePath );
   pParams->storeToStream( pFileStream );
   pFileStream->close();
+
+  std::cout << "reset all of params" << std::endl;
+  pParams->resetAllOfParams();
+
+  std::cout << "restore from stream" << std::endl;
+  pFileStream = new FileStream( paramFilePath );
+  pParams->restoreFromStream( pFileStream );
+  pFileStream->close();
+
+  std::cout << "reset all of params" << std::endl;
+  pParams->resetAllOfParams();
+
+  // non-override restore. This helps to implement default params and user params load. Load current user config value(override=true) and Load the default(preset) value (override=false).
+  pParams->setParameter("paramA", "XXX");
+  std::cout << "restore from stream" << std::endl;
+  pFileStream = new FileStream( paramFilePath );
+  pParams->restoreFromStream( pFileStream, false ); // no override
+  pFileStream->close();
+  EXPECT_EQ( pParams->getParameter("paramA"), "XXX");
+
+  paramsAll = pParams->getParameters();
+  for(auto& aParam : paramsAll){
+    std::cout << aParam.key << " = " << aParam.value << std::endl;
+  }
 }
 
+TEST_F(TestCase_PipeAndFilter, testStringTokenizer)
+{
+  std::string target1 = "data1:data2:data3:data4";
+  StringTokenizer tok1(target1, ":");
+
+  std::cout << "#1 getNext()" << std::endl;
+  EXPECT_TRUE( tok1.hasNext() );
+  EXPECT_EQ( tok1.getNext(), "data1" );
+
+  std::cout << "#2 getNext()" << std::endl;
+  EXPECT_TRUE( tok1.hasNext() );
+  EXPECT_EQ( tok1.getNext(), "data2" );
+
+  std::cout << "#3 getNext()" << std::endl;
+  EXPECT_TRUE( tok1.hasNext() );
+  EXPECT_EQ( tok1.getNext(), "data3" );
+
+  std::cout << "#4 getNext()" << std::endl;
+  EXPECT_TRUE( tok1.hasNext() );
+  EXPECT_EQ( tok1.getNext(), "data4" );
+
+  std::cout << "#5 getNext()" << std::endl;
+  EXPECT_FALSE( tok1.hasNext() );
+
+  std::string target2 = "data1:data2:data3:data4";
+  StringTokenizer tok2(target1, ",");
+  EXPECT_TRUE( tok2.hasNext() );
+  EXPECT_EQ( tok2.getNext(), target2 );
+
+  std::string target3 = "data1 : data2 : data3 : data4";
+  StringTokenizer tok3(target3, " : ");
+
+  std::cout << "#1 getNext()" << std::endl;
+  EXPECT_TRUE( tok3.hasNext() );
+  EXPECT_EQ( tok3.getNext(), "data1" );
+
+  std::cout << "#2 getNext()" << std::endl;
+  EXPECT_TRUE( tok3.hasNext() );
+  EXPECT_EQ( tok3.getNext(), "data2" );
+
+  std::cout << "#3 getNext()" << std::endl;
+  EXPECT_TRUE( tok3.hasNext() );
+  EXPECT_EQ( tok3.getNext(), "data3" );
+
+  std::cout << "#4 getNext()" << std::endl;
+  EXPECT_TRUE( tok3.hasNext() );
+  EXPECT_EQ( tok3.getNext(), "data4" );
+
+  std::cout << "#5 getNext()" << std::endl;
+  EXPECT_FALSE( tok3.hasNext() );
+}
 
 int main(int argc, char **argv)
 {

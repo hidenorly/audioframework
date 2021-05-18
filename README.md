@@ -119,6 +119,7 @@ $ make; ./bin/afw_test;
     * [done] persist support
     * [done] default value database
   * Plug-in
+    * [done] Plug-in manager
     * Filter Plug-in manager
     * Sink Plug-in manager
     * Source Plug-in manager

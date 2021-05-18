@@ -47,6 +47,8 @@ protected:
 
   void testParameterManager(void);
   void testStringTokenizer(void);
+
+  void testPlugInManager(void);
 };
 
 #endif /* __TESTCASE_PIPEANDFILTER_HPP__ */

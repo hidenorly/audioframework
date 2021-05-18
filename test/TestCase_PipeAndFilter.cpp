@@ -40,6 +40,7 @@
 #include "Player.hpp"
 #include "ParameterManager.hpp"
 #include "StringTokenizer.hpp"
+#include "PlugInManager.hpp"
 #include "Util.hpp"
 
 #include <iostream>
@@ -775,6 +776,22 @@ TEST_F(TestCase_PipeAndFilter, testStringTokenizer)
 
   std::cout << "#5 getNext()" << std::endl;
   EXPECT_FALSE( tok3.hasNext() );
+}
+
+
+TEST_F(TestCase_PipeAndFilter, testPlugInManager)
+{
+  IPlugInManager* pPlugInManager = new IPlugInManager();
+  pPlugInManager->initialize();
+
+  std::vector<std::string> plugInIds = pPlugInManager->getPlugInIds();
+  for(auto& aPlugInId : plugInIds){
+    EXPECT_TRUE( pPlugInManager->hasPlugIn( aPlugInId ) );
+    EXPECT_NE( nullptr, pPlugInManager->getPlugIn( aPlugInId ) );
+  }
+  EXPECT_FALSE( pPlugInManager->hasPlugIn( "hogehogehoge" ) );
+
+  pPlugInManager->terminate();
 }
 
 int main(int argc, char **argv)

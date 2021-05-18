@@ -794,6 +794,25 @@ TEST_F(TestCase_PipeAndFilter, testPlugInManager)
   pPlugInManager->terminate();
 }
 
+TEST_F(TestCase_PipeAndFilter, testFilterPlugInManager)
+{
+  FilterManager::setPlugInPath(".");
+  FilterManager* pFilterManager = FilterManager::getInstance();
+  pFilterManager->initialize();
+
+  std::vector<std::string> plugInIds = pFilterManager->getPlugInIds();
+  for(auto& aPlugInId : plugInIds){
+    EXPECT_TRUE( pFilterManager->hasPlugIn( aPlugInId ) );
+    EXPECT_NE( nullptr, pFilterManager->getPlugIn( aPlugInId ) );
+    IFilter* pFilter = FilterManager::newFilterById( aPlugInId );
+    EXPECT_NE( nullptr, pFilter );
+    delete pFilter;
+  }
+  EXPECT_FALSE( FilterManager::newFilterById( "hogehogehoge" ) );
+
+  pFilterManager->terminate();
+}
+
 int main(int argc, char **argv)
 {
   ::testing::InitGoogleTest(&argc, argv);

@@ -58,3 +58,86 @@ int Filter::getExpectedProcessingUSec(void)
 {
   return DEFAULT_PROCESSING_TIME_USEC;
 }
+
+
+
+FilterPlugIn::FilterPlugIn()
+{
+
+}
+FilterPlugIn::~FilterPlugIn()
+{
+
+}
+
+void FilterPlugIn::onLoad(void)
+{
+
+}
+
+void FilterPlugIn::onUnload(void)
+{
+
+}
+
+std::string FilterPlugIn::getId(void)
+{
+  return "FilterPlugInBase";
+}
+
+IPlugIn* FilterPlugIn::newInstance(void)
+{
+  return dynamic_cast<IPlugIn*>( new FilterPlugIn() );
+}
+
+
+FilterManager* FilterManager::mpManager = nullptr;
+std::string FilterManager::mPlugInPath = ".";
+
+
+FilterManager::FilterManager( )
+{
+  mpManager = this;
+}
+
+FilterManager::~FilterManager()
+{
+}
+
+void FilterManager::terminate(void)
+{
+  IPlugInManager::terminate();
+  mpManager = nullptr;
+  delete this;
+}
+
+void FilterManager::setPlugInPath(std::string path)
+{
+  mPlugInPath = path;
+}
+
+FilterManager* FilterManager::getInstance(void)
+{
+  if( !mpManager ){
+    mpManager = new FilterManager();
+  }
+  return mpManager;
+}
+
+IFilter* FilterManager::newFilterById(std::string filterId)
+{
+  IFilter* pFilter = nullptr;
+
+  if( !mpManager ){
+    getInstance();
+  }
+
+  if( mpManager ){
+    FilterPlugIn* pFilterPlugIn = dynamic_cast<FilterPlugIn*>( mpManager->getPlugIn( filterId ) );
+    if( pFilterPlugIn ){
+      pFilter = dynamic_cast<IFilter*>( pFilterPlugIn->newInstance() );
+    }
+  }
+
+  return pFilter;
+}

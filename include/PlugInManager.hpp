@@ -31,6 +31,7 @@ public:
   virtual void onLoad(void) = 0;
   virtual void onUnload(void) = 0;
   virtual std::string getId(void) = 0;
+  virtual IPlugIn* newInstance(void) = 0;
 
   // for PlugIn Manager
   virtual void load(void* libraryNativeHandle);

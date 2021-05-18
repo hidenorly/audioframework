@@ -49,6 +49,7 @@ protected:
   void testStringTokenizer(void);
 
   void testPlugInManager(void);
+  void testFilterPlugInManager(void);
 };
 
 #endif /* __TESTCASE_PIPEANDFILTER_HPP__ */

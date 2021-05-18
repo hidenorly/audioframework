@@ -120,7 +120,7 @@ $ make; ./bin/afw_test;
     * [done] default value database
   * Plug-in
     * [done] Plug-in manager
-    * Filter Plug-in manager
+    * [done] Filter Plug-in manager
     * Sink Plug-in manager
     * Source Plug-in manager
     * Strategy Plug-in manager

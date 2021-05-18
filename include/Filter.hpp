@@ -20,6 +20,7 @@
 #include "Buffer.hpp"
 #include "AudioFormat.hpp"
 #include <vector>
+#include "PlugInManager.hpp"
 
 class IFilter
 {
@@ -42,6 +43,37 @@ public:
   virtual ~Filter();
   virtual std::vector<AudioFormat> getSupportedAudioFormats(void);
   virtual int getExpectedProcessingUSec(void);
+};
+
+class FilterPlugIn : public Filter, public IPlugIn
+{
+public:
+  FilterPlugIn();
+  virtual ~FilterPlugIn();
+
+  virtual void onLoad(void);
+  virtual void onUnload(void);
+  virtual std::string getId(void);
+  virtual IPlugIn* newInstance(void);
+};
+
+class FilterManager;
+
+class FilterManager : public IPlugInManager
+{
+  static FilterManager* mpManager;
+  static std::string mPlugInPath;
+
+protected:
+  FilterManager();
+  virtual ~FilterManager();
+
+public:
+  virtual void terminate(void);
+
+  static void setPlugInPath(std::string path);
+  static FilterManager* getInstance(void);
+  static IFilter* newFilterById(std::string filterId);
 };
 
 #endif /* __FILTER_HPP__ */

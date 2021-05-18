@@ -15,6 +15,7 @@
 */
 
 #include "MultipleSink.hpp"
+#include <algorithm>
 #include <iostream>
 
 
@@ -82,5 +83,18 @@ bool MultipleSink::setAudioFormat(AudioFormat audioFormat)
 AudioFormat MultipleSink::getAudioFormat(void)
 {
   return mFormat;
+}
+
+
+int MultipleSink::getLatencyUSec(void)
+{
+  int nLatencyUsec = 0;
+
+  for(auto& pSink : mpSinks ){
+    int theLatencyUsec = pSink->getLatencyUSec();
+    nLatencyUsec = std::max( theLatencyUsec, nLatencyUsec );
+  }
+
+  return nLatencyUsec;
 }
 

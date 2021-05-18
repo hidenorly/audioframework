@@ -294,6 +294,8 @@ TEST_F(TestCase_PipeAndFilter, testMultipleSink)
   Source source;
   source.read( buf );
   pMultiSink->write( buf );
+
+  std::cout << "multi sink's latency : " << pMultiSink->getLatencyUSec() << std::endl;
   pMultiSink->dump();
 }
 

@@ -43,6 +43,8 @@ public:
   virtual bool setAudioFormat(AudioFormat audioFormat);
   virtual AudioFormat getAudioFormat(void);
 
+  virtual int getLatencyUSec(void);
+
   virtual void dump(void);
 };
 

@@ -98,6 +98,8 @@ $ make; ./bin/afw_test;
 * Sink
   * [done] StreamSink : output to the stream
   * [done] MultiSink
+    * [done] getLatencyUSec as maximum of registered Sinks.
+    * Add latency adjustment among registered Sinks with delay filter
   * [done] Add filter enabled sink (PipedSink)
   * [done] Add volume (setVolume() in ISink)
   * [done] Add get latency

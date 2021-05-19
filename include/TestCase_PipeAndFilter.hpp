@@ -50,6 +50,8 @@ protected:
 
   void testPlugInManager(void);
   void testFilterPlugInManager(void);
+  void testSourcePlugInManager(void);
+  void testSinkPlugInManager(void);
 };
 
 #endif /* __TESTCASE_PIPEANDFILTER_HPP__ */

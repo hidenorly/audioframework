@@ -87,4 +87,49 @@ public:
   virtual void unregisterPlugIn(std::string plugInId);
 };
 
+template <class IFCLASS> class TPlugInManager : public IPlugInManager
+{
+  static inline TPlugInManager* mpManager;
+  static inline std::string mPlugInPath;
+
+protected:
+  TPlugInManager(): IPlugInManager( mPlugInPath ){ mpManager = this; };
+  virtual ~TPlugInManager(){};
+
+public:
+  virtual void terminate(void){
+    IPlugInManager::terminate();
+    mpManager = nullptr;
+    delete this;
+  }
+
+  static void setPlugInPath(std::string path){
+    mPlugInPath = path;
+  }
+
+  static TPlugInManager* getInstance(void){
+    if( !mpManager ){
+      mpManager = new TPlugInManager<IFCLASS>();
+    }
+    return mpManager;
+  }
+
+  static IFCLASS* newInstanceById(std::string plugInId){
+    IFCLASS* pPlugInInstance = nullptr;
+
+    if( !mpManager ){
+      getInstance();
+    }
+
+    if( mpManager ){
+      IPlugIn* pPlugIn = mpManager->getPlugIn( plugInId );
+      if( pPlugIn ){
+        pPlugInInstance = dynamic_cast<IFCLASS*>( pPlugIn->newInstance() );
+      }
+    }
+
+    return pPlugInInstance;
+  }
+};
+
 #endif /* __PLUGIN_MANAGER_HPP__ */

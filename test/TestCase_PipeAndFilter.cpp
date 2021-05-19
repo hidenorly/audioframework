@@ -798,22 +798,61 @@ TEST_F(TestCase_PipeAndFilter, testPlugInManager)
 
 TEST_F(TestCase_PipeAndFilter, testFilterPlugInManager)
 {
-  FilterManager::setPlugInPath(".");
-  FilterManager* pFilterManager = FilterManager::getInstance();
-  pFilterManager->initialize();
+  FilterManager::setPlugInPath("lib/");
+  FilterManager* pManager = FilterManager::getInstance();
+  pManager->initialize();
 
-  std::vector<std::string> plugInIds = pFilterManager->getPlugInIds();
+  std::vector<std::string> plugInIds = pManager->getPlugInIds();
   for(auto& aPlugInId : plugInIds){
-    EXPECT_TRUE( pFilterManager->hasPlugIn( aPlugInId ) );
-    EXPECT_NE( nullptr, pFilterManager->getPlugIn( aPlugInId ) );
-    IFilter* pFilter = FilterManager::newFilterById( aPlugInId );
+    EXPECT_TRUE( pManager->hasPlugIn( aPlugInId ) );
+    EXPECT_NE( nullptr, pManager->getPlugIn( aPlugInId ) );
+    IFilter* pFilter = FilterManager::newInstanceById( aPlugInId );
     EXPECT_NE( nullptr, pFilter );
     delete pFilter;
   }
-  EXPECT_FALSE( FilterManager::newFilterById( "hogehogehoge" ) );
+  EXPECT_FALSE( FilterManager::newInstanceById( "hogehogehoge" ) );
 
-  pFilterManager->terminate();
+  pManager->terminate();
 }
+
+TEST_F(TestCase_PipeAndFilter, testSourcePlugInManager)
+{
+  SourceManager::setPlugInPath("lib/");
+  SourceManager* pManager = SourceManager::getInstance();
+  pManager->initialize();
+
+  std::vector<std::string> plugInIds = pManager->getPlugInIds();
+  for(auto& aPlugInId : plugInIds){
+    EXPECT_TRUE( pManager->hasPlugIn( aPlugInId ) );
+    EXPECT_NE( nullptr, pManager->getPlugIn( aPlugInId ) );
+    ISource* pFilter = SourceManager::newInstanceById( aPlugInId );
+    EXPECT_NE( nullptr, pFilter );
+    delete pFilter;
+  }
+  EXPECT_FALSE( SourceManager::newInstanceById( "hogehogehoge" ) );
+
+  pManager->terminate();
+}
+
+TEST_F(TestCase_PipeAndFilter, testSinkPlugInManager)
+{
+  SinkManager::setPlugInPath("lib/");
+  SinkManager* pManager = SinkManager::getInstance();
+  pManager->initialize();
+
+  std::vector<std::string> plugInIds = pManager->getPlugInIds();
+  for(auto& aPlugInId : plugInIds){
+    EXPECT_TRUE( pManager->hasPlugIn( aPlugInId ) );
+    EXPECT_NE( nullptr, pManager->getPlugIn( aPlugInId ) );
+    ISink* pFilter = SinkManager::newInstanceById( aPlugInId );
+    EXPECT_NE( nullptr, pFilter );
+    delete pFilter;
+  }
+  EXPECT_FALSE( SinkManager::newInstanceById( "hogehogehoge" ) );
+
+  pManager->terminate();
+}
+
 
 int main(int argc, char **argv)
 {

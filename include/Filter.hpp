@@ -57,23 +57,6 @@ public:
   virtual IPlugIn* newInstance(void);
 };
 
-class FilterManager;
-
-class FilterManager : public IPlugInManager
-{
-  static FilterManager* mpManager;
-  static std::string mPlugInPath;
-
-protected:
-  FilterManager();
-  virtual ~FilterManager();
-
-public:
-  virtual void terminate(void);
-
-  static void setPlugInPath(std::string path);
-  static FilterManager* getInstance(void);
-  static IFilter* newFilterById(std::string filterId);
-};
+typedef TPlugInManager<FilterPlugIn> FilterManager;
 
 #endif /* __FILTER_HPP__ */

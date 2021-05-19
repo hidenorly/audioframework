@@ -75,3 +75,39 @@ void Source::readPrimitive(IAudioBuffer& buf)
   rawBuffer = bufZero;
   buf.setRawBuffer( rawBuffer );
 }
+
+
+SourcePlugIn::SourcePlugIn()
+{
+
+}
+
+SourcePlugIn::~SourcePlugIn()
+{
+
+}
+
+void SourcePlugIn::onLoad(void)
+{
+
+}
+
+void SourcePlugIn::onUnload(void)
+{
+
+}
+
+std::string SourcePlugIn::getId(void)
+{
+  return "SourcePlugInBase";
+}
+
+IPlugIn* SourcePlugIn::newInstance(void)
+{
+  return new SourcePlugIn();
+}
+
+void SourcePlugIn::readPrimitive(IAudioBuffer& buf)
+{
+
+}

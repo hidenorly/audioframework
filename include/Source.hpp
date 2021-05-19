@@ -21,6 +21,7 @@
 #include "Buffer.hpp"
 #include "AudioFormat.hpp"
 #include "PipeAndFilterCommon.hpp"
+#include "PlugInManager.hpp"
 
 class ISource : public ISourceSinkCommon
 {
@@ -44,5 +45,20 @@ public:
   virtual void readPrimitive(IAudioBuffer& buf);
   virtual std::string toString(void){return "Source";};
 };
+
+class SourcePlugIn : public ISource, public IPlugIn
+{
+public:
+  SourcePlugIn();
+  virtual ~SourcePlugIn();
+
+  virtual void onLoad(void);
+  virtual void onUnload(void);
+  virtual std::string getId(void);
+  virtual IPlugIn* newInstance(void);
+  virtual void readPrimitive(IAudioBuffer& buf);
+};
+
+typedef TPlugInManager<SourcePlugIn> SourceManager;
 
 #endif /* __SOURCE_HPP__ */

@@ -150,3 +150,53 @@ AudioFormat Sink::getAudioFormat(void)
 {
   return mpBuf ? mpBuf->getAudioFormat() : AudioFormat();
 }
+
+SinkPlugIn::SinkPlugIn()
+{
+
+}
+
+SinkPlugIn::~SinkPlugIn()
+{
+
+}
+
+void SinkPlugIn::onLoad(void)
+{
+
+}
+
+void SinkPlugIn::onUnload(void)
+{
+
+}
+
+std::string SinkPlugIn::getId(void)
+{
+  return "SinkPlugInBase";
+}
+
+IPlugIn* SinkPlugIn::newInstance(void)
+{
+  return new SinkPlugIn();
+}
+
+void SinkPlugIn::writePrimitive(IAudioBuffer& buf)
+{
+
+}
+
+bool SinkPlugIn::setAudioFormat(AudioFormat audioFormat)
+{
+  return false;
+}
+
+AudioFormat SinkPlugIn::getAudioFormat(void)
+{
+  return AudioFormat();
+}
+
+void SinkPlugIn::dump(void)
+{
+
+}

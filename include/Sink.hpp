@@ -18,9 +18,10 @@
 #define __SINK_HPP__
 
 #include "PipeAndFilterCommon.hpp"
-#include <string>
 #include "Buffer.hpp"
 #include "AudioFormat.hpp"
+#include "PlugInManager.hpp"
+#include <string>
 #include <vector>
 
 class ISink : public ISourceSinkCommon
@@ -86,5 +87,24 @@ public:
   virtual bool setAudioFormat(AudioFormat audioFormat);
   virtual AudioFormat getAudioFormat(void);
 };
+
+class SinkPlugIn : public ISink, public IPlugIn
+{
+public:
+  SinkPlugIn();
+  virtual ~SinkPlugIn();
+
+  virtual void onLoad(void);
+  virtual void onUnload(void);
+  virtual std::string getId(void);
+  virtual IPlugIn* newInstance(void);
+
+  virtual void writePrimitive(IAudioBuffer& buf);
+  virtual bool setAudioFormat(AudioFormat audioFormat);
+  virtual AudioFormat getAudioFormat(void);
+  virtual void dump(void);
+};
+
+typedef TPlugInManager<SinkPlugIn> SinkManager;
 
 #endif /* __SINK_HPP__ */

@@ -124,10 +124,12 @@ $ make; ./bin/afw_test;
     * [done] Plug-in manager
     * [done] Filter Plug-in manager
       * Create example filter plug-in
-    * Sink Plug-in manager
-    * Source Plug-in manager
+    * [done]Sink Plug-in manager
+    * [done]Source Plug-in manager
     * Strategy Plug-in manager
     * Util impl. plug-in : SRC, Encoding, Channel, Mixer, Volume
+* ResourceManager
+  * CPU resource manager
 * Strategy
   * [] Add dynamic pipe change
 * All

@@ -149,4 +149,3 @@ void IPlugInManager::unregisterPlugIn(std::string plugInId)
     }
   }
 }
-

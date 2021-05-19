@@ -98,3 +98,14 @@ int MultipleSink::getLatencyUSec(void)
   return nLatencyUsec;
 }
 
+bool MultipleSink::setVolume(float volumePercentage)
+{
+  bool bResult = ISink::setVolume(volumePercentage);
+
+  for(auto& pSink : mpSinks ){
+    bResult &= pSink->setVolume(volumePercentage);
+  }
+
+  return bResult;
+}
+

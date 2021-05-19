@@ -44,6 +44,7 @@ public:
   virtual AudioFormat getAudioFormat(void);
 
   virtual int getLatencyUSec(void);
+  virtual bool setVolume(float volumePercentage);
 
   virtual void dump(void);
 };

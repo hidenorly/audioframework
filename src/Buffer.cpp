@@ -157,7 +157,8 @@ void AudioBuffer::setAudioFormat( AudioFormat format )
 void AudioBuffer::resize( int samples )
 {
   int bufSize = mFormat.getChannelsSampleByte() * samples;
-  mBuf.resize( bufSize );
+  ByteBuffer buf(bufSize,0);
+  mBuf = buf; //.resize( bufSize );
 }
 
 AudioSample AudioBuffer::getSample(int nOffset)

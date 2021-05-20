@@ -58,7 +58,6 @@ public:
 
 class AudioBuffer : public IAudioBuffer
 {
-
 public:
   AudioBuffer(AudioFormat format, int samples);
   AudioBuffer(AudioBuffer& buf);

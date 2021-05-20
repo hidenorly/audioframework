@@ -90,6 +90,7 @@ $ make; ./bin/afw_test;
   * [] Add reverb with ParameterManager
   * [] Add volume filter with ParameterManager
   * [] Add delay filter with ParameterManager
+    * [done] Add per-channel delay filter
 * Pipe
   * [done] window size LCM based Pipe
   * [done] min window size based Pipe

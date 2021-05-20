@@ -41,6 +41,7 @@
 #include "ParameterManager.hpp"
 #include "StringTokenizer.hpp"
 #include "PlugInManager.hpp"
+#include "DelayFilter.hpp"
 #include "Util.hpp"
 
 #include <iostream>
@@ -853,6 +854,36 @@ TEST_F(TestCase_PipeAndFilter, testSinkPlugInManager)
   pManager->terminate();
 }
 
+
+TEST_F(TestCase_PipeAndFilter, testDelayFilter)
+{
+  ISource* pSource = new Source();
+  ISink* pSink = new Sink();
+  IPipe* pPipe = new Pipe();
+
+  pPipe->attachSource(pSource);
+  DelayFilter::ChannelDelay channelDelay;
+  channelDelay[AudioFormat::CH::L] = 0;
+  channelDelay[AudioFormat::CH::R] = 20*240; // 20us = 1 sample delay @ 48KHz
+
+  pPipe->addFilterToTail( new Filter() );
+  pPipe->addFilterToTail( new DelayFilter( AudioFormat(), channelDelay ) );
+  pPipe->attachSink(pSink);
+
+  pPipe->run();
+  std::this_thread::sleep_for(std::chrono::microseconds(1000));
+
+  pPipe->stop();
+
+  EXPECT_EQ( pSink, pPipe->detachSink());
+  EXPECT_EQ( pSource, pPipe->detachSource());
+  pSink->dump();
+  pPipe->clearFilters();
+
+  delete pPipe; pPipe = nullptr;
+  delete pSink; pSink = nullptr;
+  delete pSource; pSource = nullptr;
+}
 
 int main(int argc, char **argv)
 {

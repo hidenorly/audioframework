@@ -109,11 +109,13 @@ void Pipe::unlockToStop(void)
 void Pipe::process(void)
 {
   if(mpSource && mpSink){
+    float windowSizeUsec = getCommonWindowSizeUsec();
+    AudioFormat usingAudioFormat = getFilterAudioFormat();
+    float usingSamplingRate = usingAudioFormat.getSamplingRate();
+    float perSampleDurationUsec = 1000000.0f / usingSamplingRate;
+    int samples = windowSizeUsec / perSampleDurationUsec;
+
     while( mbIsRunning ){
-      AudioFormat usingAudioFormat = getFilterAudioFormat();
-
-      int samples = (int)( (float)usingAudioFormat.getSamplingRate() * (float)getCommonWindowSizeUsec()/1000000.0f);
-
       AudioBuffer inBuf(  usingAudioFormat, samples );
       AudioBuffer outBuf( usingAudioFormat, samples );
 
@@ -159,7 +161,7 @@ int Pipe::getCommonWindowSizeUsec(void)
 
   for( auto& pFilter : mFilters ) {
     int windowSizeUsec = pFilter->getRequiredWindowSizeUsec();
-    result = std::lcm(result, windowSizeUsec);
+    result = windowSizeUsec ? std::lcm(result, windowSizeUsec) : result;
   }
 
   return result;

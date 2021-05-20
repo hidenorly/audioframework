@@ -25,7 +25,7 @@
 class IFilter : public AudioBase
 {
 public:
-  static const int DEFAULT_WINDOW_SIZE_USEC = 5000; // 5msec
+  static inline const int DEFAULT_WINDOW_SIZE_USEC = 5000; // 5msec
 
   virtual ~IFilter();
   virtual void process(AudioBuffer& inBuf, AudioBuffer& outBuf);

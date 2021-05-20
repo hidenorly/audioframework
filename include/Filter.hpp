@@ -22,7 +22,7 @@
 #include <vector>
 #include "PlugInManager.hpp"
 
-class IFilter
+class IFilter : public AudioBase
 {
 public:
   static const int DEFAULT_WINDOW_SIZE_USEC = 5000; // 5msec
@@ -34,7 +34,7 @@ public:
   virtual int getExpectedProcessingUSec(void) = 0;
 };
 
-class Filter : public IFilter, public AudioBase
+class Filter : public IFilter
 {
 public:
   static const int DEFAULT_PROCESSING_TIME_USEC = 100; // 0.1msec

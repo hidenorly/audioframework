@@ -35,12 +35,12 @@ Pipe::~Pipe()
   stop();
 }
 
-void Pipe::addFilterToHead(Filter* pFilter)
+void Pipe::addFilterToHead(IFilter* pFilter)
 {
   mFilters.insert(mFilters.begin(), pFilter);
 }
 
-void Pipe::addFilterToTail(Filter* pFilter)
+void Pipe::addFilterToTail(IFilter* pFilter)
 {
   mFilters.push_back(pFilter);
 }

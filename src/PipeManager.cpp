@@ -81,7 +81,7 @@ void PipeManager::createAndConnectPipesToTail(IPipe* pCurrentPipe)
   }
 }
 
-void PipeManager::addFilterToHead(Filter* pFilter)
+void PipeManager::addFilterToHead(IFilter* pFilter)
 {
   IPipe* pPipe = getHeadPipe();
   if( pPipe ){
@@ -96,7 +96,7 @@ void PipeManager::addFilterToHead(Filter* pFilter)
   ensureSourceSink();
 }
 
-void PipeManager::addFilterToTail(Filter* pFilter)
+void PipeManager::addFilterToTail(IFilter* pFilter)
 {
   IPipe* pPipe = getTailPipe();
   if( pPipe ){

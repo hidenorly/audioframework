@@ -30,8 +30,8 @@ public:
   IPipe():ThreadBase(){};
   virtual ~IPipe(){};
 
-  virtual void addFilterToHead(Filter* pFilter) = 0;
-  virtual void addFilterToTail(Filter* pFilter) = 0;
+  virtual void addFilterToHead(IFilter* pFilter) = 0;
+  virtual void addFilterToTail(IFilter* pFilter) = 0;
 
   virtual ISink* attachSink(ISink* pSink) = 0;
   virtual ISink* detachSink(void) = 0;
@@ -51,8 +51,8 @@ public:
   Pipe();
   virtual ~Pipe();
 
-  virtual void addFilterToHead(Filter* pFilter);
-  virtual void addFilterToTail(Filter* pFilter);
+  virtual void addFilterToHead(IFilter* pFilter);
+  virtual void addFilterToTail(IFilter* pFilter);
 
   virtual ISink* attachSink(ISink* pSink);
   virtual ISink* detachSink(void);
@@ -72,7 +72,7 @@ protected:
   // Should override getFilterAudioFormat() if you want to use different algorithm to choose using Audioformat
   int getCommonWindowSizeUsec(void);
 
-  std::vector<Filter*> mFilters;
+  std::vector<IFilter*> mFilters;
   ISink* mpSink;
   ISource* mpSource;
 };

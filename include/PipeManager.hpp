@@ -27,8 +27,8 @@ public:
   PipeManager();
   virtual ~PipeManager();
 
-  virtual void addFilterToHead(Filter* pFilter);
-  virtual void addFilterToTail(Filter* pFilter);
+  virtual void addFilterToHead(IFilter* pFilter);
+  virtual void addFilterToTail(IFilter* pFilter);
 
   virtual ISink* attachSink(ISink* pSink);
   virtual ISink* detachSink(void);

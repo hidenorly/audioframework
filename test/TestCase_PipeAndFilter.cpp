@@ -862,12 +862,12 @@ TEST_F(TestCase_PipeAndFilter, testDelayFilter)
   IPipe* pPipe = new Pipe();
 
   pPipe->attachSource(pSource);
-  DelayFilter::ChannelDelay channelDelay;
+  PerChannelDelayFilter::ChannelDelay channelDelay;
   channelDelay[AudioFormat::CH::L] = 0;
-  channelDelay[AudioFormat::CH::R] = 20*240; // 20us = 1 sample delay @ 48KHz
+  channelDelay[AudioFormat::CH::R] = 20*120; // 20us = 1 sample delay @ 48KHz
 
-  pPipe->addFilterToTail( new Filter() );
-  pPipe->addFilterToTail( new DelayFilter( AudioFormat(), channelDelay ) );
+  pPipe->addFilterToTail( new DelayFilter( AudioFormat(), 20*120 ) );
+  pPipe->addFilterToTail( new PerChannelDelayFilter( AudioFormat(), channelDelay ) );
   pPipe->attachSink(pSink);
 
   pPipe->run();

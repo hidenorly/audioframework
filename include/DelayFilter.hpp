@@ -21,24 +21,19 @@
 #include "AudioFormat.hpp"
 #include "FifoBuffer.hpp"
 #include <map>
-#include <mutex>
+
 
 class DelayFilter : public IFilter
 {
-public:
-  typedef std::map<AudioFormat::CH, int> ChannelDelay;
-
 protected:
-  int mProessSize;
+  int mWindowSize;
   AudioFormat mAudioFormat;
+  FifoBuffer* mpDelayBuf;
 
   static const int DEFAULT_PROCESSING_TIME_USEC = 100; // 0.1msec
 
-  ChannelDelay mChannelDelay;
-  std::map<AudioFormat::CH, FifoBuffer*> mDelayBuf;
-
 public:
-  DelayFilter(AudioFormat audioFormat, ChannelDelay channelDelay);
+  DelayFilter(AudioFormat audioFormat, int delayUsec);
   virtual ~DelayFilter();
   virtual std::vector<AudioFormat> getSupportedAudioFormats(void);
 
@@ -46,6 +41,23 @@ public:
 
   virtual int getExpectedProcessingUSec(void);
   virtual int getRequiredWindowSizeUsec(void);
+};
+
+
+class PerChannelDelayFilter : public DelayFilter
+{
+public:
+  typedef std::map<AudioFormat::CH, int> ChannelDelay;
+
+protected:
+  ChannelDelay mChannelDelay;
+  std::map<AudioFormat::CH, FifoBuffer*> mDelayBuf;
+
+public:
+  PerChannelDelayFilter(AudioFormat audioFormat, ChannelDelay channelDelay);
+  virtual ~PerChannelDelayFilter();
+
+  virtual void process(AudioBuffer& inBuf, AudioBuffer& outBuf);
 };
 
 

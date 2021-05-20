@@ -21,14 +21,72 @@
 #include <algorithm>
 #include <iostream>
 
-DelayFilter::DelayFilter(AudioFormat audioFormat, ChannelDelay channelDelay) : mAudioFormat(audioFormat), mChannelDelay(channelDelay)
+
+std::vector<AudioFormat> DelayFilter::getSupportedAudioFormats(void)
+{
+    std::vector<AudioFormat> audioFormats;
+    audioFormats.push_back( AudioFormat() );
+    return audioFormats;
+}
+
+int DelayFilter::getExpectedProcessingUSec(void)
+{
+  return DEFAULT_PROCESSING_TIME_USEC;
+}
+
+int DelayFilter::getRequiredWindowSizeUsec(void)
+{
+  return mWindowSize;
+};
+
+
+DelayFilter::DelayFilter(AudioFormat audioFormat, int delayUsec) : mAudioFormat(audioFormat)
+{
+  mWindowSize = std::max( DEFAULT_WINDOW_SIZE_USEC, delayUsec );
+  if( delayUsec ){
+    int samplingRate = audioFormat.getSamplingRate();
+    float perSampleDurationUsec = 1000000.0f / samplingRate;
+    int nDelaySamples = (int)((float)delayUsec / perSampleDurationUsec + 0.9999f);
+    AudioBuffer delayZeroData(audioFormat, nDelaySamples);
+    ByteBuffer zeroData( audioFormat.getChannelsSampleByte() * nDelaySamples, 0);
+    delayZeroData.setRawBuffer( zeroData );
+    mpDelayBuf = new FifoBuffer( audioFormat );
+    mpDelayBuf->write(delayZeroData);
+  } else {
+    mpDelayBuf = nullptr;
+  }
+}
+
+DelayFilter::~DelayFilter()
+{
+  if( mpDelayBuf ){
+    mpDelayBuf->unlock();
+    delete mpDelayBuf; mpDelayBuf = nullptr;
+  }
+}
+
+void DelayFilter::process(AudioBuffer& srcBuf, AudioBuffer& dstBuf)
+{
+  if( mAudioFormat.equal( srcBuf.getAudioFormat() ) && mAudioFormat.equal( dstBuf.getAudioFormat() )){
+    if( mpDelayBuf ){
+      mpDelayBuf->write( srcBuf );
+      mpDelayBuf->read( dstBuf );
+    } else {
+      dstBuf = srcBuf;
+    }
+  }
+}
+
+
+
+PerChannelDelayFilter::PerChannelDelayFilter(AudioFormat audioFormat, ChannelDelay channelDelay) : DelayFilter(audioFormat, 0), mChannelDelay(channelDelay)
 {
   assert( audioFormat.getNumberOfChannels() == channelDelay.size() );
-  int mProessSize = DEFAULT_WINDOW_SIZE_USEC;
+  mWindowSize = DEFAULT_WINDOW_SIZE_USEC;
 
   // get max delay size => window size
   for(auto& [ch, delayUsec] : channelDelay){
-    mProessSize = std::max( mProessSize, delayUsec );
+    mWindowSize = std::max( mWindowSize, delayUsec );
   }
 
   // setup per-channel delay to per-chanel FIFO buffer
@@ -50,7 +108,7 @@ DelayFilter::DelayFilter(AudioFormat audioFormat, ChannelDelay channelDelay) : m
   }
 }
 
-DelayFilter::~DelayFilter()
+PerChannelDelayFilter::~PerChannelDelayFilter()
 {
   for(auto& [ch, pFifoBuf] : mDelayBuf){
     pFifoBuf->unlock();
@@ -61,19 +119,7 @@ DelayFilter::~DelayFilter()
   mDelayBuf.clear();
 }
 
-std::vector<AudioFormat> DelayFilter::getSupportedAudioFormats(void)
-{
-    std::vector<AudioFormat> audioFormats;
-    audioFormats.push_back( AudioFormat() );
-    return audioFormats;
-}
-
-int DelayFilter::getExpectedProcessingUSec(void)
-{
-  return DEFAULT_PROCESSING_TIME_USEC;
-}
-
-void DelayFilter::process(AudioBuffer& srcBuf, AudioBuffer& dstBuf)
+void PerChannelDelayFilter::process(AudioBuffer& srcBuf, AudioBuffer& dstBuf)
 {
   if( mAudioFormat.equal( srcBuf.getAudioFormat() ) && mAudioFormat.equal( dstBuf.getAudioFormat() )){
 
@@ -120,7 +166,3 @@ void DelayFilter::process(AudioBuffer& srcBuf, AudioBuffer& dstBuf)
   }
 }
 
-int DelayFilter::getRequiredWindowSizeUsec(void)
-{
-  return ( mProessSize > 0 ) ? mProessSize : DEFAULT_WINDOW_SIZE_USEC;
-};

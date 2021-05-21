@@ -109,7 +109,7 @@ $ make; ./bin/afw_test;
   * [done] StreamSource : input from the stream
   * [done] Add get latency
   * [] Add filter enabled source
-  * [] Add Sin curve surce
+  * [] Add SourceExample : Sin curve source
 * Util
   * [done] PCM encoding converter
   * [done] Sampling rate converter

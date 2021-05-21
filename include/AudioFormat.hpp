@@ -104,7 +104,7 @@ class AudioBase
 {
 public:
   virtual std::vector<AudioFormat> getSupportedAudioFormats(void);
-  bool isAvailableFormat(AudioFormat format);
+  virtual bool isAvailableFormat(AudioFormat format);
 };
 
 #endif /* __AUDIO_FORMAT_HPP__ */

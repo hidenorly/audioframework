@@ -21,7 +21,7 @@
 #include "Stream.hpp"
 #include "AudioFormat.hpp"
 
-class StreamSource : public AudioBase, public ISource
+class StreamSource : public ISource
 {
 protected:
   IStream* mpStream;

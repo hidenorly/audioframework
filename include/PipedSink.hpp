@@ -24,7 +24,7 @@
 #include "Pipe.hpp"
 #include <string>
 
-class PipedSink : public ISink, public AudioBase
+class PipedSink : public ISink
 {
 protected:
   ISink* mpSink;

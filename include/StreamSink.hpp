@@ -23,7 +23,7 @@
 #include "Stream.hpp"
 #include <string>
 
-class StreamSink : public ISink, public AudioBase
+class StreamSink : public ISink
 {
 protected:
   IStream*  mpStream;

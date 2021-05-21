@@ -37,7 +37,7 @@ public:
   virtual int64_t getSourcePts(void);
 };
 
-class Source : public AudioBase, public ISource
+class Source : public ISource
 {
 public:
   Source();

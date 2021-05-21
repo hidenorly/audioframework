@@ -73,7 +73,7 @@ public:
   virtual void dump(void) = 0;
 };
 
-class Sink : public ISink, public AudioBase
+class Sink : public ISink
 {
 protected:
   IAudioBuffer* mpBuf;

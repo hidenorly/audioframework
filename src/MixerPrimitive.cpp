@@ -24,7 +24,6 @@
 
 #include <cstdint>
 #include <algorithm>
-#include <functional>
 
 bool MixerPrimitive::mix( int8_t* pRawInBuf1, int8_t* pRawInBuf2, int8_t* pRawOutBuf, int nChannelSamples)
 {
@@ -54,7 +53,7 @@ bool MixerPrimitive::mix( int32_t* pRawInBuf1, int32_t* pRawInBuf2, int32_t* pRa
 {
   for(int i=0; i<nChannelSamples; i++){
     int64_t mixed = (*pRawInBuf1) + (*pRawInBuf2);
-    *pRawOutBuf = std::max<int64_t>(-INT32_MIN, std::min<int64_t>(mixed, INT32_MAX));
+    *pRawOutBuf = std::max<int64_t>(INT32_MIN, std::min<int64_t>(mixed, INT32_MAX));
     pRawInBuf1++;
     pRawInBuf2++;
     pRawOutBuf++;

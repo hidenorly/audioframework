@@ -18,6 +18,7 @@
 #include <dlfcn.h>
 #include <filesystem>
 #include <iostream>
+#include <cassert>
 
 IPlugIn::IPlugIn() : mLibraryNativeHandle(nullptr)
 {

@@ -45,6 +45,7 @@
 #include "Util.hpp"
 
 #include <iostream>
+#include <filesystem>
 
 
 TestCase_PipeAndFilter::TestCase_PipeAndFilter()

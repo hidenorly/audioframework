@@ -118,7 +118,7 @@ $ make; ./bin/afw_test;
   * [done] FileStream
   * [done] InterPipeBridge (FIFOed Source and Sink)
   * ParameterManager
-    * [done] basic set/get_ro, pub/sub with wild card
+    * [done] basic set/get & readonly, pub/sub with wild card
     * [] parameter hierachy support
     * [done] persist support
     * [done] default value database
@@ -134,6 +134,10 @@ $ make; ./bin/afw_test;
   * CPU resource manager
 * Strategy
   * [] Add dynamic pipe change
+* Testability support
+  * [done] dump
+  * [done] file in/out with StreamFile and SteramSource/StreamSink
+  * Injection/Capture support
 * All
   * [] Compressed data support
     * [done] AudioFormat
@@ -147,3 +151,16 @@ $ make; ./bin/afw_test;
 * OSAL
   * Example Sink for ALSA and/or MacOSX
   * Example Source for ALSA and/or MacOSX
+
+
+
+# Build environment setup
+
+## For MacOSX
+
+## For Ubuntu 20.04LTS
+
+```
+$ sudo apt-get install -y git build-essential clang-11 googletest libgtest-dev
+```
+

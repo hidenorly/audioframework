@@ -16,6 +16,7 @@
 
 #include "PipedSink.hpp"
 #include "PipeManager.hpp"
+#include <cassert>
 
 PipedSink::PipedSink() : ISink(), mpSink(nullptr)
 {

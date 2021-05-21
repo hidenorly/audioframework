@@ -14,14 +14,13 @@
    limitations under the License.
 */
 
-
+#include <cstring>
 #include "Buffer.hpp"
 
 AudioSample::AudioSample(AudioFormat format, ByteBuffer buf) : mFormat(format), mBuf(buf)
 {
 
 }
-
 
 AudioSample::AudioSample(AudioFormat format) : mFormat(format)
 {

@@ -24,7 +24,6 @@
 
 #include <cstdint>
 #include <algorithm>
-#include <functional>
 
 bool VolumePrimitive::volume(int8_t* pRawInBuf, int8_t* pRawOutBuf, float volume, int nChannelSamples)
 {
@@ -48,7 +47,7 @@ bool VolumePrimitive::volume(int32_t* pRawInBuf, int32_t* pRawOutBuf, float volu
 {
   for(int i=0; i<nChannelSamples; i++){
     float volumed = ((float)(*pRawInBuf++) * volume / 100.0f);
-    *pRawOutBuf++ = (int32_t)(std::max<float>(INT32_MIN, std::min<float>(volumed, INT32_MAX)));
+    *pRawOutBuf++ = (int32_t)(std::max<float>((float)INT32_MIN, std::min<float>(volumed, (float)INT32_MAX)));
   }
   return true;
 }

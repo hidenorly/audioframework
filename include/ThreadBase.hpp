@@ -20,6 +20,7 @@
 #include <vector>
 #include <mutex>
 #include <thread>
+#include <atomic>
 
 class ThreadBase
 {

@@ -19,8 +19,7 @@
 #include "Buffer.hpp"
 #include "FifoBuffer.hpp"
 #include <algorithm>
-#include <iostream>
-
+#include <cassert>
 
 std::vector<AudioFormat> DelayFilter::getSupportedAudioFormats(void)
 {

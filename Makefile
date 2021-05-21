@@ -1,14 +1,15 @@
 # compiler env.
 UNAME := $(shell uname -s)
 ifeq ($(UNAME),Linux)
-	CXX=g++
+	CXX=clang++
+	LDLIBS=-ldl
 endif
 ifeq ($(UNAME),Darwin)
 	CXX=clang++
+	LDLIBS=-stdlib=libc++
 endif
 
-CXXFLAGS := -std=c++2a -pthread
-LDLIBS := -stdlib=libc++
+CXXFLAGS=-std=c++2a -pthread
 
 # project config
 SRC_DIR=./src

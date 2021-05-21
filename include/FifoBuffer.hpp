@@ -20,6 +20,7 @@
 #include "Buffer.hpp"
 #include "AudioFormat.hpp"
 #include <mutex>
+#include <atomic>
 #include <condition_variable>
 
 class FifoBuffer

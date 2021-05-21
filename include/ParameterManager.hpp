@@ -20,6 +20,7 @@
 #include <map>
 #include <vector>
 #include <string>
+#include <functional>
 
 #include "Stream.hpp"
 

@@ -18,6 +18,7 @@
 #include "PcmFormatConversionPrimitives.hpp"
 #include "PcmSamplingRateConversionPrimitives.hpp"
 #include "ChannelConversionPrimitives.hpp"
+#include <cassert>
 
 bool AudioFormatAdaptor::convert(AudioBuffer& srcBuf, AudioBuffer& dstBuf)
 {

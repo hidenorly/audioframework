@@ -18,6 +18,7 @@
 #define __TESTABILITY_HPP__
 
 #include "Sink.hpp"
+#include "Source.hpp"
 #include "AudioFormat.hpp"
 #include "PipeAndFilterCommon.hpp"
 #include "FifoBufferReadReference.hpp"
@@ -65,6 +66,23 @@ public:
   virtual int64_t getSinkPts(void);
 
   virtual void dump(void);
+};
+
+
+class SourceCapture : public ISource, public ICapture
+{
+protected:
+  ISource* mpSource;
+
+protected:
+  virtual void readPrimitive(IAudioBuffer& buf);
+
+public:
+  SourceCapture(ISource* pSource);
+  virtual ~SourceCapture();
+  virtual int getLatencyUSec(void);
+  virtual int64_t getSourcePts(void);
+  virtual AudioFormat getAudioFormat(void);
 };
 
 

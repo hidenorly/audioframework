@@ -23,6 +23,7 @@
 #include <string>
 #include <numeric>
 #include <stdexcept>
+#include <utility>
 
 Pipe::Pipe():IPipe(), mpSink(nullptr), mpSource(nullptr)
 {
@@ -115,20 +116,25 @@ void Pipe::process(void)
     float perSampleDurationUsec = 1000000.0f / usingSamplingRate;
     int samples = windowSizeUsec / perSampleDurationUsec;
 
-    while( mbIsRunning ){
-      AudioBuffer inBuf(  usingAudioFormat, samples );
-      AudioBuffer outBuf( usingAudioFormat, samples );
+    AudioBuffer* pInBuf = new AudioBuffer( usingAudioFormat, samples );
+    AudioBuffer* pOutBuf= new AudioBuffer( usingAudioFormat, samples );
+    AudioBuffer* pSinkOut = pInBuf;
 
-      mpSource->read( inBuf );
+    while( mbIsRunning ){
+      mpSource->read( *pInBuf );
 
       for( auto& pFilter : mFilters ) {
-        pFilter->process( inBuf, outBuf );
-        inBuf = outBuf;
+        pFilter->process( *pInBuf, *pOutBuf );
+        pSinkOut = pOutBuf;
+        std::swap( pInBuf, pOutBuf );
       }
 
       // TODO : May change as directly write to the following buffer from the last filter to avoid the copy.
-      mpSink->write( outBuf );
+      mpSink->write( *pSinkOut );
     }
+
+    delete pInBuf;  pInBuf = nullptr;
+    delete pOutBuf; pOutBuf = nullptr;
   }
 }
 

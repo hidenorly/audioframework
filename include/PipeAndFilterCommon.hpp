@@ -30,6 +30,7 @@ class ISourceSinkCommon : public AudioBase
 {
 public:
   virtual std::string toString(void){ return std::string("ISourceSinkCommon"); };
+  virtual AudioFormat getAudioFormat(void) = 0;
 };
 
 #endif /* __PIPEANDFILTER_COMMON_HPP__ */

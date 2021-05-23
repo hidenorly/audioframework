@@ -64,7 +64,7 @@ void ICapture::unlock(void)
   }
 }
 
-SinkCapture::SinkCapture(ISink* pSink) : mpSink(pSink), ICapture( pSink ? pSink->getAudioFormat() : AudioFormat() )
+SinkCapture::SinkCapture(ISink* pSink) : ISink(), mpSink(pSink), ICapture( pSink ? pSink->getAudioFormat() : AudioFormat() )
 {
 }
 
@@ -173,3 +173,50 @@ void SinkCapture::dump(void)
     return mpSink->dump();
   }
 }
+
+
+SourceCapture::SourceCapture(ISource* pSource) : ISource(), mpSource(pSource), ICapture( pSource ? pSource->getAudioFormat() : AudioFormat() )
+{
+
+}
+
+SourceCapture::~SourceCapture()
+{
+  if( mpSource ){
+    delete mpSource; mpSource = nullptr;
+  }
+}
+
+void SourceCapture::readPrimitive(IAudioBuffer& buf)
+{
+  if( mpSource ){
+    mpSource->_testReadPrimitive( buf );
+  }
+  enqueToRefBuf( buf );
+}
+
+int SourceCapture::getLatencyUSec(void)
+{
+  if( mpSource ){
+    return mpSource->getLatencyUSec();
+  }
+  return ISource::getLatencyUSec();
+}
+
+int64_t SourceCapture::getSourcePts(void)
+{
+  if( mpSource ){
+    return mpSource->getSourcePts();
+  }
+  return ISource::getSourcePts();
+}
+
+AudioFormat SourceCapture::getAudioFormat(void)
+{
+  if( mpSource ){
+    return mpSource->getAudioFormat();
+  }
+  return ISource::getAudioFormat();
+}
+
+

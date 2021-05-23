@@ -29,12 +29,13 @@ class InterPipeBridge : public ISink, public ISource, public IUnlockable
 protected:
   FifoBuffer mFifoBuffer;
 
+protected:
+  virtual void readPrimitive(IAudioBuffer& buf);
+  virtual void writePrimitive(IAudioBuffer& buf);
+
 public:
   InterPipeBridge(AudioFormat format = AudioFormat());
   virtual ~InterPipeBridge(){ mFifoBuffer.unlock(); };
-
-  virtual void readPrimitive(IAudioBuffer& buf);
-  virtual void writePrimitive(IAudioBuffer& buf);
 
   virtual void dump(void){};
   virtual std::string toString(void){return "InterPipeBridge";};

@@ -27,10 +27,12 @@ protected:
   IStream* mpStream;
   AudioFormat mFormat;
 
+protected:
+  virtual void readPrimitive(IAudioBuffer& buf);
+
 public:
   StreamSource(AudioFormat format = AudioFormat(), IStream* pStream = nullptr);
   virtual ~StreamSource();
-  virtual void readPrimitive(IAudioBuffer& buf);
   virtual void close(void);
   virtual std::string toString(void){return "StreamSource";};
 

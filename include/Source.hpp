@@ -28,26 +28,37 @@ class ISource : public ISourceSinkCommon
 protected:
   int mLatencyUsec;
   int64_t mSourcePosition;
+
+protected:
+  virtual void readPrimitive(IAudioBuffer& buf) = 0;
+
 public:
   ISource();
   virtual ~ISource();
   virtual void read(IAudioBuffer& buf);
-  virtual void readPrimitive(IAudioBuffer& buf) = 0;
   virtual int getLatencyUSec(void);
   virtual int64_t getSourcePts(void);
+  virtual AudioFormat getAudioFormat(void);
+
+  void _testReadPrimitive(IAudioBuffer& buf);
 };
 
 class Source : public ISource
 {
+protected:
+  virtual void readPrimitive(IAudioBuffer& buf);
+
 public:
   Source();
   virtual ~Source();
-  virtual void readPrimitive(IAudioBuffer& buf);
   virtual std::string toString(void){return "Source";};
 };
 
 class SourcePlugIn : public ISource, public IPlugIn
 {
+protected:
+  virtual void readPrimitive(IAudioBuffer& buf);
+
 public:
   SourcePlugIn();
   virtual ~SourcePlugIn();
@@ -56,7 +67,6 @@ public:
   virtual void onUnload(void);
   virtual std::string getId(void);
   virtual IPlugIn* newInstance(void);
-  virtual void readPrimitive(IAudioBuffer& buf);
 };
 
 typedef TPlugInManager<SourcePlugIn> SourceManager;

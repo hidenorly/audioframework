@@ -43,6 +43,11 @@ void ISource::read(IAudioBuffer& buf)
   readPrimitive(buf);
 }
 
+void ISource::_testReadPrimitive(IAudioBuffer& buf)
+{
+ readPrimitive( buf );
+}
+
 int ISource::getLatencyUSec(void)
 {
   return mLatencyUsec;
@@ -51,6 +56,11 @@ int ISource::getLatencyUSec(void)
 int64_t ISource::getSourcePts(void)
 {
   return mSourcePosition;
+}
+
+AudioFormat ISource::getAudioFormat(void)
+{
+  return AudioFormat();
 }
 
 

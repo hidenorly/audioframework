@@ -64,7 +64,6 @@ public:
   virtual PRESENTATION getPresentation(void);
 
   virtual bool setAudioFormat(AudioFormat audioFormat) = 0;
-  virtual AudioFormat getAudioFormat(void) = 0;
 
   virtual float getVolume(void);
   virtual bool setVolume(float volumePercentage);

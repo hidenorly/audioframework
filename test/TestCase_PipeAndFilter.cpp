@@ -897,7 +897,6 @@ TEST_F(TestCase_PipeAndFilter, testSinkCapture)
 
   pPipe->attachSource( pSource );
   pPipe->addFilterToTail( new FilterIncrement() );
-
   pPipe->attachSink( pSink );
 
   pPipe->run();
@@ -920,6 +919,36 @@ TEST_F(TestCase_PipeAndFilter, testSinkCapture)
   delete pSource; pSource = nullptr;
 }
 
+TEST_F(TestCase_PipeAndFilter, testSourceCapture)
+{
+  ISource* pSource = dynamic_cast<ISource*>( new SourceCapture( new Source() ) );
+  ISink* pSink = new Sink();
+  ICapture* pCapture = dynamic_cast<ICapture*>(pSource);
+  IPipe* pPipe = new Pipe();
+
+  pPipe->attachSource( pSource );
+  pPipe->addFilterToTail( new FilterIncrement() );
+  pPipe->attachSink( pSink );
+
+  pPipe->run();
+  std::this_thread::sleep_for(std::chrono::microseconds(1000));
+  AudioBuffer captureBuf( AudioFormat(), 240 );
+  std::cout << "captureRead" << std::endl;
+  pCapture->captureRead( captureBuf );
+  pPipe->stop();
+  Util::dumpBuffer( "SourceCapture result", captureBuf );
+
+  EXPECT_EQ( pSink, pPipe->detachSink());
+  EXPECT_EQ( pSource, pPipe->detachSource());
+  std::cout << "Sink dump:" << std::endl;
+  pSink->dump();
+  pPipe->clearFilters();
+  pCapture->unlock();
+
+  delete pPipe; pPipe = nullptr;
+  delete pSink; pSink = nullptr;
+  delete pSource; pSource = nullptr;
+}
 
 int main(int argc, char **argv)
 {

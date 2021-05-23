@@ -52,8 +52,10 @@ protected:
 protected:
   virtual void writePrimitive(IAudioBuffer& buf) = 0;
 
+
 public:
   virtual void write(IAudioBuffer& buf);
+  void _testWritePrimitive(IAudioBuffer& buf);
 
   virtual std::vector<PRESENTATION> getAvailablePresentations(void);
   virtual bool isAvailablePresentation(PRESENTATION presentation);

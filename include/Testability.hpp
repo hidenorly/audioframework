@@ -18,20 +18,36 @@
 #define __TESTABILITY_HPP__
 
 #include "Sink.hpp"
+#include "AudioFormat.hpp"
+#include "PipeAndFilterCommon.hpp"
+#include "FifoBufferReadReference.hpp"
 
-class ICapture
+class ICapture : public IUnlockable
 {
+protected:
+  FifoBufferReadReference* mpRefBuf;
+  void enqueToRefBuf(IAudioBuffer& buf);
+  void setCaptureBufferSize(int nSamples);
+public:
+  ICapture( AudioFormat format = AudioFormat() );
+  virtual ~ICapture();
+  virtual void captureRead(IAudioBuffer& buf);
+
+  virtual void setCaptureAudioFormat(AudioFormat audioFormat);
+  virtual void unlock(void);
 };
 
 class SinkCapture : public ISink, public ICapture
 {
 protected:
   ISink* mpSink;
+
+protected:
+  virtual void writePrimitive(IAudioBuffer& buf);
+
 public:
   SinkCapture(ISink* pSink);
   virtual ~SinkCapture();
-
-  virtual void write(IAudioBuffer& buf);
 
   virtual std::vector<PRESENTATION> getAvailablePresentations(void);
   virtual bool isAvailablePresentation(PRESENTATION presentation);

@@ -54,6 +54,8 @@ protected:
   void testSinkPlugInManager(void);
 
   void testDelayFilter(void);
+
+  void testSinkCapture(void);
 };
 
 #endif /* __TESTCASE_PIPEANDFILTER_HPP__ */

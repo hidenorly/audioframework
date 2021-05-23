@@ -42,6 +42,7 @@
 #include "StringTokenizer.hpp"
 #include "PlugInManager.hpp"
 #include "DelayFilter.hpp"
+#include "Testability.hpp"
 #include "Util.hpp"
 
 #include <iostream>
@@ -885,6 +886,40 @@ TEST_F(TestCase_PipeAndFilter, testDelayFilter)
   delete pSink; pSink = nullptr;
   delete pSource; pSource = nullptr;
 }
+
+
+TEST_F(TestCase_PipeAndFilter, testSinkCapture)
+{
+  ISource* pSource = new Source();
+  ISink* pSink = dynamic_cast<ISink*>( new SinkCapture( new Sink() ) );
+  ICapture* pCapture = dynamic_cast<ICapture*>(pSink);
+  IPipe* pPipe = new Pipe();
+
+  pPipe->attachSource( pSource );
+  pPipe->addFilterToTail( new FilterIncrement() );
+
+  pPipe->attachSink( pSink );
+
+  pPipe->run();
+  std::this_thread::sleep_for(std::chrono::microseconds(1000));
+  AudioBuffer captureBuf( AudioFormat(), 240 );
+  std::cout << "captureRead" << std::endl;
+  pCapture->captureRead( captureBuf );
+  pPipe->stop();
+  Util::dumpBuffer( "SinkCapture result", captureBuf );
+
+  EXPECT_EQ( pSink, pPipe->detachSink());
+  EXPECT_EQ( pSource, pPipe->detachSource());
+  std::cout << "Sink dump:" << std::endl;
+  pSink->dump();
+  pPipe->clearFilters();
+  pCapture->unlock();
+
+  delete pPipe; pPipe = nullptr;
+  delete pSink; pSink = nullptr;
+  delete pSource; pSource = nullptr;
+}
+
 
 int main(int argc, char **argv)
 {

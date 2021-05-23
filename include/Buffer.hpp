@@ -54,6 +54,7 @@ public:
   virtual bool isSameAudioFormat(IAudioBuffer& buf);
   virtual void append(IAudioBuffer& buf);
   virtual void setAudioFormat( AudioFormat format );
+  virtual int getSamples(void);
 };
 
 class AudioBuffer : public IAudioBuffer
@@ -64,7 +65,6 @@ public:
   AudioBuffer();
   virtual ~AudioBuffer();
 
-  int getSamples(void);
   int getWindowSizeUsec(void);
   AudioBuffer& operator=(AudioBuffer& buf);
   virtual void setAudioFormat( AudioFormat format );

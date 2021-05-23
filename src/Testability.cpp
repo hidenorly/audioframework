@@ -16,22 +16,71 @@
 
 #include "Testability.hpp"
 
-SinkCapture::SinkCapture(ISink* pSink) : mpSink(pSink)
+ICapture::ICapture(AudioFormat format)
 {
+  mpRefBuf = new FifoBufferReadReference( format );
+}
 
+ICapture::~ICapture()
+{
+  delete mpRefBuf;
+  mpRefBuf = nullptr;
+}
+
+void ICapture::enqueToRefBuf(IAudioBuffer& buf)
+{
+  if( mpRefBuf ){
+    mpRefBuf->write( buf );
+  }
+}
+
+void ICapture::setCaptureBufferSize(int nSamples)
+{
+  if( mpRefBuf ){
+    mpRefBuf->setFifoSizeLimit( nSamples );
+  }
+}
+
+
+void ICapture::captureRead(IAudioBuffer& buf)
+{
+  if( mpRefBuf ){
+    mpRefBuf->readReference( buf );
+  }
+}
+
+void ICapture::setCaptureAudioFormat(AudioFormat audioFormat)
+{
+  if( mpRefBuf ){
+    mpRefBuf->setAudioFormat( audioFormat );
+  }
+}
+
+
+void ICapture::unlock(void)
+{
+  if( mpRefBuf ){
+    mpRefBuf->unlock();
+  }
+}
+
+SinkCapture::SinkCapture(ISink* pSink) : mpSink(pSink), ICapture( pSink ? pSink->getAudioFormat() : AudioFormat() )
+{
 }
 
 SinkCapture::~SinkCapture()
 {
+  ICapture::~ICapture();
 	delete mpSink;
 	mpSink = nullptr;
 }
 
-void SinkCapture::write(IAudioBuffer& buf)
+void SinkCapture::writePrimitive(IAudioBuffer& buf)
 {
-	if( mpSink ){
-		mpSink->write( buf );
-	}
+  if( mpSink ){
+    mpSink->_testWritePrimitive( buf );
+  }
+  enqueToRefBuf( buf );
 }
 
 std::vector<ISink::PRESENTATION> SinkCapture::getAvailablePresentations(void)
@@ -73,6 +122,8 @@ bool SinkCapture::setAudioFormat(AudioFormat audioFormat)
  if( mpSink ){
     return mpSink->setAudioFormat( audioFormat );
   }
+  setCaptureAudioFormat( audioFormat );
+
   return false;
 }
 

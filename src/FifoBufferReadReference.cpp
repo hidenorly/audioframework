@@ -17,9 +17,8 @@
 #include "FifoBufferReadReference.hpp"
 #include <iterator>
 #include <thread>
-#include <iostream>
 
-FifoBufferReadReference::FifoBufferReadReference(AudioFormat& format):mFormat(format), mReadBlocked(false), mUnlockReadBlock(false), mFifoSizeLimit(0)
+FifoBufferReadReference::FifoBufferReadReference(AudioFormat format):mFormat(format), mReadBlocked(false), mUnlockReadBlock(false), mFifoSizeLimit(0)
 {
 
 }
@@ -36,9 +35,10 @@ bool FifoBufferReadReference::readReference(IAudioBuffer& audioBuf)
   if( bResult ){
     ByteBuffer readBuffer = audioBuf.getRawBuffer();
     int size = readBuffer.size();
+    size = size ? size : ( mBuf.size() ? (mBuf.size() / 3) : 256 );
 
     std::atomic<bool> bReceived = false;
-    while( !bReceived && !mUnlockReadBlock){
+    while( !bReceived && !mUnlockReadBlock ){
       if( mBuf.size() >= size ){
         mBufMutex.lock();
         {
@@ -46,7 +46,7 @@ bool FifoBufferReadReference::readReference(IAudioBuffer& audioBuf)
           audioBuf.setRawBuffer( readBuffer );
           bReceived = true;
           if( mBuf.size() > size ){
-            mBuf = ByteBuffer( mBuf.begin()+size, mBuf.end() );
+            mBuf.erase( mBuf.begin(), mBuf.begin() + size );
           } else {
             mBuf.clear();
           }
@@ -75,7 +75,7 @@ bool FifoBufferReadReference::write(IAudioBuffer& audioBuf)
     int nSizeExtBuf = extBuf.size();
     std::atomic<bool> bSent = false;
     while( !bSent ){
-      if( !mReadBlocked && ( mFifoSizeLimit > mBuf.size() ) && ( ( mBuf.size() + nSizeExtBuf ) > mFifoSizeLimit ) ){
+      if( ( mFifoSizeLimit > mBuf.size() ) && ( ( mBuf.size() + nSizeExtBuf ) > mFifoSizeLimit ) ){
         // exceed FIFO buffer size limit then drop the exceeded buffer since this is read reference fifo buffer
         mBufMutex.lock();
         {
@@ -122,4 +122,16 @@ void FifoBufferReadReference::setFifoSizeLimit(int nSampleLimit)
 {
   int nChannelSampleByte = mFormat.getChannelsSampleByte();
   mFifoSizeLimit = nChannelSampleByte ? (nSampleLimit * nChannelSampleByte) : nSampleLimit;
+}
+
+void FifoBufferReadReference::setAudioFormat( AudioFormat audioFormat )
+{
+  if( !audioFormat.equal( mFormat) ){
+    unlock();
+    int nChannelSampleByte = mFormat.getChannelsSampleByte();
+    int nSamples = nChannelSampleByte ? mFifoSizeLimit / nChannelSampleByte : mFifoSizeLimit;
+    mFormat = audioFormat;
+    setFifoSizeLimit( nSamples );
+    mBuf.clear();
+  }
 }

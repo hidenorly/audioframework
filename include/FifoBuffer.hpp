@@ -42,8 +42,7 @@ protected:
   std::atomic<bool> mUnlockWriteBlock;
 
 public:
-  FifoBuffer(AudioFormat& format);
-  FifoBuffer(){ FifoBuffer(AudioFormat()); };
+  FifoBuffer(AudioFormat format = AudioFormat());
   virtual ~FifoBuffer();
 
   bool read(IAudioBuffer& audioBuf);
@@ -52,6 +51,7 @@ public:
 
   int getBufferedSamples(void);
   AudioFormat getAudioFormat(void){ return mFormat; };
+  void setAudioFormat( AudioFormat audioFormat );
   void setFifoSizeLimit(int nSampleLimit);
 };
 

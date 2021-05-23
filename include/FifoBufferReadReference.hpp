@@ -14,8 +14,8 @@
    limitations under the License.
 */
 
-#ifndef __FIFOBUFFER_HPP__
-#define __FIFOBUFFER_HPP__
+#ifndef __FIFOBUFFERREADREFERENCE_HPP__
+#define __FIFOBUFFERREADREFERENCE_HPP__
 
 #include "Buffer.hpp"
 #include "AudioFormat.hpp"
@@ -37,8 +37,7 @@ protected:
   std::atomic<bool> mUnlockReadBlock;
 
 public:
-  FifoBufferReadReference(AudioFormat& format);
-  FifoBufferReadReference(){ FifoBufferReadReference(AudioFormat()); };
+  FifoBufferReadReference(AudioFormat format = AudioFormat());
   virtual ~FifoBufferReadReference();
 
   bool readReference(IAudioBuffer& audioBuf);
@@ -47,7 +46,8 @@ public:
 
   int getBufferedSamples(void);
   AudioFormat getAudioFormat(void){ return mFormat; };
+  void setAudioFormat( AudioFormat audioFormat );
   void setFifoSizeLimit(int nSampleLimit);
 };
 
-#endif /* __FIFOBUFFER_HPP__ */
+#endif /* __FIFOBUFFERREADREFERENCE_HPP__ */

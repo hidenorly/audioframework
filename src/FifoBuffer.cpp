@@ -19,7 +19,7 @@
 #include <thread>
 #include <iostream>
 
-FifoBuffer::FifoBuffer(AudioFormat& format):mFormat(format), mReadBlocked(false), mWriteBlocked(false), mUnlockReadBlock(false), mUnlockWriteBlock(false), mFifoSizeLimit(0)
+FifoBuffer::FifoBuffer(AudioFormat format):mFormat(format), mReadBlocked(false), mWriteBlocked(false), mUnlockReadBlock(false), mUnlockWriteBlock(false), mFifoSizeLimit(0)
 {
 
 }
@@ -127,5 +127,18 @@ void FifoBuffer::setFifoSizeLimit(int nSampleLimit)
 {
   int nChannelSampleByte = mFormat.getChannelsSampleByte();
   mFifoSizeLimit = nChannelSampleByte ? (nSampleLimit * nChannelSampleByte) : nSampleLimit;
+}
+
+
+void FifoBuffer::setAudioFormat( AudioFormat audioFormat )
+{
+  if( !audioFormat.equal( mFormat) ){
+    unlock();
+    int nChannelSampleByte = mFormat.getChannelsSampleByte();
+    int nSamples = nChannelSampleByte ? mFifoSizeLimit / nChannelSampleByte : mFifoSizeLimit;
+    mFormat = audioFormat;
+    setFifoSizeLimit( nSamples );
+    mBuf.clear();
+  }
 }
 

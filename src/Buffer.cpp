@@ -136,9 +136,9 @@ AudioBuffer& AudioBuffer::operator=(AudioBuffer& buf)
   return *this;
 }
 
-int AudioBuffer::getSamples(void)
+int IAudioBuffer::getSamples(void)
 {
-  return mBuf.size() / mFormat.getChannelsSampleByte();
+  return mFormat.getChannelsSampleByte() ? mBuf.size() / mFormat.getChannelsSampleByte() : mBuf.size();
 }
 
 int AudioBuffer::getWindowSizeUsec(void)

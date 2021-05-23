@@ -78,7 +78,7 @@ SinkCapture::~SinkCapture()
 void SinkCapture::writePrimitive(IAudioBuffer& buf)
 {
   if( mpSink ){
-    mpSink->_testWritePrimitive( buf );
+    mpSink->writePrimitive( buf );
   }
   enqueToRefBuf( buf );
 }
@@ -190,7 +190,7 @@ SourceCapture::~SourceCapture()
 void SourceCapture::readPrimitive(IAudioBuffer& buf)
 {
   if( mpSource ){
-    mpSource->_testReadPrimitive( buf );
+    mpSource->readPrimitive( buf );
   }
   enqueToRefBuf( buf );
 }

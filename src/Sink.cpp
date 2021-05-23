@@ -109,12 +109,6 @@ int64_t ISink::getSinkPts(void)
 }
 
 
-void ISink::_testWritePrimitive(IAudioBuffer& buf)
-{
-  writePrimitive( buf );
-}
-
-
 Sink::Sink():ISink()
 {
   mpBuf = new AudioBuffer();

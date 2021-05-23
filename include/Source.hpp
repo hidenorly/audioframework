@@ -23,6 +23,8 @@
 #include "PipeAndFilterCommon.hpp"
 #include "PlugInManager.hpp"
 
+class SourceCapture;
+
 class ISource : public ISourceSinkCommon
 {
 protected:
@@ -40,7 +42,7 @@ public:
   virtual int64_t getSourcePts(void);
   virtual AudioFormat getAudioFormat(void);
 
-  void _testReadPrimitive(IAudioBuffer& buf);
+  friend SourceCapture;
 };
 
 class Source : public ISource

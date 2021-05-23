@@ -43,11 +43,6 @@ void ISource::read(IAudioBuffer& buf)
   readPrimitive(buf);
 }
 
-void ISource::_testReadPrimitive(IAudioBuffer& buf)
-{
- readPrimitive( buf );
-}
-
 int ISource::getLatencyUSec(void)
 {
   return mLatencyUsec;

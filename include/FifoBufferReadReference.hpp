@@ -17,37 +17,22 @@
 #ifndef __FIFOBUFFERREADREFERENCE_HPP__
 #define __FIFOBUFFERREADREFERENCE_HPP__
 
+#include "FifoBuffer.hpp"
 #include "Buffer.hpp"
 #include "AudioFormat.hpp"
 #include <mutex>
 #include <atomic>
 #include <condition_variable>
 
-class FifoBufferReadReference
+class FifoBufferReadReference : public FifoBufferBase
 {
-protected:
-  AudioFormat mFormat;
-  ByteBuffer mBuf;
-  int mFifoSizeLimit;
-
-  std::mutex mBufMutex;
-  std::condition_variable mReadBlockEvent;
-  std::mutex mReadBlockEventMutex;
-  std::atomic<bool> mReadBlocked;
-  std::atomic<bool> mUnlockReadBlock;
-
 public:
   FifoBufferReadReference(AudioFormat format = AudioFormat());
   virtual ~FifoBufferReadReference();
 
   bool readReference(IAudioBuffer& audioBuf);
   bool write(IAudioBuffer& audioBuf);
-  void unlock(void);
-
-  int getBufferedSamples(void);
-  AudioFormat getAudioFormat(void){ return mFormat; };
-  void setAudioFormat( AudioFormat audioFormat );
-  void setFifoSizeLimit(int nSampleLimit);
+  virtual void unlock(void);
 };
 
 #endif /* __FIFOBUFFERREADREFERENCE_HPP__ */

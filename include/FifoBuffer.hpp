@@ -17,25 +17,38 @@
 #ifndef __FIFOBUFFER_HPP__
 #define __FIFOBUFFER_HPP__
 
+#include "PipeAndFilterCommon.hpp"
 #include "Buffer.hpp"
 #include "AudioFormat.hpp"
 #include <mutex>
 #include <atomic>
 #include <condition_variable>
 
-class FifoBuffer
+class FifoBufferBase : public IUnlockable
 {
 protected:
   AudioFormat mFormat;
   ByteBuffer mBuf;
   int mFifoSizeLimit;
-
   std::mutex mBufMutex;
   std::condition_variable mReadBlockEvent;
   std::mutex mReadBlockEventMutex;
   std::atomic<bool> mReadBlocked;
   std::atomic<bool> mUnlockReadBlock;
 
+  FifoBufferBase(AudioFormat format = AudioFormat());
+  virtual ~FifoBufferBase();
+
+public:
+  int getBufferedSamples(void);
+  void setFifoSizeLimit(int nSampleLimit);
+  AudioFormat getAudioFormat(void){ return mFormat; };
+  void setAudioFormat( AudioFormat audioFormat );
+};
+
+class FifoBuffer : public FifoBufferBase
+{
+protected:
   std::condition_variable mWriteBlockEvent;
   std::mutex mWriteBlockEventMutex;
   std::atomic<bool> mWriteBlocked;
@@ -47,12 +60,7 @@ public:
 
   bool read(IAudioBuffer& audioBuf);
   bool write(IAudioBuffer& audioBuf);
-  void unlock(void);
-
-  int getBufferedSamples(void);
-  AudioFormat getAudioFormat(void){ return mFormat; };
-  void setAudioFormat( AudioFormat audioFormat );
-  void setFifoSizeLimit(int nSampleLimit);
+  virtual void unlock(void);
 };
 
 #endif /* __FIFOBUFFER_HPP__ */

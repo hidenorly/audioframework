@@ -17,9 +17,43 @@
 #include "FifoBuffer.hpp"
 #include <iterator>
 #include <thread>
-#include <iostream>
 
-FifoBuffer::FifoBuffer(AudioFormat format):mFormat(format), mReadBlocked(false), mWriteBlocked(false), mUnlockReadBlock(false), mUnlockWriteBlock(false), mFifoSizeLimit(0)
+FifoBufferBase::FifoBufferBase(AudioFormat format):mFormat(format), mFifoSizeLimit(0), mReadBlocked(false), mUnlockReadBlock(false)
+{
+
+}
+
+FifoBufferBase::~FifoBufferBase()
+{
+
+}
+
+int FifoBufferBase::getBufferedSamples(void)
+{
+  return mBuf.size() / mFormat.getChannelsSampleByte();
+}
+
+void FifoBufferBase::setFifoSizeLimit(int nSampleLimit)
+{
+  int nChannelSampleByte = mFormat.getChannelsSampleByte();
+  mFifoSizeLimit = nChannelSampleByte ? (nSampleLimit * nChannelSampleByte) : nSampleLimit;
+}
+
+void FifoBufferBase::setAudioFormat( AudioFormat audioFormat )
+{
+  if( !audioFormat.equal( mFormat) ){
+    unlock();
+    int nChannelSampleByte = mFormat.getChannelsSampleByte();
+    int nSamples = nChannelSampleByte ? mFifoSizeLimit / nChannelSampleByte : mFifoSizeLimit;
+    mFormat = audioFormat;
+    setFifoSizeLimit( nSamples );
+    mBuf.clear();
+  }
+}
+
+
+
+FifoBuffer::FifoBuffer(AudioFormat format):FifoBufferBase(format), mWriteBlocked(false), mUnlockWriteBlock(false)
 {
 
 }
@@ -46,7 +80,7 @@ bool FifoBuffer::read(IAudioBuffer& audioBuf)
           audioBuf.setRawBuffer( readBuffer );
           bReceived = true;
           if( mBuf.size() > size ){
-            mBuf = ByteBuffer( mBuf.begin()+size, mBuf.end() );
+            mBuf.erase( mBuf.begin(), mBuf.begin() + size );
           } else {
             mBuf.clear();
           }
@@ -107,11 +141,6 @@ bool FifoBuffer::write(IAudioBuffer& audioBuf)
   return bResult;
 }
 
-int FifoBuffer::getBufferedSamples(void)
-{
-  return mBuf.size() / mFormat.getChannelsSampleByte();
-}
-
 void FifoBuffer::unlock(void)
 {
   mUnlockReadBlock = true;
@@ -122,23 +151,3 @@ void FifoBuffer::unlock(void)
   mUnlockReadBlock = false;
   mUnlockWriteBlock = false;
 }
-
-void FifoBuffer::setFifoSizeLimit(int nSampleLimit)
-{
-  int nChannelSampleByte = mFormat.getChannelsSampleByte();
-  mFifoSizeLimit = nChannelSampleByte ? (nSampleLimit * nChannelSampleByte) : nSampleLimit;
-}
-
-
-void FifoBuffer::setAudioFormat( AudioFormat audioFormat )
-{
-  if( !audioFormat.equal( mFormat) ){
-    unlock();
-    int nChannelSampleByte = mFormat.getChannelsSampleByte();
-    int nSamples = nChannelSampleByte ? mFifoSizeLimit / nChannelSampleByte : mFifoSizeLimit;
-    mFormat = audioFormat;
-    setFifoSizeLimit( nSamples );
-    mBuf.clear();
-  }
-}
-

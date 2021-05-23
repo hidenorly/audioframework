@@ -18,7 +18,7 @@
 #include <iterator>
 #include <thread>
 
-FifoBufferReadReference::FifoBufferReadReference(AudioFormat format):mFormat(format), mReadBlocked(false), mUnlockReadBlock(false), mFifoSizeLimit(0)
+FifoBufferReadReference::FifoBufferReadReference(AudioFormat format) : FifoBufferBase(format)
 {
 
 }
@@ -105,33 +105,10 @@ bool FifoBufferReadReference::write(IAudioBuffer& audioBuf)
   return bResult;
 }
 
-int FifoBufferReadReference::getBufferedSamples(void)
-{
-  return mBuf.size() / mFormat.getChannelsSampleByte();
-}
-
 void FifoBufferReadReference::unlock(void)
 {
   mUnlockReadBlock = true;
   mReadBlockEvent.notify_all();
   std::this_thread::sleep_for(std::chrono::microseconds(100));
   mUnlockReadBlock = false;
-}
-
-void FifoBufferReadReference::setFifoSizeLimit(int nSampleLimit)
-{
-  int nChannelSampleByte = mFormat.getChannelsSampleByte();
-  mFifoSizeLimit = nChannelSampleByte ? (nSampleLimit * nChannelSampleByte) : nSampleLimit;
-}
-
-void FifoBufferReadReference::setAudioFormat( AudioFormat audioFormat )
-{
-  if( !audioFormat.equal( mFormat) ){
-    unlock();
-    int nChannelSampleByte = mFormat.getChannelsSampleByte();
-    int nSamples = nChannelSampleByte ? mFifoSizeLimit / nChannelSampleByte : mFifoSizeLimit;
-    mFormat = audioFormat;
-    setFifoSizeLimit( nSamples );
-    mBuf.clear();
-  }
 }

@@ -138,6 +138,10 @@ $ make; ./bin/afw_test;
   * [done] dump
   * [done] file in/out with StreamFile and SteramSource/StreamSink
   * Injection/Capture support
+    * [Done] SinkCapture
+    * SourceInject
+    * [Done] SourceCapture
+    * FilterCapture
 * All
   * [] Compressed data support
     * [done] AudioFormat

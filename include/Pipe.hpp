@@ -32,6 +32,8 @@ public:
 
   virtual void addFilterToHead(IFilter* pFilter) = 0;
   virtual void addFilterToTail(IFilter* pFilter) = 0;
+  virtual void addFilterAfterFilter(IFilter* pFilter, IFilter* pPosition) = 0;
+  virtual bool isFilterIncluded(IFilter* pFilter) = 0;
 
   virtual ISink* attachSink(ISink* pSink) = 0;
   virtual ISink* detachSink(void) = 0;
@@ -53,6 +55,8 @@ public:
 
   virtual void addFilterToHead(IFilter* pFilter);
   virtual void addFilterToTail(IFilter* pFilter);
+  virtual void addFilterAfterFilter(IFilter* pFilter, IFilter* pPosition);
+  virtual bool isFilterIncluded(IFilter* pFilter);
 
   virtual ISink* attachSink(ISink* pSink);
   virtual ISink* detachSink(void);

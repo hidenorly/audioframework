@@ -83,32 +83,85 @@ void PipeManager::createAndConnectPipesToTail(IPipe* pCurrentPipe)
 
 void PipeManager::addFilterToHead(IFilter* pFilter)
 {
-  IPipe* pPipe = getHeadPipe();
-  if( pPipe ){
-    int theFilterWindowSize = pFilter->getRequiredWindowSizeUsec();
-    int thePipeWindowSize = pPipe->getWindowSizeUsec();
+  if( pFilter ){
+    IPipe* pPipe = getHeadPipe();
+    if( pPipe ){
+      int theFilterWindowSize = pFilter->getRequiredWindowSizeUsec();
+      int thePipeWindowSize = pPipe->getWindowSizeUsec();
 
-    if( theFilterWindowSize != thePipeWindowSize ){
-      createAndConnectPipesToHead( pPipe );
+      if( theFilterWindowSize != thePipeWindowSize ){
+        createAndConnectPipesToHead( pPipe );
+      }
     }
+    getHeadPipe(true)->addFilterToHead( pFilter );
+    ensureSourceSink();
   }
-  getHeadPipe(true)->addFilterToHead( pFilter );
-  ensureSourceSink();
 }
 
 void PipeManager::addFilterToTail(IFilter* pFilter)
 {
-  IPipe* pPipe = getTailPipe();
-  if( pPipe ){
-    int theFilterWindowSize = pFilter->getRequiredWindowSizeUsec();
-    int thePipeWindowSize = pPipe->getWindowSizeUsec();
+  if( pFilter ){
+    IPipe* pPipe = getTailPipe();
+    if( pPipe ){
+      int theFilterWindowSize = pFilter->getRequiredWindowSizeUsec();
+      int thePipeWindowSize = pPipe->getWindowSizeUsec();
 
-    if( theFilterWindowSize != thePipeWindowSize ){
-      createAndConnectPipesToTail( pPipe );
+      if( theFilterWindowSize != thePipeWindowSize ){
+        createAndConnectPipesToTail( pPipe );
+      }
+    }
+    getTailPipe(true)->addFilterToTail( pFilter );
+    ensureSourceSink();
+  }
+}
+
+IPipe* PipeManager::findPipe(IFilter* pFilter)
+{
+  IPipe* result = nullptr;
+
+  if( pFilter ){
+    for( auto& aPipe : mPipes ){
+      result = aPipe->isFilterIncluded( pFilter ) ? aPipe : nullptr;
+      if( result ){
+        break;
+      }
     }
   }
-  getTailPipe(true)->addFilterToTail( pFilter );
-  ensureSourceSink();
+
+  return result;
+}
+
+bool PipeManager::isFilterIncluded(IFilter* pFilter)
+{
+  bool result = false;
+
+  if( pFilter ){
+    for( auto& aPipe : mPipes ){
+      result = aPipe->isFilterIncluded( pFilter );
+      if( result ){
+        break;
+      }
+    }
+  }
+
+  return result;
+}
+
+void PipeManager::addFilterAfterFilter(IFilter* pFilter, IFilter* pPosition)
+{
+  if( pFilter && pPosition ){
+    IPipe* pPipe = findPipe( pFilter );
+    if( pPipe ){
+      int theFilterWindowSize = pFilter->getRequiredWindowSizeUsec();
+      int thePipeWindowSize = pPipe->getWindowSizeUsec();
+
+      if( theFilterWindowSize != thePipeWindowSize ) {
+        // TODO : Create different pipe and interconnect
+      } else {
+        pPipe->addFilterAfterFilter( pFilter, pPosition );
+      }
+    }
+  }
 }
 
 ISink* PipeManager::attachSink(ISink* pSink)

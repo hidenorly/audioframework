@@ -24,6 +24,7 @@
 #include <numeric>
 #include <stdexcept>
 #include <utility>
+#include <algorithm>
 
 Pipe::Pipe():IPipe(), mpSink(nullptr), mpSource(nullptr)
 {
@@ -44,6 +45,20 @@ void Pipe::addFilterToHead(IFilter* pFilter)
 void Pipe::addFilterToTail(IFilter* pFilter)
 {
   mFilters.push_back(pFilter);
+}
+
+void Pipe::addFilterAfterFilter(IFilter* pFilter, IFilter* pPosition)
+{
+  auto it = std::find( mFilters.begin(), mFilters.end(), pPosition );
+  if( it != mFilters.end() ){
+    mFilters.insert( it+1, pFilter );
+  }
+}
+
+bool Pipe::isFilterIncluded(IFilter* pFilter)
+{
+  auto it = std::find( mFilters.begin(), mFilters.end(), pFilter );
+  return ( it != mFilters.end() ) ? true : false;
 }
 
 void Pipe::clearFilters(void)

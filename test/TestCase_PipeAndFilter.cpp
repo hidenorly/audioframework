@@ -70,6 +70,7 @@ TEST_F(TestCase_PipeAndFilter, testAddFilters)
   Filter* pFilter1 = new Filter();
   Filter* pFilter2 = new Filter();
   Filter* pFilter3 = new Filter();
+  Filter* pFilter4 = new Filter();
 
   Pipe* pPipe = new Pipe();
   pPipe->addFilterToTail(pFilter1);
@@ -79,6 +80,9 @@ TEST_F(TestCase_PipeAndFilter, testAddFilters)
   pPipe->dump();
 
   pPipe->addFilterToHead(pFilter3);
+  pPipe->dump();
+
+  pPipe->addFilterAfterFilter(pFilter4, pFilter3);
   pPipe->dump();
 
   pPipe->clearFilters(); // delete filter instances also.

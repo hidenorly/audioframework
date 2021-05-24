@@ -29,6 +29,8 @@ public:
 
   virtual void addFilterToHead(IFilter* pFilter);
   virtual void addFilterToTail(IFilter* pFilter);
+  virtual void addFilterAfterFilter(IFilter* pFilter, IFilter* pPosition);
+  virtual bool isFilterIncluded(IFilter* pFilter);
 
   virtual ISink* attachSink(ISink* pSink);
   virtual ISink* detachSink(void);
@@ -49,6 +51,7 @@ public:
 protected:
   IPipe* getHeadPipe(bool bCreateInstance = false);
   IPipe* getTailPipe(bool bCreateInstance = false);
+  IPipe* findPipe(IFilter* pFilter);
   std::vector<IPipe*> mPipes;
   std::vector<InterPipeBridge*> mInterPipeBridges;
   ISink* mpSink;

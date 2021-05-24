@@ -19,6 +19,7 @@
 
 #include "Sink.hpp"
 #include "Source.hpp"
+#include "Filter.hpp"
 #include "AudioFormat.hpp"
 #include "PipeAndFilterCommon.hpp"
 #include "FifoBufferReadReference.hpp"
@@ -85,5 +86,19 @@ public:
   virtual AudioFormat getAudioFormat(void);
 };
 
+class FilterCapture : public IFilter, public ICapture
+{
+protected:
+  int mWindowSize;
+  int mLatency;
+  int mProcessingTime;
+public:
+  FilterCapture(int windowSize = DEFAULT_WINDOW_SIZE_USEC, int latencyUsec = DEFAULT_WINDOW_SIZE_USEC, int processingTimeUsec = Filter::DEFAULT_PROCESSING_TIME_USEC): ICapture(), mWindowSize(windowSize), mLatency(latencyUsec), mProcessingTime(processingTimeUsec){};
+  virtual ~FilterCapture(){};
+  virtual void process(AudioBuffer& inBuf, AudioBuffer& outBuf);
+  virtual int getRequiredWindowSizeUsec(void){ return mWindowSize; };
+  virtual int getLatencyUSec(void){ return mLatency; };
+  virtual int getExpectedProcessingUSec(void){ return mProcessingTime; };
+};
 
 #endif /* __TESTABILITY_HPP__ */

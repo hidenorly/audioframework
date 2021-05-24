@@ -141,7 +141,7 @@ $ make; ./bin/afw_test;
     * [Done] SinkCapture
     * SourceInject
     * [Done] SourceCapture
-    * FilterCapture
+    * [Done] FilterCapture
 * All
   * [] Compressed data support
     * [done] AudioFormat

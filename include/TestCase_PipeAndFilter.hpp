@@ -57,6 +57,7 @@ protected:
 
   void testSinkCapture(void);
   void testSourceCapture(void);
+  void testFilterCapture(void);
 };
 
 #endif /* __TESTCASE_PIPEANDFILTER_HPP__ */

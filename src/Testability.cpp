@@ -219,4 +219,11 @@ AudioFormat SourceCapture::getAudioFormat(void)
   return ISource::getAudioFormat();
 }
 
+void FilterCapture::process(AudioBuffer& inBuf, AudioBuffer& outBuf)
+{
+  outBuf = inBuf;
 
+  setCaptureBufferSize( inBuf.getSamples() * 3 );
+  setCaptureAudioFormat( inBuf.getAudioFormat() );
+  enqueToRefBuf( inBuf );
+}

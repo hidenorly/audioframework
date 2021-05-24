@@ -954,6 +954,41 @@ TEST_F(TestCase_PipeAndFilter, testSourceCapture)
   delete pSource; pSource = nullptr;
 }
 
+TEST_F(TestCase_PipeAndFilter, testFilterCapture)
+{
+  ISource* pSource = new Source();
+  ISink* pSink = new Sink();
+  IPipe* pPipe = new Pipe();
+
+  pPipe->attachSource( pSource );
+  pPipe->attachSink( pSink );
+
+  pPipe->addFilterToTail( new FilterIncrement() );
+  IFilter* pFilter = new FilterCapture();
+  pPipe->addFilterToTail( pFilter );
+  ICapture* pCapture = dynamic_cast<ICapture*>(pFilter);
+
+  pPipe->run();
+  std::this_thread::sleep_for(std::chrono::microseconds(1000));
+  AudioBuffer captureBuf( AudioFormat(), 240 );
+  std::cout << "captureRead" << std::endl;
+  pCapture->captureRead( captureBuf );
+  pPipe->stop();
+  Util::dumpBuffer( "FilterCapture result", captureBuf );
+
+  EXPECT_EQ( pSink, pPipe->detachSink());
+  EXPECT_EQ( pSource, pPipe->detachSource());
+  std::cout << "Sink dump:" << std::endl;
+  pSink->dump();
+  pPipe->clearFilters();
+  pCapture->unlock();
+
+  delete pPipe; pPipe = nullptr;
+  delete pSink; pSink = nullptr;
+  delete pSource; pSource = nullptr;
+}
+
+
 int main(int argc, char **argv)
 {
   ::testing::InitGoogleTest(&argc, argv);

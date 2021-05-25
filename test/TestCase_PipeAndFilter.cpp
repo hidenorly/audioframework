@@ -47,7 +47,7 @@
 
 #include <iostream>
 #include <filesystem>
-
+#include <chrono>
 
 TestCase_PipeAndFilter::TestCase_PipeAndFilter()
 {
@@ -982,6 +982,66 @@ TEST_F(TestCase_PipeAndFilter, testFilterCapture)
   pSink->dump();
   pPipe->clearFilters();
   pCapture->unlock();
+
+  delete pPipe; pPipe = nullptr;
+  delete pSink; pSink = nullptr;
+  delete pSource; pSource = nullptr;
+}
+
+TEST_F(TestCase_PipeAndFilter, testFilterInjector)
+{
+  ISource* pSource = dynamic_cast<ISource*>( new SourceInjector( new Source() ) );
+  ISink* pSink = new Sink();
+  IInjector* pInjector = dynamic_cast<IInjector*>(pSource);
+  IPipe* pPipe = new Pipe();
+
+  pPipe->attachSource( pSource );
+  pPipe->addFilterToTail( new Filter() );
+  pPipe->attachSink( pSink );
+
+  // 1st step: non injected
+  EXPECT_FALSE( pInjector->getInjectorEnabled() );
+  pPipe->run();
+  std::this_thread::sleep_for(std::chrono::microseconds(100));
+  pPipe->stop();
+  std::cout << "Sink dump(non injected):" << std::endl;
+  pSink->dump();
+  EXPECT_EQ( pSink, pPipe->detachSink());
+  delete pSink;
+  pSink = new Sink();
+  pPipe->attachSink( pSink );
+
+  // 2nd step: injected
+  AudioBuffer injectBuf( AudioFormat(), 240 );
+  ByteBuffer rawInjectBuf = injectBuf.getRawBuffer();
+  for(int i=0; i<rawInjectBuf.size(); i=i+2){
+    rawInjectBuf[i] = i % 16;
+    rawInjectBuf[i+1] = 0;
+  }
+  injectBuf.setRawBuffer( rawInjectBuf );
+  Util::dumpBuffer("injectBuf", injectBuf);
+
+  pInjector->setInjectorEnabled( true );
+  EXPECT_TRUE( pInjector->getInjectorEnabled() );
+
+  pPipe->run();
+  {
+    std::chrono::milliseconds start = duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
+    bool bRunning = true;
+    while( bRunning ){
+      pInjector->inject( injectBuf );
+      std::chrono::milliseconds now = duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());
+      bRunning = ( ( now.count() - start.count() ) <= 2 ) ? true : false; // run 2msec
+    };
+  }
+  pPipe->stop();
+
+  EXPECT_EQ( pSink, pPipe->detachSink());
+  EXPECT_EQ( pSource, pPipe->detachSource());
+  std::cout << "Sink dump(injected result):" << std::endl;
+  pSink->dump();
+  pPipe->clearFilters();
+  pInjector->unlock();
 
   delete pPipe; pPipe = nullptr;
   delete pSink; pSink = nullptr;

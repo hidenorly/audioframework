@@ -39,6 +39,28 @@ public:
   virtual void unlock(void);
 };
 
+class IInjector : public IUnlockable
+{
+protected:
+  FifoBuffer* mpInjectorBuf;
+  bool mInjectorEnabled;
+
+protected:
+  void dequeFromInjectBuf(IAudioBuffer& buf);
+  void setInjectBufferSize(int nSamples);
+
+public:
+  IInjector( AudioFormat format = AudioFormat() );
+  virtual ~IInjector();
+
+  virtual void setInjectorEnabled(bool bEnabled);
+  virtual bool getInjectorEnabled(void);
+
+  virtual void inject(IAudioBuffer& buf);
+  virtual void setInjectAudioFormat(AudioFormat audioFormat);
+  virtual void unlock(void);
+};
+
 class SinkCapture : public ISink, public ICapture
 {
 protected:
@@ -69,7 +91,6 @@ public:
   virtual void dump(void);
 };
 
-
 class SourceCapture : public ISource, public ICapture
 {
 protected:
@@ -81,6 +102,22 @@ protected:
 public:
   SourceCapture(ISource* pSource);
   virtual ~SourceCapture();
+  virtual int getLatencyUSec(void);
+  virtual int64_t getSourcePts(void);
+  virtual AudioFormat getAudioFormat(void);
+};
+
+class SourceInjector : public ISource, public IInjector
+{
+protected:
+  ISource* mpSource;
+
+protected:
+  virtual void readPrimitive(IAudioBuffer& buf);
+
+public:
+  SourceInjector(ISource* pSource);
+  virtual ~SourceInjector();
   virtual int getLatencyUSec(void);
   virtual int64_t getSourcePts(void);
   virtual AudioFormat getAudioFormat(void);
@@ -100,5 +137,6 @@ public:
   virtual int getLatencyUSec(void){ return mLatency; };
   virtual int getExpectedProcessingUSec(void){ return mProcessingTime; };
 };
+
 
 #endif /* __TESTABILITY_HPP__ */

@@ -24,6 +24,7 @@
 #include "PlugInManager.hpp"
 
 class SourceCapture;
+class SourceInjector;
 
 class ISource : public ISourceSinkCommon
 {
@@ -43,6 +44,7 @@ public:
   virtual AudioFormat getAudioFormat(void);
 
   friend SourceCapture;
+  friend SourceInjector;
 };
 
 class Source : public ISource

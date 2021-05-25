@@ -23,6 +23,7 @@ ICapture::ICapture(AudioFormat format)
 
 ICapture::~ICapture()
 {
+  unlock();
   delete mpRefBuf;
   mpRefBuf = nullptr;
 }
@@ -226,4 +227,105 @@ void FilterCapture::process(AudioBuffer& inBuf, AudioBuffer& outBuf)
   setCaptureBufferSize( inBuf.getSamples() * 3 );
   setCaptureAudioFormat( inBuf.getAudioFormat() );
   enqueToRefBuf( inBuf );
+}
+
+IInjector::IInjector( AudioFormat format ) : mInjectorEnabled(false)
+{
+  mpInjectorBuf = new FifoBuffer( format );
+}
+
+IInjector::~IInjector()
+{
+  unlock();
+  delete mpInjectorBuf; mpInjectorBuf = nullptr;
+}
+
+void IInjector::dequeFromInjectBuf(IAudioBuffer& buf)
+{
+  if( mpInjectorBuf ){
+    mpInjectorBuf->read( buf );
+  }
+}
+
+void IInjector::setInjectBufferSize(int nSamples)
+{
+  if( mpInjectorBuf ){
+    mpInjectorBuf->setFifoSizeLimit( nSamples );
+  }
+}
+
+void IInjector::inject(IAudioBuffer& buf)
+{
+  if( mpInjectorBuf ){
+    mpInjectorBuf->write( buf );
+  }
+}
+
+void IInjector::setInjectAudioFormat(AudioFormat audioFormat)
+{
+  if( mpInjectorBuf ){
+    mpInjectorBuf->setAudioFormat( audioFormat );
+  }
+}
+
+void IInjector::unlock(void)
+{
+  if( mpInjectorBuf ){
+    mpInjectorBuf->unlock();
+  }
+}
+
+void IInjector::setInjectorEnabled(bool bEnabled)
+{
+  mInjectorEnabled = bEnabled;
+}
+
+bool IInjector::getInjectorEnabled(void)
+{
+  return mInjectorEnabled;
+}
+
+SourceInjector::SourceInjector(ISource* pSource):IInjector(),mpSource(pSource)
+{
+
+}
+
+SourceInjector::~SourceInjector()
+{
+  IInjector::~IInjector();
+  delete mpSource;
+  mpSource = nullptr;
+}
+
+void SourceInjector::readPrimitive(IAudioBuffer& buf)
+{
+  if( mpSource && !getInjectorEnabled() ){
+    mpSource->readPrimitive( buf );
+  } else {
+    dequeFromInjectBuf( buf );
+  }
+}
+
+int SourceInjector::getLatencyUSec(void)
+{
+  if( mpSource ){
+    return mpSource->getLatencyUSec();
+  }
+  return ISource::getLatencyUSec();
+}
+
+int64_t SourceInjector::getSourcePts(void)
+{
+  if( mpSource ){
+    return mpSource->getSourcePts();
+  }
+  return ISource::getSourcePts();
+}
+
+AudioFormat SourceInjector::getAudioFormat(void)
+{
+  if( mpSource ){
+    return mpSource->getAudioFormat();
+  }
+  return ISource::getAudioFormat();
 }

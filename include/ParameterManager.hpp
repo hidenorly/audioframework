@@ -58,6 +58,7 @@ public:
   float getParameterFloat(std::string key, float defaultValue = 0.0f);
   bool getParameterBool(std::string key, bool defaultValue = false);
   // get all parameters if no keys specified
+  std::vector<ParameterManager::Param> getParameters(std::string wildcardKeys);
   std::vector<ParameterManager::Param> getParameters(std::vector<std::string> keys = std::vector<std::string>{});
 
   typedef std::function<void(std::string key, std::string value)> CALLBACK;

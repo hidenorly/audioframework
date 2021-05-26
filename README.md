@@ -119,7 +119,7 @@ $ make; ./bin/afw_test;
   * [done] InterPipeBridge (FIFOed Source and Sink)
   * ParameterManager
     * [done] basic set/get & readonly, pub/sub with wild card
-    * [] parameter hierachy support
+    * [done] parameter hierachy support
     * [done] persist support
     * [done] default value database
   * Plug-in

@@ -117,14 +117,35 @@ bool ParameterManager::getParameterBool(std::string key, bool defaultValue)
   return mParams.contains( key ) ? (mParams[key] == "true" ? true : false) : defaultValue;
 }
 
+std::vector<ParameterManager::Param> ParameterManager::getParameters(std::string wildcardKeys)
+{
+  std::vector<ParameterManager::Param> result;
+  if( wildcardKeys.ends_with("*") ){
+    wildcardKeys = wildcardKeys.substr( 0, wildcardKeys.length()-1 );
+
+    for( auto& [aKey, value] : mParams ){
+      if( aKey.starts_with(wildcardKeys) ){
+        result.push_back( Param(aKey, value) );
+      }
+    }
+  }
+
+  return result;
+}
+
 std::vector<ParameterManager::Param> ParameterManager::getParameters(std::vector<std::string> keys)
 {
   std::vector<Param> result;
 
   if( !keys.empty() ){
     for( auto& aKey : keys) {
-      std::string value = getParameter( aKey );
-      result.push_back( Param(aKey, value) );
+      if( !aKey.ends_with("*") ){
+        std::string value = getParameter( aKey );
+        result.push_back( Param(aKey, value) );
+      } else {
+        const auto& values = getParameters( aKey );
+        result.insert( result.end(), values.begin(), values.end() );
+      }
     }
   } else {
     // no specifying means all of parameters

@@ -694,10 +694,19 @@ TEST_F(TestCase_PipeAndFilter, testParameterManager)
   pParams->setParameterInt("paramC", 4);
 
   // dump all
+  std::cout << "getParameters()" << std::endl;
   std::vector<ParameterManager::Param> paramsAll = pParams->getParameters();
   for(auto& aParam : paramsAll){
     std::cout << aParam.key << " = " << aParam.value << std::endl;
   }
+  std::cout << std::endl;
+
+  std::cout << "getParameters(\"param*\")" << std::endl;
+  std::vector<ParameterManager::Param> paramsWilds = pParams->getParameters("param*");
+  for(auto& aParam : paramsWilds){
+    std::cout << aParam.key << " = " << aParam.value << std::endl;
+  }
+  std::cout << std::endl;
 
   const std::string paramFilePath = "TestProperties";
 

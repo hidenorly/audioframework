@@ -91,36 +91,38 @@ public:
   virtual void dump(void);
 };
 
-class SourceCapture : public ISource, public ICapture
+class SourceTestBase : public ISource
 {
 protected:
   ISource* mpSource;
 
+public:
+  SourceTestBase(ISource* pSource);
+  virtual ~SourceTestBase();
+
+  virtual int getLatencyUSec(void);
+  virtual int64_t getSourcePts(void);
+  virtual AudioFormat getAudioFormat(void);
+};
+
+class SourceCapture : public SourceTestBase, public ICapture
+{
 protected:
   virtual void readPrimitive(IAudioBuffer& buf);
 
 public:
   SourceCapture(ISource* pSource);
   virtual ~SourceCapture();
-  virtual int getLatencyUSec(void);
-  virtual int64_t getSourcePts(void);
-  virtual AudioFormat getAudioFormat(void);
 };
 
-class SourceInjector : public ISource, public IInjector
+class SourceInjector : public SourceTestBase, public IInjector
 {
-protected:
-  ISource* mpSource;
-
 protected:
   virtual void readPrimitive(IAudioBuffer& buf);
 
 public:
   SourceInjector(ISource* pSource);
   virtual ~SourceInjector();
-  virtual int getLatencyUSec(void);
-  virtual int64_t getSourcePts(void);
-  virtual AudioFormat getAudioFormat(void);
 };
 
 class FilterCapture : public IFilter, public ICapture

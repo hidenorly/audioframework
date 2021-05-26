@@ -15,6 +15,7 @@
 */
 
 #include "Testability.hpp"
+#include <iostream>
 
 ICapture::ICapture(AudioFormat format)
 {
@@ -71,7 +72,6 @@ SinkCapture::SinkCapture(ISink* pSink) : ISink(), mpSink(pSink), ICapture( pSink
 
 SinkCapture::~SinkCapture()
 {
-  ICapture::~ICapture();
 	delete mpSink;
 	mpSink = nullptr;
 }
@@ -176,16 +176,24 @@ void SinkCapture::dump(void)
 }
 
 
-SourceCapture::SourceCapture(ISource* pSource) : ISource(), mpSource(pSource), ICapture( pSource ? pSource->getAudioFormat() : AudioFormat() )
+SourceTestBase::SourceTestBase(ISource* pSource) : ISource(), mpSource( pSource )
+{
+
+}
+
+SourceTestBase::~SourceTestBase()
+{
+  delete mpSource; mpSource = nullptr;
+};
+
+
+SourceCapture::SourceCapture(ISource* pSource) : SourceTestBase( pSource), ICapture( pSource ? pSource->getAudioFormat() : AudioFormat() )
 {
 
 }
 
 SourceCapture::~SourceCapture()
 {
-  if( mpSource ){
-    delete mpSource; mpSource = nullptr;
-  }
 }
 
 void SourceCapture::readPrimitive(IAudioBuffer& buf)
@@ -196,7 +204,7 @@ void SourceCapture::readPrimitive(IAudioBuffer& buf)
   enqueToRefBuf( buf );
 }
 
-int SourceCapture::getLatencyUSec(void)
+int SourceTestBase::getLatencyUSec(void)
 {
   if( mpSource ){
     return mpSource->getLatencyUSec();
@@ -204,7 +212,7 @@ int SourceCapture::getLatencyUSec(void)
   return ISource::getLatencyUSec();
 }
 
-int64_t SourceCapture::getSourcePts(void)
+int64_t SourceTestBase::getSourcePts(void)
 {
   if( mpSource ){
     return mpSource->getSourcePts();
@@ -212,7 +220,7 @@ int64_t SourceCapture::getSourcePts(void)
   return ISource::getSourcePts();
 }
 
-AudioFormat SourceCapture::getAudioFormat(void)
+AudioFormat SourceTestBase::getAudioFormat(void)
 {
   if( mpSource ){
     return mpSource->getAudioFormat();
@@ -285,16 +293,13 @@ bool IInjector::getInjectorEnabled(void)
   return mInjectorEnabled;
 }
 
-SourceInjector::SourceInjector(ISource* pSource):IInjector(),mpSource(pSource)
+SourceInjector::SourceInjector(ISource* pSource):IInjector(),SourceTestBase(pSource)
 {
 
 }
 
 SourceInjector::~SourceInjector()
 {
-  IInjector::~IInjector();
-  delete mpSource;
-  mpSource = nullptr;
 }
 
 void SourceInjector::readPrimitive(IAudioBuffer& buf)
@@ -306,26 +311,3 @@ void SourceInjector::readPrimitive(IAudioBuffer& buf)
   }
 }
 
-int SourceInjector::getLatencyUSec(void)
-{
-  if( mpSource ){
-    return mpSource->getLatencyUSec();
-  }
-  return ISource::getLatencyUSec();
-}
-
-int64_t SourceInjector::getSourcePts(void)
-{
-  if( mpSource ){
-    return mpSource->getSourcePts();
-  }
-  return ISource::getSourcePts();
-}
-
-AudioFormat SourceInjector::getAudioFormat(void)
-{
-  if( mpSource ){
-    return mpSource->getAudioFormat();
-  }
-  return ISource::getAudioFormat();
-}

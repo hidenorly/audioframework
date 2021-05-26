@@ -125,20 +125,38 @@ public:
   virtual ~SourceInjector();
 };
 
-class FilterCapture : public IFilter, public ICapture
+class FilterTestBase : public IFilter
 {
 protected:
   int mWindowSize;
   int mLatency;
   int mProcessingTime;
+
 public:
-  FilterCapture(int windowSize = DEFAULT_WINDOW_SIZE_USEC, int latencyUsec = DEFAULT_WINDOW_SIZE_USEC, int processingTimeUsec = Filter::DEFAULT_PROCESSING_TIME_USEC): ICapture(), mWindowSize(windowSize), mLatency(latencyUsec), mProcessingTime(processingTimeUsec){};
-  virtual ~FilterCapture(){};
-  virtual void process(AudioBuffer& inBuf, AudioBuffer& outBuf);
+  FilterTestBase(int windowSize = DEFAULT_WINDOW_SIZE_USEC, int latencyUsec = DEFAULT_WINDOW_SIZE_USEC, int processingTimeUsec = Filter::DEFAULT_PROCESSING_TIME_USEC) : mWindowSize(windowSize), mLatency(latencyUsec), mProcessingTime(processingTimeUsec){};
+  virtual ~FilterTestBase(){};
+
   virtual int getRequiredWindowSizeUsec(void){ return mWindowSize; };
   virtual int getLatencyUSec(void){ return mLatency; };
   virtual int getExpectedProcessingUSec(void){ return mProcessingTime; };
 };
+
+class FilterCapture : public FilterTestBase, public ICapture
+{
+public:
+  FilterCapture(int windowSize = DEFAULT_WINDOW_SIZE_USEC, int latencyUsec = DEFAULT_WINDOW_SIZE_USEC, int processingTimeUsec = Filter::DEFAULT_PROCESSING_TIME_USEC) : ICapture(), FilterTestBase(windowSize, latencyUsec, processingTimeUsec){};
+  virtual ~FilterCapture(){};
+  virtual void process(AudioBuffer& inBuf, AudioBuffer& outBuf);
+};
+
+class FilterInjector : public FilterTestBase, public IInjector
+{
+public:
+  FilterInjector(int windowSize = DEFAULT_WINDOW_SIZE_USEC, int latencyUsec = DEFAULT_WINDOW_SIZE_USEC, int processingTimeUsec = Filter::DEFAULT_PROCESSING_TIME_USEC) : IInjector(), FilterTestBase(windowSize, latencyUsec, processingTimeUsec){};
+  virtual ~FilterInjector(){};
+  virtual void process(AudioBuffer& inBuf, AudioBuffer& outBuf);
+};
+
 
 
 #endif /* __TESTABILITY_HPP__ */

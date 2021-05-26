@@ -57,6 +57,7 @@ protected:
 
   void testSinkCapture(void);
   void testSourceCapture(void);
+  void testSourceInjector(void);
   void testFilterCapture(void);
   void testFilterInjector(void);
 };

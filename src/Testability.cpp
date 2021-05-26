@@ -311,3 +311,11 @@ void SourceInjector::readPrimitive(IAudioBuffer& buf)
   }
 }
 
+void FilterInjector::process(AudioBuffer& inBuf, AudioBuffer& outBuf)
+{
+  if( !getInjectorEnabled() ){
+    outBuf = inBuf;
+  } else {
+    dequeFromInjectBuf( outBuf );
+  }
+}

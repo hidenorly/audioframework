@@ -72,8 +72,7 @@ SinkCapture::SinkCapture(ISink* pSink) : ISink(), mpSink(pSink), ICapture( pSink
 
 SinkCapture::~SinkCapture()
 {
-	delete mpSink;
-	mpSink = nullptr;
+	delete mpSink; mpSink = nullptr;
 }
 
 void SinkCapture::writePrimitive(IAudioBuffer& buf)
@@ -86,86 +85,53 @@ void SinkCapture::writePrimitive(IAudioBuffer& buf)
 
 std::vector<ISink::PRESENTATION> SinkCapture::getAvailablePresentations(void)
 {
-  if( mpSink ){
-    return mpSink->getAvailablePresentations();
-  }
-
-  return ISink::getAvailablePresentations();
+  return mpSink ? mpSink->getAvailablePresentations() : ISink::getAvailablePresentations();
 }
 
 bool SinkCapture::isAvailablePresentation(PRESENTATION presentation)
 {
-  if( mpSink ){
-    return mpSink->isAvailablePresentation( presentation );
-  }
-
-  return ISink::isAvailablePresentation( presentation );
+  return mpSink ? mpSink->isAvailablePresentation( presentation ) : ISink::isAvailablePresentation( presentation );
 }
 
 bool SinkCapture::setPresentation(PRESENTATION presentation)
 {
-  if( mpSink ){
-    return mpSink->setPresentation( presentation );
-  }
-  return ISink::setPresentation( presentation );
+  return mpSink ? mpSink->setPresentation( presentation ) : ISink::setPresentation( presentation );
 }
 
 ISink::PRESENTATION SinkCapture::getPresentation(void)
 {
- if( mpSink ){
-    return mpSink->getPresentation();
-  }
-  return ISink::getPresentation();
+  return mpSink ? mpSink->getPresentation() : ISink::getPresentation();
 }
 
 bool SinkCapture::setAudioFormat(AudioFormat audioFormat)
 {
- if( mpSink ){
-    return mpSink->setAudioFormat( audioFormat );
-  }
   setCaptureAudioFormat( audioFormat );
-
-  return false;
+  return mpSink ? mpSink->setAudioFormat( audioFormat )  : false;
 }
 
 AudioFormat SinkCapture::getAudioFormat(void)
 {
- if( mpSink ){
-    return mpSink->getAudioFormat();
-  }
-  return AudioFormat();
+  return mpSink ? mpSink->getAudioFormat() : AudioFormat();
 }
 
 float SinkCapture::getVolume(void)
 {
- if( mpSink ){
-    return mpSink->getVolume();
-  }
-  return ISink::getVolume();
+  return mpSink ? mpSink->getVolume() : ISink::getVolume();
 }
 
 bool SinkCapture::setVolume(float volumePercentage)
 {
- if( mpSink ){
-    return mpSink->setVolume( volumePercentage );
-  }
-  return ISink::setVolume( volumePercentage );
+  return mpSink ? mpSink->setVolume( volumePercentage ) : ISink::setVolume( volumePercentage );
 }
 
 int SinkCapture::getLatencyUSec(void)
 {
- if( mpSink ){
-    return mpSink->getLatencyUSec();
-  }
-  return ISink::getLatencyUSec();
+  return mpSink ? mpSink->getLatencyUSec() : ISink::getLatencyUSec();
 }
 
 int64_t SinkCapture::getSinkPts(void)
 {
- if( mpSink ){
-    return mpSink->getSinkPts();
-  }
-  return ISink::getSinkPts();
+  return mpSink ? mpSink->getSinkPts() : ISink::getSinkPts();
 }
 
 void SinkCapture::dump(void)
@@ -206,26 +172,17 @@ void SourceCapture::readPrimitive(IAudioBuffer& buf)
 
 int SourceTestBase::getLatencyUSec(void)
 {
-  if( mpSource ){
-    return mpSource->getLatencyUSec();
-  }
-  return ISource::getLatencyUSec();
+  return mpSource ? mpSource->getLatencyUSec() : ISource::getLatencyUSec();
 }
 
 int64_t SourceTestBase::getSourcePts(void)
 {
-  if( mpSource ){
-    return mpSource->getSourcePts();
-  }
-  return ISource::getSourcePts();
+  return mpSource ? mpSource->getSourcePts() : ISource::getSourcePts();
 }
 
 AudioFormat SourceTestBase::getAudioFormat(void)
 {
-  if( mpSource ){
-    return mpSource->getAudioFormat();
-  }
-  return ISource::getAudioFormat();
+  return mpSource ? mpSource->getAudioFormat() : ISource::getAudioFormat();
 }
 
 void FilterCapture::process(AudioBuffer& inBuf, AudioBuffer& outBuf)

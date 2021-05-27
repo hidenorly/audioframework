@@ -61,17 +61,14 @@ public:
   virtual void unlock(void);
 };
 
-class SinkCapture : public ISink, public ICapture
+class SinkTestBase : public ISink
 {
 protected:
   ISink* mpSink;
 
-protected:
-  virtual void writePrimitive(IAudioBuffer& buf);
-
 public:
-  SinkCapture(ISink* pSink);
-  virtual ~SinkCapture();
+  SinkTestBase(ISink* pSink);
+  virtual ~SinkTestBase();
 
   virtual std::vector<PRESENTATION> getAvailablePresentations(void);
   virtual bool isAvailablePresentation(PRESENTATION presentation);
@@ -89,6 +86,17 @@ public:
   virtual int64_t getSinkPts(void);
 
   virtual void dump(void);
+};
+
+class SinkCapture : public SinkTestBase, public ICapture
+{
+protected:
+  virtual void writePrimitive(IAudioBuffer& buf);
+
+public:
+  SinkCapture(ISink* pSink);
+  virtual ~SinkCapture();
+  virtual bool setAudioFormat(AudioFormat audioFormat);
 };
 
 class SourceTestBase : public ISource

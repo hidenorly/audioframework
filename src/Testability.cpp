@@ -66,13 +66,23 @@ void ICapture::unlock(void)
   }
 }
 
-SinkCapture::SinkCapture(ISink* pSink) : ISink(), mpSink(pSink), ICapture( pSink ? pSink->getAudioFormat() : AudioFormat() )
+SinkTestBase::SinkTestBase(ISink* pSink) : ISink(), mpSink(pSink)
 {
+
+}
+
+SinkTestBase::~SinkTestBase()
+{
+  delete mpSink; mpSink = nullptr;
+}
+
+SinkCapture::SinkCapture(ISink* pSink) : SinkTestBase(pSink), ICapture( pSink ? pSink->getAudioFormat() : AudioFormat() )
+{
+
 }
 
 SinkCapture::~SinkCapture()
 {
-	delete mpSink; mpSink = nullptr;
 }
 
 void SinkCapture::writePrimitive(IAudioBuffer& buf)
@@ -83,58 +93,64 @@ void SinkCapture::writePrimitive(IAudioBuffer& buf)
   enqueToRefBuf( buf );
 }
 
-std::vector<ISink::PRESENTATION> SinkCapture::getAvailablePresentations(void)
-{
-  return mpSink ? mpSink->getAvailablePresentations() : ISink::getAvailablePresentations();
-}
-
-bool SinkCapture::isAvailablePresentation(PRESENTATION presentation)
-{
-  return mpSink ? mpSink->isAvailablePresentation( presentation ) : ISink::isAvailablePresentation( presentation );
-}
-
-bool SinkCapture::setPresentation(PRESENTATION presentation)
-{
-  return mpSink ? mpSink->setPresentation( presentation ) : ISink::setPresentation( presentation );
-}
-
-ISink::PRESENTATION SinkCapture::getPresentation(void)
-{
-  return mpSink ? mpSink->getPresentation() : ISink::getPresentation();
-}
-
 bool SinkCapture::setAudioFormat(AudioFormat audioFormat)
 {
   setCaptureAudioFormat( audioFormat );
   return mpSink ? mpSink->setAudioFormat( audioFormat )  : false;
 }
 
-AudioFormat SinkCapture::getAudioFormat(void)
+
+std::vector<ISink::PRESENTATION> SinkTestBase::getAvailablePresentations(void)
+{
+  return mpSink ? mpSink->getAvailablePresentations() : ISink::getAvailablePresentations();
+}
+
+bool SinkTestBase::isAvailablePresentation(PRESENTATION presentation)
+{
+  return mpSink ? mpSink->isAvailablePresentation( presentation ) : ISink::isAvailablePresentation( presentation );
+}
+
+bool SinkTestBase::setPresentation(PRESENTATION presentation)
+{
+  return mpSink ? mpSink->setPresentation( presentation ) : ISink::setPresentation( presentation );
+}
+
+ISink::PRESENTATION SinkTestBase::getPresentation(void)
+{
+  return mpSink ? mpSink->getPresentation() : ISink::getPresentation();
+}
+
+bool SinkTestBase::setAudioFormat(AudioFormat audioFormat)
+{
+  return mpSink ? mpSink->setAudioFormat( audioFormat )  : false;
+}
+
+AudioFormat SinkTestBase::getAudioFormat(void)
 {
   return mpSink ? mpSink->getAudioFormat() : AudioFormat();
 }
 
-float SinkCapture::getVolume(void)
+float SinkTestBase::getVolume(void)
 {
   return mpSink ? mpSink->getVolume() : ISink::getVolume();
 }
 
-bool SinkCapture::setVolume(float volumePercentage)
+bool SinkTestBase::setVolume(float volumePercentage)
 {
   return mpSink ? mpSink->setVolume( volumePercentage ) : ISink::setVolume( volumePercentage );
 }
 
-int SinkCapture::getLatencyUSec(void)
+int SinkTestBase::getLatencyUSec(void)
 {
   return mpSink ? mpSink->getLatencyUSec() : ISink::getLatencyUSec();
 }
 
-int64_t SinkCapture::getSinkPts(void)
+int64_t SinkTestBase::getSinkPts(void)
 {
   return mpSink ? mpSink->getSinkPts() : ISink::getSinkPts();
 }
 
-void SinkCapture::dump(void)
+void SinkTestBase::dump(void)
 {
  if( mpSink ){
     return mpSink->dump();

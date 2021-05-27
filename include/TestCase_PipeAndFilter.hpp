@@ -56,6 +56,7 @@ protected:
   void testDelayFilter(void);
 
   void testSinkCapture(void);
+  void testSinkInjector(void);
   void testSourceCapture(void);
   void testSourceInjector(void);
   void testFilterCapture(void);

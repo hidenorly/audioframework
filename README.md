@@ -139,6 +139,7 @@ $ make; ./bin/afw_test;
   * [done] file in/out with StreamFile and SteramSource/StreamSink
   * Injection/Capture support
     * [Done] SinkCapture
+    * [Done] SinkInjector
     * [Done] SourceInjector
     * [Done] SourceCapture
     * [Done] FilterInjector

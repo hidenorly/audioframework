@@ -99,6 +99,17 @@ public:
   virtual bool setAudioFormat(AudioFormat audioFormat);
 };
 
+class SinkInjector : public SinkTestBase, public IInjector
+{
+protected:
+  virtual void writePrimitive(IAudioBuffer& buf);
+
+public:
+  SinkInjector(ISink* pSink);
+  virtual ~SinkInjector();
+  virtual bool setAudioFormat(AudioFormat audioFormat);
+};
+
 class SourceTestBase : public ISource
 {
 protected:

@@ -43,7 +43,6 @@ void ICapture::setCaptureBufferSize(int nSamples)
   }
 }
 
-
 void ICapture::captureRead(IAudioBuffer& buf)
 {
   if( mpRefBuf ){
@@ -75,30 +74,6 @@ SinkTestBase::~SinkTestBase()
 {
   delete mpSink; mpSink = nullptr;
 }
-
-SinkCapture::SinkCapture(ISink* pSink) : SinkTestBase(pSink), ICapture( pSink ? pSink->getAudioFormat() : AudioFormat() )
-{
-
-}
-
-SinkCapture::~SinkCapture()
-{
-}
-
-void SinkCapture::writePrimitive(IAudioBuffer& buf)
-{
-  if( mpSink ){
-    mpSink->writePrimitive( buf );
-  }
-  enqueToRefBuf( buf );
-}
-
-bool SinkCapture::setAudioFormat(AudioFormat audioFormat)
-{
-  setCaptureAudioFormat( audioFormat );
-  return mpSink ? mpSink->setAudioFormat( audioFormat )  : false;
-}
-
 
 std::vector<ISink::PRESENTATION> SinkTestBase::getAvailablePresentations(void)
 {
@@ -157,6 +132,53 @@ void SinkTestBase::dump(void)
   }
 }
 
+SinkCapture::SinkCapture(ISink* pSink) : SinkTestBase(pSink), ICapture( pSink ? pSink->getAudioFormat() : AudioFormat() )
+{
+
+}
+
+SinkCapture::~SinkCapture()
+{
+}
+
+void SinkCapture::writePrimitive(IAudioBuffer& buf)
+{
+  if( mpSink ){
+    mpSink->writePrimitive( buf );
+  }
+  enqueToRefBuf( buf );
+}
+
+bool SinkCapture::setAudioFormat(AudioFormat audioFormat)
+{
+  setCaptureAudioFormat( audioFormat );
+  return mpSink ? mpSink->setAudioFormat( audioFormat )  : false;
+}
+
+SinkInjector::SinkInjector(ISink* pSink) : SinkTestBase(pSink), IInjector()
+{
+
+}
+
+SinkInjector::~SinkInjector()
+{
+}
+
+void SinkInjector::writePrimitive(IAudioBuffer& buf)
+{
+  if( getInjectorEnabled() ){
+    dequeFromInjectBuf( buf );
+  }
+  if( mpSink ){
+    mpSink->writePrimitive( buf );
+  }
+}
+
+bool SinkInjector::setAudioFormat(AudioFormat audioFormat)
+{
+  setInjectAudioFormat( audioFormat );
+  return mpSink ? mpSink->setAudioFormat( audioFormat )  : false;
+}
 
 SourceTestBase::SourceTestBase(ISource* pSource) : ISource(), mpSource( pSource )
 {
@@ -167,7 +189,6 @@ SourceTestBase::~SourceTestBase()
 {
   delete mpSource; mpSource = nullptr;
 };
-
 
 SourceCapture::SourceCapture(ISource* pSource) : SourceTestBase( pSource), ICapture( pSource ? pSource->getAudioFormat() : AudioFormat() )
 {
@@ -266,7 +287,7 @@ bool IInjector::getInjectorEnabled(void)
   return mInjectorEnabled;
 }
 
-SourceInjector::SourceInjector(ISource* pSource):IInjector(),SourceTestBase(pSource)
+SourceInjector::SourceInjector(ISource* pSource):IInjector(), SourceTestBase(pSource)
 {
 
 }

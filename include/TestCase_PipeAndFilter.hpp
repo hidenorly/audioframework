@@ -61,6 +61,8 @@ protected:
   void testSourceInjector(void);
   void testFilterCapture(void);
   void testFilterInjector(void);
+
+  void testResourceManager(void);
 };
 
 #endif /* __TESTCASE_PIPEANDFILTER_HPP__ */

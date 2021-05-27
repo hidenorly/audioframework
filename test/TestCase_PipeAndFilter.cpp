@@ -44,6 +44,7 @@
 #include "DelayFilter.hpp"
 #include "Testability.hpp"
 #include "Util.hpp"
+#include "ResourceManager.hpp"
 
 #include <iostream>
 #include <filesystem>
@@ -1180,6 +1181,36 @@ TEST_F(TestCase_PipeAndFilter, testFilterInjector)
   delete pSource; pSource = nullptr;
 }
 
+TEST_F(TestCase_PipeAndFilter, testResourceManager)
+{
+  CpuResourceManager::admin_setResource(1000);
+  IResourceManager* pResourceManager = CpuResourceManager::getInstance();
+  EXPECT_NE( pResourceManager, nullptr);
+
+  int nResourceId1 = pResourceManager->acquire(500);
+  EXPECT_NE( nResourceId1, -1 );
+  EXPECT_EQ( nResourceId1, 0 );
+
+  int nResourceId2 = pResourceManager->acquire(300);
+  EXPECT_NE( nResourceId2, -1 );
+  EXPECT_EQ( nResourceId2, 1 );
+
+  int nResourceId3 = pResourceManager->acquire(300);
+  EXPECT_EQ( nResourceId3, -1 );
+
+  EXPECT_TRUE( pResourceManager->release(nResourceId2) );
+
+  int nResourceId4 = pResourceManager->acquire(500);
+  EXPECT_NE( nResourceId4, -1 );
+  EXPECT_EQ( nResourceId4, 2 );
+
+  EXPECT_TRUE( pResourceManager->release(nResourceId1) );
+  EXPECT_FALSE( pResourceManager->release(nResourceId3) );
+  EXPECT_TRUE( pResourceManager->release(nResourceId4) );
+
+  CpuResourceManager::admin_terminate();
+  pResourceManager = nullptr;
+}
 
 int main(int argc, char **argv)
 {

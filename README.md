@@ -131,7 +131,9 @@ $ make; ./bin/afw_test;
     * Strategy Plug-in manager
     * Util impl. plug-in : SRC, Encoding, Channel, Mixer, Volume
 * ResourceManager
-  * CPU resource manager
+  * [done] CPU resource manager
+  * Utilize CPU resource manager in Pipe's filter setup
+  * Utilize CPU resource manager in Encode/Decoder setup
 * Strategy
   * [] Add dynamic pipe change
 * Testability support

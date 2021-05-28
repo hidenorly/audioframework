@@ -1212,6 +1212,54 @@ TEST_F(TestCase_PipeAndFilter, testResourceManager)
   pResourceManager = nullptr;
 }
 
+TEST_F(TestCase_PipeAndFilter, testResourceManager2)
+{
+  class DummyConsumer:public IResourceConsumer
+  {
+  public:
+    DummyConsumer(){};
+    virtual ~DummyConsumer(){};
+    virtual int stateResourceConsumption(void){ return 300; };
+  };
+
+  CpuResourceManager::admin_setResource(1000);
+  IResourceManager* pResourceManager = CpuResourceManager::getInstance();
+  EXPECT_NE( pResourceManager, nullptr);
+
+  DummyConsumer* consumer1 = new DummyConsumer();
+  EXPECT_TRUE( pResourceManager->acquire(consumer1) );
+  EXPECT_FALSE( pResourceManager->acquire(consumer1) );
+
+  DummyConsumer* consumer2 = new DummyConsumer();
+  EXPECT_TRUE( pResourceManager->acquire(consumer2) );
+
+  DummyConsumer* consumer3 = new DummyConsumer();
+  EXPECT_TRUE( pResourceManager->acquire(consumer3) );
+
+  DummyConsumer* consumer4 = new DummyConsumer();
+  EXPECT_FALSE( pResourceManager->acquire(consumer4) );
+
+  EXPECT_TRUE( pResourceManager->release(consumer3) );
+  EXPECT_FALSE( pResourceManager->release(consumer3) );
+  EXPECT_TRUE( pResourceManager->acquire(consumer4) );
+
+  delete consumer4; consumer4=nullptr;
+
+  DummyConsumer* consumer5 = new DummyConsumer();
+  EXPECT_TRUE( pResourceManager->acquire(consumer5) );
+  EXPECT_FALSE( pResourceManager->release(consumer4) );
+  EXPECT_FALSE( pResourceManager->release(consumer3) );
+
+  delete consumer1; consumer1=nullptr;
+  delete consumer2; consumer2=nullptr;
+
+  CpuResourceManager::admin_terminate();
+  pResourceManager = nullptr;
+
+  delete consumer3; consumer3=nullptr;
+  delete consumer5; consumer5=nullptr;
+}
+
 int main(int argc, char **argv)
 {
   ::testing::InitGoogleTest(&argc, argv);

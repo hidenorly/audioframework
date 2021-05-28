@@ -132,6 +132,7 @@ $ make; ./bin/afw_test;
     * Util impl. plug-in : SRC, Encoding, Channel, Mixer, Volume
 * ResourceManager
   * [done] CPU resource manager
+    * [done] ResourceConsumer with ResourceManager
   * Utilize CPU resource manager in Pipe's filter setup
   * Utilize CPU resource manager in Encode/Decoder setup
 * Strategy

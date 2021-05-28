@@ -19,11 +19,15 @@
 
 #include <map>
 #include <mutex>
+#include <vector>
+
+class IResourceConsumer;
 
 class IResourceManager
 {
 protected:
   std::map<int, int> mResources;
+  std::vector<IResourceConsumer*> mResourceConsumers;
   std::mutex mMutexResource;
   int mId;
   int mResource;
@@ -35,6 +39,10 @@ public:
   // acquire: return acquired resource id : -1 means fail.
   virtual int acquire(int requiredResource);
   virtual bool release(int nId);
+  virtual bool acquire(IResourceConsumer& consumer);
+  virtual bool acquire(IResourceConsumer* consumer);
+  virtual bool release(IResourceConsumer& consumer);
+  virtual bool release(IResourceConsumer* consumer);
 };
 
 class CpuResourceManager;
@@ -51,4 +59,24 @@ public:
   static void admin_setResource(int resource);
   static void admin_terminate(void);
 };
+
+class IResourceConsumer
+{
+protected:
+  int mResourceConsumptionId;
+  IResourceManager* mpResourceManager;
+
+  IResourceConsumer():mpResourceManager(nullptr), mResourceConsumptionId(-1){};
+  virtual ~IResourceConsumer();
+
+protected:
+  friend IResourceManager;
+
+  virtual int stateResourceConsumption(void) = 0;
+  void storeResourceConsumptionId(int resourceId, IResourceManager* pResourceManager = nullptr);
+  int restoreResourceConsumptionId(void);
+  bool isResourceConsumed(void);
+  void clearResourceManager(void);
+};
+
 #endif /* __RESOURCEMANAGER_HPP__ */

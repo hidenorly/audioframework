@@ -15,13 +15,13 @@
 */
 
 #include "PipedSink.hpp"
-#include "PipeManager.hpp"
+#include "PipeMultiThread.hpp"
 #include <cassert>
 
 PipedSink::PipedSink() : ISink(), mpSink(nullptr)
 {
   mpInterPipeBridge = new InterPipeBridge();
-  mpPipe = new PipeManager();
+  mpPipe = new PipeMultiThread();
   mpPipe->attachSource ( mpInterPipeBridge );
 }
 

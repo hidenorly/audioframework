@@ -26,7 +26,7 @@
 #include "FilterExample.hpp"
 #include "FifoBuffer.hpp"
 #include "InterPipeBridge.hpp"
-#include "PipeManager.hpp"
+#include "PipeMultiThread.hpp"
 #include "MultipleSink.hpp"
 #include "Stream.hpp"
 #include "StreamSink.hpp"
@@ -234,9 +234,9 @@ TEST_F(TestCase_PipeAndFilter, testInterPipeBridge)
   delete pSource; pSource = nullptr;
 }
 
-TEST_F(TestCase_PipeAndFilter, testPipeManager)
+TEST_F(TestCase_PipeAndFilter, testPipeMultiThread)
 {
-  IPipe* pPipe = new PipeManager();
+  IPipe* pPipe = new PipeMultiThread();
 
   ISink* pSink = new Sink();
   pSink->setAudioFormat( AudioFormat(

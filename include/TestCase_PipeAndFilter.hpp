@@ -33,7 +33,7 @@ protected:
   void testFifoBuffer(void);
   void testInterPipeBridge(void);
 
-  void testPipeManager(void);
+  void testPipeMultiThread(void);
   void testMultipleSink(void);
   void testStreamSink(void);
   void testStreamSink_DifferentFormat(void);

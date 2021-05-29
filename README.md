@@ -18,7 +18,7 @@ The expection is to implement android audio hal, surround amplifier, mediaplayer
     * Pipes
       * Different window size filters are supported.
         * LCM window size processing by Pipe
-        * Minimum window size processing by PipeManager with multi threads & FIFO buffer connected among them.
+        * Minimum window size processing by PipeMultiThread which is multi threads & FIFO buffer connected among them.
           * Same window size is running in same thread
           * But the different window size will create different pipe and interconnected by FiFO Buffers automatically
       * PipeMixer
@@ -61,7 +61,7 @@ The expection is to implement android audio hal, surround amplifier, mediaplayer
  * Test case framework is gtest.
     * TestCase_PipeAndFilter
       * Basic Pipe, Source, Sink setup.
-      * Basic PipeManager, Source, Sink.
+      * Basic PipeMultiThread, Source, Sink.
       * MultiSink
       * StreamSource, StreamSink
 

@@ -21,11 +21,11 @@
 #include "InterPipeBridge.hpp"
 #include <vector>
 
-class PipeManager : public IPipe
+class PipeMultiThread : public IPipe
 {
 public:
-  PipeManager();
-  virtual ~PipeManager();
+  PipeMultiThread();
+  virtual ~PipeMultiThread();
 
   virtual void addFilterToHead(IFilter* pFilter);
   virtual void addFilterToTail(IFilter* pFilter);

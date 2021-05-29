@@ -15,24 +15,24 @@
 */
 
 #include "Pipe.hpp"
-#include "PipeManager.hpp"
+#include "PipeMultiThread.hpp"
 #include "InterPipeBridge.hpp"
 #include <vector>
 #include <iostream>
 #include <algorithm>
 
-PipeManager::PipeManager() : mpSink(nullptr), mpSource(nullptr), mSinkAttached(false), mSourceAttached(false)
+PipeMultiThread::PipeMultiThread() : mpSink(nullptr), mpSource(nullptr), mSinkAttached(false), mSourceAttached(false)
 {
 
 }
 
-PipeManager::~PipeManager()
+PipeMultiThread::~PipeMultiThread()
 {
   stop();
   clearFilters();
 }
 
-IPipe* PipeManager::getHeadPipe(bool bCreateInstance)
+IPipe* PipeMultiThread::getHeadPipe(bool bCreateInstance)
 {
   IPipe* result = nullptr;
   if( bCreateInstance && mPipes.empty() ){
@@ -41,7 +41,7 @@ IPipe* PipeManager::getHeadPipe(bool bCreateInstance)
   return mPipes.empty() ? nullptr : mPipes.front();
 }
 
-IPipe* PipeManager::getTailPipe(bool bCreateInstance)
+IPipe* PipeMultiThread::getTailPipe(bool bCreateInstance)
 {
   if( bCreateInstance && mPipes.empty() ){
     mPipes.push_back( new Pipe() );
@@ -49,7 +49,7 @@ IPipe* PipeManager::getTailPipe(bool bCreateInstance)
   return mPipes.empty() ? nullptr : mPipes.back();
 }
 
-void PipeManager::createAndConnectPipesToHead(IPipe* pCurrentPipe)
+void PipeMultiThread::createAndConnectPipesToHead(IPipe* pCurrentPipe)
 {
   if( pCurrentPipe && !mPipes.empty() ){
     IPipe* pNewPipe = new Pipe();
@@ -65,7 +65,7 @@ void PipeManager::createAndConnectPipesToHead(IPipe* pCurrentPipe)
   }
 }
 
-void PipeManager::createAndConnectPipesToTail(IPipe* pCurrentPipe)
+void PipeMultiThread::createAndConnectPipesToTail(IPipe* pCurrentPipe)
 {
   if( pCurrentPipe && !mPipes.empty() ){
     IPipe* pNewPipe = new Pipe();
@@ -81,7 +81,7 @@ void PipeManager::createAndConnectPipesToTail(IPipe* pCurrentPipe)
   }
 }
 
-void PipeManager::addFilterToHead(IFilter* pFilter)
+void PipeMultiThread::addFilterToHead(IFilter* pFilter)
 {
   if( pFilter ){
     IPipe* pPipe = getHeadPipe();
@@ -98,7 +98,7 @@ void PipeManager::addFilterToHead(IFilter* pFilter)
   }
 }
 
-void PipeManager::addFilterToTail(IFilter* pFilter)
+void PipeMultiThread::addFilterToTail(IFilter* pFilter)
 {
   if( pFilter ){
     IPipe* pPipe = getTailPipe();
@@ -115,7 +115,7 @@ void PipeManager::addFilterToTail(IFilter* pFilter)
   }
 }
 
-IPipe* PipeManager::findPipe(IFilter* pFilter)
+IPipe* PipeMultiThread::findPipe(IFilter* pFilter)
 {
   IPipe* result = nullptr;
 
@@ -131,7 +131,7 @@ IPipe* PipeManager::findPipe(IFilter* pFilter)
   return result;
 }
 
-bool PipeManager::isFilterIncluded(IFilter* pFilter)
+bool PipeMultiThread::isFilterIncluded(IFilter* pFilter)
 {
   bool result = false;
 
@@ -147,7 +147,7 @@ bool PipeManager::isFilterIncluded(IFilter* pFilter)
   return result;
 }
 
-void PipeManager::addFilterAfterFilter(IFilter* pFilter, IFilter* pPosition)
+void PipeMultiThread::addFilterAfterFilter(IFilter* pFilter, IFilter* pPosition)
 {
   if( pFilter && pPosition ){
     IPipe* pPipe = findPipe( pFilter );
@@ -164,7 +164,7 @@ void PipeManager::addFilterAfterFilter(IFilter* pFilter, IFilter* pPosition)
   }
 }
 
-ISink* PipeManager::attachSink(ISink* pSink)
+ISink* PipeMultiThread::attachSink(ISink* pSink)
 {
   ISink* pResult = mpSink;
   mpSink = pSink;
@@ -179,7 +179,7 @@ ISink* PipeManager::attachSink(ISink* pSink)
   return pResult;
 }
 
-ISink* PipeManager::detachSink(void)
+ISink* PipeMultiThread::detachSink(void)
 {
   ISink* pResult = mpSink;
   mpSink = nullptr;
@@ -194,7 +194,7 @@ ISink* PipeManager::detachSink(void)
   return pResult;
 }
 
-ISource* PipeManager::attachSource(ISource* pSource)
+ISource* PipeMultiThread::attachSource(ISource* pSource)
 {
   ISource* pResult = mpSource;
   mpSource = pSource;
@@ -209,7 +209,7 @@ ISource* PipeManager::attachSource(ISource* pSource)
   return pResult;
 }
 
-ISource* PipeManager::detachSource(void)
+ISource* PipeMultiThread::detachSource(void)
 {
   ISource* pResult = mpSource;
   mpSource = nullptr;
@@ -224,14 +224,14 @@ ISource* PipeManager::detachSource(void)
   return pResult;
 }
 
-void PipeManager::run(void)
+void PipeMultiThread::run(void)
 {
   for( auto& pPipe : mPipes ){
     pPipe->run();
   }
 }
 
-void PipeManager::stop(void)
+void PipeMultiThread::stop(void)
 {
   for( auto& pPipe : mPipes ){
     for( auto& pInterPipeBridge : mInterPipeBridges ) {
@@ -241,7 +241,7 @@ void PipeManager::stop(void)
   }
 }
 
-bool PipeManager::isRunning(void)
+bool PipeMultiThread::isRunning(void)
 {
   bool bRunning = false;
 
@@ -253,9 +253,9 @@ bool PipeManager::isRunning(void)
 }
 
 
-void PipeManager::dump(void)
+void PipeMultiThread::dump(void)
 {
-  std::cout << std::endl << "PipeManager::dump" << std::endl;
+  std::cout << std::endl << "PipeMultiThread::dump" << std::endl;
   std::cout << "Interpipe bridges:" << std::endl;
   for( auto& pInterPipeBridge : mInterPipeBridges ){
     std::cout << pInterPipeBridge << std::endl;
@@ -268,7 +268,7 @@ void PipeManager::dump(void)
   }
 }
 
-void PipeManager::clearFilters(void)
+void PipeMultiThread::clearFilters(void)
 {
   for( auto& pPipe : mPipes ){
     pPipe->clearFilters();
@@ -282,13 +282,13 @@ void PipeManager::clearFilters(void)
   mInterPipeBridges.clear();
 }
 
-AudioFormat PipeManager::getFilterAudioFormat(void)
+AudioFormat PipeMultiThread::getFilterAudioFormat(void)
 {
-  throw std::runtime_error( "PipeManager::getFilterAudioFormat() is unsupported" );
+  throw std::runtime_error( "PipeMultiThread::getFilterAudioFormat() is unsupported" );
   return AudioFormat();
 }
 
-int PipeManager::getWindowSizeUsec(void)
+int PipeMultiThread::getWindowSizeUsec(void)
 {
   int result = 0;
 
@@ -302,7 +302,7 @@ int PipeManager::getWindowSizeUsec(void)
   return result;
 }
 
-void PipeManager::ensureSourceSink(void)
+void PipeMultiThread::ensureSourceSink(void)
 {
   if( !mSourceAttached && mpSource ){
     IPipe* pHeadPipe = getHeadPipe();
@@ -320,7 +320,7 @@ void PipeManager::ensureSourceSink(void)
   }
 }
 
-int PipeManager::getLatencyUSec(void)
+int PipeMultiThread::getLatencyUSec(void)
 {
   int nLatency = 0;
   for( auto& pPipe : mPipes ){

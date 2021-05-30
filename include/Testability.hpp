@@ -144,7 +144,7 @@ public:
   virtual ~SourceInjector();
 };
 
-class FilterTestBase : public IFilter
+class FilterTestBase : public Filter
 {
 protected:
   int mWindowSize;

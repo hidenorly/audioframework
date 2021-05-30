@@ -134,6 +134,7 @@ $ make; ./bin/afw_test;
   * [done] CPU resource manager
     * [done] ResourceConsumer with ResourceManager
   * Utilize CPU resource manager in Pipe's filter setup
+    * [done] Filter with ResourceConsumer
   * Utilize CPU resource manager in Encode/Decoder setup
 * Strategy
   * [] Add dynamic pipe change

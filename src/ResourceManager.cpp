@@ -16,6 +16,33 @@
 
 #include "ResourceManager.hpp"
 
+
+
+#ifndef __USE_DUMMY_CPU_RESOURCE_IMPL_
+#define __USE_DUMMY_CPU_RESOURCE_IMPL_ 1
+#endif /* __USE_DUMMY_CPU_RESOURCE_IMPL_ */
+
+#if __USE_DUMMY_CPU_RESOURCE_IMPL_
+#ifndef CPU_RESOURCE_VALUE
+#define CPU_RESOURCE_VALUE 1000
+#endif /* CPU_RESOURCE_VALUE */
+
+int CpuResource::getComputingResource(void)
+{
+  return CPU_RESOURCE_VALUE;
+}
+#endif /* __USE_DUMMY_CPU_RESOURCE_IMPL_ */
+
+int CpuResource::convertFromProcessingTimeToConsumptionResource(int processingTimeUsec)
+{
+  return (int)((float)getComputingResource() * (float)processingTimeUsec / 1000000.0f);
+}
+
+int CpuResource::convertFromConsumptionResourceToProcessingTime(int consumptionResource)
+{
+  return (int)( 1000000.0f * (float)consumptionResource / (float)getComputingResource() );
+}
+
 void IResourceConsumer::storeResourceConsumptionId(int resourceId, IResourceManager* pResourceManager)
 {
   mResourceConsumptionId = resourceId;

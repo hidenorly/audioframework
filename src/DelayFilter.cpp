@@ -28,11 +28,6 @@ std::vector<AudioFormat> DelayFilter::getSupportedAudioFormats(void)
     return audioFormats;
 }
 
-int DelayFilter::getExpectedProcessingUSec(void)
-{
-  return DEFAULT_PROCESSING_TIME_USEC;
-}
-
 int DelayFilter::getRequiredWindowSizeUsec(void)
 {
   return mWindowSize;

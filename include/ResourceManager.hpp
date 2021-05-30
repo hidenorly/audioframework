@@ -21,6 +21,15 @@
 #include <mutex>
 #include <vector>
 
+class CpuResource
+{
+protected:
+  static int getComputingResource(void);
+public:
+  static int convertFromProcessingTimeToConsumptionResource(int processingTimeUsec);
+  static int convertFromConsumptionResourceToProcessingTime(int consumptionResource);
+};
+
 class IResourceConsumer;
 
 class IResourceManager

@@ -23,7 +23,7 @@
 #include <map>
 
 
-class DelayFilter : public IFilter
+class DelayFilter : public Filter
 {
 protected:
   int mWindowSize;
@@ -38,8 +38,6 @@ public:
   virtual std::vector<AudioFormat> getSupportedAudioFormats(void);
 
   virtual void process(AudioBuffer& inBuf, AudioBuffer& outBuf);
-
-  virtual int getExpectedProcessingUSec(void);
   virtual int getRequiredWindowSizeUsec(void);
 };
 

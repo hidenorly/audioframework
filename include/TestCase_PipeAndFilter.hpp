@@ -63,7 +63,8 @@ protected:
   void testFilterInjector(void);
 
   void testResourceManager(void);
-  void testResourceManager2(void);
+  void testResourceManager_ResourceConsumer(void);
+  void testResourceManager_Filter(void);
 };
 
 #endif /* __TESTCASE_PIPEANDFILTER_HPP__ */

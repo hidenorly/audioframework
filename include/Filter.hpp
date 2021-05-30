@@ -21,12 +21,14 @@
 #include "AudioFormat.hpp"
 #include <vector>
 #include "PlugInManager.hpp"
+#include "ResourceManager.hpp"
 
-class IFilter : public AudioBase
+class IFilter : public AudioBase, public IResourceConsumer
 {
 public:
   static inline const int DEFAULT_WINDOW_SIZE_USEC = 5000; // 5msec
 
+  IFilter();
   virtual ~IFilter();
   virtual void process(AudioBuffer& inBuf, AudioBuffer& outBuf);
   virtual int getRequiredWindowSizeUsec(void);
@@ -42,6 +44,7 @@ public:
   Filter();
   virtual ~Filter();
   virtual std::vector<AudioFormat> getSupportedAudioFormats(void);
+  virtual int stateResourceConsumption(void);
   virtual int getExpectedProcessingUSec(void);
 };
 

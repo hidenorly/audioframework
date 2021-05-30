@@ -16,6 +16,11 @@
 
 #include "Filter.hpp"
 
+IFilter::IFilter():IResourceConsumer()
+{
+
+}
+
 IFilter::~IFilter()
 {
 
@@ -59,6 +64,10 @@ int Filter::getExpectedProcessingUSec(void)
   return DEFAULT_PROCESSING_TIME_USEC;
 }
 
+int Filter::stateResourceConsumption(void)
+{
+  return CpuResource::convertFromProcessingTimeToConsumptionResource( getExpectedProcessingUSec() );
+}
 
 
 FilterPlugIn::FilterPlugIn()

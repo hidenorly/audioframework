@@ -24,7 +24,7 @@
 
 #if __USE_DUMMY_CPU_RESOURCE_IMPL_
 #ifndef CPU_RESOURCE_VALUE
-#define CPU_RESOURCE_VALUE 1000
+#define CPU_RESOURCE_VALUE 1000000 // 1000DMIPS * 1000
 #endif /* CPU_RESOURCE_VALUE */
 
 int CpuResource::getComputingResource(void)

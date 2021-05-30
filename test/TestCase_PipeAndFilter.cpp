@@ -1267,16 +1267,17 @@ TEST_F(TestCase_PipeAndFilter, testResourceManager_Filter)
   public:
     DummyConsumer():Filter(){};
     virtual ~DummyConsumer(){};
-    virtual int getExpectedProcessingUSec(void){
-      return (int)(300000.0f*(float)getRequiredWindowSizeUsec()/1000000.0f); // 300msec -> 1000DMIPS*300msec/1000msec = 300DMIPS
+    virtual int stateResourceConsumption(void){
+      return (int)((float)CpuResource::getComputingResource()/3.333f);
     };
   };
 
-  CpuResourceManager::admin_setResource(1000);
+  CpuResourceManager::admin_setResource( CpuResource::getComputingResource() );
   IResourceManager* pResourceManager = CpuResourceManager::getInstance();
   EXPECT_NE( pResourceManager, nullptr);
 
   DummyConsumer* consumer1 = new DummyConsumer();
+  std::cout << consumer1->stateResourceConsumption() << std::endl;
   EXPECT_TRUE( pResourceManager->acquire(consumer1) );
   EXPECT_FALSE( pResourceManager->acquire(consumer1) );
 

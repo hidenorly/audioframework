@@ -149,21 +149,21 @@ class FilterTestBase : public Filter
 protected:
   int mWindowSize;
   int mLatency;
-  int mProcessingTime;
+  int mProcessingResource;
 
 public:
-  FilterTestBase(int windowSize = DEFAULT_WINDOW_SIZE_USEC, int latencyUsec = DEFAULT_WINDOW_SIZE_USEC, int processingTimeUsec = Filter::DEFAULT_PROCESSING_TIME_USEC) : mWindowSize(windowSize), mLatency(latencyUsec), mProcessingTime(processingTimeUsec){};
+  FilterTestBase(int windowSize = DEFAULT_WINDOW_SIZE_USEC, int latencyUsec = DEFAULT_WINDOW_SIZE_USEC, int processingResource = Filter::DEFAULT_REQUIRED_PROCESSING_RESOURCE) : mWindowSize(windowSize), mLatency(latencyUsec), mProcessingResource(processingResource){};
   virtual ~FilterTestBase(){};
 
   virtual int getRequiredWindowSizeUsec(void){ return mWindowSize; };
   virtual int getLatencyUSec(void){ return mLatency; };
-  virtual int getExpectedProcessingUSec(void){ return mProcessingTime; };
+  virtual int stateResourceConsumption(void){ return mProcessingResource; };
 };
 
 class FilterCapture : public FilterTestBase, public ICapture
 {
 public:
-  FilterCapture(int windowSize = DEFAULT_WINDOW_SIZE_USEC, int latencyUsec = DEFAULT_WINDOW_SIZE_USEC, int processingTimeUsec = Filter::DEFAULT_PROCESSING_TIME_USEC) : ICapture(), FilterTestBase(windowSize, latencyUsec, processingTimeUsec){};
+  FilterCapture(int windowSize = DEFAULT_WINDOW_SIZE_USEC, int latencyUsec = DEFAULT_WINDOW_SIZE_USEC, int processingResource = Filter::DEFAULT_REQUIRED_PROCESSING_RESOURCE) : ICapture(), FilterTestBase(windowSize, latencyUsec, processingResource){};
   virtual ~FilterCapture(){};
   virtual void process(AudioBuffer& inBuf, AudioBuffer& outBuf);
 };
@@ -171,7 +171,7 @@ public:
 class FilterInjector : public FilterTestBase, public IInjector
 {
 public:
-  FilterInjector(int windowSize = DEFAULT_WINDOW_SIZE_USEC, int latencyUsec = DEFAULT_WINDOW_SIZE_USEC, int processingTimeUsec = Filter::DEFAULT_PROCESSING_TIME_USEC) : IInjector(), FilterTestBase(windowSize, latencyUsec, processingTimeUsec){};
+  FilterInjector(int windowSize = DEFAULT_WINDOW_SIZE_USEC, int latencyUsec = DEFAULT_WINDOW_SIZE_USEC, int processingResource = Filter::DEFAULT_REQUIRED_PROCESSING_RESOURCE) : IInjector(), FilterTestBase(windowSize, latencyUsec, processingResource){};
   virtual ~FilterInjector(){};
   virtual void process(AudioBuffer& inBuf, AudioBuffer& outBuf);
 };

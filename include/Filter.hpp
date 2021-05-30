@@ -31,19 +31,23 @@ public:
   IFilter();
   virtual ~IFilter();
   virtual void process(AudioBuffer& inBuf, AudioBuffer& outBuf);
+  // per-process() window size
   virtual int getRequiredWindowSizeUsec(void);
+  // per-process() latency
   virtual int getLatencyUSec(void);
+  // per-sample() processing time
   virtual int getExpectedProcessingUSec(void) = 0;
 };
 
 class Filter : public IFilter
 {
 public:
-  static const int DEFAULT_PROCESSING_TIME_USEC = 100; // 0.1msec
+  static const int DEFAULT_REQUIRED_PROCESSING_RESOURCE = 100; // 0.1DMIPS
 
   Filter();
   virtual ~Filter();
   virtual std::vector<AudioFormat> getSupportedAudioFormats(void);
+  // per-second processing resource (DMIPS*1000)
   virtual int stateResourceConsumption(void);
   virtual int getExpectedProcessingUSec(void);
 };

@@ -61,12 +61,12 @@ std::vector<AudioFormat> Filter::getSupportedAudioFormats(void)
 
 int Filter::getExpectedProcessingUSec(void)
 {
-  return DEFAULT_PROCESSING_TIME_USEC;
+  return CpuResource::convertFromConsumptionResourceToProcessingTime( (float)stateResourceConsumption() * 1000000.0f / (float)getRequiredWindowSizeUsec() );
 }
 
 int Filter::stateResourceConsumption(void)
 {
-  return CpuResource::convertFromProcessingTimeToConsumptionResource( (1000000.0f/(float)getRequiredWindowSizeUsec()) * getExpectedProcessingUSec() );
+  return DEFAULT_REQUIRED_PROCESSING_RESOURCE; //CpuResource::convertFromProcessingTimeToConsumptionResource( (1000000.0f/(float)getRequiredWindowSizeUsec()) * getExpectedProcessingUSec() );
 }
 
 

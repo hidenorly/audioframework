@@ -23,9 +23,9 @@
 
 class CpuResource
 {
-protected:
-  static int getComputingResource(void);
 public:
+  // DMIPS * 1000
+  static int getComputingResource(void);
   static int convertFromProcessingTimeToConsumptionResource(int processingTimeUsec);
   static int convertFromConsumptionResourceToProcessingTime(int consumptionResource);
 };
@@ -82,7 +82,7 @@ protected:
 protected:
   friend IResourceManager;
 
-  // state required computing power as per-second (DMIPS)
+  // state required computing power as per-second (DMIPS*1000)
   virtual int stateResourceConsumption(void) = 0;
   void storeResourceConsumptionId(int resourceId, IResourceManager* pResourceManager = nullptr);
   int restoreResourceConsumptionId(void);

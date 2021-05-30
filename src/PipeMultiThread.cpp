@@ -336,6 +336,8 @@ int PipeMultiThread::stateResourceConsumption(void)
   for( auto& pPipe : mPipes ){
     nProcessingResource += pPipe->stateResourceConsumption();
   }
+  nProcessingResource += ( mpSink ? mpSink->stateResourceConsumption() : 0 );
+  nProcessingResource += ( mpSource ? mpSource->stateResourceConsumption() : 0 );
 
   return nProcessingResource;
 }

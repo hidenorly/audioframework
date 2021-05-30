@@ -18,6 +18,7 @@
 #define __PIPEANDFILTER_COMMON_HPP__
 
 #include "AudioFormat.hpp"
+#include "ResourceManager.hpp"
 #include <string>
 
 class IUnlockable
@@ -26,7 +27,7 @@ public:
   virtual void unlock(void) = 0;
 };
 
-class ISourceSinkCommon : public AudioBase
+class ISourceSinkCommon : public AudioBase, public IResourceConsumer
 {
 public:
   virtual std::string toString(void){ return std::string("ISourceSinkCommon"); };

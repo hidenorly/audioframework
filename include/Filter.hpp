@@ -37,7 +37,6 @@ public:
   virtual int getLatencyUSec(void);
   // per-sample() processing time
   virtual int getExpectedProcessingUSec(void) = 0;
-  virtual int stateResourceConsumption(void) = 0;
 };
 
 class Filter : public IFilter

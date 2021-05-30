@@ -209,6 +209,8 @@ int Pipe::stateResourceConsumption(void)
   for( auto& pFilter : mFilters ) {
     nProcessingResource += pFilter->stateResourceConsumption();
   }
+  nProcessingResource += ( mpSink ? mpSink->stateResourceConsumption() : 0 );
+  nProcessingResource += ( mpSource ? mpSource->stateResourceConsumption() : 0 );
 
   return nProcessingResource;
 }

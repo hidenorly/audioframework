@@ -109,3 +109,13 @@ bool MultipleSink::setVolume(float volumePercentage)
   return bResult;
 }
 
+int MultipleSink::stateResourceConsumption(void)
+{
+  int nProcessingResource = 0;
+  for(auto& pSink : mpSinks ){
+    nProcessingResource += pSink->stateResourceConsumption();
+  }
+
+  return nProcessingResource;
+}
+

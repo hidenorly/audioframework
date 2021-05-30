@@ -47,6 +47,7 @@ public:
   virtual bool setVolume(float volumePercentage);
 
   virtual void dump(void);
+  virtual int stateResourceConsumption(void);
 };
 
 #endif /* __MULTIPLESINK_HPP__ */

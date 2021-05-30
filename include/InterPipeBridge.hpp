@@ -44,6 +44,7 @@ public:
   virtual AudioFormat getAudioFormat(void);
 
   virtual void unlock(void){ mFifoBuffer.unlock(); };
+  virtual int stateResourceConsumption(void);
 };
 
 #endif /* __INTERPIPEBRIDGE_HPP__ */

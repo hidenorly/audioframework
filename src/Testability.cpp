@@ -132,6 +132,12 @@ void SinkTestBase::dump(void)
   }
 }
 
+int SinkTestBase::stateResourceConsumption(void)
+{
+  return mpSink ? mpSink->stateResourceConsumption() : ISink::stateResourceConsumption();
+}
+
+
 SinkCapture::SinkCapture(ISink* pSink) : SinkTestBase(pSink), ICapture( pSink ? pSink->getAudioFormat() : AudioFormat() )
 {
 

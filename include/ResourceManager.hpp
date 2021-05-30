@@ -83,11 +83,13 @@ protected:
   friend IResourceManager;
 
   // state required computing power as per-second (DMIPS*1000) (in case of CpuResource)
-  virtual int stateResourceConsumption(void) = 0;
   void storeResourceConsumptionId(int resourceId, IResourceManager* pResourceManager = nullptr);
   int restoreResourceConsumptionId(void);
   bool isResourceConsumed(void);
   void clearResourceManager(void);
+
+public:
+  virtual int stateResourceConsumption(void) = 0;
 };
 
 #endif /* __RESOURCEMANAGER_HPP__ */

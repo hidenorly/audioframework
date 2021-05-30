@@ -108,7 +108,6 @@ int64_t ISink::getSinkPts(void)
   return mSinkPosition;
 }
 
-
 Sink::Sink():ISink()
 {
   mpBuf = new AudioBuffer();

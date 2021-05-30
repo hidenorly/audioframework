@@ -157,3 +157,12 @@ void PipedSink::clearFilters(void)
     return mpPipe->clearFilters();
   }
 }
+
+int PipedSink::stateResourceConsumption(void)
+{
+  int nProcessingResource = 0;
+  nProcessingResource += ( mpSink ? mpSink->stateResourceConsumption() : 0 );
+  nProcessingResource += ( mpPipe ? mpPipe->stateResourceConsumption() : 0 );
+
+  return nProcessingResource;
+}

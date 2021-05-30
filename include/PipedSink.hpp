@@ -51,6 +51,8 @@ public:
 
   virtual bool setAudioFormat(AudioFormat audioFormat);
   virtual AudioFormat getAudioFormat(void);
+
+  virtual int stateResourceConsumption(void);
 };
 
 #endif /* __PIPEDSINK_HPP__ */

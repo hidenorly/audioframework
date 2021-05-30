@@ -76,6 +76,7 @@ public:
   virtual int64_t getSinkPts(void);
 
   virtual void dump(void) = 0;
+  virtual int stateResourceConsumption(void){return 0;};
 };
 
 class Sink : public ISink

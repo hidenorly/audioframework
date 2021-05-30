@@ -86,6 +86,7 @@ public:
   virtual int64_t getSinkPts(void);
 
   virtual void dump(void);
+  virtual int stateResourceConsumption(void);
 };
 
 class SinkCapture : public SinkTestBase, public ICapture

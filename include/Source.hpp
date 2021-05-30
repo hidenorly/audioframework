@@ -42,6 +42,7 @@ public:
   virtual int getLatencyUSec(void);
   virtual int64_t getSourcePts(void);
   virtual AudioFormat getAudioFormat(void);
+  virtual int stateResourceConsumption(void){return 0;};
 
   friend SourceCapture;
   friend SourceInjector;

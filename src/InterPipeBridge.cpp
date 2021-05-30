@@ -49,3 +49,8 @@ AudioFormat InterPipeBridge::getAudioFormat(void)
 {
   return mFifoBuffer.getAudioFormat();
 }
+
+int InterPipeBridge::stateResourceConsumption(void)
+{
+  return 0;
+}

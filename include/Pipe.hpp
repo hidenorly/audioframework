@@ -46,7 +46,6 @@ public:
   virtual AudioFormat getFilterAudioFormat(void) = 0;
   virtual int getWindowSizeUsec(void) = 0;
   virtual int getLatencyUSec(void) = 0;
-  virtual int stateResourceConsumption(void) = 0;
 };
 
 class Pipe : public IPipe

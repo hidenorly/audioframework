@@ -329,3 +329,13 @@ int PipeMultiThread::getLatencyUSec(void)
 
   return nLatency;
 }
+
+int PipeMultiThread::stateResourceConsumption(void)
+{
+  int nProcessingResource = 0;
+  for( auto& pPipe : mPipes ){
+    nProcessingResource += pPipe->stateResourceConsumption();
+  }
+
+  return nProcessingResource;
+}

@@ -22,9 +22,10 @@
 #include "Sink.hpp"
 #include "ThreadBase.hpp"
 #include <vector>
+#include "ResourceManager.hpp"
 
 
-class IPipe : public ThreadBase
+class IPipe : public ThreadBase, public IResourceConsumer
 {
 public:
   IPipe():ThreadBase(){};
@@ -45,6 +46,7 @@ public:
   virtual AudioFormat getFilterAudioFormat(void) = 0;
   virtual int getWindowSizeUsec(void) = 0;
   virtual int getLatencyUSec(void) = 0;
+  virtual int stateResourceConsumption(void) = 0;
 };
 
 class Pipe : public IPipe
@@ -68,6 +70,7 @@ public:
   virtual AudioFormat getFilterAudioFormat(void);
   virtual int getWindowSizeUsec(void);
   virtual int getLatencyUSec(void);
+  virtual int stateResourceConsumption(void);
 
 protected:
   // Should override process() if you want to support different window size processing by several threads, etc.

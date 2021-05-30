@@ -1277,7 +1277,6 @@ TEST_F(TestCase_PipeAndFilter, testResourceManager_Filter)
   EXPECT_NE( pResourceManager, nullptr);
 
   DummyConsumer* consumer1 = new DummyConsumer();
-  std::cout << consumer1->stateResourceConsumption() << std::endl;
   EXPECT_TRUE( pResourceManager->acquire(consumer1) );
   EXPECT_FALSE( pResourceManager->acquire(consumer1) );
 
@@ -1309,6 +1308,108 @@ TEST_F(TestCase_PipeAndFilter, testResourceManager_Filter)
 
   delete consumer3; consumer3=nullptr;
   delete consumer5; consumer5=nullptr;
+}
+
+TEST_F(TestCase_PipeAndFilter, testResourceManager_Pipe)
+{
+  class DummyFilter:public Filter
+  {
+  public:
+    DummyFilter():Filter(){};
+    virtual ~DummyFilter(){};
+    virtual int stateResourceConsumption(void){
+      return (int)((float)CpuResource::getComputingResource()/3.333f);
+    };
+  };
+
+  CpuResourceManager::admin_setResource( CpuResource::getComputingResource() );
+  IResourceManager* pResourceManager = CpuResourceManager::getInstance();
+  EXPECT_NE( pResourceManager, nullptr);
+
+  IPipe* pPipe = new Pipe();
+  pPipe->addFilterToTail( new DummyFilter() );
+
+  bool bSuccessAcquiredResource = pResourceManager->acquire(pPipe);
+  EXPECT_TRUE( bSuccessAcquiredResource );
+  if( bSuccessAcquiredResource ){
+    pPipe->run();
+    pPipe->stop();
+    EXPECT_TRUE( pResourceManager->release(pPipe) );
+  }
+
+  pPipe->addFilterToTail( new DummyFilter() );
+  bSuccessAcquiredResource = pResourceManager->acquire(pPipe);
+  EXPECT_TRUE( bSuccessAcquiredResource );
+  if( bSuccessAcquiredResource ){
+    pPipe->run();
+    pPipe->stop();
+    EXPECT_TRUE( pResourceManager->release(pPipe) );
+  }
+
+  pPipe->addFilterToTail( new DummyFilter() );
+  bSuccessAcquiredResource = pResourceManager->acquire(pPipe);
+  EXPECT_TRUE( bSuccessAcquiredResource );
+  if( bSuccessAcquiredResource ){
+    pPipe->run();
+    pPipe->stop();
+    EXPECT_TRUE( pResourceManager->release(pPipe) );
+  }
+
+  pPipe->addFilterToTail( new DummyFilter() );
+  bSuccessAcquiredResource = pResourceManager->acquire(pPipe);
+  EXPECT_FALSE( bSuccessAcquiredResource );
+  if( bSuccessAcquiredResource ){
+    pPipe->run();
+    pPipe->stop();
+    EXPECT_TRUE( pResourceManager->release(pPipe) );
+  }
+
+  pPipe->clearFilters();
+  delete pPipe;
+
+  pPipe = new PipeMultiThread();
+  pPipe->addFilterToTail( new DummyFilter() );
+
+  bSuccessAcquiredResource = pResourceManager->acquire(pPipe);
+  EXPECT_TRUE( bSuccessAcquiredResource );
+  if( bSuccessAcquiredResource ){
+    pPipe->run();
+    pPipe->stop();
+    EXPECT_TRUE( pResourceManager->release(pPipe) );
+  }
+
+  pPipe->addFilterToTail( new DummyFilter() );
+  bSuccessAcquiredResource = pResourceManager->acquire(pPipe);
+  EXPECT_TRUE( bSuccessAcquiredResource );
+  if( bSuccessAcquiredResource ){
+    pPipe->run();
+    pPipe->stop();
+    EXPECT_TRUE( pResourceManager->release(pPipe) );
+  }
+
+  pPipe->addFilterToTail( new DummyFilter() );
+  bSuccessAcquiredResource = pResourceManager->acquire(pPipe);
+  EXPECT_TRUE( bSuccessAcquiredResource );
+  if( bSuccessAcquiredResource ){
+    pPipe->run();
+    pPipe->stop();
+    EXPECT_TRUE( pResourceManager->release(pPipe) );
+  }
+
+  pPipe->addFilterToTail( new DummyFilter() );
+  bSuccessAcquiredResource = pResourceManager->acquire(pPipe);
+  EXPECT_FALSE( bSuccessAcquiredResource );
+  if( bSuccessAcquiredResource ){
+    pPipe->run();
+    pPipe->stop();
+    EXPECT_TRUE( pResourceManager->release(pPipe) );
+  }
+
+  pPipe->clearFilters();
+  delete pPipe;
+
+  CpuResourceManager::admin_terminate();
+  pResourceManager = nullptr;
 }
 
 int main(int argc, char **argv)

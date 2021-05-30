@@ -202,3 +202,14 @@ int Pipe::getLatencyUSec(void)
 
   return getCommonWindowSizeUsec() + nProcessingTimeUsec;
 }
+
+int Pipe::stateResourceConsumption(void)
+{
+  int nProcessingResource = 0;
+  for( auto& pFilter : mFilters ) {
+    nProcessingResource += pFilter->stateResourceConsumption();
+  }
+
+  return nProcessingResource;
+}
+

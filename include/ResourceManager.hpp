@@ -59,6 +59,7 @@ class CpuResourceManager;
 class CpuResourceManager : public IResourceManager
 {
 protected:
+  // Computing power as per-second (DMIPS)
   CpuResourceManager(int resource);
   virtual ~CpuResourceManager();
   static inline CpuResourceManager* mpInstance = nullptr;
@@ -81,6 +82,7 @@ protected:
 protected:
   friend IResourceManager;
 
+  // state required computing power as per-second (DMIPS)
   virtual int stateResourceConsumption(void) = 0;
   void storeResourceConsumptionId(int resourceId, IResourceManager* pResourceManager = nullptr);
   int restoreResourceConsumptionId(void);

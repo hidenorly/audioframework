@@ -66,7 +66,7 @@ int Filter::getExpectedProcessingUSec(void)
 
 int Filter::stateResourceConsumption(void)
 {
-  return CpuResource::convertFromProcessingTimeToConsumptionResource( getExpectedProcessingUSec() );
+  return CpuResource::convertFromProcessingTimeToConsumptionResource( (1000000.0f/(float)getRequiredWindowSizeUsec()) * getExpectedProcessingUSec() );
 }
 
 

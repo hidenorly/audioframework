@@ -1268,7 +1268,7 @@ TEST_F(TestCase_PipeAndFilter, testResourceManager_Filter)
     DummyConsumer():Filter(){};
     virtual ~DummyConsumer(){};
     virtual int getExpectedProcessingUSec(void){
-      return 300000; // 300msec -> 1000DMIPS*300msec/1000msec = 300DMIPS
+      return (int)(300000.0f*(float)getRequiredWindowSizeUsec()/1000000.0f); // 300msec -> 1000DMIPS*300msec/1000msec = 300DMIPS
     };
   };
 

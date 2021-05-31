@@ -141,6 +141,7 @@ $ make; ./bin/afw_test;
     * [done] Implement ResourceConsumer in Decoder, Encoder with InterPipeBridge for resource evaluaton by attached Pipe.
 * Strategy
   * [] Add dynamic pipe change
+    * Add new pipe to pipe mixer dynamically
   * PowerManagement
     * Suspend/Resume/Shutdown/Cold Boot, etc.
 * Testability support

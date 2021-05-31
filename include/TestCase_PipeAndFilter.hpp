@@ -66,6 +66,10 @@ protected:
   void testResourceManager_ResourceConsumer(void);
   void testResourceManager_Filter(void);
   void testResourceManager_Pipe(void);
+
+  void testStrategy(void);
+
+  void testDynamicSignalFlow_AddNewPipe(void);
 };
 
 #endif /* __TESTCASE_PIPEANDFILTER_HPP__ */

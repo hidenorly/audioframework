@@ -45,6 +45,7 @@
 #include "Testability.hpp"
 #include "Util.hpp"
 #include "ResourceManager.hpp"
+#include "Strategy.hpp"
 
 #include <iostream>
 #include <filesystem>
@@ -1410,6 +1411,113 @@ TEST_F(TestCase_PipeAndFilter, testResourceManager_Pipe)
 
   CpuResourceManager::admin_terminate();
   pResourceManager = nullptr;
+}
+
+TEST_F(TestCase_PipeAndFilter, testStrategy)
+{
+  class StrategyA : public IStrategy
+  {
+  public:
+    StrategyA():IStrategy(){};
+    virtual ~StrategyA(){};
+
+    virtual bool canHandle(StrategyConditions conditions){
+      return true;
+    }
+    virtual bool execute(StrategyConditions conditions){
+      std::cout << "StrategyA is executed" << std::endl;
+      return true;
+    }
+  };
+  class StrategyB : public IStrategy
+  {
+  public:
+    StrategyB():IStrategy(){};
+    virtual ~StrategyB(){};
+
+    virtual bool canHandle(StrategyConditions conditions){
+      return false;
+    }
+    virtual bool execute(StrategyConditions conditions){
+      std::cout << "StrategyB is executed" << std::endl;
+      return true;
+    }
+  };
+  Strategy strategy;
+  StrategyConditions conditions;
+  strategy.registerStrategy( new StrategyB() );
+  strategy.registerStrategy( new StrategyA() );
+  EXPECT_TRUE( strategy.execute(conditions) );
+}
+
+TEST_F(TestCase_PipeAndFilter, testDynamicSignalFlow_AddNewPipe)
+{
+  PipeMixer* pPipeMixer = new PipeMixer();
+  ISink* pSink = new Sink();
+  pPipeMixer->attachSink( pSink );
+
+  IPipe* pStream1 = new Pipe();
+  ISource* pSource1 = new Source();
+  pStream1->attachSource( pSource1 );
+  pStream1->attachSink( pPipeMixer->allocateSinkAdaptor() );
+  pStream1->addFilterToTail( new FilterIncrement() );
+
+  std::cout << "start:mixer & stream1" << std::endl;
+  pStream1->run();
+  pPipeMixer->run();
+  std::cout << "started" << std::endl;
+  std::this_thread::sleep_for(std::chrono::microseconds(1000));
+
+  std::cout << "add:stream2 during stream1 is running" << std::endl;
+  IPipe* pStream2 = new Pipe();
+  ISource* pSource2 = new Source();
+  pStream2->attachSource( pSource2 );
+  pStream2->attachSink( pPipeMixer->allocateSinkAdaptor() );
+  std::cout << "added:stream2 during stream1 is running" << std::endl;
+  pStream2->addFilterToTail( new FilterIncrement() );
+  std::cout << "start:stream2 during stream1 is running" << std::endl;
+  pStream2->run();
+  std::cout << "started:stream2 during stream1 is running" << std::endl;
+  std::this_thread::sleep_for(std::chrono::microseconds(1000));
+  std::cout << "stop:stream2 during stream1 is running" << std::endl;
+  pStream2->stop();
+  std::cout << "stopped:stream2 during stream1 is running" << std::endl;
+  // finalize stream2, the source and the sink
+  ISink* pSink2 = pStream2->detachSink();
+  EXPECT_NE(nullptr, pSink2);
+  std::cout << "detach:stream2 during stream1 is running" << std::endl;
+  pPipeMixer->releaseSinkAdaptor( pSink2 );
+  pSource2 = pStream2->detachSource();
+  EXPECT_NE(nullptr, pSource2);
+  delete pSource2; pSource2 = nullptr;
+  pStream2->clearFilters();
+  std::this_thread::sleep_for(std::chrono::microseconds(1000));
+
+  std::cout << "stop all" << std::endl;
+
+  pPipeMixer->stop();
+  pStream1->stop();
+  EXPECT_FALSE(pPipeMixer->isRunning());
+  std::cout << "stopped" << std::endl;
+
+  // finalize stream1, the source and the sink
+  ISink* pSink1 = pStream1->detachSink();
+  EXPECT_NE(nullptr, pSink1);
+  pPipeMixer->releaseSinkAdaptor( pSink1 );
+  pSource1 = pStream1->detachSource();
+  EXPECT_NE(nullptr, pSource1);
+  delete pSource1; pSource1 = nullptr;
+  pStream1->clearFilters();
+
+  // finalize pipemixer
+  pSink = pPipeMixer->detachSink();
+  EXPECT_NE(nullptr, pSink);
+  pSink->dump();
+
+  delete pStream1;    pStream1 = nullptr;
+  delete pStream2;    pStream2 = nullptr;
+  delete pSink;       pSink = nullptr;
+  delete pPipeMixer;  pPipeMixer = nullptr;
 }
 
 int main(int argc, char **argv)

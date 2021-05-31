@@ -31,6 +31,7 @@ protected:
   AudioFormat mFormat;
   ISink* mpSink;
   std::vector<InterPipeBridge*> mpInterPipeBridges;
+  std::mutex mMutexPipe;
 
   virtual void process(void);
   virtual void unlockToStop(void);

@@ -58,19 +58,21 @@ ISink* PipeMixer::detachSink(void)
 
 void PipeMixer::process(void)
 {
-  if( mpSink && !mpInterPipeBridges.empty() ){
-
+  while( mbIsRunning && mpSink && !mpInterPipeBridges.empty() ){
     int nSamples = 256;
     AudioBuffer outBuf( mFormat, nSamples );
     std::vector<AudioBuffer*> buffers;
-    for(int i=0; i<mpInterPipeBridges.size(); i++){
+    int nCurrentPipeSize = mpInterPipeBridges.size();
+    for(int i=0; i<nCurrentPipeSize; i++){
       buffers.push_back( new AudioBuffer(mFormat, nSamples) );
     }
 
-    while( mbIsRunning ){
-      for(int i=0; mbIsRunning && i<mpInterPipeBridges.size(); i++){
+    while( mbIsRunning && (nCurrentPipeSize == mpInterPipeBridges.size()) ){
+      mMutexPipe.lock();
+      for(int i=0; mbIsRunning && i<nCurrentPipeSize; i++){
         mpInterPipeBridges[i]->read( *buffers[i] );
       }
+      mMutexPipe.unlock();
       if( mbIsRunning ){
         Mixer::process( buffers, &outBuf );
       }
@@ -96,7 +98,9 @@ void PipeMixer::unlockToStop(void)
 ISink* PipeMixer::allocateSinkAdaptor(void)
 {
   InterPipeBridge* pInterPipeBridge = new InterPipeBridge( mFormat );
+  mMutexPipe.lock();
   mpInterPipeBridges.push_back( pInterPipeBridge );
+  mMutexPipe.unlock();
   return (ISink*)pInterPipeBridge;
 }
 
@@ -104,8 +108,10 @@ void PipeMixer::releaseSinkAdaptor(ISink* pSink)
 {
   InterPipeBridge* pInterPipeBridge = dynamic_cast<InterPipeBridge*>(pSink);
   if( pInterPipeBridge ){
+    mMutexPipe.lock();
     delete pInterPipeBridge;
     std::erase( mpInterPipeBridges, pInterPipeBridge );
+    mMutexPipe.unlock();
   }
 }
 

@@ -16,7 +16,7 @@
 
 #include "InterPipeBridge.hpp"
 
-InterPipeBridge::InterPipeBridge(AudioFormat format) : ISource(), ISink(), mFifoBuffer(format)
+InterPipeBridge::InterPipeBridge(AudioFormat format) : ISource(), ISink(), mFifoBuffer(format), mRequiredResource(0)
 {
 
 }
@@ -52,5 +52,10 @@ AudioFormat InterPipeBridge::getAudioFormat(void)
 
 int InterPipeBridge::stateResourceConsumption(void)
 {
-  return 0;
+  return mRequiredResource;
+}
+
+void InterPipeBridge::setRequiredResourceConsumption(int nRequiredResource)
+{
+  mRequiredResource = nRequiredResource;
 }

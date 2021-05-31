@@ -25,8 +25,9 @@
 #include <vector>
 #include <thread>
 #include "Media.hpp"
+#include "ResourceManager.hpp"
 
-class IDecoder : public ThreadBase
+class IDecoder : public ThreadBase, public IResourceConsumer
 {
 protected:
   ISource* mpSource;
@@ -54,6 +55,7 @@ public:
   ~NullDecoder();
 
   virtual void configure(MediaParam param);
+  virtual int stateResourceConsumption(void);
 
 protected:
   virtual void process(void);

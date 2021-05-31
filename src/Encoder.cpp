@@ -19,7 +19,7 @@
 #include "Buffer.hpp"
 #include <vector>
 
-IEncoder::IEncoder() : ThreadBase(), mpSink(nullptr)
+IEncoder::IEncoder() : ThreadBase(), IResourceConsumer(), mpSink(nullptr)
 {
 
 }
@@ -58,6 +58,7 @@ ISink* IEncoder::detachSink(void)
 ISink* IEncoder::allocateSinkAdaptor(void)
 {
   InterPipeBridge* pSink = new InterPipeBridge();
+  pSink->setRequiredResourceConsumption( stateResourceConsumption() );
   mpInterPipeBridges.push_back( pSink );
   return dynamic_cast<ISink*>( pSink );
 }
@@ -118,4 +119,9 @@ void NullEncoder::process(void)
     esBuf.setRawBuffer( inPcmBuf.getRawBuffer() );
     mpSink->write( esBuf );
   }
+}
+
+int NullEncoder::stateResourceConsumption(void)
+{
+  return 0;
 }

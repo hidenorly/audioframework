@@ -28,6 +28,7 @@ class InterPipeBridge : public ISink, public ISource, public IUnlockable
 {
 protected:
   FifoBuffer mFifoBuffer;
+  int mRequiredResource;
 
 protected:
   virtual void readPrimitive(IAudioBuffer& buf);
@@ -45,6 +46,7 @@ public:
 
   virtual void unlock(void){ mFifoBuffer.unlock(); };
   virtual int stateResourceConsumption(void);
+  virtual void setRequiredResourceConsumption(int nRequiredResource);
 };
 
 #endif /* __INTERPIPEBRIDGE_HPP__ */

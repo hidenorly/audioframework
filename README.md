@@ -135,9 +135,14 @@ $ make; ./bin/afw_test;
     * [done] ResourceConsumer with ResourceManager
   * Utilize CPU resource manager in Pipe's filter setup
     * [done] Filter with ResourceConsumer
+    * [done] Source with ResourceConsumer
+    * [done] Sink with ResourceConsumer
   * Utilize CPU resource manager in Encode/Decoder setup
+    * [done] Implement ResourceConsumer in Decoder, Encoder with InterPipeBridge for resource evaluaton by attached Pipe.
 * Strategy
   * [] Add dynamic pipe change
+  * PowerManagement
+    * Suspend/Resume/Shutdown/Cold Boot, etc.
 * Testability support
   * [done] dump
   * [done] file in/out with StreamFile and SteramSource/StreamSink
@@ -147,8 +152,8 @@ $ make; ./bin/afw_test;
     * [Done] SourceInjector
     * [Done] SourceCapture
     * [Done] FilterInjector
-*   * [Done] FilterCapture
-  All
+    * [Done] FilterCapture
+* All
   * [] Compressed data support
     * [done] AudioFormat
     * [done] IAudioBufer, CompressedAudioBuffer

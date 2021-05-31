@@ -25,8 +25,9 @@
 #include <vector>
 #include <thread>
 #include "Media.hpp"
+#include "ResourceManager.hpp"
 
-class IEncoder : public ThreadBase
+class IEncoder : public ThreadBase, public IResourceConsumer
 {
 protected:
   ISink* mpSink;
@@ -55,6 +56,7 @@ public:
   ~NullEncoder();
 
   virtual void configure(MediaParam param);
+  virtual int stateResourceConsumption(void);
 
 protected:
   virtual void process(void);

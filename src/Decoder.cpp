@@ -19,7 +19,7 @@
 #include "Buffer.hpp"
 #include <vector>
 
-IDecoder::IDecoder() : ThreadBase(), mpSource(nullptr)
+IDecoder::IDecoder() : ThreadBase(), IResourceConsumer(), mpSource(nullptr)
 {
 
 }
@@ -58,6 +58,7 @@ ISource* IDecoder::detachSource(void)
 ISource* IDecoder::allocateSourceAdaptor(void)
 {
   InterPipeBridge* pSource = new InterPipeBridge();
+  pSource->setRequiredResourceConsumption( stateResourceConsumption() );
   mpInterPipeBridges.push_back( pSource );
   return dynamic_cast<ISource*>( pSource );
 }
@@ -119,4 +120,9 @@ void NullDecoder::process(void)
       pInterPipe->write( outBuf );
     }
   }
+}
+
+int NullDecoder::stateResourceConsumption(void)
+{
+  return 0;
 }

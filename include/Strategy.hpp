@@ -19,7 +19,7 @@
 
 #include <vector>
 
-class StrategyConditions
+class StrategyContext
 {
 };
 
@@ -28,8 +28,8 @@ class IStrategy
 public:
   virtual ~IStrategy(){};
 
-  virtual bool canHandle(StrategyConditions conditions) = 0;
-  virtual bool execute(StrategyConditions conditions) = 0;
+  virtual bool canHandle(StrategyContext context) = 0;
+  virtual bool execute(StrategyContext context) = 0;
 };
 
 class Strategy
@@ -40,7 +40,7 @@ public:
   Strategy();
   virtual ~Strategy();
 
-  bool execute(StrategyConditions conditions);
+  bool execute(StrategyContext context);
   void registerStrategy(IStrategy* aStrategy);
   void unregisterStrategy(IStrategy* aStrategy);
 };

@@ -1421,10 +1421,10 @@ TEST_F(TestCase_PipeAndFilter, testStrategy)
     StrategyA():IStrategy(){};
     virtual ~StrategyA(){};
 
-    virtual bool canHandle(StrategyConditions conditions){
+    virtual bool canHandle(StrategyContext context){
       return true;
     }
-    virtual bool execute(StrategyConditions conditions){
+    virtual bool execute(StrategyContext context){
       std::cout << "StrategyA is executed" << std::endl;
       return true;
     }
@@ -1435,19 +1435,19 @@ TEST_F(TestCase_PipeAndFilter, testStrategy)
     StrategyB():IStrategy(){};
     virtual ~StrategyB(){};
 
-    virtual bool canHandle(StrategyConditions conditions){
+    virtual bool canHandle(StrategyContext context){
       return false;
     }
-    virtual bool execute(StrategyConditions conditions){
+    virtual bool execute(StrategyContext context){
       std::cout << "StrategyB is executed" << std::endl;
       return true;
     }
   };
   Strategy strategy;
-  StrategyConditions conditions;
+  StrategyContext context;
   strategy.registerStrategy( new StrategyB() );
   strategy.registerStrategy( new StrategyA() );
-  EXPECT_TRUE( strategy.execute(conditions) );
+  EXPECT_TRUE( strategy.execute(context) );
 }
 
 TEST_F(TestCase_PipeAndFilter, testDynamicSignalFlow_AddNewPipe)

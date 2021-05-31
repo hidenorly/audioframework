@@ -30,13 +30,13 @@ Strategy::~Strategy()
 }
 
 
-bool Strategy::execute(StrategyConditions conditions)
+bool Strategy::execute(StrategyContext context)
 {
   bool result = false;
  
   for( auto& aStrategy : mStrategies){
-    if( aStrategy->canHandle( conditions ) ){
-      result = aStrategy->execute( conditions );
+    if( aStrategy->canHandle( context ) ){
+      result = aStrategy->execute( context );
       break;
     }
   }

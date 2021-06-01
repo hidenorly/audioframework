@@ -84,6 +84,7 @@ void PipeMultiThread::createAndConnectPipesToTail(IPipe* pCurrentPipe)
 void PipeMultiThread::addFilterToHead(IFilter* pFilter)
 {
   if( pFilter ){
+    mMutexFilters.lock();
     IPipe* pPipe = getHeadPipe();
     if( pPipe ){
       int theFilterWindowSize = pFilter->getRequiredWindowSizeUsec();
@@ -95,12 +96,14 @@ void PipeMultiThread::addFilterToHead(IFilter* pFilter)
     }
     getHeadPipe(true)->addFilterToHead( pFilter );
     ensureSourceSink();
+    mMutexFilters.unlock();
   }
 }
 
 void PipeMultiThread::addFilterToTail(IFilter* pFilter)
 {
   if( pFilter ){
+    mMutexFilters.lock();
     IPipe* pPipe = getTailPipe();
     if( pPipe ){
       int theFilterWindowSize = pFilter->getRequiredWindowSizeUsec();
@@ -112,6 +115,7 @@ void PipeMultiThread::addFilterToTail(IFilter* pFilter)
     }
     getTailPipe(true)->addFilterToTail( pFilter );
     ensureSourceSink();
+    mMutexFilters.unlock();
   }
 }
 
@@ -150,6 +154,7 @@ bool PipeMultiThread::isFilterIncluded(IFilter* pFilter)
 void PipeMultiThread::addFilterAfterFilter(IFilter* pFilter, IFilter* pPosition)
 {
   if( pFilter && pPosition ){
+    mMutexFilters.lock();
     IPipe* pPipe = findPipe( pFilter );
     if( pPipe ){
       int theFilterWindowSize = pFilter->getRequiredWindowSizeUsec();
@@ -161,6 +166,7 @@ void PipeMultiThread::addFilterAfterFilter(IFilter* pFilter, IFilter* pPosition)
         pPipe->addFilterAfterFilter( pFilter, pPosition );
       }
     }
+    mMutexFilters.unlock();
   }
 }
 

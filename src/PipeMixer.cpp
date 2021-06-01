@@ -69,7 +69,7 @@ void PipeMixer::process(void)
 
     while( mbIsRunning && (nCurrentPipeSize == mpInterPipeBridges.size()) ){
       mMutexPipe.lock();
-      for(int i=0; mbIsRunning && i<nCurrentPipeSize; i++){
+      for(int i=0; mbIsRunning && i<mpInterPipeBridges.size(); i++){
         mpInterPipeBridges[i]->read( *buffers[i] );
       }
       mMutexPipe.unlock();

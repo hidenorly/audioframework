@@ -1450,6 +1450,8 @@ TEST_F(TestCase_PipeAndFilter, testStrategy)
   EXPECT_TRUE( strategy.execute(context) );
 }
 
+
+
 TEST_F(TestCase_PipeAndFilter, testDynamicSignalFlow_AddNewPipe)
 {
   PipeMixer* pPipeMixer = new PipeMixer();
@@ -1472,7 +1474,8 @@ TEST_F(TestCase_PipeAndFilter, testDynamicSignalFlow_AddNewPipe)
   IPipe* pStream2 = new Pipe();
   ISource* pSource2 = new Source();
   pStream2->attachSource( pSource2 );
-  pStream2->attachSink( pPipeMixer->allocateSinkAdaptor() );
+  ISink* pSinkAdaptor2 = pPipeMixer->allocateSinkAdaptor();
+  pStream2->attachSink( pSinkAdaptor2 );
   std::cout << "added:stream2 during stream1 is running" << std::endl;
   pStream2->addFilterToTail( new FilterIncrement() );
   std::cout << "start:stream2 during stream1 is running" << std::endl;
@@ -1483,15 +1486,25 @@ TEST_F(TestCase_PipeAndFilter, testDynamicSignalFlow_AddNewPipe)
   pStream2->stop();
   std::cout << "stopped:stream2 during stream1 is running" << std::endl;
   // finalize stream2, the source and the sink
+
+  std::cout << "detach:sink adaptor from stream2 during stream1 is running" << std::endl;
   ISink* pSink2 = pStream2->detachSink();
-  EXPECT_NE(nullptr, pSink2);
-  std::cout << "detach:stream2 during stream1 is running" << std::endl;
-  pPipeMixer->releaseSinkAdaptor( pSink2 );
+  EXPECT_EQ(pSinkAdaptor2, pSink2);
+  std::cout << "detach:sink adaptor of stream2 during stream1 is running" << std::endl;
+  pPipeMixer->releaseSinkAdaptor( pSinkAdaptor2 );
+  std::cout << "detached:sink adaptor of stream2 during stream1 is running" << std::endl;
+  // note that pSinkAdaptor2, pSink2 is already disposed by pPipeMixer->releaseSinkAdaptor( pSinkAdaptor2 );
+  std::cout << "detach:source of stream2 during stream1 is running" << std::endl;
   pSource2 = pStream2->detachSource();
   EXPECT_NE(nullptr, pSource2);
+  std::cout << "detached:source of stream2 during stream1 is running" << std::endl;
   delete pSource2; pSource2 = nullptr;
+  std::cout << "clear:filters of stream2 during stream1 is running" << std::endl;
   pStream2->clearFilters();
+  std::cout << "cleared:filters of stream2 during stream1 is running" << std::endl;
+  std::cout << "wait is running" << std::endl;
   std::this_thread::sleep_for(std::chrono::microseconds(1000));
+  std::cout << "waited during stream1 is running" << std::endl;
 
   std::cout << "stop all" << std::endl;
 
@@ -1519,6 +1532,81 @@ TEST_F(TestCase_PipeAndFilter, testDynamicSignalFlow_AddNewPipe)
   delete pSink;       pSink = nullptr;
   delete pPipeMixer;  pPipeMixer = nullptr;
 }
+
+TEST_F(TestCase_PipeAndFilter, testDynamicSignalFlow_AddNewFilter)
+{
+  IPipe* pStream = new Pipe();
+  ISource* pSource = new Source();
+  pStream->attachSource( pSource );
+  ISink* pSink = new Sink();
+  pStream->attachSink( pSink );
+  pStream->addFilterToTail( new FilterIncrement() );
+
+  std::cout << "start" << std::endl;
+  pStream->run();
+  std::cout << "started" << std::endl;
+  std::this_thread::sleep_for(std::chrono::microseconds(1000));
+
+  std::cout << "add:filter during stream is running" << std::endl;
+  pStream->addFilterToTail( new FilterIncrement() );
+  std::cout << "added:filter during stream is running" << std::endl;
+  std::this_thread::sleep_for(std::chrono::microseconds(1000));
+
+  std::cout << "stop" << std::endl;
+  pStream->stop();
+  std::cout << "stopped" << std::endl;
+
+  ISink* pDetachedSink = pStream->detachSink();
+  EXPECT_EQ(pSink, pDetachedSink);
+  pSink->dump();
+  delete pSink; pSink = pDetachedSink = nullptr;
+
+  ISource* pDetachedSource = pStream->detachSource();
+  EXPECT_EQ(pSource, pDetachedSource);
+  delete pSource; pSource = pDetachedSource = nullptr;
+
+  pStream->clearFilters();
+
+  delete pStream;    pStream = nullptr;
+}
+
+TEST_F(TestCase_PipeAndFilter, testDynamicSignalFlow_AddNewFilter_PipeMultiThread)
+{
+  IPipe* pStream = new PipeMultiThread();
+  ISource* pSource = new Source();
+  pStream->attachSource( pSource );
+  ISink* pSink = new Sink();
+  pStream->attachSink( pSink );
+  pStream->addFilterToTail( new FilterIncrement() );
+
+  std::cout << "start" << std::endl;
+  pStream->run();
+  std::cout << "started" << std::endl;
+  std::this_thread::sleep_for(std::chrono::microseconds(1000));
+
+  std::cout << "add:filter during stream is running" << std::endl;
+  pStream->addFilterToTail( new FilterIncrement() );
+  std::cout << "added:filter during stream is running" << std::endl;
+  std::this_thread::sleep_for(std::chrono::microseconds(1000));
+
+  std::cout << "stop" << std::endl;
+  pStream->stop();
+  std::cout << "stopped" << std::endl;
+
+  ISink* pDetachedSink = pStream->detachSink();
+  EXPECT_EQ(pSink, pDetachedSink);
+  pSink->dump();
+  delete pSink; pSink = pDetachedSink = nullptr;
+
+  ISource* pDetachedSource = pStream->detachSource();
+  EXPECT_EQ(pSource, pDetachedSource);
+  delete pSource; pSource = pDetachedSource = nullptr;
+
+  pStream->clearFilters();
+
+  delete pStream;    pStream = nullptr;
+}
+
 
 int main(int argc, char **argv)
 {

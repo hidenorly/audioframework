@@ -22,6 +22,7 @@
 #include "Sink.hpp"
 #include "ThreadBase.hpp"
 #include <vector>
+#include <mutex>
 #include "ResourceManager.hpp"
 
 
@@ -50,6 +51,12 @@ public:
 
 class Pipe : public IPipe
 {
+protected:
+  std::mutex mMutexFilters;
+  std::vector<IFilter*> mFilters;
+  ISink* mpSink;
+  ISource* mpSource;
+
 public:
   Pipe();
   virtual ~Pipe();
@@ -77,10 +84,6 @@ protected:
   virtual void unlockToStop(void);
   // Should override getFilterAudioFormat() if you want to use different algorithm to choose using Audioformat
   int getCommonWindowSizeUsec(void);
-
-  std::vector<IFilter*> mFilters;
-  ISink* mpSink;
-  ISource* mpSource;
 };
 
 #endif /* __PIPE_HPP__ */

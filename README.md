@@ -64,6 +64,7 @@ The expection is to implement android audio hal, surround amplifier, mediaplayer
       * Basic PipeMultiThread, Source, Sink.
       * MultiSink
       * StreamSource, StreamSink
+    * Split test cases as several files per component characteristic
 
 # Status
 
@@ -141,7 +142,8 @@ $ make; ./bin/afw_test;
     * [done] Implement ResourceConsumer in Decoder, Encoder with InterPipeBridge for resource evaluaton by attached Pipe.
 * Strategy
   * [] Add dynamic pipe change
-    * Add new pipe to pipe mixer dynamically
+    * [done] attach/detach new pipe to pipe mixer dynamically
+    * [done] add new filter to pipe dynamically
   * PowerManagement
     * Suspend/Resume/Shutdown/Cold Boot, etc.
 * Testability support

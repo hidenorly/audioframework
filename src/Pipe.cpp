@@ -39,20 +39,26 @@ Pipe::~Pipe()
 
 void Pipe::addFilterToHead(IFilter* pFilter)
 {
+  mMutexFilters.lock();
   mFilters.insert(mFilters.begin(), pFilter);
+  mMutexFilters.unlock();
 }
 
 void Pipe::addFilterToTail(IFilter* pFilter)
 {
+  mMutexFilters.lock();
   mFilters.push_back(pFilter);
+  mMutexFilters.unlock();
 }
 
 void Pipe::addFilterAfterFilter(IFilter* pFilter, IFilter* pPosition)
 {
+  mMutexFilters.lock();
   auto it = std::find( mFilters.begin(), mFilters.end(), pPosition );
   if( it != mFilters.end() ){
     mFilters.insert( it+1, pFilter );
   }
+  mMutexFilters.unlock();
 }
 
 bool Pipe::isFilterIncluded(IFilter* pFilter)
@@ -63,10 +69,12 @@ bool Pipe::isFilterIncluded(IFilter* pFilter)
 
 void Pipe::clearFilters(void)
 {
+  mMutexFilters.lock();
   for( auto& pFilter : mFilters ) {
     delete pFilter;
   }
   mFilters.clear();
+  mMutexFilters.unlock();
 }
 
 ISink* Pipe::attachSink(ISink* pISink)
@@ -124,7 +132,7 @@ void Pipe::unlockToStop(void)
 
 void Pipe::process(void)
 {
-  if(mpSource && mpSink){
+  while(mbIsRunning && mpSource && mpSink){
     float windowSizeUsec = getCommonWindowSizeUsec();
     AudioFormat usingAudioFormat = getFilterAudioFormat();
     float usingSamplingRate = usingAudioFormat.getSamplingRate();
@@ -135,14 +143,17 @@ void Pipe::process(void)
     AudioBuffer* pOutBuf= new AudioBuffer( usingAudioFormat, samples );
     AudioBuffer* pSinkOut = pInBuf;
 
-    while( mbIsRunning ){
+    int nFilterSize = mFilters.size();
+    while( mbIsRunning && ( nFilterSize == mFilters.size() ) ) {
       mpSource->read( *pInBuf );
 
+      mMutexFilters.lock();
       for( auto& pFilter : mFilters ) {
         pFilter->process( *pInBuf, *pOutBuf );
         pSinkOut = pOutBuf;
         std::swap( pInBuf, pOutBuf );
       }
+      mMutexFilters.unlock();
 
       // TODO : May change as directly write to the following buffer from the last filter to avoid the copy.
       mpSink->write( *pSinkOut );
@@ -159,6 +170,7 @@ AudioFormat Pipe::getFilterAudioFormat(void)
   AudioFormat theUsingFormat; // default AudioFormat is set
 
   bool bPossibleToUseTheFormat = true;
+  mMutexFilters.lock();
   for( auto& pFilter : mFilters ) {
     std::vector<AudioFormat> formats = pFilter->getSupportedAudioFormats();
     bool bCompatible = false;
@@ -168,6 +180,7 @@ AudioFormat Pipe::getFilterAudioFormat(void)
     bPossibleToUseTheFormat &= bCompatible;
     if( !bPossibleToUseTheFormat ) break;
   }
+  mMutexFilters.unlock();
 
   if( !bPossibleToUseTheFormat ){
     throw std::invalid_argument("There is no common audio format in the registered filters");
@@ -180,10 +193,12 @@ int Pipe::getCommonWindowSizeUsec(void)
 {
   int result = 1;
 
+  mMutexFilters.lock();
   for( auto& pFilter : mFilters ) {
     int windowSizeUsec = pFilter->getRequiredWindowSizeUsec();
     result = windowSizeUsec ? std::lcm(result, windowSizeUsec) : result;
   }
+  mMutexFilters.unlock();
 
   return result;
 }
@@ -196,9 +211,11 @@ int Pipe::getWindowSizeUsec(void)
 int Pipe::getLatencyUSec(void)
 {
   int nProcessingTimeUsec = 0;
+  mMutexFilters.lock();
   for( auto& pFilter : mFilters ) {
     nProcessingTimeUsec += pFilter->getExpectedProcessingUSec();
   }
+  mMutexFilters.unlock();
 
   return getCommonWindowSizeUsec() + nProcessingTimeUsec;
 }
@@ -206,9 +223,11 @@ int Pipe::getLatencyUSec(void)
 int Pipe::stateResourceConsumption(void)
 {
   int nProcessingResource = 0;
+  mMutexFilters.lock();
   for( auto& pFilter : mFilters ) {
     nProcessingResource += pFilter->stateResourceConsumption();
   }
+  mMutexFilters.unlock();
   nProcessingResource += ( mpSink ? mpSink->stateResourceConsumption() : 0 );
   nProcessingResource += ( mpSource ? mpSource->stateResourceConsumption() : 0 );
 

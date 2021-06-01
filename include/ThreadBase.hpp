@@ -24,6 +24,10 @@
 
 class ThreadBase
 {
+protected:
+  std::mutex mMutexThread;
+  std::atomic<bool> mbIsRunning;
+
 public:
   ThreadBase();
   virtual ~ThreadBase();
@@ -37,9 +41,8 @@ protected:
   static void _execute(ThreadBase* pThis);
   virtual void unlockToStop(void);
 
-  std::atomic<bool> mbIsRunning;
+protected:
   std::thread* mpThread;
-  std::mutex mMutexThread;
 };
 
 #endif /* __THREAD_BASE_HPP__ */

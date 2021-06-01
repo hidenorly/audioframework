@@ -65,6 +65,7 @@ protected:
   void ensureSourceSink(void);
 
   std::mutex mMutexThreads;
+  std::mutex mMutexFilters;
 };
 
 #endif /* __PIPEMANAGER_HPP__ */

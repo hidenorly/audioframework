@@ -1548,8 +1548,13 @@ TEST_F(TestCase_PipeAndFilter, testDynamicSignalFlow_AddNewFilter)
   std::this_thread::sleep_for(std::chrono::microseconds(1000));
 
   std::cout << "add:filter during stream is running" << std::endl;
-  pStream->addFilterToTail( new FilterIncrement() );
+  IFilter* pFilter = new FilterIncrement();
+  pStream->addFilterToTail( pFilter );
   std::cout << "added:filter during stream is running" << std::endl;
+  std::this_thread::sleep_for(std::chrono::microseconds(1000));
+  std::cout << "remove:filter during stream is running" << std::endl;
+  pStream->removeFilter( pFilter );
+  std::cout << "removed:filter during stream is running" << std::endl;
   std::this_thread::sleep_for(std::chrono::microseconds(1000));
 
   std::cout << "stop" << std::endl;
@@ -1585,8 +1590,13 @@ TEST_F(TestCase_PipeAndFilter, testDynamicSignalFlow_AddNewFilter_PipeMultiThrea
   std::this_thread::sleep_for(std::chrono::microseconds(1000));
 
   std::cout << "add:filter during stream is running" << std::endl;
-  pStream->addFilterToTail( new FilterIncrement() );
+  IFilter* pFilter = new FilterIncrement();
+  pStream->addFilterToTail( pFilter );
   std::cout << "added:filter during stream is running" << std::endl;
+  std::this_thread::sleep_for(std::chrono::microseconds(1000));
+  std::cout << "remove:filter during stream is running" << std::endl;
+  pStream->removeFilter( pFilter );
+  std::cout << "removed:filter during stream is running" << std::endl;
   std::this_thread::sleep_for(std::chrono::microseconds(1000));
 
   std::cout << "stop" << std::endl;

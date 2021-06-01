@@ -143,7 +143,7 @@ $ make; ./bin/afw_test;
 * Strategy
   * [] Add dynamic pipe change
     * [done] attach/detach new pipe to pipe mixer dynamically
-    * [done] add new filter to pipe dynamically
+    * [done] attach/detach new filter to pipe dynamically
   * PowerManagement
     * Suspend/Resume/Shutdown/Cold Boot, etc.
 * Testability support

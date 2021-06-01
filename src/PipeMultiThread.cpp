@@ -151,8 +151,10 @@ bool PipeMultiThread::isFilterIncluded(IFilter* pFilter)
   return result;
 }
 
-void PipeMultiThread::addFilterAfterFilter(IFilter* pFilter, IFilter* pPosition)
+bool PipeMultiThread::addFilterAfterFilter(IFilter* pFilter, IFilter* pPosition)
 {
+  bool result = false;
+
   if( pFilter && pPosition ){
     mMutexFilters.lock();
     IPipe* pPipe = findPipe( pFilter );
@@ -163,12 +165,30 @@ void PipeMultiThread::addFilterAfterFilter(IFilter* pFilter, IFilter* pPosition)
       if( theFilterWindowSize != thePipeWindowSize ) {
         // TODO : Create different pipe and interconnect
       } else {
-        pPipe->addFilterAfterFilter( pFilter, pPosition );
+        result = pPipe->addFilterAfterFilter( pFilter, pPosition );
       }
     }
     mMutexFilters.unlock();
   }
+
+  return result;
 }
+
+bool PipeMultiThread::removeFilter(IFilter* pFilter)
+{
+  bool result = false;
+
+  for( auto& pPipe : mPipes ){
+    if( pPipe->isFilterIncluded( pFilter ) ){
+      pPipe->removeFilter( pFilter );
+      result = true;
+      break;
+    }
+  }
+
+  return result;
+}
+
 
 ISink* PipeMultiThread::attachSink(ISink* pSink)
 {

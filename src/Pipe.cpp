@@ -51,14 +51,35 @@ void Pipe::addFilterToTail(IFilter* pFilter)
   mMutexFilters.unlock();
 }
 
-void Pipe::addFilterAfterFilter(IFilter* pFilter, IFilter* pPosition)
+bool Pipe::addFilterAfterFilter(IFilter* pFilter, IFilter* pPosition)
 {
-  mMutexFilters.lock();
-  auto it = std::find( mFilters.begin(), mFilters.end(), pPosition );
-  if( it != mFilters.end() ){
-    mFilters.insert( it+1, pFilter );
+  bool result = false;
+
+  if( pPosition ){
+    mMutexFilters.lock();
+    auto it = std::find( mFilters.begin(), mFilters.end(), pPosition );
+    if( it != mFilters.end() ){
+      mFilters.insert( it+1, pFilter );
+      result = true;
+    }
+    mMutexFilters.unlock();
   }
-  mMutexFilters.unlock();
+
+  return result;
+}
+
+bool Pipe::removeFilter(IFilter* pFilter)
+{
+  bool result = false;
+
+  if( isFilterIncluded(pFilter) ){
+    mMutexFilters.lock();
+    std::erase( mFilters, pFilter );
+    result = true;
+    mMutexFilters.unlock();
+  }
+
+  return result;
 }
 
 bool Pipe::isFilterIncluded(IFilter* pFilter)

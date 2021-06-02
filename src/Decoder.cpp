@@ -63,11 +63,16 @@ ISource* IDecoder::allocateSourceAdaptor(void)
   return dynamic_cast<ISource*>( pSource );
 }
 
-void IDecoder::releaseSourceAdaptor(ISource* pSource)
+void IDecoder::releaseSourceAdaptor(ISource* pSource, bool bDelete)
 {
   InterPipeBridge* pInterPipeBridge = dynamic_cast<InterPipeBridge*>(pSource);
-  delete pInterPipeBridge;
-  std::erase( mpInterPipeBridges, pInterPipeBridge );
+  if( pInterPipeBridge ){
+    pInterPipeBridge->unlock();
+    if( bDelete ){
+      delete pInterPipeBridge;
+    }
+    std::erase( mpInterPipeBridges, pInterPipeBridge );
+  }
 }
 
 void IDecoder::seek(int64_t position)

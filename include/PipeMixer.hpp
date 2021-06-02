@@ -46,7 +46,7 @@ public:
   virtual ISink* detachSink(void);
 
   virtual ISink* allocateSinkAdaptor(void);
-  virtual void releaseSinkAdaptor(ISink* pSink);
+  virtual void releaseSinkAdaptor(ISink* pSink, bool bDelete=true);
 };
 
 #endif /* __PIPEMIXER_HPP__ */

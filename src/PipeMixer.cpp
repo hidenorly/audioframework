@@ -104,12 +104,15 @@ ISink* PipeMixer::allocateSinkAdaptor(void)
   return (ISink*)pInterPipeBridge;
 }
 
-void PipeMixer::releaseSinkAdaptor(ISink* pSink)
+void PipeMixer::releaseSinkAdaptor(ISink* pSink, bool bDelete)
 {
   InterPipeBridge* pInterPipeBridge = dynamic_cast<InterPipeBridge*>(pSink);
   if( pInterPipeBridge ){
+    pInterPipeBridge->unlock(); // TODO: May not enough to unlock this only.
     mMutexPipe.lock();
-    delete pInterPipeBridge;
+    if( bDelete ){
+      delete pInterPipeBridge;
+    }
     std::erase( mpInterPipeBridges, pInterPipeBridge );
     mMutexPipe.unlock();
   }

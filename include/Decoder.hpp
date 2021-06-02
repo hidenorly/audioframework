@@ -43,7 +43,7 @@ public:
   virtual ISource* attachSource(ISource* pSource);
   virtual ISource* detachSource(void);
   virtual ISource* allocateSourceAdaptor(void);
-  virtual void releaseSourceAdaptor(ISource* pSource);
+  virtual void releaseSourceAdaptor(ISource* pSource, bool bDelete=true);
   virtual void seek(int64_t position);
   virtual int64_t getPosition(void);
 };

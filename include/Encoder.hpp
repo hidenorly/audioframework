@@ -42,7 +42,7 @@ public:
   virtual void configure(std::vector<MediaParam> params);
 
   virtual ISink* allocateSinkAdaptor(void); // as encoder's source
-  virtual void releaseSinkAdaptor(ISink* pSink);
+  virtual void releaseSinkAdaptor(ISink* pSink, bool bDelete=true);
 
   virtual ISink* attachSink(ISink* pSink);
   virtual ISink* detachSink(void);

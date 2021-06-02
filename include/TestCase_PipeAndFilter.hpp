@@ -69,9 +69,10 @@ protected:
 
   void testStrategy(void);
 
-  void testDynamicSignalFlow_AddNewPipe(void);
+  void testDynamicSignalFlow_AddNewPipeToPipeMixer(void);
   void testDynamicSignalFlow_AddNewFilter(void);
   void testDynamicSignalFlow_AddNewFilter_PipeMultiThread(void);
+  void testDynamicSignalFlow_AddNewSinkToPipe(void);
 };
 
 #endif /* __TESTCASE_PIPEANDFILTER_HPP__ */

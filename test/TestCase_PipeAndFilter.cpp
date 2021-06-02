@@ -1452,7 +1452,7 @@ TEST_F(TestCase_PipeAndFilter, testStrategy)
 
 
 
-TEST_F(TestCase_PipeAndFilter, testDynamicSignalFlow_AddNewPipe)
+TEST_F(TestCase_PipeAndFilter, testDynamicSignalFlow_AddNewPipeToPipeMixer)
 {
   PipeMixer* pPipeMixer = new PipeMixer();
   ISink* pSink = new Sink();
@@ -1482,6 +1482,12 @@ TEST_F(TestCase_PipeAndFilter, testDynamicSignalFlow_AddNewPipe)
   pStream2->run();
   std::cout << "started:stream2 during stream1 is running" << std::endl;
   std::this_thread::sleep_for(std::chrono::microseconds(1000));
+
+  // SHOULD DETACH SINK ADAPTOR FROM PIPEMIXER FIRST WHILE THE PIPE IS RUNNING.
+  std::cout << "release detached sink adaptor of stream2 during stream1 is running" << std::endl;
+  pPipeMixer->releaseSinkAdaptor( pSinkAdaptor2, false );
+  std::cout << "released detached sink adaptor of stream2 during stream1 is running" << std::endl;
+
   std::cout << "stop:stream2 during stream1 is running" << std::endl;
   pStream2->stop();
   std::cout << "stopped:stream2 during stream1 is running" << std::endl;
@@ -1490,10 +1496,8 @@ TEST_F(TestCase_PipeAndFilter, testDynamicSignalFlow_AddNewPipe)
   std::cout << "detach:sink adaptor from stream2 during stream1 is running" << std::endl;
   ISink* pSink2 = pStream2->detachSink();
   EXPECT_EQ(pSinkAdaptor2, pSink2);
-  std::cout << "detach:sink adaptor of stream2 during stream1 is running" << std::endl;
-  pPipeMixer->releaseSinkAdaptor( pSinkAdaptor2 );
-  std::cout << "detached:sink adaptor of stream2 during stream1 is running" << std::endl;
-  // note that pSinkAdaptor2, pSink2 is already disposed by pPipeMixer->releaseSinkAdaptor( pSinkAdaptor2 );
+  delete pSinkAdaptor2; pSink2 = pSinkAdaptor2 = nullptr;
+
   std::cout << "detach:source of stream2 during stream1 is running" << std::endl;
   pSource2 = pStream2->detachSource();
   EXPECT_NE(nullptr, pSource2);
@@ -1617,6 +1621,9 @@ TEST_F(TestCase_PipeAndFilter, testDynamicSignalFlow_AddNewFilter_PipeMultiThrea
   delete pStream;    pStream = nullptr;
 }
 
+TEST_F(TestCase_PipeAndFilter, testDynamicSignalFlow_AddNewSinkToPipe)
+{
+}
 
 int main(int argc, char **argv)
 {

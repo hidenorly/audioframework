@@ -63,11 +63,16 @@ ISink* IEncoder::allocateSinkAdaptor(void)
   return dynamic_cast<ISink*>( pSink );
 }
 
-void IEncoder::releaseSinkAdaptor(ISink* pSink)
+void IEncoder::releaseSinkAdaptor(ISink* pSink, bool bDelete)
 {
   InterPipeBridge* pInterPipeBridge = dynamic_cast<InterPipeBridge*>(pSink);
-  delete pInterPipeBridge;
-  std::erase( mpInterPipeBridges, pInterPipeBridge );
+  if( pInterPipeBridge ){
+    pInterPipeBridge->unlock();
+    if( bDelete ){
+      delete pInterPipeBridge;
+    }
+    std::erase( mpInterPipeBridges, pInterPipeBridge );
+  }
 }
 
 int64_t IEncoder::getPosition(void)

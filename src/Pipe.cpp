@@ -101,7 +101,9 @@ void Pipe::clearFilters(void)
 ISink* Pipe::attachSink(ISink* pISink)
 {
   ISink* pPrevISink = mpSink;
+  mMutexSink.lock();
   mpSink = pISink;
+  mMutexSink.unlock();
 
   return pPrevISink;
 }
@@ -117,7 +119,9 @@ ISink* Pipe::detachSink(void)
 ISource* Pipe::attachSource(ISource* pISource)
 {
   ISource* pPrevISource = mpSource;
+  mMutexSource.lock();
   mpSource = pISource;
+  mMutexSource.unlock();
   return pPrevISource;
 }
 
@@ -166,7 +170,9 @@ void Pipe::process(void)
 
     int nFilterSize = mFilters.size();
     while( mbIsRunning && ( nFilterSize == mFilters.size() ) ) {
+      mMutexSource.lock();
       mpSource->read( *pInBuf );
+      mMutexSource.unlock();
 
       mMutexFilters.lock();
       for( auto& pFilter : mFilters ) {
@@ -177,7 +183,9 @@ void Pipe::process(void)
       mMutexFilters.unlock();
 
       // TODO : May change as directly write to the following buffer from the last filter to avoid the copy.
+      mMutexSink.lock();
       mpSink->write( *pSinkOut );
+      mMutexSink.unlock();
     }
 
     delete pInBuf;  pInBuf = nullptr;

@@ -54,6 +54,8 @@ class Pipe : public IPipe
 {
 protected:
   std::mutex mMutexFilters;
+  std::mutex mMutexSink;
+  std::mutex mMutexSource;
   std::vector<IFilter*> mFilters;
   ISink* mpSink;
   ISource* mpSource;

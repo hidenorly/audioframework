@@ -67,8 +67,6 @@ protected:
 
   std::mutex mMutexThreads;
   std::mutex mMutexFilters;
-  std::mutex mMutexSink;
-  std::mutex mMutexSource;
 };
 
 #endif /* __PIPEMANAGER_HPP__ */

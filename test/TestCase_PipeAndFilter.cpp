@@ -1706,6 +1706,88 @@ TEST_F(TestCase_PipeAndFilter, testDynamicSignalFlow_AddNewSinkToPipe_PipeMultiT
 }
 
 
+TEST_F(TestCase_PipeAndFilter, testDynamicSignalFlow_AddNewSourceToPipe)
+{
+  IPipe* pPipe = new Pipe();
+
+  ISource* pSource1 = new Source();
+  pPipe->attachSource( pSource1 );
+
+  ISink* pSink = new Sink();
+  pPipe->attachSink( pSink );
+
+  pPipe->addFilterToTail( new FilterIncrement() );
+
+  std::cout << "start" << std::endl;
+  pPipe->run();
+  std::this_thread::sleep_for(std::chrono::microseconds(1000));
+  std::cout << "started" << std::endl;
+
+  ISource* pSource2 = new Source();
+  std::cout << "attach new Source to pipe during the pipe is running" << std::endl;
+  ISource* pDetachedSource1 = pPipe->attachSource( pSource2 );
+  std::cout << "attached new Source to pipe during the pipe is running" << std::endl;
+  EXPECT_EQ( pDetachedSource1, pSource1 );
+  delete pDetachedSource1; pDetachedSource1 = pSource1 = nullptr;
+  std::this_thread::sleep_for(std::chrono::microseconds(1000));
+
+  std::cout << "stop" << std::endl;
+  pPipe->stop();
+  std::cout << "stopped" << std::endl;
+
+  ISink* pDetachedSink = pPipe->detachSink();
+  EXPECT_EQ( pDetachedSink, pSink );
+  pDetachedSink->dump();
+  delete pDetachedSink; pDetachedSink = pSink = nullptr;
+
+  ISource* pDetachedSource2 = pPipe->detachSource();
+  EXPECT_EQ( pDetachedSource2, pSource2 );
+  delete pDetachedSource2; pDetachedSource2 = pSource2 = nullptr;
+
+  delete pPipe; pPipe = nullptr;
+}
+
+TEST_F(TestCase_PipeAndFilter, testDynamicSignalFlow_AddNewSourceToPipe_PipeMultiThread)
+{
+  IPipe* pPipe = new PipeMultiThread();
+
+  ISource* pSource1 = new Source();
+  pPipe->attachSource( pSource1 );
+
+  ISink* pSink = new Sink();
+  pPipe->attachSink( pSink );
+
+  pPipe->addFilterToTail( new FilterIncrement() );
+
+  std::cout << "start" << std::endl;
+  pPipe->run();
+  std::this_thread::sleep_for(std::chrono::microseconds(1000));
+  std::cout << "started" << std::endl;
+
+  ISource* pSource2 = new Source();
+  std::cout << "attach new Source to pipe during the pipe is running" << std::endl;
+  ISource* pDetachedSource1 = pPipe->attachSource( pSource2 );
+  std::cout << "attached new Source to pipe during the pipe is running" << std::endl;
+  EXPECT_EQ( pDetachedSource1, pSource1 );
+  delete pDetachedSource1; pDetachedSource1 = pSource1 = nullptr;
+  std::this_thread::sleep_for(std::chrono::microseconds(1000));
+
+  std::cout << "stop" << std::endl;
+  pPipe->stop();
+  std::cout << "stopped" << std::endl;
+
+  ISink* pDetachedSink = pPipe->detachSink();
+  EXPECT_EQ( pDetachedSink, pSink );
+  pDetachedSink->dump();
+  delete pDetachedSink; pDetachedSink = pSink = nullptr;
+
+  ISource* pDetachedSource2 = pPipe->detachSource();
+  EXPECT_EQ( pDetachedSource2, pSource2 );
+  delete pDetachedSource2; pDetachedSource2 = pSource2 = nullptr;
+
+  delete pPipe; pPipe = nullptr;
+}
+
 int main(int argc, char **argv)
 {
   ::testing::InitGoogleTest(&argc, argv);

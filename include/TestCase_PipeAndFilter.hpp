@@ -74,6 +74,8 @@ protected:
   void testDynamicSignalFlow_AddNewFilter_PipeMultiThread(void);
   void testDynamicSignalFlow_AddNewSinkToPipe(void);
   void testDynamicSignalFlow_AddNewSinkToPipe_PipeMultiThread(void);
+  void testDynamicSignalFlow_AddNewSourceToPipe(void);
+  void testDynamicSignalFlow_AddNewSourceToPipe_PipeMultiThread(void);
 };
 
 #endif /* __TESTCASE_PIPEANDFILTER_HPP__ */

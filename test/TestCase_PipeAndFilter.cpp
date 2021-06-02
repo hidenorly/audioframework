@@ -556,8 +556,8 @@ TEST_F(TestCase_PipeAndFilter, testPlayer)
   std::this_thread::sleep_for(std::chrono::microseconds(1000));
 
   std::cout << "stop" << std::endl;
-  pPlayer->stop();
   pPipe->stop();
+  pPlayer->stop();
   std::cout << "stopped" << std::endl;
 
   pSink->dump();
@@ -615,11 +615,12 @@ TEST_F(TestCase_PipeAndFilter, testEncoder)
   std::cout << "source PTS: " << pSource->getSourcePts();
   std::cout << " / sink PTS: " << pSink->getSinkPts() << std::endl;
 
-  std::cout << "Pipe::stop" << std::endl;
-  pPipe->stop();
   std::cout << "Encoder::stop" << std::endl;
   pEncoder->stop();
   std::cout << "Encoder::stopped" << std::endl;
+  std::cout << "Pipe::stop" << std::endl;
+  pPipe->stop();
+  std::cout << "Pipe::stopped" << std::endl;
 
   pSink->dump();
 

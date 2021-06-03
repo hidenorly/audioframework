@@ -18,7 +18,7 @@
 #include "Util.hpp"
 #include "Volume.hpp"
 
-ISink::ISink() : mVolume(100.0f), mLatencyUsec(0), mSinkPosition(0), mMuteEnabled(false), mMuteZeroOutEnabled(false)
+ISink::ISink() : ISourceSinkCommon(), mVolume(100.0f), mLatencyUsec(0), mSinkPosition(0)
 {
 
 }
@@ -61,28 +61,13 @@ ISink::PRESENTATION ISink::getPresentation(void)
 
 float ISink::getVolume(void)
 {
-  return mMuteEnabled ? 0.0f : mVolume;
+  return getMuteEnabled() ? 0.0f : mVolume;
 }
 
 bool ISink::setVolume(float volumePercentage)
 {
   mVolume = volumePercentage;
   return true;
-}
-
-bool ISink::getMuteEnabled(void)
-{
-  return mMuteEnabled;
-}
-
-void ISink::setMuteEnabled(bool bEnableMute, bool bZeroOut)
-{
-  bool bChanged = ( bEnableMute != mMuteEnabled );
-  mMuteEnabled = bEnableMute;
-  mMuteZeroOutEnabled = bZeroOut;
-  if( bChanged ){
-    mutePrimitive(bEnableMute);
-  }
 }
 
 void ISink::mutePrimitive(bool bEnableMute)
@@ -107,7 +92,7 @@ void ISink::write(IAudioBuffer& buf)
     // CompressedAudioBuffer instance
     mSinkPosition += buf.getRawBuffer().size();
   }
-  if( !mMuteEnabled ){
+  if( !getMuteEnabled() ){
     if( 100.0f == mVolume || !pBuf ){
       writePrimitive( buf );
     } else {
@@ -119,7 +104,7 @@ void ISink::write(IAudioBuffer& buf)
         writePrimitive( buf );
       }
     }
-  } else if ( mMuteZeroOutEnabled ) {
+  } else if ( getUseZeroEnabledInMute() ) {
     // mute enabled && zero out enabled
     AudioBuffer zeroBuffer( format, nSamples );
     ByteBuffer rawZeroBuffer( zeroBuffer.getRawBuffer().size(), 0 );

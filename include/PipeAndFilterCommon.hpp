@@ -27,9 +27,36 @@ public:
   virtual void unlock(void) = 0;
 };
 
-class ISourceSinkCommon : public AudioBase, public IResourceConsumer
+class IMutable
+{
+protected:
+  bool mMuteEnabled;
+  bool mMuteUseZeroEnabled;
+
+protected:
+  virtual bool getUseZeroEnabledInMute(void){ return mMuteUseZeroEnabled; };
+  virtual void mutePrimitive(bool bEnableMute){};
+
+public:
+  IMutable():mMuteEnabled(false), mMuteUseZeroEnabled(false){};
+  virtual ~ IMutable(){};
+
+  virtual bool getMuteEnabled(void){ return mMuteEnabled; };
+  virtual void setMuteEnabled(bool bEnableMute, bool bUseZero=false){
+    bool bChanged = ( bEnableMute != mMuteEnabled );
+    mMuteEnabled = bEnableMute;
+    mMuteUseZeroEnabled = bUseZero;
+    if( bChanged ){
+      mutePrimitive(bEnableMute);
+    }
+  }
+};
+
+class ISourceSinkCommon : public AudioBase, public IResourceConsumer, public IMutable
 {
 public:
+  ISourceSinkCommon():AudioBase(), IResourceConsumer(), IMutable(){};
+  virtual ~ISourceSinkCommon(){};
   virtual std::string toString(void){ return std::string("ISourceSinkCommon"); };
   virtual AudioFormat getAudioFormat(void) = 0;
 };

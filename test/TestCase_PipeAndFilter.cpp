@@ -1792,7 +1792,8 @@ TEST_F(TestCase_PipeAndFilter, testDynamicSignalFlow_AddNewSourceToPipe_PipeMult
 TEST_F(TestCase_PipeAndFilter, testSinkMute)
 {
   IPipe* pPipe = new Pipe();
-  pPipe->attachSource( new Source() );
+  ISource* pSource = new Source();
+  pPipe->attachSource( pSource );
   ISink* pSink = new Sink();
   pPipe->attachSink( pSink );
   pPipe->addFilterToTail( new FilterIncrement() );
@@ -1803,8 +1804,29 @@ TEST_F(TestCase_PipeAndFilter, testSinkMute)
   std::this_thread::sleep_for(std::chrono::microseconds(1000));
   pPipe->stop();
   pSink->dump();
-  delete pPipe->detachSource();
-  delete pPipe->detachSink();
+  delete pPipe->detachSource(); pSource = nullptr;
+  delete pPipe->detachSink(); pSink = nullptr;
+  pPipe->clearFilters();
+  delete pPipe; pPipe = nullptr;
+}
+
+TEST_F(TestCase_PipeAndFilter, testSourceMute)
+{
+  IPipe* pPipe = new Pipe();
+  ISource* pSource = new Source();
+  pPipe->attachSource( pSource );
+  ISink* pSink = new Sink();
+  pPipe->attachSink( pSink );
+  pPipe->addFilterToTail( new FilterIncrement() );
+  pSource->setMuteEnabled( true, true );
+  pPipe->run();
+  std::this_thread::sleep_for(std::chrono::microseconds(1000));
+  pSource->setMuteEnabled( false );
+  std::this_thread::sleep_for(std::chrono::microseconds(1000));
+  pPipe->stop();
+  pSink->dump();
+  delete pPipe->detachSource(); pSource = nullptr;
+  delete pPipe->detachSink(); pSink = nullptr;
   pPipe->clearFilters();
   delete pPipe; pPipe = nullptr;
 }

@@ -51,8 +51,6 @@ protected:
   float mVolume;
   int mLatencyUsec;
   int64_t mSinkPosition;
-  bool mMuteEnabled;
-  bool mMuteZeroOutEnabled;
 
 protected:
   virtual void writePrimitive(IAudioBuffer& buf) = 0;
@@ -73,9 +71,6 @@ public:
 
   virtual float getVolume(void);
   virtual bool setVolume(float volumePercentage);
-
-  virtual bool getMuteEnabled(void);
-  virtual void setMuteEnabled(bool bEnableMute, bool bZeroOut=false);
 
   virtual int getLatencyUSec(void);
   virtual int64_t getSinkPts(void);

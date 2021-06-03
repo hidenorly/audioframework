@@ -17,7 +17,7 @@
 #include "Source.hpp"
 #include <iostream>
 
-ISource::ISource():mLatencyUsec(0), mSourcePosition(0)
+ISource::ISource():ISourceSinkCommon(), mLatencyUsec(0), mSourcePosition(0)
 {
 
 }
@@ -40,7 +40,13 @@ void ISource::read(IAudioBuffer& buf)
   } else {
     mSourcePosition += buf.getRawBuffer().size();
   }
-  readPrimitive(buf);
+  if( !getMuteEnabled() ){
+    readPrimitive(buf);
+  } else if ( getUseZeroEnabledInMute() ) {
+    // mute enabled && use zero enabled
+    ByteBuffer rawZeroBuffer( buf.getRawBuffer().size(), 0 );
+    buf.setRawBuffer( rawZeroBuffer );
+  }
 }
 
 int ISource::getLatencyUSec(void)

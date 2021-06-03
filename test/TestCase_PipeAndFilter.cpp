@@ -1789,6 +1789,27 @@ TEST_F(TestCase_PipeAndFilter, testDynamicSignalFlow_AddNewSourceToPipe_PipeMult
   delete pPipe; pPipe = nullptr;
 }
 
+TEST_F(TestCase_PipeAndFilter, testSinkMute)
+{
+  IPipe* pPipe = new Pipe();
+  pPipe->attachSource( new Source() );
+  ISink* pSink = new Sink();
+  pPipe->attachSink( pSink );
+  pPipe->addFilterToTail( new FilterIncrement() );
+  pSink->setMuteEnabled( true, true );
+  pPipe->run();
+  std::this_thread::sleep_for(std::chrono::microseconds(1000));
+  pSink->setMuteEnabled( false );
+  std::this_thread::sleep_for(std::chrono::microseconds(1000));
+  pPipe->stop();
+  pSink->dump();
+  delete pPipe->detachSource();
+  delete pPipe->detachSink();
+  pPipe->clearFilters();
+  delete pPipe; pPipe = nullptr;
+}
+
+
 int main(int argc, char **argv)
 {
   ::testing::InitGoogleTest(&argc, argv);

@@ -18,7 +18,7 @@
 #include "Util.hpp"
 #include "Volume.hpp"
 
-ISink::ISink() : mVolume(100.0f), mLatencyUsec(0), mSinkPosition(0)
+ISink::ISink() : mVolume(100.0f), mLatencyUsec(0), mSinkPosition(0), mMuteEnabled(false), mMuteZeroOutEnabled(false)
 {
 
 }
@@ -61,7 +61,7 @@ ISink::PRESENTATION ISink::getPresentation(void)
 
 float ISink::getVolume(void)
 {
-  return mVolume;
+  return mMuteEnabled ? 0.0f : mVolume;
 }
 
 bool ISink::setVolume(float volumePercentage)
@@ -70,12 +70,33 @@ bool ISink::setVolume(float volumePercentage)
   return true;
 }
 
+bool ISink::getMuteEnabled(void)
+{
+  return mMuteEnabled;
+}
+
+void ISink::setMuteEnabled(bool bEnableMute, bool bZeroOut)
+{
+  bool bChanged = ( bEnableMute != mMuteEnabled );
+  mMuteEnabled = bEnableMute;
+  mMuteZeroOutEnabled = bZeroOut;
+  if( bChanged ){
+    mutePrimitive(bEnableMute);
+  }
+}
+
+void ISink::mutePrimitive(bool bEnableMute)
+{
+}
+
 void ISink::write(IAudioBuffer& buf)
 {
   int nSamples = 0;
   AudioFormat format;
   AudioBuffer* pBuf = dynamic_cast<AudioBuffer*>(&buf);
+  AudioBuffer* pZeroBuf = nullptr;
   if( pBuf ){
+    // AudioBuffer instance
     nSamples = pBuf->getSamples();
     format = pBuf->getAudioFormat();
     if( nSamples ){
@@ -83,18 +104,27 @@ void ISink::write(IAudioBuffer& buf)
     }
     mSinkPosition += (mLatencyUsec ? mLatencyUsec : buf.getRawBuffer().size());
   } else {
+    // CompressedAudioBuffer instance
     mSinkPosition += buf.getRawBuffer().size();
   }
-  if( 100.0f == mVolume || !pBuf ){
-    writePrimitive( buf );
-  } else {
-    // pBuf is already checked in the above
-    AudioBuffer volumedBuf( format, nSamples );
-    if( Volume::process( pBuf, &volumedBuf, mVolume ) ){
-      writePrimitive( volumedBuf );
-    } else {
+  if( !mMuteEnabled ){
+    if( 100.0f == mVolume || !pBuf ){
       writePrimitive( buf );
+    } else {
+      // pBuf is already checked in the above
+      AudioBuffer volumedBuf( format, nSamples );
+      if( Volume::process( pBuf, &volumedBuf, mVolume ) ){
+        writePrimitive( volumedBuf );
+      } else {
+        writePrimitive( buf );
+      }
     }
+  } else if ( mMuteZeroOutEnabled ) {
+    // mute enabled && zero out enabled
+    AudioBuffer zeroBuffer( format, nSamples );
+    ByteBuffer rawZeroBuffer( zeroBuffer.getRawBuffer().size(), 0 );
+    zeroBuffer.setRawBuffer( rawZeroBuffer );
+    writePrimitive( zeroBuffer );
   }
 }
 

@@ -146,7 +146,8 @@ $ make; ./bin/afw_test;
     * [done] attach/detach new filter to pipe dynamically
     * [done] attach/detach new sink to pipe dynamically
     * [done] attach/detach new source to pipe dynamically
-    * Mute in Sink & Pipe
+    * [done] Mute in Sink
+    * [] Mute in Pipe
   * PowerManagement
     * Suspend/Resume/Shutdown/Cold Boot, etc.
 * Testability support

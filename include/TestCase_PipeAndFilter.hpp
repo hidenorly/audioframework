@@ -79,6 +79,8 @@ protected:
 
   void testSinkMute(void);
   void testSourceMute(void);
+
+  void testPowerManager(void);
 };
 
 #endif /* __TESTCASE_PIPEANDFILTER_HPP__ */

@@ -46,6 +46,7 @@
 #include "Util.hpp"
 #include "ResourceManager.hpp"
 #include "Strategy.hpp"
+#include "PowerManager.hpp"
 
 #include <iostream>
 #include <filesystem>
@@ -1831,6 +1832,25 @@ TEST_F(TestCase_PipeAndFilter, testSourceMute)
   delete pPipe; pPipe = nullptr;
 }
 
+TEST_F(TestCase_PipeAndFilter, testPowerManager)
+{
+  IPowerManager* pManager = PowerManager::getManager();
+
+  IPowerManager::CALLBACK callback = [&](IPowerManager::POWERSTATE powerState){
+    std::cout << "power state change: " << pManager->getPowerStateString( powerState ) << std::endl;
+  };
+  int callbackId = pManager->registerCallback( callback );
+
+  IPowerManagerAdmin* pManagerAdmin = dynamic_cast<IPowerManagerAdmin*>(pManager);
+  if( pManagerAdmin ){
+    pManagerAdmin->setPowerState( IPowerManager::POWERSTATE::ACTIVE );
+    pManagerAdmin->setPowerState( IPowerManager::POWERSTATE::IDLE );
+    pManagerAdmin->setPowerState( IPowerManager::POWERSTATE::SUSPEND );
+    pManagerAdmin->setPowerState( IPowerManager::POWERSTATE::OFF );
+  }
+
+  pManager->unregisterCallback( callbackId );
+}
 
 int main(int argc, char **argv)
 {

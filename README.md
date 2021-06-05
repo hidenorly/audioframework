@@ -151,6 +151,8 @@ $ make; ./bin/afw_test;
     * [] Mute in Pipe
   * PowerManagement
     * Suspend/Resume/Shutdown/Cold Boot, etc.
+      * [done] PowerManager
+      * the handler in the example strategy
 * Testability support
   * [done] dump
   * [done] file in/out with StreamFile and SteramSource/StreamSink

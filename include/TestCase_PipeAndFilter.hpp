@@ -39,6 +39,7 @@ protected:
   void testStreamSink_DifferentFormat(void);
   void testStreamSource(void);
   void testPipedSink(void);
+  void testPipedSource(void);
   void testPipeMixer(void);
 
   void testDecoder(void);

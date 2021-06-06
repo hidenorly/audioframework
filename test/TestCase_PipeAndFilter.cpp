@@ -33,6 +33,7 @@
 #include "StreamSource.hpp"
 #include "PipeMixer.hpp"
 #include "PipedSink.hpp"
+#include "PipedSource.hpp"
 #include "Media.hpp"
 #include "Decoder.hpp"
 #include "Encoder.hpp"
@@ -465,6 +466,48 @@ TEST_F(TestCase_PipeAndFilter, testPipedSink)
   delete pPipedSink; pPipedSink = nullptr;
   delete pActualSink; pActualSink = nullptr;
   delete pSource; pSource = nullptr;
+  delete pPipe; pPipe = nullptr;
+}
+
+TEST_F(TestCase_PipeAndFilter, testPipedSource)
+{
+  ISink* pSink = new Sink();
+
+  ISource* pActualSource = new Source();
+  PipedSource* pPipedSource = new PipedSource();
+  pPipedSource->attachSource( pActualSource );
+  pPipedSource->addFilterToTail( new FilterIncrement() );
+
+  IPipe* pPipe = new Pipe();
+  pPipe->addFilterToTail( new FilterIncrement() );
+  pPipe->attachSource( pPipedSource );
+  pPipe->attachSink( pSink );
+
+  pPipedSource->run();
+  pPipe->run();
+
+  std::this_thread::sleep_for(std::chrono::microseconds(500));
+
+  pPipe->stop();
+  pPipedSource->stop();
+  pSink->dump();
+
+  ISource* pDetachedActualSource = pPipedSource->detachSource();
+  EXPECT_EQ( pDetachedActualSource, pActualSource );
+  pPipedSource->clearFilters();
+
+  ISource* pDetachedSource = pPipe->detachSource();
+  EXPECT_EQ( pDetachedSource, pPipedSource );
+
+  ISink* pDetachedSink = pPipe->detachSink();
+  EXPECT_EQ( pDetachedSink, pSink );
+
+  pPipe->clearFilters();
+
+  delete pPipedSource; pPipedSource = nullptr; pDetachedSource = nullptr;
+  delete pActualSource; pActualSource = pDetachedActualSource = nullptr;
+  delete pSink; pSink = nullptr;
+  delete pPipe; pPipe = nullptr;
 }
 
 TEST_F(TestCase_PipeAndFilter, testDecoder)
@@ -1879,6 +1922,7 @@ TEST_F(TestCase_PipeAndFilter, testPowerManager)
 
   pManager->unregisterCallback( callbackId );
 }
+
 
 int main(int argc, char **argv)
 {

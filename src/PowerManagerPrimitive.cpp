@@ -37,12 +37,7 @@ ITestable* PowerManagerPrimitive::getTestShim(void)
 {
  return this; 
 }
-
-void PowerManagerPrimitive::process(void)
-{
-}
 #endif /* __AFW_TEST__ */
-
 
 #if __linux__
 // for Linux
@@ -116,6 +111,10 @@ void PowerManagerPrimitive::terminate(void)
 {
   stop();
 }
+
+void PowerManagerPrimitive::process(void)
+{
+}
 /* end of __APPLE__ */
 #else
 // for the others
@@ -137,5 +136,9 @@ void PowerManagerPrimitive::initialize(void)
 void PowerManagerPrimitive::terminate(void)
 {
   stop();
+}
+
+void PowerManagerPrimitive::process(void)
+{
 }
 #endif

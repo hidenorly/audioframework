@@ -79,6 +79,7 @@ protected:
 
   void testSinkMute(void);
   void testSourceMute(void);
+  void testPipeMute(void);
 
   void testPowerManager(void);
 };

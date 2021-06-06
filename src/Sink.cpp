@@ -70,7 +70,7 @@ bool ISink::setVolume(float volumePercentage)
   return true;
 }
 
-void ISink::mutePrimitive(bool bEnableMute)
+void ISink::mutePrimitive(bool bEnableMute, bool bUseZero)
 {
 }
 

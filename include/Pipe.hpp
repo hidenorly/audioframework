@@ -24,9 +24,10 @@
 #include <vector>
 #include <mutex>
 #include "ResourceManager.hpp"
+#include "PipeAndFilterCommon.hpp"
 
 
-class IPipe : public ThreadBase, public IResourceConsumer
+class IPipe : public ThreadBase, public IResourceConsumer, public IMutable
 {
 public:
   IPipe():ThreadBase(){};
@@ -88,6 +89,7 @@ protected:
   virtual void unlockToStop(void);
   // Should override getFilterAudioFormat() if you want to use different algorithm to choose using Audioformat
   int getCommonWindowSizeUsec(void);
+  virtual void mutePrimitive(bool bEnableMute, bool bUseZero=false);
 };
 
 #endif /* __PIPE_HPP__ */

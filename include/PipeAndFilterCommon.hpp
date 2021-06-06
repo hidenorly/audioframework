@@ -35,7 +35,7 @@ protected:
 
 protected:
   virtual bool getUseZeroEnabledInMute(void){ return mMuteUseZeroEnabled; };
-  virtual void mutePrimitive(bool bEnableMute){};
+  virtual void mutePrimitive(bool bEnableMute, bool bUseZero=false){};
 
 public:
   IMutable():mMuteEnabled(false), mMuteUseZeroEnabled(false){};
@@ -47,7 +47,7 @@ public:
     mMuteEnabled = bEnableMute;
     mMuteUseZeroEnabled = bUseZero;
     if( bChanged ){
-      mutePrimitive(bEnableMute);
+      mutePrimitive(bEnableMute, bUseZero);
     }
   }
 };

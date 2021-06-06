@@ -150,7 +150,7 @@ $ make; ./bin/afw_test;
     * [done] attach/detach new source to pipe dynamically
     * [done] Mute in Sink
     * [done] Mute in Source
-    * [] Mute in Pipe
+    * [done] Mute in Pipe
   * PowerManagement
     * Suspend/Resume/Shutdown/Cold Boot, etc.
       * [done] PowerManager

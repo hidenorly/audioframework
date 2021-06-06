@@ -1833,6 +1833,33 @@ TEST_F(TestCase_PipeAndFilter, testSourceMute)
   delete pPipe; pPipe = nullptr;
 }
 
+TEST_F(TestCase_PipeAndFilter, testPipeMute)
+{
+  IPipe* pPipe = new Pipe();
+  ISource* pSource = new Source();
+  ISink* pSink = new Sink();
+  pPipe->attachSource( pSource );
+  pPipe->attachSink( pSink );
+  pPipe->addFilterToTail( new FilterIncrement() );
+  pPipe->setMuteEnabled( true, true );
+  EXPECT_TRUE( pPipe->getMuteEnabled() );
+  EXPECT_TRUE( pSink->getMuteEnabled() );
+  EXPECT_TRUE( pSource->getMuteEnabled() );
+  pPipe->run();
+  std::this_thread::sleep_for(std::chrono::microseconds(1000));
+  pPipe->setMuteEnabled( false );
+  EXPECT_FALSE( pPipe->getMuteEnabled() );
+  EXPECT_FALSE( pSink->getMuteEnabled() );
+  EXPECT_FALSE( pSource->getMuteEnabled() );
+  std::this_thread::sleep_for(std::chrono::microseconds(1000));
+  pPipe->stop();
+  pSink->dump();
+  delete pPipe->detachSource(); pSource = nullptr;
+  delete pPipe->detachSink(); pSink = nullptr;
+  pPipe->clearFilters();
+  delete pPipe; pPipe = nullptr;
+}
+
 TEST_F(TestCase_PipeAndFilter, testPowerManager)
 {
   IPowerManager* pManager = PowerManager::getManager();

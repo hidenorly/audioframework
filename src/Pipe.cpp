@@ -170,6 +170,7 @@ void Pipe::process(void)
 
     int nFilterSize = mFilters.size();
     while( mbIsRunning && ( nFilterSize == mFilters.size() ) ) {
+      // TODO: implement wait during muting and implement unlock for the mute wait
       mMutexSource.lock();
       mpSource->read( *pInBuf );
       mMutexSource.unlock();
@@ -263,3 +264,12 @@ int Pipe::stateResourceConsumption(void)
   return nProcessingResource;
 }
 
+void Pipe::mutePrimitive(bool bEnableMute, bool bUseZero)
+{
+  if( mpSink ){
+    mpSink->setMuteEnabled( bEnableMute, bUseZero);
+  }
+  if( mpSource ){
+    mpSource->setMuteEnabled( bEnableMute, bUseZero);
+  }
+}

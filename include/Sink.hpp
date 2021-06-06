@@ -54,7 +54,7 @@ protected:
 
 protected:
   virtual void writePrimitive(IAudioBuffer& buf) = 0;
-  virtual void mutePrimitive(bool bEnableMute);
+  virtual void mutePrimitive(bool bEnableMute, bool bUseZero=false);
 
 public:
   virtual void write(IAudioBuffer& buf);

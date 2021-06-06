@@ -17,11 +17,15 @@
 #ifndef __POWER_MANAGER_HPP__
 #define __POWER_MANAGER_HPP__
 
+#include "Testability.hpp"
 #include <vector>
 #include <functional>
 #include <string>
 
 class IPowerManager
+#if __AFW_TEST__
+: public ITestable
+#endif /* __AFW_TEST__ */
 {
 public:
   enum POWERSTATE
@@ -45,25 +49,34 @@ public:
   virtual ~IPowerManager();
   virtual int registerCallback(CALLBACK callback);
   virtual void unregisterCallback(int callbackId);
+#if __AFW_TEST__
+  virtual ITestable* getTestShim(void);
+#endif /* __AFW_TEST__ */
 };
 
 class IPowerManagerAdmin
 {
 public:
-  virtual void setPowerState(IPowerManager::POWERSTATE power) = 0;
+  virtual void setPowerState(IPowerManager::POWERSTATE powerState) = 0;
 };
+
+class PowerManagerPrimitive;
 
 class PowerManager : public IPowerManager, public IPowerManagerAdmin
 {
 protected:
   static inline IPowerManager* mPowerManager = nullptr;
+  static inline PowerManagerPrimitive* mPowerManagerPrimitive = nullptr;
 
   PowerManager();
   virtual ~PowerManager();
 
 public:
   static IPowerManager* getManager(void);
-  virtual void setPowerState(IPowerManager::POWERSTATE power);
+  virtual void setPowerState(IPowerManager::POWERSTATE powerState);
+#if __AFW_TEST__
+  virtual ITestable* getTestShim(void);
+#endif /* __AFW_TEST__ */
 };
 
 #endif /* __POWER_MANAGER_HPP__ */

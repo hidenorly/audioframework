@@ -110,6 +110,8 @@ $ make; ./bin/afw_test;
   * [done] StreamSource : input from the stream
   * [done] Add get latency
   * [] Add filter enabled source
+  　 * AEC
+       * Delay Adjustment between Mic and Output
   * [] Add SourceExample : Sin curve source
 * Util
   * [done] PCM encoding converter

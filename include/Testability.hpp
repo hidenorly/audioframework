@@ -24,6 +24,16 @@
 #include "PipeAndFilterCommon.hpp"
 #include "FifoBufferReadReference.hpp"
 
+#ifndef __AFW_TEST__
+   #define __AFW_TEST__ 1
+#endif /* __AFW_TEST__ */
+
+class ITestable
+{
+public:
+  virtual ITestable* getTestShim(void) = 0;
+};
+
 class ICapture : public IUnlockable
 {
 protected:

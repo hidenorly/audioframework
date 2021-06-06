@@ -14,13 +14,14 @@
    limitations under the License.
 */
 
+#include "Testability.hpp"
 #include "PowerManager.hpp"
+#include "PowerManagerPrimitive.hpp"
 
 IPowerManager::~IPowerManager()
 {
   mCallbacks.clear();
 }
-
 
 IPowerManager::POWERSTATE IPowerManager::getPowerState(void)
 {
@@ -50,7 +51,6 @@ std::string IPowerManager::getPowerStateString(IPowerManager::POWERSTATE powerSt
   return result;
 }
 
-
 int IPowerManager::registerCallback(CALLBACK callback)
 {
   mCallbacks.push_back( callback );
@@ -71,15 +71,26 @@ void IPowerManager::notifyStateChanged(POWERSTATE powerState)
   }
 }
 
+#if __AFW_TEST__
+ITestable* IPowerManager::getTestShim(void)
+{
+  return this;
+}
+#endif /* __AFW_TEST__ */
+
 
 PowerManager::PowerManager():IPowerManager(), IPowerManagerAdmin()
 {
-
+  mPowerManagerPrimitive = new PowerManagerPrimitive();
+  mPowerManagerPrimitive->initialize();
 }
 
 PowerManager::~PowerManager()
 {
-
+  if( mPowerManagerPrimitive ){
+    mPowerManagerPrimitive->terminate();
+    delete mPowerManagerPrimitive; mPowerManagerPrimitive = nullptr;
+  }
 }
 
 IPowerManager* PowerManager::getManager(void)
@@ -96,3 +107,11 @@ void PowerManager::setPowerState(IPowerManager::POWERSTATE powerState)
   mPowerState = powerState;
   notifyStateChanged( powerState );
 }
+
+#if __AFW_TEST__
+ITestable* PowerManager::getTestShim(void)
+{
+  return mPowerManagerPrimitive;
+}
+#endif /* __AFW_TEST__ */
+

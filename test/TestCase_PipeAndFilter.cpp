@@ -47,6 +47,7 @@
 #include "ResourceManager.hpp"
 #include "Strategy.hpp"
 #include "PowerManager.hpp"
+#include "PowerManagerPrimitive.hpp"
 
 #include <iostream>
 #include <filesystem>
@@ -1841,12 +1842,12 @@ TEST_F(TestCase_PipeAndFilter, testPowerManager)
   };
   int callbackId = pManager->registerCallback( callback );
 
-  IPowerManagerAdmin* pManagerAdmin = dynamic_cast<IPowerManagerAdmin*>(pManager);
-  if( pManagerAdmin ){
-    pManagerAdmin->setPowerState( IPowerManager::POWERSTATE::ACTIVE );
-    pManagerAdmin->setPowerState( IPowerManager::POWERSTATE::IDLE );
-    pManagerAdmin->setPowerState( IPowerManager::POWERSTATE::SUSPEND );
-    pManagerAdmin->setPowerState( IPowerManager::POWERSTATE::OFF );
+  PowerManagerPrimitive* pTestShim = dynamic_cast<PowerManagerPrimitive*>( pManager->getTestShim() );
+  if( pTestShim ){
+    pTestShim->setPowerState( IPowerManager::POWERSTATE::ACTIVE );
+    pTestShim->setPowerState( IPowerManager::POWERSTATE::IDLE );
+    pTestShim->setPowerState( IPowerManager::POWERSTATE::SUSPEND );
+    pTestShim->setPowerState( IPowerManager::POWERSTATE::OFF );
   }
 
   pManager->unregisterCallback( callbackId );

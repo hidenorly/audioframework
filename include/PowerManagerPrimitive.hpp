@@ -19,10 +19,11 @@
 
 #include "Testability.hpp"
 #include "PowerManager.hpp"
+#include "ThreadBase.hpp"
 
-class PowerManagerPrimitive
+class PowerManagerPrimitive : public ThreadBase
 #if __AFW_TEST__
-: public IPowerManagerAdmin, public ITestable
+,public IPowerManagerAdmin, public ITestable
 #endif /* __AFW_TEST__ */
 {
 public:
@@ -31,6 +32,11 @@ public:
 
   void initialize(void);
   void terminate(void);
+
+protected:
+  virtual void process(void);
+
+public:
 #if __AFW_TEST__
   virtual void setPowerState(IPowerManager::POWERSTATE powerState);
   virtual ITestable* getTestShim(void);

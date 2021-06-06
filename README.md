@@ -154,6 +154,8 @@ $ make; ./bin/afw_test;
   * PowerManagement
     * Suspend/Resume/Shutdown/Cold Boot, etc.
       * [done] PowerManager
+        * PowerManagerPrimitive
+          * [done] Linux resume monitor from suspend
       * the handler in the example strategy
 * Testability support
   * [done] dump

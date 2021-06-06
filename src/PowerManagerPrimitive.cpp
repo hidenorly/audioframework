@@ -17,6 +17,11 @@
 #include "Testability.hpp"
 #include "PowerManager.hpp"
 #include "PowerManagerPrimitive.hpp"
+#include <string>
+#include <thread>
+#include <iostream>
+#include <fstream>
+#include <filesystem>
 
 #if __AFW_TEST__
 // for test environement
@@ -31,6 +36,10 @@ void PowerManagerPrimitive::setPowerState(IPowerManager::POWERSTATE powerState )
 ITestable* PowerManagerPrimitive::getTestShim(void)
 {
  return this; 
+}
+
+void PowerManagerPrimitive::process(void)
+{
 }
 #endif /* __AFW_TEST__ */
 
@@ -49,12 +58,41 @@ PowerManagerPrimitive::~PowerManagerPrimitive()
 
 void PowerManagerPrimitive::initialize(void)
 {
-
+  run();
 }
 
 void PowerManagerPrimitive::terminate(void)
 {
+  stop();
+}
 
+static constexpr char sys_power_wakeup_count[] = "/sys/power/wakeup_count";
+static constexpr int RESUME_CHECK_DURATION = 100000;
+
+void PowerManagerPrimitive::process(void)
+{
+  // TODO: For implementer
+  //       Before echo "mem" > /sys/power/state, setPowerState( IPowerManager::POWERSTATE::SUSPEND );
+  // Monitor resume from suspend by reading /sys/power/wakeup_count
+  if( std::filesystem::exists( sys_power_wakeup_count ) ){
+    std::fstream stream( sys_power_wakeup_count, std::ios::in );
+    std::string count;
+    std::getline( stream, count );
+    int lastWakeupCount = std::stoi( count );
+
+    while( isRunning() ){
+      stream.seekp( 0 );
+      std::getline( stream, count );
+      int nCount = std::stoi( count );
+      if( (nCount!=lastWakeupCount) ){
+        setPowerState( IPowerManager::POWERSTATE::ACTIVE ); // resume from suspend
+        lastWakeupCount = nCount;
+      }
+      std::this_thread::sleep_for(std::chrono::microseconds(RESUME_CHECK_DURATION));
+    }
+
+    stream.close();
+  }
 }
 /* end of __linux */
 #elif __APPLE__
@@ -71,12 +109,12 @@ PowerManagerPrimitive::~PowerManagerPrimitive()
 
 void PowerManagerPrimitive::initialize(void)
 {
-
+  run();
 }
 
 void PowerManagerPrimitive::terminate(void)
 {
-
+  stop();
 }
 /* end of __APPLE__ */
 #else
@@ -93,11 +131,11 @@ PowerManagerPrimitive::~PowerManagerPrimitive()
 
 void PowerManagerPrimitive::initialize(void)
 {
-
+  run();
 }
 
 void PowerManagerPrimitive::terminate(void)
 {
-
+  stop();
 }
 #endif

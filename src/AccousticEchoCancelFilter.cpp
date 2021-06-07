@@ -14,29 +14,22 @@
    limitations under the License.
 */
 
-#ifndef __AEC_SOURCE_HPP__
-#define __AEC_SOURCE_HPP__
-
-#include "Source.hpp"
-#include "Sink.hpp"
-#include "DelayFilter.hpp"
 #include "AccousticEchoCancelFilter.hpp"
+#include <iostream>
 
-class AccousticEchoCancelledSource : public ISource
+AccousticEchoCancelFilter::AccousticEchoCancelFilter(ISink* pReferenceSound) : mpReferenceSound(pReferenceSound)
 {
-protected:
-  ISource* mpSource;
-  DelayFilter* mpDelay;
-  AccousticEchoCancelFilter* mpAecFilter;
 
-protected:
-  virtual void readPrimitive(IAudioBuffer& buf);
+}
+AccousticEchoCancelFilter::~AccousticEchoCancelFilter()
+{
+	mpReferenceSound = nullptr;
+}
 
-public:
-  AccousticEchoCancelledSource(ISource* pSource, ISink* pReferenceSound = nullptr, bool bDelayOnly = false);
-  virtual ~AccousticEchoCancelledSource();
-  virtual std::string toString(void){return "AccousticEchoCanceledSource";};
-};
-
-
-#endif /* __AEC_SOURCE_HPP__ */
+void AccousticEchoCancelFilter::process(AudioBuffer& inBuf, AudioBuffer& outBuf)
+{
+	// TODO: do AEC
+  std::cout << "AccousticEchoCancelFilter!" << std::endl;
+  // outBuf = inBuf - pReferenceSund->read(). ref sound & source's delay are adjusted in AecSource.
+	outBuf = inBuf;
+}

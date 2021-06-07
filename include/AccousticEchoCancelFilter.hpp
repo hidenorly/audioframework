@@ -14,29 +14,20 @@
    limitations under the License.
 */
 
-#ifndef __AEC_SOURCE_HPP__
-#define __AEC_SOURCE_HPP__
+#ifndef __AEC_FILTER_HPP__
+#define __AEC_FILTER_HPP__
 
-#include "Source.hpp"
+#include "Filter.hpp"
 #include "Sink.hpp"
-#include "DelayFilter.hpp"
-#include "AccousticEchoCancelFilter.hpp"
 
-class AccousticEchoCancelledSource : public ISource
+class AccousticEchoCancelFilter : public Filter
 {
 protected:
-  ISource* mpSource;
-  DelayFilter* mpDelay;
-  AccousticEchoCancelFilter* mpAecFilter;
-
-protected:
-  virtual void readPrimitive(IAudioBuffer& buf);
-
+  ISink* mpReferenceSound;
 public:
-  AccousticEchoCancelledSource(ISource* pSource, ISink* pReferenceSound = nullptr, bool bDelayOnly = false);
-  virtual ~AccousticEchoCancelledSource();
-  virtual std::string toString(void){return "AccousticEchoCanceledSource";};
+  AccousticEchoCancelFilter(ISink* pReferenceSound);
+  ~AccousticEchoCancelFilter();
+  virtual void process(AudioBuffer& inBuf, AudioBuffer& outBuf);
 };
 
-
-#endif /* __AEC_SOURCE_HPP__ */
+#endif /* __AEC_FILTER_HPP__ */

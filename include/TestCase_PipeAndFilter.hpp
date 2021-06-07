@@ -83,6 +83,7 @@ protected:
   void testPipeMute(void);
 
   void testAecSource(void);
+  void testAecSourceDelayOnly(void);
 
   void testPowerManager(void);
 };

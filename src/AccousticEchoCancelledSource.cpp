@@ -18,12 +18,17 @@
 #include "DelayFilter.hpp"
 #include "Buffer.hpp"
 
-AccousticEchoCancelledSource::AccousticEchoCancelledSource(ISource* pSource, ISink* pReferenceSound) : mpSource(pSource), mpReferenceSound(pReferenceSound)
+AccousticEchoCancelledSource::AccousticEchoCancelledSource(ISource* pSource, ISink* pReferenceSound, bool bDelayOnly) : mpSource(pSource)
 {
   mpDelay = nullptr;
+  mpAecFilter = nullptr;
+
   if( pSource && pReferenceSound ){
     int latencyUsec = pSource->getLatencyUSec() + pReferenceSound->getLatencyUSec();
     mpDelay = new DelayFilter( pSource->getAudioFormat(), latencyUsec );
+    if( !bDelayOnly ){
+      mpAecFilter = new AccousticEchoCancelFilter( pReferenceSound );
+    }
   }
 }
 
@@ -32,6 +37,10 @@ AccousticEchoCancelledSource::~AccousticEchoCancelledSource()
   if( mpDelay ){
     delete mpDelay;
     mpDelay = nullptr;
+  }
+  if( mpAecFilter ){
+    delete mpAecFilter;
+    mpAecFilter = nullptr;
   }
 }
 
@@ -43,8 +52,9 @@ void AccousticEchoCancelledSource::readPrimitive(IAudioBuffer& buf)
       AudioBuffer tmpBuffer( pOutBuf->getAudioFormat(), pOutBuf->getSamples() );
       mpSource->read( tmpBuffer );
       mpDelay->process( tmpBuffer, *pOutBuf );
-      if( mpReferenceSound ){
-        // TODO: doAec(pOutBuf, mpReferenceSound)
+      if( mpAecFilter ){
+        mpAecFilter->process( *pOutBuf, tmpBuffer );
+        *pOutBuf = tmpBuffer;
       }
     } else {
       mpSource->read( buf );

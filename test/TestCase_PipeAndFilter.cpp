@@ -49,6 +49,7 @@
 #include "Strategy.hpp"
 #include "PowerManager.hpp"
 #include "PowerManagerPrimitive.hpp"
+#include "AccousticEchoCancelledSource.hpp"
 
 #include <iostream>
 #include <filesystem>
@@ -1923,6 +1924,34 @@ TEST_F(TestCase_PipeAndFilter, testPowerManager)
   pManager->unregisterCallback( callbackId );
 }
 
+TEST_F(TestCase_PipeAndFilter, testAecSource)
+{
+  IPipe* pPipe = new Pipe();
+  ISource* pSource = new Source();
+  class TestSink : public Sink
+  {
+    int mTestLatency;
+  public:
+    TestSink(int latencyUsec): mTestLatency(latencyUsec){};
+    virtual ~TestSink(){};
+    virtual int getLatencyUSec(void){ return mTestLatency; };
+  };
+  ISink* pReferenceSink = new TestSink( 5*1000 ); // 5 msec latency
+  ISource* pAecSource = new AccousticEchoCancelledSource( pSource, pReferenceSink );
+  ISink* pSink = new Sink();
+  pPipe->attachSource( pAecSource );
+  pPipe->addFilterToTail( new Filter() );
+  pPipe->attachSink( pSink );
+  pPipe->run();
+  std::this_thread::sleep_for(std::chrono::microseconds(1000));
+  pPipe->stop();
+  pSink->dump();
+  delete pSink; pSink = nullptr;
+  delete pSource; pSource = nullptr;
+  delete pAecSource; pAecSource = nullptr;
+  delete pReferenceSink; pReferenceSink = nullptr;
+  delete pPipe; pPipe = nullptr;
+}
 
 int main(int argc, char **argv)
 {

@@ -106,12 +106,15 @@ $ make; ./bin/afw_test;
   * [done] Add filter enabled sink (PipedSink)
   * [done] Add volume (setVolume() in ISink)
   * [done] Add get latency
+  * Add RefereceSound Sink
 * Source
   * [done] StreamSource : input from the stream
   * [done] Add get latency
   * [done] Add filter enabled source (PipedSource)
-  　 * AEC
-       * Delay Adjustment between Mic and Output
+  * Accoustic Echo Cancelled Source
+    * [done] Delay Adjustment between Source and Reference Sound Sink
+    * Add tiny AEC filter & implement in the AEC-ed Source
+
   * [] Add SourceExample : Sin curve source
 * Util
   * [done] PCM encoding converter

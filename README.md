@@ -102,7 +102,7 @@ $ make; ./bin/afw_test;
   * [done] StreamSink : output to the stream
   * [done] MultiSink
     * [done] getLatencyUSec as maximum of registered Sinks.
-    * Add latency adjustment among registered Sinks with delay filter
+    * [done] Add latency adjustment among registered Sinks with delay filter
   * [done] Add filter enabled sink (PipedSink)
   * [done] Add volume (setVolume() in ISink)
   * [done] Add get latency
@@ -114,7 +114,6 @@ $ make; ./bin/afw_test;
   * Accoustic Echo Cancelled Source
     * [done] Delay Adjustment between Source and Reference Sound Sink
     * Add tiny AEC filter & implement in the AEC-ed Source
-
   * [] Add SourceExample : Sin curve source
 * Util
   * [done] PCM encoding converter

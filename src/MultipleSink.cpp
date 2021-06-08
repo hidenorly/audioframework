@@ -19,7 +19,7 @@
 #include <iostream>
 
 
-MultipleSink::MultipleSink(AudioFormat audioFormat):ISink(), mFormat(audioFormat)
+MultipleSink::MultipleSink(AudioFormat audioFormat):ISink(), mFormat(audioFormat), mMaxLatency(0)
 {
 
 }
@@ -32,8 +32,10 @@ MultipleSink::~MultipleSink()
 
 void MultipleSink::addSink(ISink* pSink, AudioFormat::ChannelMapper& map)
 {
-  mpSinks.push_back( pSink );
-  mChannelMaps.insert( std::make_pair(pSink, map) );
+  if( pSink ){
+    mpSinks.push_back( pSink );
+    mChannelMaps.insert( std::make_pair(pSink, map) );
+  }
 }
 
 void MultipleSink::clearSinks(void)
@@ -45,6 +47,23 @@ void MultipleSink::clearSinks(void)
   mChannelMaps.clear();
 }
 
+void MultipleSink::ensureDelayFilters(bool bForceRecreate)
+{
+  bool isDelayFiltersEmpty = mpDelayFilters.empty();
+  if( bForceRecreate || isDelayFiltersEmpty ){
+    if( !isDelayFiltersEmpty ){
+      for( auto& [pSink, pDelayFilter] : mpDelayFilters ){
+        delete pDelayFilter;
+      }
+      mpDelayFilters.clear();
+    }
+    mMaxLatency = getLatencyUSec();
+    for(auto& pSink : mpSinks ){
+      mpDelayFilters.insert_or_assign( pSink, new DelayFilter( pSink->getAudioFormat(), mMaxLatency-pSink->getLatencyUSec() ) );
+    }
+  }
+}
+
 
 void MultipleSink::writePrimitive(IAudioBuffer& buf)
 {
@@ -53,7 +72,11 @@ void MultipleSink::writePrimitive(IAudioBuffer& buf)
     if( pBuf ){
       AudioFormat::ChannelMapper mapper = mChannelMaps[ pSink ];
       AudioBuffer selectedChannelData = pBuf->getSelectedChannelData( pSink->getAudioFormat(), mapper );
-      pSink->write( selectedChannelData );
+      ensureDelayFilters();
+      AudioBuffer delayedOut( pSink->getAudioFormat(), pBuf->getSamples() );
+      DelayFilter* pDelayFilter = mpDelayFilters[ pSink ];
+      pDelayFilter->process( selectedChannelData, delayedOut );
+      pSink->write( delayedOut );
     } else {
       pSink->write( buf );
     }

@@ -20,6 +20,7 @@
 #include "Sink.hpp"
 #include "AudioFormat.hpp"
 #include "Buffer.hpp"
+#include "DelayFilter.hpp"
 #include <vector>
 #include <map>
 
@@ -30,6 +31,10 @@ protected:
   std::vector<ISink*> mpSinks;
   std::map<ISink*, AudioFormat::ChannelMapper> mChannelMaps;
   AudioFormat mFormat;
+  std::map<ISink*, DelayFilter*> mpDelayFilters;
+  int mMaxLatency;
+
+  void ensureDelayFilters(bool bForceRecreate = false);
 
 public:
   MultipleSink(AudioFormat audioFormat = AudioFormat());

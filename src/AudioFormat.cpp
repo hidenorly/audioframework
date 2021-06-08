@@ -85,6 +85,74 @@ int AudioFormat::getNumberOfChannels(AudioFormat::CHANNEL channel)
   return numOfChannels;
 }
 
+
+AudioFormat::ChannelMapper AudioFormat::getSameChannelMapper(void)
+{
+  return getSameChannelMapper(getChannels());
+}
+
+AudioFormat::ChannelMapper AudioFormat::getSameChannelMapper(AudioFormat::CHANNEL channel)
+{
+  AudioFormat::ChannelMapper result;
+
+  switch( channel ){
+    case AudioFormat::CHANNEL::CHANNEL_MONO:
+      result.insert_or_assign( AudioFormat::CH::MONO, AudioFormat::CH::MONO );
+      break;
+    case AudioFormat::CHANNEL::CHANNEL_STEREO:
+      result.insert_or_assign( AudioFormat::CH::L, AudioFormat::CH::L );
+      result.insert_or_assign( AudioFormat::CH::R, AudioFormat::CH::R );
+      break;
+    case AudioFormat::CHANNEL::CHANNEL_4CH:
+      result.insert_or_assign( AudioFormat::CH::FL, AudioFormat::CH::FL );
+      result.insert_or_assign( AudioFormat::CH::FR, AudioFormat::CH::FR );
+      result.insert_or_assign( AudioFormat::CH::SL, AudioFormat::CH::SL );
+      result.insert_or_assign( AudioFormat::CH::SR, AudioFormat::CH::SR );
+      break;
+    case AudioFormat::CHANNEL::CHANNEL_5CH:
+      result.insert_or_assign( AudioFormat::CH::FL, AudioFormat::CH::FL );
+      result.insert_or_assign( AudioFormat::CH::FR, AudioFormat::CH::FR );
+      result.insert_or_assign( AudioFormat::CH::SL, AudioFormat::CH::SL );
+      result.insert_or_assign( AudioFormat::CH::SR, AudioFormat::CH::SR );
+      result.insert_or_assign( AudioFormat::CH::C, AudioFormat::CH::C );
+      break;
+    case AudioFormat::CHANNEL::CHANNEL_5_1CH:
+      result.insert_or_assign( AudioFormat::CH::FL, AudioFormat::CH::FL );
+      result.insert_or_assign( AudioFormat::CH::FR, AudioFormat::CH::FR );
+      result.insert_or_assign( AudioFormat::CH::SL, AudioFormat::CH::SL );
+      result.insert_or_assign( AudioFormat::CH::SR, AudioFormat::CH::SR );
+      result.insert_or_assign( AudioFormat::CH::C, AudioFormat::CH::C );
+      result.insert_or_assign( AudioFormat::CH::SW, AudioFormat::CH::SW );
+      break;
+    case AudioFormat::CHANNEL::CHANNEL_5_1_2CH:
+    case AudioFormat::CHANNEL::CHANNEL_7_1CH:
+      result.insert_or_assign( AudioFormat::CH::FL, AudioFormat::CH::FL );
+      result.insert_or_assign( AudioFormat::CH::FR, AudioFormat::CH::FR );
+      result.insert_or_assign( AudioFormat::CH::SL, AudioFormat::CH::SL );
+      result.insert_or_assign( AudioFormat::CH::SR, AudioFormat::CH::SR );
+      result.insert_or_assign( AudioFormat::CH::C, AudioFormat::CH::C );
+      result.insert_or_assign( AudioFormat::CH::SW, AudioFormat::CH::SW );
+      result.insert_or_assign( AudioFormat::CH::SBL, AudioFormat::CH::SBL );
+      result.insert_or_assign( AudioFormat::CH::SBR, AudioFormat::CH::SBR );
+      break;
+    case AudioFormat::CHANNEL::CHANNEL_5_0_2CH:
+      result.insert_or_assign( AudioFormat::CH::FL, AudioFormat::CH::FL );
+      result.insert_or_assign( AudioFormat::CH::FR, AudioFormat::CH::FR );
+      result.insert_or_assign( AudioFormat::CH::SL, AudioFormat::CH::SL );
+      result.insert_or_assign( AudioFormat::CH::SR, AudioFormat::CH::SR );
+      result.insert_or_assign( AudioFormat::CH::C, AudioFormat::CH::C );
+      result.insert_or_assign( AudioFormat::CH::SBL, AudioFormat::CH::SBL );
+      result.insert_or_assign( AudioFormat::CH::SBR, AudioFormat::CH::SBR );
+      break;
+    case AudioFormat::CHANNEL::CHANNEL_UNKNOWN:
+    default:
+      break;
+  }
+
+  return result;
+}
+
+
 int AudioFormat::getChannelsSampleByte(AudioFormat::ENCODING encoding, AudioFormat::CHANNEL channel)
 {
   return getSampleByte(encoding) * getNumberOfChannels(channel);

@@ -450,7 +450,7 @@ bool ChannelConverter::channelConversion(AudioBuffer& srcBuf, AudioBuffer& dstBu
     // The following getSelectedChannelData expects no mix case.
     AudioFormat::ChannelMapper mapper;
     for( auto& chMap : chConvMapList ){
-      mapper.insert( std::make_pair(chMap.dstCh, chMap.srcCh) );
+      mapper.insert_or_assign( chMap.dstCh, chMap.srcCh );
     }
     AudioBuffer result = srcBuf.getSelectedChannelData(dstFormat, mapper);
     dstBuf = result;

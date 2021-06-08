@@ -71,6 +71,7 @@ public:
   void resize( int samples );
   AudioSample getSample(int nOffset);
   void setSample(int nOffset, AudioSample& sample);
+  bool isSameChannelMap(AudioFormat::ChannelMapper& mapper);
   AudioBuffer getSelectedChannelData(AudioFormat outAudioFormat, AudioFormat::ChannelMapper& mapper);
 };
 

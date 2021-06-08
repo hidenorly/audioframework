@@ -297,7 +297,6 @@ TEST_F(TestCase_PipeAndFilter, testMultipleSink)
     virtual int getLatencyUSec(void){ return mTestLatency; };
   };
 
-
   MultipleSink* pMultiSink = new MultipleSink();
 
   ISink* pSink1 = new TestSink( 5*1000 );
@@ -320,6 +319,33 @@ TEST_F(TestCase_PipeAndFilter, testMultipleSink)
 
   std::cout << "multi sink's latency : " << pMultiSink->getLatencyUSec() << std::endl;
   pMultiSink->dump();
+
+  pMultiSink->clearSinks(); // dispose all of sinks
+  delete pMultiSink; pMultiSink = nullptr;
+}
+
+TEST_F(TestCase_PipeAndFilter, testMultipleSink2)
+{
+  MultipleSink* pMultiSink = new MultipleSink();
+
+  ISink* pSink1 = new Sink();
+  AudioFormat::ChannelMapper chMap1 = pSink1->getAudioFormat().getSameChannelMapper();
+  pMultiSink->addSink( pSink1, chMap1 );
+
+  ISink* pSink2 = new Sink();
+  AudioFormat::ChannelMapper chMap2 = pSink2->getAudioFormat().getSameChannelMapper();
+  pMultiSink->addSink( pSink2, chMap2 );
+
+  AudioBuffer buf( AudioFormat(), 256 );
+  Source source;
+  source.read( buf );
+  pMultiSink->write( buf );
+
+  std::cout << "multi sink's latency : " << pMultiSink->getLatencyUSec() << std::endl;
+  pMultiSink->dump();
+
+  pMultiSink->clearSinks(); // dispose all of sinks
+  delete pMultiSink; pMultiSink = nullptr;
 }
 
 TEST_F(TestCase_PipeAndFilter, testStreamSink)

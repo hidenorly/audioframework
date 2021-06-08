@@ -34,7 +34,7 @@ void MultipleSink::addSink(ISink* pSink, AudioFormat::ChannelMapper& map)
 {
   if( pSink ){
     mpSinks.push_back( pSink );
-    mChannelMaps.insert( std::make_pair(pSink, map) );
+    mChannelMaps.insert_or_assign( pSink, map );
   }
 }
 

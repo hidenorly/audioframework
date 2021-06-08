@@ -35,6 +35,7 @@ protected:
 
   void testPipeMultiThread(void);
   void testMultipleSink(void);
+  void testMultipleSink_Same(void);
   void testStreamSink(void);
   void testStreamSink_DifferentFormat(void);
   void testStreamSource(void);

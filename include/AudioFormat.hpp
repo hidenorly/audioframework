@@ -98,6 +98,8 @@ public:
   int getOffSetByteInSample(AudioFormat::CH ch);
   static int getOffSetInSample(AudioFormat::CHANNEL channel, AudioFormat::CH ch);
   bool equal(AudioFormat arg2);
+  ChannelMapper getSameChannelMapper(void);
+  static ChannelMapper getSameChannelMapper(CHANNEL channel);
 };
 
 class AudioBase

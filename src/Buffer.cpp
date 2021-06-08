@@ -183,18 +183,37 @@ void AudioBuffer::setSample(int nOffset, AudioSample& sample)
   memcpy( rawDstBuf+bufSize*nOffset, rawSrcBuf, bufSize );
 }
 
+bool AudioBuffer::isSameChannelMap(AudioFormat::ChannelMapper& mapper)
+{
+  bool result = true;
+
+  int nChannels = mFormat.getNumberOfChannels();
+  for(const auto& [dstCh, srcCh] : mapper){
+    result = ( dstCh == srcCh );
+    nChannels--;
+    if( !result ) break;
+  }
+  result = result & !nChannels;
+
+  return result;
+}
+
 AudioBuffer AudioBuffer::getSelectedChannelData(AudioFormat outAudioFormat, AudioFormat::ChannelMapper& mapper)
 {
   // extract corresponding channel's data & reconstruct the buffer
   int nSrcSamples = getSamples();
   AudioBuffer dstBuf( outAudioFormat, nSrcSamples );
-  for(int i=0; i<nSrcSamples; i++){
-    AudioSample aSrcSample = getSample(i);
-    AudioSample aDstSample(outAudioFormat);
-    for(const auto& [dstCh, srcCh] : mapper){
-      aDstSample.setData( dstCh, aSrcSample.getData(srcCh) );
+  if( !isSameChannelMap(mapper) ){
+    for(int i=0; i<nSrcSamples; i++){
+      AudioSample aSrcSample = getSample(i);
+      AudioSample aDstSample(outAudioFormat);
+      for(const auto& [dstCh, srcCh] : mapper){
+        aDstSample.setData( dstCh, aSrcSample.getData(srcCh) );
+      }
+      dstBuf.setSample(i, aDstSample);
     }
-    dstBuf.setSample(i, aDstSample);
+  } else {
+    dstBuf = *this;
   }
   return dstBuf;
 }

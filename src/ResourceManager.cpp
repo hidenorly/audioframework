@@ -16,10 +16,8 @@
 
 #include "ResourceManager.hpp"
 
-
-
 #ifndef __USE_DUMMY_CPU_RESOURCE_IMPL_
-#define __USE_DUMMY_CPU_RESOURCE_IMPL_ 1
+  #define __USE_DUMMY_CPU_RESOURCE_IMPL_ 1
 #endif /* __USE_DUMMY_CPU_RESOURCE_IMPL_ */
 
 #if __USE_DUMMY_CPU_RESOURCE_IMPL_

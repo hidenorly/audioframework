@@ -15,6 +15,10 @@ The expection is to implement android audio hal, surround amplifier, mediaplayer
     * Filter
       * The instance is attachable to Pipe
       * Pipe::clearFilters() will dispose the attached instances.
+      * Accoustic Echo Cancel Filter
+        * Note that the implementation is quite tiny.
+          You need to replace high quality implementation. See the .cpp, you need to define the macro to disable the default implementations.
+          * ```USE_TINY_AEC_IMPL 0```
     * Pipes
       * Different window size filters are supported.
         * LCM window size processing by Pipe
@@ -57,6 +61,20 @@ The expection is to implement android audio hal, surround amplifier, mediaplayer
         * Key exact match e.g. "paramA"
         * Key wild card case e.g. "param*"
       * read only parameter. e.g. "ro.paramA"
+    * Resource Manager
+      * You need to report actual computing resource which is expected to measure at runtime.
+      You can find dummy implementation as follows:
+        ```__USE_DUMMY_CPU_RESOURCE_IMPL_ 0```
+        ```
+        #ifndef CPU_RESOURCE_VALUE
+        #define CPU_RESOURCE_VALUE 1000000 // 1000DMIPS * 1000
+        #endif /* CPU_RESOURCE_VALUE */
+
+        int CpuResource::getComputingResource(void)
+        {
+          return CPU_RESOURCE_VALUE;
+        }
+        ```
 
  * Test case framework is gtest.
     * TestCase_PipeAndFilter
@@ -106,14 +124,14 @@ $ make; ./bin/afw_test;
   * [done] Add filter enabled sink (PipedSink)
   * [done] Add volume (setVolume() in ISink)
   * [done] Add get latency
-  * Add RefereceSound Sink
 * Source
   * [done] StreamSource : input from the stream
   * [done] Add get latency
   * [done] Add filter enabled source (PipedSource)
-  * Accoustic Echo Cancelled Source
+  * [done] Add RefereceSoundSource
+  * [done] Accoustic Echo Cancelled Source
     * [done] Delay Adjustment between Source and Reference Sound Sink
-    * Add tiny AEC filter & implement in the AEC-ed Source
+    * [done] Add tiny AEC filter & implement in the AEC-ed Source
   * [] Add SourceExample : Sin curve source
 * Util
   * [done] PCM encoding converter

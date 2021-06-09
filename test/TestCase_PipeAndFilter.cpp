@@ -50,6 +50,7 @@
 #include "PowerManager.hpp"
 #include "PowerManagerPrimitive.hpp"
 #include "AccousticEchoCancelledSource.hpp"
+#include "ReferenceSoundSource.hpp"
 
 #include <iostream>
 #include <filesystem>
@@ -1960,20 +1961,31 @@ TEST_F(TestCase_PipeAndFilter, testPowerManager)
   pManager->unregisterCallback( callbackId );
 }
 
+class TestSink : public Sink
+{
+  int mTestLatency;
+public:
+  TestSink(int latencyUsec): Sink(), mTestLatency(latencyUsec){};
+  virtual ~TestSink(){};
+  virtual int getLatencyUSec(void){ return mTestLatency; };
+};
+
+class TestSource : public Source
+{
+  int mTestLatency;
+public:
+  TestSource(int latencyUsec): Source(), mTestLatency(latencyUsec){};
+  virtual ~TestSource(){};
+  virtual int getLatencyUSec(void){ return mTestLatency; };
+};
+
 TEST_F(TestCase_PipeAndFilter, testAecSource)
 {
   IPipe* pPipe = new Pipe();
-  ISource* pSource = new Source();
-  class TestSink : public Sink
-  {
-    int mTestLatency;
-  public:
-    TestSink(int latencyUsec): mTestLatency(latencyUsec){};
-    virtual ~TestSink(){};
-    virtual int getLatencyUSec(void){ return mTestLatency; };
-  };
-  ISink* pReferenceSink = new TestSink( 5*1000 ); // 5 msec latency
-  ISource* pAecSource = new AccousticEchoCancelledSource( pSource, pReferenceSink );
+  ISource* pSource = new TestSource( 5*1000 );
+  ISink* pActualSink = new TestSink( 5*1000 ); // 5 msec latency
+  ISource* pReferenceSource = new ReferenceSoundSource( pActualSink );
+  ISource* pAecSource = new AccousticEchoCancelledSource( pSource, pReferenceSource );
   ISink* pSink = new Sink();
   pPipe->attachSource( pAecSource );
   pPipe->addFilterToTail( new Filter() );
@@ -1983,26 +1995,20 @@ TEST_F(TestCase_PipeAndFilter, testAecSource)
   pPipe->stop();
   pSink->dump();
   delete pSink; pSink = nullptr;
+  delete pActualSink; pActualSink = nullptr;
   delete pSource; pSource = nullptr;
   delete pAecSource; pAecSource = nullptr;
-  delete pReferenceSink; pReferenceSink = nullptr;
+  delete pReferenceSource; pReferenceSource = nullptr;
   delete pPipe; pPipe = nullptr;
 }
 
 TEST_F(TestCase_PipeAndFilter, testAecSourceDelayOnly)
 {
   IPipe* pPipe = new Pipe();
-  ISource* pSource = new Source();
-  class TestSink : public Sink
-  {
-    int mTestLatency;
-  public:
-    TestSink(int latencyUsec): mTestLatency(latencyUsec){};
-    virtual ~TestSink(){};
-    virtual int getLatencyUSec(void){ return mTestLatency; };
-  };
-  ISink* pReferenceSink = new TestSink( 5*1000 ); // 5 msec latency
-  ISource* pAecSource = new AccousticEchoCancelledSource( pSource, pReferenceSink, true );
+  ISource* pSource = new TestSource( 5*1000 );
+  ISink* pActualSink = new TestSink( 5*1000 ); // 5 msec latency
+  ISource* pReferenceSource = new ReferenceSoundSource( pActualSink );
+  ISource* pAecSource = new AccousticEchoCancelledSource( pSource, pReferenceSource, true );
   ISink* pSink = new Sink();
   pPipe->attachSource( pAecSource );
   pPipe->addFilterToTail( new Filter() );
@@ -2012,9 +2018,10 @@ TEST_F(TestCase_PipeAndFilter, testAecSourceDelayOnly)
   pPipe->stop();
   pSink->dump();
   delete pSink; pSink = nullptr;
+  delete pActualSink; pActualSink = nullptr;
   delete pSource; pSource = nullptr;
   delete pAecSource; pAecSource = nullptr;
-  delete pReferenceSink; pReferenceSink = nullptr;
+  delete pReferenceSource; pReferenceSource = nullptr;
   delete pPipe; pPipe = nullptr;
 }
 

@@ -44,6 +44,7 @@ public:
   void setFifoSizeLimit(int nSampleLimit);
   AudioFormat getAudioFormat(void){ return mFormat; };
   void setAudioFormat( AudioFormat audioFormat );
+  void clearBuffer(void);
 };
 
 class FifoBuffer : public FifoBufferBase

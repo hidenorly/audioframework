@@ -14,28 +14,29 @@
    limitations under the License.
 */
 
-#ifndef __AEC_SOURCE_HPP__
-#define __AEC_SOURCE_HPP__
+#ifndef __REFERENCESOUND_SOURCE_HPP__
+#define __REFERENCESOUND_SOURCE_HPP__
 
-#include "Source.hpp"
-#include "DelayFilter.hpp"
-#include "AccousticEchoCancelFilter.hpp"
+#include "InterPipeBridge.hpp"
+#include "Sink.hpp"
+#include <mutex>
 
-class AccousticEchoCancelledSource : public ISource
+class ReferenceSoundSource : public InterPipeBridge
 {
 protected:
-  ISource* mpSource;
-  DelayFilter* mpDelay;
-  AccousticEchoCancelFilter* mpAecFilter;
+  ISink* mpSink;
+  std::mutex mMutexSink;
 
 protected:
-  virtual void readPrimitive(IAudioBuffer& buf);
+  virtual void writePrimitive(IAudioBuffer& buf);
 
 public:
-  AccousticEchoCancelledSource(ISource* pSource, ISource* pReferenceSound = nullptr, bool bDelayOnly = false);
-  virtual ~AccousticEchoCancelledSource();
-  virtual std::string toString(void){return "AccousticEchoCanceledSource";};
+  ReferenceSoundSource( ISink* pSink );
+  virtual ~ReferenceSoundSource();
+
+  ISink* attachSink(ISink* pSink);
+  ISink* detachSink(void);
+  void clearBuffer(void);
 };
 
-
-#endif /* __AEC_SOURCE_HPP__ */
+#endif /* __REFERENCESOUND_SOURCE_HPP__ */

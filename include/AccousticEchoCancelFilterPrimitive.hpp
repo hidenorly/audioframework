@@ -14,20 +14,19 @@
    limitations under the License.
 */
 
-#ifndef __AEC_FILTER_HPP__
-#define __AEC_FILTER_HPP__
+#ifndef __AEC_FILTER_PRIMITIVE_HPP__
+#define __AEC_FILTER_PRIMITIVE_HPP__
 
-#include "Filter.hpp"
-#include "Source.hpp"
+#include "Buffer.hpp"
 
-class AccousticEchoCancelFilter : public Filter
+class AccousticEchoCancelFilterPrimitive
 {
-protected:
-  ISource* mpReferenceSound;
 public:
-  AccousticEchoCancelFilter(ISource* pReferenceSound);
-  ~AccousticEchoCancelFilter();
-  virtual void process(AudioBuffer& inBuf, AudioBuffer& refBuf);
+  static bool process(int8_t* pSrc, int8_t* pRef, int nSamples = 1);
+  static bool process24(int8_t* pSrc, int8_t* pRef, int nSamples = 1);
+  static bool process(int16_t* pSrc, int16_t* pRef, int nSamples = 1);
+  static bool process(int32_t* pSrc, int32_t* pRef, int nSamples = 1);
+  static bool process(float* pSrc, float* pRef, int nSamples = 1);
 };
 
-#endif /* __AEC_FILTER_HPP__ */
+#endif /* __AEC_FILTER_PRIMITIVE_HPP__ */

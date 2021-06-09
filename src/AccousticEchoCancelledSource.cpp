@@ -18,7 +18,7 @@
 #include "DelayFilter.hpp"
 #include "Buffer.hpp"
 
-AccousticEchoCancelledSource::AccousticEchoCancelledSource(ISource* pSource, ISink* pReferenceSound, bool bDelayOnly) : mpSource(pSource)
+AccousticEchoCancelledSource::AccousticEchoCancelledSource(ISource* pSource, ISource* pReferenceSound, bool bDelayOnly) : mpSource(pSource)
 {
   mpDelay = nullptr;
   mpAecFilter = nullptr;
@@ -53,8 +53,7 @@ void AccousticEchoCancelledSource::readPrimitive(IAudioBuffer& buf)
       mpSource->read( tmpBuffer );
       mpDelay->process( tmpBuffer, *pOutBuf );
       if( mpAecFilter ){
-        mpAecFilter->process( *pOutBuf, tmpBuffer );
-        *pOutBuf = tmpBuffer;
+        mpAecFilter->process( *pOutBuf, tmpBuffer ); // outBuf = outBuf - tmpBuffer
       }
     } else {
       mpSource->read( buf );

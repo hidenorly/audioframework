@@ -26,6 +26,7 @@
 
 class SinkCapture;
 class SinkInjector;
+class ReferenceSoundSource;
 
 class ISink : public ISourceSinkCommon
 {
@@ -60,6 +61,7 @@ public:
   virtual void write(IAudioBuffer& buf);
   friend SinkCapture;
   friend SinkInjector;
+  friend ReferenceSoundSource;
 
   virtual std::vector<PRESENTATION> getAvailablePresentations(void);
   virtual bool isAvailablePresentation(PRESENTATION presentation);

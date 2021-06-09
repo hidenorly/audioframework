@@ -30,7 +30,7 @@ FifoBufferBase::~FifoBufferBase()
 
 int FifoBufferBase::getBufferedSamples(void)
 {
-  return mBuf.size() / mFormat.getChannelsSampleByte();
+  return mBuf.size() ? ( mBuf.size() / mFormat.getChannelsSampleByte() ) : 0;
 }
 
 void FifoBufferBase::setFifoSizeLimit(int nSampleLimit)
@@ -51,6 +51,10 @@ void FifoBufferBase::setAudioFormat( AudioFormat audioFormat )
   }
 }
 
+void FifoBufferBase::clearBuffer(void)
+{
+  mBuf.clear();
+}
 
 
 FifoBuffer::FifoBuffer(AudioFormat format):FifoBufferBase(format), mWriteBlocked(false), mUnlockWriteBlock(false)

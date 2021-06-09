@@ -15,9 +15,10 @@
 */
 
 #include "AccousticEchoCancelFilter.hpp"
+#include "AccousticEchoCancelFilterPrimitive.hpp"
 #include <iostream>
 
-AccousticEchoCancelFilter::AccousticEchoCancelFilter(ISink* pReferenceSound) : mpReferenceSound(pReferenceSound)
+AccousticEchoCancelFilter::AccousticEchoCancelFilter(ISource* pReferenceSound) : mpReferenceSound(pReferenceSound)
 {
 
 }
@@ -26,10 +27,36 @@ AccousticEchoCancelFilter::~AccousticEchoCancelFilter()
 	mpReferenceSound = nullptr;
 }
 
-void AccousticEchoCancelFilter::process(AudioBuffer& inBuf, AudioBuffer& outBuf)
+void AccousticEchoCancelFilter::process(AudioBuffer& inBuf, AudioBuffer& refBuf)
 {
-	// TODO: do AEC
-  std::cout << "AccousticEchoCancelFilter!" << std::endl;
-  // outBuf = inBuf - pReferenceSund->read(). ref sound & source's delay are adjusted in AecSource.
-	outBuf = inBuf;
+  AudioFormat srcFormat = inBuf.getAudioFormat();
+  AudioFormat refFormat = refBuf.getAudioFormat();
+  if( srcFormat.equal(refFormat) ){
+    int nChannelSamples = inBuf.getSamples() * refFormat.getNumberOfChannels();
+
+    int8_t* pRawInBuf = reinterpret_cast<int8_t*>( inBuf.getRawBufferPointer() );
+    int8_t* pRawRefBuf = reinterpret_cast<int8_t*>( refBuf.getRawBufferPointer() );
+    bool bHandled = false;
+
+    switch( refFormat.getEncoding() ){
+      case AudioFormat::ENCODING::PCM_8BIT:
+        bHandled = AccousticEchoCancelFilterPrimitive::process( pRawInBuf, pRawRefBuf, nChannelSamples );
+        break;
+      case AudioFormat::ENCODING::PCM_16BIT:
+        bHandled = AccousticEchoCancelFilterPrimitive::process( reinterpret_cast<int16_t*>(pRawInBuf), reinterpret_cast<int16_t*>(pRawRefBuf), nChannelSamples );
+        break;
+      case AudioFormat::ENCODING::PCM_32BIT:
+        bHandled = AccousticEchoCancelFilterPrimitive::process( reinterpret_cast<int32_t*>(pRawInBuf), reinterpret_cast<int32_t*>(pRawRefBuf), nChannelSamples );
+        break;
+      case AudioFormat::ENCODING::PCM_FLOAT:
+        bHandled = AccousticEchoCancelFilterPrimitive::process( reinterpret_cast<float*>(pRawInBuf), reinterpret_cast<float*>(pRawRefBuf), nChannelSamples );
+        break;
+      case AudioFormat::ENCODING::PCM_24BIT_PACKED:
+        bHandled = AccousticEchoCancelFilterPrimitive::process24( pRawInBuf, pRawRefBuf, nChannelSamples );
+        break;
+      case AudioFormat::ENCODING::PCM_UNKNOWN:
+      default:
+        break;
+    }
+  }
 }

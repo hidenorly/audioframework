@@ -303,14 +303,14 @@ TEST_F(TestCase_PipeAndFilter, testMultipleSink)
   AudioFormat::ChannelMapper chMap1;
   chMap1.insert( std::make_pair(AudioFormat::CH::L, AudioFormat::CH::L) ); // dst, src
   chMap1.insert( std::make_pair(AudioFormat::CH::R, AudioFormat::CH::L) ); // dst, src
-  pMultiSink->addSink( pSink1, chMap1 );
+  pMultiSink->attachSink( pSink1, chMap1 );
 
   ISink* pSink2 = new TestSink( 10*1000 );
   AudioFormat::ChannelMapper chMap2;
   chMap2.insert( std::make_pair(AudioFormat::CH::L, AudioFormat::CH::R) ); // dst, src
   chMap2.insert( std::make_pair(AudioFormat::CH::R, AudioFormat::CH::R) ); // dst, src
 
-  pMultiSink->addSink( pSink2, chMap2 );
+  pMultiSink->attachSink( pSink2, chMap2 );
 
   AudioBuffer buf( AudioFormat(), 256 );
   Source source;
@@ -330,11 +330,11 @@ TEST_F(TestCase_PipeAndFilter, testMultipleSink2)
 
   ISink* pSink1 = new Sink();
   AudioFormat::ChannelMapper chMap1 = pSink1->getAudioFormat().getSameChannelMapper();
-  pMultiSink->addSink( pSink1, chMap1 );
+  pMultiSink->attachSink( pSink1, chMap1 );
 
   ISink* pSink2 = new Sink();
   AudioFormat::ChannelMapper chMap2 = pSink2->getAudioFormat().getSameChannelMapper();
-  pMultiSink->addSink( pSink2, chMap2 );
+  pMultiSink->attachSink( pSink2, chMap2 );
 
   AudioBuffer buf( AudioFormat(), 256 );
   Source source;

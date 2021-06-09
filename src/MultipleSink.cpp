@@ -30,7 +30,7 @@ MultipleSink::~MultipleSink()
 }
 
 
-void MultipleSink::addSink(ISink* pSink, AudioFormat::ChannelMapper& map)
+void MultipleSink::attachSink(ISink* pSink, AudioFormat::ChannelMapper& map)
 {
   if( pSink ){
     mpSinks.push_back( pSink );
@@ -38,10 +38,28 @@ void MultipleSink::addSink(ISink* pSink, AudioFormat::ChannelMapper& map)
   }
 }
 
-void MultipleSink::clearSinks(void)
+bool MultipleSink::detachSink(ISink* pSink, bool bDisposeSink)
 {
-  for(auto& pSink : mpSinks ){
-    delete pSink;
+  bool result = false;
+
+  if( mChannelMaps.contains( pSink ) ){
+    std::erase( mpSinks, pSink );
+    mChannelMaps.erase( pSink );
+    result = true;
+    if( bDisposeSink ){
+      delete pSink;
+    }
+  }
+
+  return result;
+}
+
+void MultipleSink::clearSinks(bool bDisposeSinks)
+{
+  if( bDisposeSinks ){
+    for(auto& pSink : mpSinks ){
+      delete pSink;
+    }
   }
   mpSinks.clear();
   mChannelMaps.clear();

@@ -39,8 +39,9 @@ protected:
 public:
   MultipleSink(AudioFormat audioFormat = AudioFormat());
   virtual ~MultipleSink();
-  virtual void addSink(ISink* pSink, AudioFormat::ChannelMapper& map);
-  virtual void clearSinks(void);
+  virtual void attachSink(ISink* pSink, AudioFormat::ChannelMapper& map);
+  virtual bool detachSink(ISink* pSink, bool bDisposeSink = false);
+  virtual void clearSinks(bool bDisposeSinks = true);
 
   virtual void writePrimitive(IAudioBuffer& buf);
   virtual std::string toString(void){ return "MultipleSink"; };

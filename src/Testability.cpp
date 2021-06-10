@@ -232,7 +232,7 @@ void FilterCapture::process(AudioBuffer& inBuf, AudioBuffer& outBuf)
 {
   outBuf = inBuf;
 
-  setCaptureBufferSize( inBuf.getSamples() * 3 );
+  setCaptureBufferSize( inBuf.getNumberOfSamples() * 3 );
   setCaptureAudioFormat( inBuf.getAudioFormat() );
   enqueToRefBuf( inBuf );
 }

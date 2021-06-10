@@ -82,7 +82,7 @@ void ISink::write(IAudioBuffer& buf)
   AudioBuffer* pZeroBuf = nullptr;
   if( pBuf ){
     // AudioBuffer instance
-    nSamples = pBuf->getSamples();
+    nSamples = pBuf->getNumberOfSamples();
     format = pBuf->getAudioFormat();
     if( nSamples ){
       mLatencyUsec = 1000000 * nSamples / format.getSamplingRate();

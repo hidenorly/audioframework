@@ -49,7 +49,7 @@ void StreamSink::writePrimitive(IAudioBuffer& buf)
     // convert if necessary
     AudioBuffer* pBuf = dynamic_cast<AudioBuffer*>(&buf);
     if( pBuf && !mFormat.equal( pBuf->getAudioFormat() ) ){
-      AudioBuffer dstAudioBuffer( mFormat, pBuf->getSamples() );
+      AudioBuffer dstAudioBuffer( mFormat, pBuf->getNumberOfSamples() );
       AudioFormatAdaptor::convert( *pBuf, dstAudioBuffer );
       *pBuf = dstAudioBuffer;
     }

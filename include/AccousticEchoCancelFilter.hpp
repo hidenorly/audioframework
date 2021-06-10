@@ -22,10 +22,8 @@
 
 class AccousticEchoCancelFilter : public Filter
 {
-protected:
-  ISource* mpReferenceSound;
 public:
-  AccousticEchoCancelFilter(ISource* pReferenceSound);
+  AccousticEchoCancelFilter();
   ~AccousticEchoCancelFilter();
   virtual void process(AudioBuffer& inBuf, AudioBuffer& refBuf);
 };

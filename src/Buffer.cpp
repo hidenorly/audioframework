@@ -136,19 +136,19 @@ AudioBuffer& AudioBuffer::operator=(AudioBuffer& buf)
   return *this;
 }
 
-int IAudioBuffer::getSamples(void)
+int IAudioBuffer::getNumberOfSamples(void)
 {
   return mFormat.getChannelsSampleByte() ? mBuf.size() / mFormat.getChannelsSampleByte() : mBuf.size();
 }
 
 int AudioBuffer::getWindowSizeUsec(void)
 {
-  return 1000 * getSamples() / mFormat.getSamplingRate();
+  return 1000 * getNumberOfSamples() / mFormat.getSamplingRate();
 }
 
 void AudioBuffer::setAudioFormat( AudioFormat format )
 {
-  int samples = getSamples();
+  int samples = getNumberOfSamples();
   mFormat = format;
   resize( samples );
 }
@@ -201,7 +201,7 @@ bool AudioBuffer::isSameChannelMap(AudioFormat::ChannelMapper& mapper)
 AudioBuffer AudioBuffer::getSelectedChannelData(AudioFormat outAudioFormat, AudioFormat::ChannelMapper& mapper)
 {
   // extract corresponding channel's data & reconstruct the buffer
-  int nSrcSamples = getSamples();
+  int nSrcSamples = getNumberOfSamples();
   AudioBuffer dstBuf( outAudioFormat, nSrcSamples );
   if( !isSameChannelMap(mapper) ){
     for(int i=0; i<nSrcSamples; i++){

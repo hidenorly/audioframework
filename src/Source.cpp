@@ -31,7 +31,7 @@ void ISource::read(IAudioBuffer& buf)
 {
   AudioBuffer* pBuf = dynamic_cast<AudioBuffer*>(&buf);
   if( pBuf ){
-    int nSamples = pBuf->getSamples();
+    int nSamples = pBuf->getNumberOfSamples();
     AudioFormat format = pBuf->getAudioFormat();
     if( nSamples ){
       mLatencyUsec = 1000000 * nSamples / format.getSamplingRate();

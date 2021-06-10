@@ -91,7 +91,7 @@ void MultipleSink::writePrimitive(IAudioBuffer& buf)
       AudioFormat::ChannelMapper mapper = mChannelMaps[ pSink ];
       AudioBuffer selectedChannelData = pBuf->getSelectedChannelData( pSink->getAudioFormat(), mapper );
       ensureDelayFilters();
-      AudioBuffer delayedOut( pSink->getAudioFormat(), pBuf->getSamples() );
+      AudioBuffer delayedOut( pSink->getAudioFormat(), pBuf->getNumberOfSamples() );
       DelayFilter* pDelayFilter = mpDelayFilters[ pSink ];
       pDelayFilter->process( selectedChannelData, delayedOut );
       pSink->write( delayedOut );

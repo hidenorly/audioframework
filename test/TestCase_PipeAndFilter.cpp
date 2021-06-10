@@ -50,7 +50,7 @@
 #include "PowerManager.hpp"
 #include "PowerManagerPrimitive.hpp"
 #include "AccousticEchoCancelledSource.hpp"
-#include "ReferenceSoundSource.hpp"
+#include "ReferenceSoundSinkSource.hpp"
 
 #include <iostream>
 #include <filesystem>
@@ -1984,7 +1984,7 @@ TEST_F(TestCase_PipeAndFilter, testAecSource)
   IPipe* pPipe = new Pipe();
   ISource* pSource = new TestSource( 5*1000 );
   ISink* pActualSink = new TestSink( 5*1000 ); // 5 msec latency
-  ISource* pReferenceSource = new ReferenceSoundSource( pActualSink );
+  ISource* pReferenceSource = new ReferenceSoundSinkSource( pActualSink );
   ISource* pAecSource = new AccousticEchoCancelledSource( pSource, pReferenceSource );
   ISink* pSink = new Sink();
   pPipe->attachSource( pAecSource );
@@ -2007,7 +2007,7 @@ TEST_F(TestCase_PipeAndFilter, testAecSourceDelayOnly)
   IPipe* pPipe = new Pipe();
   ISource* pSource = new TestSource( 5*1000 );
   ISink* pActualSink = new TestSink( 5*1000 ); // 5 msec latency
-  ISource* pReferenceSource = new ReferenceSoundSource( pActualSink );
+  ISource* pReferenceSource = new ReferenceSoundSinkSource( pActualSink );
   ISource* pAecSource = new AccousticEchoCancelledSource( pSource, pReferenceSource, true );
   ISink* pSink = new Sink();
   pPipe->attachSource( pAecSource );

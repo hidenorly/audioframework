@@ -20,21 +20,27 @@
 #include "Source.hpp"
 #include "DelayFilter.hpp"
 #include "AccousticEchoCancelFilter.hpp"
+#include <mutex>
 
 class AccousticEchoCancelledSource : public ISource
 {
 protected:
   ISource* mpSource;
+  ISource* mpReferenceSource;
   DelayFilter* mpDelay;
   AccousticEchoCancelFilter* mpAecFilter;
+  int mDelayUsec;
+  std::mutex mMutexDelay;
 
 protected:
   virtual void readPrimitive(IAudioBuffer& buf);
+  void createDelayFilter(void);
 
 public:
   AccousticEchoCancelledSource(ISource* pSource, ISource* pReferenceSound = nullptr, bool bDelayOnly = false);
   virtual ~AccousticEchoCancelledSource();
   virtual std::string toString(void){return "AccousticEchoCanceledSource";};
+  virtual void adjustDelay(void);
 };
 
 

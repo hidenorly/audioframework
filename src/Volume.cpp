@@ -22,8 +22,8 @@ bool Volume::process( AudioBuffer* pInBuf, AudioBuffer* pOutBuf, float volume )
   bool bHandled = false;
 
   if( pInBuf && pOutBuf ){
-    int nSamples = pInBuf->getSamples();
-    if( pOutBuf->getSamples() != nSamples) {
+    int nSamples = pInBuf->getNumberOfSamples();
+    if( pOutBuf->getNumberOfSamples() != nSamples) {
       pOutBuf->resize( nSamples );
     }
     AudioFormat srcFormat = pInBuf->getAudioFormat();

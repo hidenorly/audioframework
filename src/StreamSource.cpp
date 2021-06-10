@@ -53,7 +53,7 @@ void StreamSource::readPrimitive(IAudioBuffer& buf)
     if( !mFormat.equal( buf.getAudioFormat() ) ){
       AudioBuffer* pBuf = dynamic_cast<AudioBuffer*>(&buf);
       if( pBuf ){
-        AudioBuffer dstAudioBuffer( mFormat, pBuf->getSamples() );
+        AudioBuffer dstAudioBuffer( mFormat, pBuf->getNumberOfSamples() );
         AudioFormatAdaptor::convert( *pBuf, dstAudioBuffer );
         *pBuf = dstAudioBuffer;
       }

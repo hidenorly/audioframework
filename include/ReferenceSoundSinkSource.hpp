@@ -14,29 +14,35 @@
    limitations under the License.
 */
 
-#ifndef __REFERENCESOUND_SOURCE_HPP__
-#define __REFERENCESOUND_SOURCE_HPP__
+#ifndef __REFERENCESOUND_SINK_SOURCE_HPP__
+#define __REFERENCESOUND_SINK_SOURCE_HPP__
 
 #include "InterPipeBridge.hpp"
 #include "Sink.hpp"
 #include <mutex>
 
-class ReferenceSoundSource : public InterPipeBridge
+class ReferenceSoundSinkSource : public InterPipeBridge
 {
 protected:
   ISink* mpSink;
   std::mutex mMutexSink;
 
 protected:
+  virtual void readPrimitive(IAudioBuffer& buf);
   virtual void writePrimitive(IAudioBuffer& buf);
 
 public:
-  ReferenceSoundSource( ISink* pSink );
-  virtual ~ReferenceSoundSource();
+  ReferenceSoundSinkSource( ISink* pSink );
+  virtual ~ReferenceSoundSinkSource();
 
   ISink* attachSink(ISink* pSink);
   ISink* detachSink(void);
   void clearBuffer(void);
+
+  virtual bool setAudioFormat(AudioFormat audioFormat);
+  virtual AudioFormat getAudioFormat(void);
+
+  virtual int stateResourceConsumption(void);
 };
 
-#endif /* __REFERENCESOUND_SOURCE_HPP__ */
+#endif /* __REFERENCESOUND_SINK_SOURCE_HPP__ */

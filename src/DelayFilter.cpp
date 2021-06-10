@@ -72,7 +72,6 @@ void DelayFilter::process(AudioBuffer& srcBuf, AudioBuffer& dstBuf)
 }
 
 
-
 PerChannelDelayFilter::PerChannelDelayFilter(AudioFormat audioFormat, ChannelDelay channelDelay) : DelayFilter(audioFormat, 0), mChannelDelay(channelDelay)
 {
   assert( audioFormat.getNumberOfChannels() == channelDelay.size() );
@@ -119,7 +118,7 @@ void PerChannelDelayFilter::process(AudioBuffer& srcBuf, AudioBuffer& dstBuf)
 
     // create temporary buffer
     AudioFormat tmpFormat( mAudioFormat.getEncoding(), mAudioFormat.getSamplingRate(), AudioFormat::CHANNEL::CHANNEL_MONO );
-    int nSrcSamples = srcBuf.getSamples();
+    int nSrcSamples = srcBuf.getNumberOfSamples();
     std::map<AudioFormat::CH, AudioBuffer*> tmpBuffers;
     for(auto& [ch, delayUsec] : mChannelDelay){
      tmpBuffers[ch] = new AudioBuffer( tmpFormat, nSrcSamples );

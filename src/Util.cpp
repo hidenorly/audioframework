@@ -25,7 +25,7 @@ void Util::dumpBuffer(IAudioBuffer* pBuf)
       std::cout << "sampling rate:" << (int)format.getSamplingRate() <<
         " format:" << format.getEncodingString() <<
         " channels:" << (int)format.getNumberOfChannels() <<
-        " samples:" << (int)pAudioBuf->getSamples() <<
+        " samples:" << (int)pAudioBuf->getNumberOfSamples() <<
         std::endl;
       } else {
       std::cout << " format:" << format.getEncodingString() <<

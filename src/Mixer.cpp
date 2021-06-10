@@ -35,7 +35,7 @@ bool Mixer::process( std::vector<AudioBuffer*> pInBuffers, AudioBuffer* pOutBuff
     normalizedInBuffers.reserve( pInBuffers.size() );
     std::vector<AudioBuffer*> allocatedBufferPointers;
     allocatedBufferPointers.reserve( pInBuffers.size() );
-    int nSamples = pOutBuffer->getSamples();
+    int nSamples = pOutBuffer->getNumberOfSamples();
     // format convert if different format
     for(AudioBuffer* pBuffer : pInBuffers){
       if( dstFormat.equal( pBuffer->getAudioFormat() ) ){
@@ -73,7 +73,7 @@ bool Mixer::doMix( std::vector<AudioBuffer*> pInBuffers, AudioBuffer* pOutBuffer
   AudioBuffer* pFinalOutBuffer = pOutBuffer;
   if( !pInBuffers.empty() && pOutBuffer ){
     AudioFormat format = pOutBuffer->getAudioFormat();
-    int nSamples = pOutBuffer->getSamples();
+    int nSamples = pOutBuffer->getNumberOfSamples();
     // loop a+b=c
     AudioBuffer tmpIn1Buffer( format, nSamples );
     tmpIn1Buffer = *pInBuffers[0];
@@ -101,7 +101,7 @@ bool Mixer::doMixPrimitive( AudioBuffer* pInBuffer1, AudioBuffer* pInBuffer2, Au
 
   if( pInBuffer1 && pInBuffer2 && pOutBuffer ){
     AudioFormat format = pOutBuffer->getAudioFormat();
-    int nChannelSamples = pOutBuffer->getSamples() * format.getNumberOfChannels();
+    int nChannelSamples = pOutBuffer->getNumberOfSamples() * format.getNumberOfChannels();
     int8_t* pRawInBuf1 = reinterpret_cast<int8_t*>( pInBuffer1->getRawBufferPointer() );
     int8_t* pRawInBuf2 = reinterpret_cast<int8_t*>( pInBuffer2->getRawBufferPointer() );
     int8_t* pRawOutBuf = reinterpret_cast<int8_t*>( pOutBuffer->getRawBufferPointer() );

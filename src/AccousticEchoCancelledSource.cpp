@@ -18,17 +18,15 @@
 #include "DelayFilter.hpp"
 #include "Buffer.hpp"
 
-AccousticEchoCancelledSource::AccousticEchoCancelledSource(ISource* pSource, ISource* pReferenceSound, bool bDelayOnly) : mpSource(pSource)
+AccousticEchoCancelledSource::AccousticEchoCancelledSource(ISource* pSource, ISource* pReferenceSound, bool bDelayOnly) : mpSource(pSource), mpReferenceSource( pReferenceSound )
 {
   mpDelay = nullptr;
   mpAecFilter = nullptr;
+  mDelayUsec = 0;
 
-  if( pSource && pReferenceSound ){
-    int latencyUsec = pSource->getLatencyUSec() + pReferenceSound->getLatencyUSec();
-    mpDelay = new DelayFilter( pSource->getAudioFormat(), latencyUsec );
-    if( !bDelayOnly ){
-      mpAecFilter = new AccousticEchoCancelFilter( pReferenceSound );
-    }
+  createDelayFilter();
+  if( !bDelayOnly ){
+    mpAecFilter = new AccousticEchoCancelFilter();
   }
 }
 
@@ -44,14 +42,32 @@ AccousticEchoCancelledSource::~AccousticEchoCancelledSource()
   }
 }
 
+void AccousticEchoCancelledSource::createDelayFilter()
+{
+  if( mpSource && mpReferenceSource ){
+    int latencyUsec = mpSource->getLatencyUSec() + mpReferenceSource->getLatencyUSec();
+    if( mDelayUsec != latencyUsec ){
+      mDelayUsec = latencyUsec;
+      mMutexDelay.lock();
+      if( mpDelay ){
+        delete mpDelay; mpDelay = nullptr;
+      }
+      mpDelay = new DelayFilter( mpSource->getAudioFormat(), latencyUsec );
+      mMutexDelay.unlock();
+    }
+  }
+}
+
 void AccousticEchoCancelledSource::readPrimitive(IAudioBuffer& buf)
 {
   if( mpSource ){
     AudioBuffer* pOutBuf = dynamic_cast<AudioBuffer*>(&buf);
     if( mpDelay && pOutBuf ){
-      AudioBuffer tmpBuffer( pOutBuf->getAudioFormat(), pOutBuf->getSamples() );
+      AudioBuffer tmpBuffer( pOutBuf->getAudioFormat(), pOutBuf->getNumberOfSamples() );
       mpSource->read( tmpBuffer );
+      mMutexDelay.lock();
       mpDelay->process( tmpBuffer, *pOutBuf );
+      mMutexDelay.unlock();
       if( mpAecFilter ){
         mpAecFilter->process( *pOutBuf, tmpBuffer ); // outBuf = outBuf - tmpBuffer
       }
@@ -59,4 +75,9 @@ void AccousticEchoCancelledSource::readPrimitive(IAudioBuffer& buf)
       mpSource->read( buf );
     }
   }
+}
+
+void AccousticEchoCancelledSource::adjustDelay(void)
+{
+  createDelayFilter();
 }

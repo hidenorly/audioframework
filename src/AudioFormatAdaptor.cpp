@@ -121,7 +121,7 @@ bool AudioFormatAdaptor::encodingConversion(AudioBuffer& srcBuf, AudioBuffer& ds
 bool AudioFormatAdaptor::samplingRateConversion(AudioBuffer& srcBuf, AudioBuffer& dstBuf, int dstSamplingRate)
 {
   AudioFormat srcFormat = srcBuf.getAudioFormat();
-  int nSrcSamples = srcBuf.getSamples();
+  int nSrcSamples = srcBuf.getNumberOfSamples();
   uint8_t* srcRawBuf = srcBuf.getRawBufferPointer();
   int srcSamplingRate = srcFormat.getSamplingRate();
 

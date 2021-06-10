@@ -18,13 +18,13 @@
 #include "AccousticEchoCancelFilterPrimitive.hpp"
 #include <iostream>
 
-AccousticEchoCancelFilter::AccousticEchoCancelFilter(ISource* pReferenceSound) : mpReferenceSound(pReferenceSound)
+AccousticEchoCancelFilter::AccousticEchoCancelFilter(void)
 {
 
 }
+
 AccousticEchoCancelFilter::~AccousticEchoCancelFilter()
 {
-	mpReferenceSound = nullptr;
 }
 
 void AccousticEchoCancelFilter::process(AudioBuffer& inBuf, AudioBuffer& refBuf)
@@ -32,7 +32,7 @@ void AccousticEchoCancelFilter::process(AudioBuffer& inBuf, AudioBuffer& refBuf)
   AudioFormat srcFormat = inBuf.getAudioFormat();
   AudioFormat refFormat = refBuf.getAudioFormat();
   if( srcFormat.equal(refFormat) ){
-    int nChannelSamples = inBuf.getSamples() * refFormat.getNumberOfChannels();
+    int nChannelSamples = inBuf.getNumberOfSamples() * refFormat.getNumberOfChannels();
 
     int8_t* pRawInBuf = reinterpret_cast<int8_t*>( inBuf.getRawBufferPointer() );
     int8_t* pRawRefBuf = reinterpret_cast<int8_t*>( refBuf.getRawBufferPointer() );

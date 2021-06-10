@@ -2025,6 +2025,54 @@ TEST_F(TestCase_PipeAndFilter, testAecSourceDelayOnly)
   delete pPipe; pPipe = nullptr;
 }
 
+
+TEST_F(TestCase_PipeAndFilter, testDynamicSignalFlow_AddNewSinkToReferenceSoundSink)
+{
+  IPipe* pPipe = new Pipe();
+
+  ISink* pGlobalSink1 = new Sink();
+  ReferenceSoundSinkSource* pReferenceSource = new ReferenceSoundSinkSource( pGlobalSink1 );
+  ISource* pRawMicSource = new TestSource( 5*1000 );
+  AccousticEchoCancelledSource* pAecedMicSource = new AccousticEchoCancelledSource( pRawMicSource, pReferenceSource );
+
+  pPipe->attachSource( pAecedMicSource );
+
+  pPipe->addFilterToTail( new Filter() );
+
+  ISink* pMicSink = new Sink();
+  pPipe->attachSink( pMicSink );
+
+  pPipe->run();
+  std::this_thread::sleep_for(std::chrono::microseconds(1000));
+
+  ISink* pGlobalSink2 = new TestSink(1*1000);
+  ISink* pDetachedSinkFromRefSound1 = pReferenceSource->attachSink(pGlobalSink2);
+  EXPECT_EQ( pDetachedSinkFromRefSound1, pGlobalSink1 );
+  pAecedMicSource->adjustDelay();
+  delete pGlobalSink1; pGlobalSink1 = pDetachedSinkFromRefSound1 = nullptr;
+  std::this_thread::sleep_for(std::chrono::microseconds(5000));
+
+  pPipe->stop();
+  pMicSink->dump();
+
+  ISink* pDetachedMicSink = pPipe->detachSink();
+  EXPECT_EQ( pDetachedMicSink, pMicSink );
+  delete pDetachedMicSink; pMicSink = pDetachedMicSink = nullptr;
+
+  ISource* pDetachedMicSource = pPipe->detachSource();
+  EXPECT_EQ( pDetachedMicSource, pAecedMicSource );
+  delete pAecedMicSource; pDetachedMicSource = pAecedMicSource = nullptr;
+
+  delete pRawMicSource; pRawMicSource = nullptr;
+  ISink* pDetachedSinkFromRefSound2 = pReferenceSource->detachSink();
+  EXPECT_EQ( pDetachedSinkFromRefSound2, pGlobalSink2 );
+  delete pDetachedSinkFromRefSound2; pDetachedSinkFromRefSound2 = pGlobalSink2 = nullptr;
+  delete pReferenceSource; pReferenceSource = nullptr;
+
+  delete pPipe; pPipe = nullptr;
+}
+
+
 int main(int argc, char **argv)
 {
   ::testing::InitGoogleTest(&argc, argv);

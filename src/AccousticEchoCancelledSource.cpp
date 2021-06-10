@@ -22,7 +22,7 @@ AccousticEchoCancelledSource::AccousticEchoCancelledSource(ISource* pSource, ISo
 {
   mpDelay = nullptr;
   mpAecFilter = nullptr;
-  mDelayUsec = 0;
+  mDelayUsec = -1;
 
   createDelayFilter();
   if( !bDelayOnly ){

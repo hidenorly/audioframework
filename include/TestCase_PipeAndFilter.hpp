@@ -85,6 +85,7 @@ protected:
 
   void testAecSource(void);
   void testAecSourceDelayOnly(void);
+  void testDynamicSignalFlow_AddNewSinkToReferenceSoundSink(void);
 
   void testPowerManager(void);
 };

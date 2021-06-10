@@ -171,6 +171,7 @@ $ make; ./bin/afw_test;
     * [done] Mute in Sink
     * [done] Mute in Source
     * [done] Mute in Pipe
+    * [done] attach new Sink To ReferenceSoundSink for AecSinkSource
   * PowerManagement
     * Suspend/Resume/Shutdown/Cold Boot, etc.
       * [done] PowerManager

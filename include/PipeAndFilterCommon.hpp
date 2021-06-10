@@ -21,12 +21,15 @@
 #include "ResourceManager.hpp"
 #include <string>
 
+/* block-able class should implement this */
 class IUnlockable
 {
 public:
+  /* when stopping thread, the thread might be blocked. then use this to unblock it.  */
   virtual void unlock(void) = 0;
 };
 
+/* mute-able class should implement this */
 class IMutable
 {
 protected:
@@ -41,7 +44,17 @@ public:
   IMutable():mMuteEnabled(false), mMuteUseZeroEnabled(false){};
   virtual ~ IMutable(){};
 
+  /*
+    @desc get mute state
+    @return true: muted, false:not muted.
+  */
   virtual bool getMuteEnabled(void){ return mMuteEnabled; };
+
+  /*
+    @desc Mute control
+    @arg bEnableMute. true: mute, false: unmute
+    @arg bUseZero. true: use zero data during mute is enabled.
+  */
   virtual void setMuteEnabled(bool bEnableMute, bool bUseZero=false){
     bool bChanged = ( bEnableMute != mMuteEnabled );
     mMuteEnabled = bEnableMute;
@@ -52,6 +65,7 @@ public:
   }
 };
 
+/* Common interfaces on ISink and ISource */
 class ISourceSinkCommon : public AudioBase, public IResourceConsumer, public IMutable
 {
 public:

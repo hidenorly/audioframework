@@ -24,9 +24,14 @@
 class CpuResource
 {
 public:
-  // DMIPS * 1000
+  /* CPU resource DKIPS (DMIPS*1000)
+     @return DMIPS * 1000 */
   static int getComputingResource(void);
+  /* Convert processing time to CPU resource DKIPS (DMIPS*1000)
+     @return DMIPS * 1000 */
   static int convertFromProcessingTimeToConsumptionResource(int processingTimeUsec);
+  /* Convert CPU resource DKIPS (DMIPS*1000) to processing time
+     @return processing time [USec] */
   static int convertFromConsumptionResourceToProcessingTime(int consumptionResource);
 };
 
@@ -45,11 +50,21 @@ protected:
   virtual ~IResourceManager();
 
 public:
-  // acquire: return acquired resource id : -1 means fail.
+  /* @desc acquire computing resource
+     @return acquired resource id : -1 means fail. */
   virtual int acquire(int requiredResource);
+  /* @desc release acquired resource
+     @arg nId : acquired resource Id which is returned by acquire()
+     @return acquired resource id : -1 means fail. */
   virtual bool release(int nId);
+  /* @desc acquire computing resource
+     @arg IResourceConsumer which is implemented by ISink, ISource, IFilter instance
+     @return true: success to acquire, false: fail to acquire */
   virtual bool acquire(IResourceConsumer& consumer);
   virtual bool acquire(IResourceConsumer* consumer);
+  /* @desc release acquired resource
+     @arg IResourceConsumer which is implemented by ISink, ISource, IFilter instance
+     @return true: success to release, false: fail to release */
   virtual bool release(IResourceConsumer& consumer);
   virtual bool release(IResourceConsumer* consumer);
 };
@@ -64,12 +79,18 @@ protected:
   virtual ~CpuResourceManager();
   static inline CpuResourceManager* mpInstance = nullptr;
 public:
+  /* @desc get CPU Resource Manager
+     @return instance of CpuResourceManager */
   static IResourceManager* getInstance(void);
 
+  /* @desc set CPU Resource Manager's resource
+     @arg specify the resource value (DMIPS*1000) */
   static void admin_setResource(int resource);
+  /* @desc dispose the CpuResource instance */
   static void admin_terminate(void);
 };
 
+/* This should be implemented in ISink, ISource, IFilter delived classes */
 class IResourceConsumer
 {
 protected:
@@ -89,6 +110,7 @@ protected:
   void clearResourceManager(void);
 
 public:
+  /* this should be implemented in the delived class to report consuming resource for IResourceManager delived class such as CpuResourceManager */
   virtual int stateResourceConsumption(void) = 0;
 };
 

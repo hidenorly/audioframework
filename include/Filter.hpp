@@ -30,12 +30,21 @@ public:
 
   IFilter();
   virtual ~IFilter();
+  /* @desc this method should do filtering processing using inBuf and the result should be written to outBuf */
   virtual void process(AudioBuffer& inBuf, AudioBuffer& outBuf);
-  // per-process() window size
+  /* @desc this method should return per-process() window size
+     @return minimum window size usec
+     If 5000 is returned, the in & out buffer's samples will be 240 at 48KHz ideal case.
+     Note that Pipe implementation may pass n * getRequiredWindowSizeUsec()'s buffer (n: natural number) to adjust the other filters' window size requirement.
+     In this case, the process() should handle it. */
   virtual int getRequiredWindowSizeUsec(void);
-  // per-process() latency
+  /* @desc report per-process() latency
+           report the latency in case of the reported getRequiredWindowSizeUsec()
+    Note that in Pipe implementation, actual pipe total latency will be common window size of the filters + Sink latency + Source's latency.
+     */
   virtual int getLatencyUSec(void);
-  // per-sample() processing time
+  /* @desc report per-process() processing time
+           report the latency in case of the reported getRequiredWindowSizeUsec() */
   virtual int getExpectedProcessingUSec(void) = 0;
 };
 
@@ -58,9 +67,15 @@ public:
   FilterPlugIn();
   virtual ~FilterPlugIn();
 
+  /* @desc initialize at loading the filter plug-in shared object such as .so */
   virtual void onLoad(void);
+  /* @desc uninitialize at unloading the filter plug-in shared object such as .so */
   virtual void onUnload(void);
+  /* @desc report your filter plug-in's unique id
+     @return unique plug-in id. may use uuid. */
   virtual std::string getId(void);
+  /* @desc this is expected to use by strategy
+     @return new YourFilter()'s result */
   virtual IPlugIn* newInstance(void);
 };
 

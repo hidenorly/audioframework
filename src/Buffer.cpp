@@ -127,7 +127,7 @@ AudioBuffer::AudioBuffer()
   setAudioFormat( AudioFormat() );
 }
 
-AudioBuffer& AudioBuffer::operator=(AudioBuffer& buf)
+IAudioBuffer& IAudioBuffer::operator=(IAudioBuffer& buf)
 {
   mBuf = buf.getRawBuffer();  // copy data
   // copy attributes
@@ -148,16 +148,27 @@ int AudioBuffer::getWindowSizeUsec(void)
 
 void AudioBuffer::setAudioFormat( AudioFormat format )
 {
+  bool bFormatChanged = !format.equal( mFormat );
   int samples = getNumberOfSamples();
   mFormat = format;
-  resize( samples );
+  resize( samples, bFormatChanged );
 }
 
-void AudioBuffer::resize( int samples )
+void AudioBuffer::resize( int samples, bool bClear )
 {
   int bufSize = mFormat.getChannelsSampleByte() * samples;
-  ByteBuffer buf(bufSize,0);
-  mBuf = buf; //.resize( bufSize );
+  if( bClear ){
+    ByteBuffer buf( bufSize,0 );
+    mBuf = buf;
+  } else {
+    if( bufSize > mBuf.size() ){
+      mBuf.reserve( bufSize );
+      ByteBuffer buf( bufSize - mBuf.size(), 0 );
+      std::copy( buf.begin(), buf.end(), std::back_inserter( mBuf ) );
+    } else {
+      mBuf.resize( bufSize );
+    }
+  }
 }
 
 AudioSample AudioBuffer::getSample(int nOffset)

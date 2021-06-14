@@ -18,7 +18,7 @@
 #include "Util.hpp"
 #include "Volume.hpp"
 
-ISink::ISink() : ISourceSinkCommon(), mVolume(100.0f), mLatencyUsec(0), mSinkPosition(0)
+ISink::ISink() : ISourceSinkCommon(), mVolume(100.0f), mIsPerChannelVolume(false), mLatencyUsec(0), mSinkPosition(0)
 {
 
 }
@@ -61,12 +61,20 @@ ISink::PRESENTATION ISink::getPresentation(void)
 
 float ISink::getVolume(void)
 {
-  return getMuteEnabled() ? 0.0f : mVolume;
+  return getMuteEnabled() ? 0.0f : !mIsPerChannelVolume ? mVolume : Volume::getVolumeMax(mPerChannelVolumes);
 }
 
 bool ISink::setVolume(float volumePercentage)
 {
+  mIsPerChannelVolume = false;
   mVolume = volumePercentage;
+  return true;
+}
+
+bool ISink::setVolume(Volume::CHANNEL_VOLUME perChannelVolumes)
+{
+  mIsPerChannelVolume = true;
+  mPerChannelVolumes = Volume::getPerChannelVolumes(getAudioFormat(), perChannelVolumes);
   return true;
 }
 
@@ -93,12 +101,12 @@ void ISink::write(IAudioBuffer& buf)
     mSinkPosition += buf.getRawBuffer().size();
   }
   if( !getMuteEnabled() ){
-    if( 100.0f == mVolume || !pBuf ){
+    if( (!mIsPerChannelVolume && (100.0f == mVolume)) || (mIsPerChannelVolume && !Volume::isVolumeRequired(mPerChannelVolumes) ) || !pBuf ){
       writePrimitive( buf );
     } else {
       // pBuf is already checked in the above
       AudioBuffer volumedBuf( format, nSamples );
-      if( Volume::process( pBuf, &volumedBuf, mVolume ) ){
+      if( (!mIsPerChannelVolume && Volume::process( pBuf, &volumedBuf, mVolume )) || (mIsPerChannelVolume && Volume::process( pBuf, &volumedBuf, mPerChannelVolumes )) ){
         writePrimitive( volumedBuf );
       } else {
         writePrimitive( buf );

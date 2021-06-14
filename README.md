@@ -138,6 +138,7 @@ $ make; ./bin/afw_test;
   * [done] Sampling rate converter
   * [done] Channel converter
   * [done] Volume
+  * [done] Per-channel Volume
   * [done] FileStream
   * [done] InterPipeBridge (FIFOed Source and Sink)
   * ParameterManager

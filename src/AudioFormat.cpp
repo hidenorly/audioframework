@@ -226,6 +226,11 @@ bool AudioFormat::equal(AudioFormat arg2){
   return ( (mEncoding == arg2.getEncoding()) && (mChannel == arg2.getChannels()) && (mSamplingRate == arg2.getSamplingRate()));
 }
 
+int AudioFormat::getOffSetInSample(AudioFormat::CH ch)
+{
+  return getOffSetInSample(mChannel, ch);
+}
+
 int AudioFormat::getOffSetInSample(AudioFormat::AudioFormat::CHANNEL channel, AudioFormat::CH ch)
 {
   struct formatOffset
@@ -298,6 +303,11 @@ int AudioFormat::getOffSetInSample(AudioFormat::AudioFormat::CHANNEL channel, Au
   }
 
   return 0;
+}
+
+int AudioFormat::getOffSetByteInSample(AudioFormat audioFormat, AudioFormat::CH ch)
+{
+  return audioFormat.getSampleByte() * audioFormat.getOffSetInSample(ch);
 }
 
 int AudioFormat::getOffSetByteInSample(AudioFormat::CH ch)

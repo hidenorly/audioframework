@@ -2072,6 +2072,27 @@ TEST_F(TestCase_PipeAndFilter, testDynamicSignalFlow_AddNewSinkToReferenceSoundS
   delete pPipe; pPipe = nullptr;
 }
 
+TEST_F(TestCase_PipeAndFilter, testPerChannelVolume)
+{
+  ISource* pSource = new Source();
+  ISink* pSink = new Sink();
+  IPipe* pPipe = new Pipe();
+  pPipe->attachSource( pSource );
+  pPipe->attachSink( pSink );
+  pPipe->addFilterToTail( new Filter() );
+  Volume::CHANNEL_VOLUME perChannelVolume;
+  perChannelVolume.insert_or_assign( AudioFormat::CH::L, 100.0f );
+  perChannelVolume.insert_or_assign( AudioFormat::CH::R, 0.0f );
+  pSink->setVolume( perChannelVolume );
+  pPipe->run();
+  std::this_thread::sleep_for(std::chrono::microseconds(1000));
+  pPipe->stop();
+  pSink->dump();
+  pPipe->clearFilters();
+  delete pSink; pSink = nullptr;
+  delete pSource; pSource = nullptr;
+  delete pPipe; pPipe = nullptr;
+}
 
 int main(int argc, char **argv)
 {

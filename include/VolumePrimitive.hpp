@@ -18,15 +18,16 @@
 #define __VOLUME_PRIMITIVE_HPP__
 
 #include <stdint.h>
+#include <vector>
 
 class VolumePrimitive
 {
 public:
-  static bool volume(int8_t* pRawInBuf, int8_t* pRawOutBuf, float volume, int nChannelSamples = 1);
-  static bool volume(int16_t* pRawInBuf, int16_t* pRawOutBuf, float volume, int nChannelSamples = 1);
-  static bool volume(int32_t* pRawInBuf, int32_t* pRawOutBuf, float volume, int nChannelSamples = 1);
-  static bool volume(float* pRawInBuf, float* pRawOutBuf, float volume, int nChannelSamples = 1);
-  static bool volume24(int8_t* pRawInBuf, int8_t* pRawOutBuf, float volume, int nChannelSamples = 1);
+  static bool volume(int8_t* pRawInBuf, int8_t* pRawOutBuf, std::vector<float> volumes, int nChannelSamples = 1);
+  static bool volume(int16_t* pRawInBuf, int16_t* pRawOutBuf, std::vector<float> volumes, int nChannelSamples = 1);
+  static bool volume(int32_t* pRawInBuf, int32_t* pRawOutBuf, std::vector<float> volumes, int nChannelSamples = 1);
+  static bool volume(float* pRawInBuf, float* pRawOutBuf, std::vector<float> volumes, int nChannelSamples = 1);
+  static bool volume24(int8_t* pRawInBuf, int8_t* pRawOutBuf, std::vector<float> volumes, int nChannelSamples = 1);
 };
 
 #endif /* __VOLUME_PRIMITIVE_HPP__ */

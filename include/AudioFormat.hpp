@@ -96,6 +96,8 @@ public:
   static int getChannelsSampleByte(ENCODING encoding, CHANNEL channel);
   int getSamplingRate(void);
   int getOffSetByteInSample(AudioFormat::CH ch);
+  static int getOffSetByteInSample(AudioFormat audioFormat, AudioFormat::CH ch);
+  int getOffSetInSample(AudioFormat::CH ch);
   static int getOffSetInSample(AudioFormat::CHANNEL channel, AudioFormat::CH ch);
   bool equal(AudioFormat arg2);
   ChannelMapper getSameChannelMapper(void);

@@ -18,12 +18,24 @@
 #define __VOLUME_HPP__
 
 #include "Buffer.hpp"
+#include "AudioFormat.hpp"
+#include <map>
+#include <vector>
 
 class Volume
 {
 public:
+  typedef std::map<AudioFormat::CH, float> CHANNEL_VOLUME;
   static bool process( AudioBuffer* pInBuf, AudioBuffer* pOutBuf, float volume );
   static bool process( AudioBuffer& inBuf, AudioBuffer& outBuf, float volume );
+  static bool process( AudioBuffer* pInBuf, AudioBuffer* pOutBuf, std::vector<float> channelVolumes );
+  static bool process( AudioBuffer* pInBuf, AudioBuffer* pOutBuf, CHANNEL_VOLUME volumes );
+  static bool process( AudioBuffer& inBuf, AudioBuffer& outBuf, CHANNEL_VOLUME volumes );
+
+  static bool isVolumeRequired(std::vector<float> channelVolumes);
+  static bool isVolumeRequired(AudioFormat format, CHANNEL_VOLUME channelVolumes);
+  static std::vector<float> getPerChannelVolumes(AudioFormat format, CHANNEL_VOLUME channelVolumes);
+  static float getVolumeMax(std::vector<float> volumes);
 };
 
 #endif /* __VOLUME_HPP__ */

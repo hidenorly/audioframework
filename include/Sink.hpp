@@ -21,6 +21,7 @@
 #include "Buffer.hpp"
 #include "AudioFormat.hpp"
 #include "PlugInManager.hpp"
+#include "Volume.hpp"
 #include <string>
 #include <vector>
 
@@ -50,6 +51,8 @@ public:
 protected:
   PRESENTATION mPresentation;
   float mVolume;
+  bool mIsPerChannelVolume;
+  std::vector<float> mPerChannelVolumes;
   int mLatencyUsec;
   int64_t mSinkPosition;
 
@@ -73,6 +76,7 @@ public:
 
   virtual float getVolume(void);
   virtual bool setVolume(float volumePercentage);
+  virtual bool setVolume(Volume::CHANNEL_VOLUME perChannelVolumes);
 
   virtual int getLatencyUSec(void);
   virtual int64_t getSinkPts(void);

@@ -21,18 +21,43 @@
 #include <string>
 #include <fstream>
 
+/* stream I/O interface class */
 class IStream
 {
 public:
+  /* @desc check the stream is ended of stream or not
+     @return true: stream is ended / false: stream is not end. */
   virtual bool isEndOfStream(void){ return true; };
+
+  /* @desc read data from stream
+     @arg buf will be output about the read data
+     @return number of read bytes */
   virtual int read(ByteBuffer& buf){ return 0; };
+
+  /* @desc read data from stream
+     @return pointer of ByteBuffer. You should delete it */
   virtual ByteBuffer* read(void){ return nullptr; };
+
+  /* @desc write data to stream
+     @arg buf: will be written to the stream
+     @return number of read bytes */
   virtual void write(ByteBuffer& buf){};
+
+  /* @desc write string to stream as one line
+     @arg line: will be written to the stream
+     @return true: success to write / false: fail to write */
   virtual bool writeLine(std::string& line){ return false; };
+
+  /* @desc read one line from stream
+     @arg buf will be output about the line read
+     @return true: success to write / false: fail to write */
   virtual bool readLine(std::string& line){ return false; };
+
+  /* @desc close the stream. After this, you should dispose this instance. */
   virtual void close(void){};
 };
 
+/* Stream for File */
 class FileStream : public IStream
 {
 protected:

@@ -73,10 +73,16 @@ bool ISink::setVolume(float volumePercentage)
 
 bool ISink::setVolume(Volume::CHANNEL_VOLUME perChannelVolumes)
 {
+  return setVolume( Volume::getPerChannelVolumes(getAudioFormat(), perChannelVolumes) );
+}
+
+bool ISink::setVolume(std::vector<float> perChannelVolumes)
+{
   mIsPerChannelVolume = true;
-  mPerChannelVolumes = Volume::getPerChannelVolumes(getAudioFormat(), perChannelVolumes);
+  mPerChannelVolumes = perChannelVolumes;
   return true;
 }
+
 
 void ISink::mutePrimitive(bool bEnableMute, bool bUseZero)
 {

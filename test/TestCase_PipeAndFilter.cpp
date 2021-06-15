@@ -2072,7 +2072,7 @@ TEST_F(TestCase_PipeAndFilter, testDynamicSignalFlow_AddNewSinkToReferenceSoundS
   delete pPipe; pPipe = nullptr;
 }
 
-TEST_F(TestCase_PipeAndFilter, testPerChannelVolume)
+TEST_F(TestCase_PipeAndFilter, testPerChannelVolumeWithSink)
 {
   ISource* pSource = new Source();
   ISink* pSink = new Sink();
@@ -2093,6 +2093,53 @@ TEST_F(TestCase_PipeAndFilter, testPerChannelVolume)
   delete pSource; pSource = nullptr;
   delete pPipe; pPipe = nullptr;
 }
+
+TEST_F(TestCase_PipeAndFilter, testPerChannelVolumeWithMultiSink)
+{
+  class TestSink : public Sink
+  {
+    int mTestLatency;
+  public:
+    TestSink(int latencyUsec): mTestLatency(latencyUsec){};
+    virtual ~TestSink(){};
+    virtual int getLatencyUSec(void){ return mTestLatency; };
+  };
+
+  ISource* pSource = new Source();
+  MultipleSink* pMultiSink = new MultipleSink();
+
+  ISink* pSink1 = new TestSink( 10*1000 );
+  AudioFormat::ChannelMapper chMap1;
+  chMap1.insert( std::make_pair(AudioFormat::CH::L, AudioFormat::CH::L) ); // dst, src
+  chMap1.insert( std::make_pair(AudioFormat::CH::R, AudioFormat::CH::L) ); // dst, src
+  pMultiSink->attachSink( pSink1, chMap1 );
+
+  ISink* pSink2 = new TestSink( 10*1000 );
+  AudioFormat::ChannelMapper chMap2;
+  chMap2.insert( std::make_pair(AudioFormat::CH::L, AudioFormat::CH::R) ); // dst, src
+  chMap2.insert( std::make_pair(AudioFormat::CH::R, AudioFormat::CH::R) ); // dst, src
+  pMultiSink->attachSink( pSink2, chMap2 );
+
+  IPipe* pPipe = new Pipe();
+  pPipe->attachSource( pSource );
+  pPipe->attachSink( pMultiSink );
+  pPipe->addFilterToTail( new Filter() );
+  Volume::CHANNEL_VOLUME perChannelVolume;
+  perChannelVolume.insert_or_assign( AudioFormat::CH::L, 100.0f );
+  perChannelVolume.insert_or_assign( AudioFormat::CH::R, 0.0f );
+  pMultiSink->setVolume( perChannelVolume );
+  EXPECT_EQ( pMultiSink->getVolume(), 100.0f );
+  pPipe->run();
+  std::this_thread::sleep_for(std::chrono::microseconds(1000));
+  pPipe->stop();
+  pMultiSink->dump();
+  pMultiSink->clearSinks();
+  pPipe->clearFilters();
+  delete pMultiSink; pMultiSink = nullptr;
+  delete pSource; pSource = nullptr;
+  delete pPipe; pPipe = nullptr;
+}
+
 
 int main(int argc, char **argv)
 {

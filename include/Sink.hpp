@@ -77,6 +77,7 @@ public:
   virtual float getVolume(void);
   virtual bool setVolume(float volumePercentage);
   virtual bool setVolume(Volume::CHANNEL_VOLUME perChannelVolumes);
+  virtual bool setVolume(std::vector<float> perChannelVolumes);
 
   virtual int getLatencyUSec(void);
   virtual int64_t getSinkPts(void);

@@ -88,7 +88,8 @@ protected:
   void testDynamicSignalFlow_AddNewSinkToReferenceSoundSink(void);
 
   void testPowerManager(void);
-  void testPerChannelVolume(void);
+  void testPerChannelVolumeWithSink(void);
+  void testPerChannelVolumeWithMultiSink(void);
 };
 
 #endif /* __TESTCASE_PIPEANDFILTER_HPP__ */

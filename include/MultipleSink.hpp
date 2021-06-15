@@ -35,6 +35,7 @@ protected:
   int mMaxLatency;
 
   void ensureDelayFilters(bool bForceRecreate = false);
+  std::vector<float> getPerSinkChannelVolumes(ISink* pSink, Volume::CHANNEL_VOLUME perChannelVolumes);
 
 public:
   MultipleSink(AudioFormat audioFormat = AudioFormat());
@@ -50,7 +51,9 @@ public:
   virtual AudioFormat getAudioFormat(void);
 
   virtual int getLatencyUSec(void);
+  virtual float getVolume(void);
   virtual bool setVolume(float volumePercentage);
+  virtual bool setVolume(Volume::CHANNEL_VOLUME perChannelVolumes);
 
   virtual void dump(void);
   virtual int stateResourceConsumption(void);

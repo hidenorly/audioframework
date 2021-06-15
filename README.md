@@ -123,6 +123,8 @@ $ make; ./bin/afw_test;
     * [done] Add latency adjustment among registered Sinks with delay filter
   * [done] Add filter enabled sink (PipedSink)
   * [done] Add volume (setVolume() in ISink)
+  * [done] Per-channel Volume in ISink()
+  * [done] Per-channel Volume in MultipleSink()
   * [done] Add get latency
 * Source
   * [done] StreamSource : input from the stream

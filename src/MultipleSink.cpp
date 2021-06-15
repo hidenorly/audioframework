@@ -139,6 +139,18 @@ int MultipleSink::getLatencyUSec(void)
   return nLatencyUsec;
 }
 
+float MultipleSink::getVolume(void)
+{
+  float result = 0.0f;
+
+  for(auto& pSink : mpSinks ){
+    result = std::max<float>( result, pSink->getVolume() );
+  }
+
+  return result;
+}
+
+
 bool MultipleSink::setVolume(float volumePercentage)
 {
   bool bResult = ISink::setVolume(volumePercentage);
@@ -149,6 +161,37 @@ bool MultipleSink::setVolume(float volumePercentage)
 
   return bResult;
 }
+
+std::vector<float> MultipleSink::getPerSinkChannelVolumes(ISink* pSink, Volume::CHANNEL_VOLUME perChannelVolumes)
+{
+  std::vector<float> result;
+  if( pSink && mChannelMaps.contains(pSink) ){
+    AudioFormat::ChannelMapper mapper = mChannelMaps[pSink];
+    result.resize( mapper.size() );
+    AudioFormat format = pSink->getAudioFormat();
+    for( const auto& [dstCh, srcCh] : mapper ){
+      if( perChannelVolumes.contains(srcCh) ){
+        result[ format.getOffSetInSample(dstCh) ] = perChannelVolumes[ srcCh ];
+      } else {
+        throw std::invalid_argument( "Should align Channel Volume with Sink's mapper" );
+      }
+    }
+  }
+  return result;
+}
+
+
+bool MultipleSink::setVolume(Volume::CHANNEL_VOLUME perChannelVolumes)
+{
+  bool bResult = true;
+
+  for(auto& pSink : mpSinks ){
+    bResult &= pSink->setVolume( getPerSinkChannelVolumes(pSink, perChannelVolumes) );
+  }
+
+  return bResult;
+}
+
 
 int MultipleSink::stateResourceConsumption(void)
 {

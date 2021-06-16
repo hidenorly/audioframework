@@ -21,12 +21,13 @@
 #include "Source.hpp"
 #include "Decoder.hpp"
 #include <vector>
+#include <memory>
 
 class IPlayer
 {
 public:
-  virtual ISource* prepare(ISource* pSource, IDecoder* pDecoder) = 0;
-  virtual ISource* terminate(ISource* pSource) = 0;
+  virtual std::shared_ptr<ISource> prepare(std::shared_ptr<ISource> pSource, IDecoder* pDecoder) = 0;
+  virtual std::shared_ptr<ISource> terminate(std::shared_ptr<ISource> pSource) = 0;
   virtual bool isReady(void) = 0;
 
   virtual void play(int64_t ptsUSec = 0) = 0;
@@ -49,8 +50,8 @@ public:
   Player();
   virtual ~Player();
 
-  virtual ISource* prepare(ISource* pSource, IDecoder* pDecoder);
-  virtual ISource* terminate(ISource* pSourceAdaptor);
+  virtual std::shared_ptr<ISource> prepare(std::shared_ptr<ISource> pSource, IDecoder* pDecoder);
+  virtual std::shared_ptr<ISource> terminate(std::shared_ptr<ISource> pSourceAdaptor);
   virtual bool isReady(void);
 
   virtual void play(int64_t ptsUSec = 0);

@@ -30,7 +30,7 @@ MultipleSink::~MultipleSink()
 }
 
 
-void MultipleSink::attachSink(ISink* pSink, AudioFormat::ChannelMapper& map)
+void MultipleSink::attachSink(std::shared_ptr<ISink> pSink, AudioFormat::ChannelMapper& map)
 {
   if( pSink ){
     mpSinks.push_back( pSink );
@@ -38,7 +38,7 @@ void MultipleSink::attachSink(ISink* pSink, AudioFormat::ChannelMapper& map)
   }
 }
 
-bool MultipleSink::detachSink(ISink* pSink, bool bDisposeSink)
+bool MultipleSink::detachSink(std::shared_ptr<ISink> pSink)
 {
   bool result = false;
 
@@ -46,21 +46,14 @@ bool MultipleSink::detachSink(ISink* pSink, bool bDisposeSink)
     std::erase( mpSinks, pSink );
     mChannelMaps.erase( pSink );
     result = true;
-    if( bDisposeSink ){
-      delete pSink;
-    }
+    pSink = nullptr;
   }
 
   return result;
 }
 
-void MultipleSink::clearSinks(bool bDisposeSinks)
+void MultipleSink::clearSinks(void)
 {
-  if( bDisposeSinks ){
-    for(auto& pSink : mpSinks ){
-      delete pSink;
-    }
-  }
   mpSinks.clear();
   mChannelMaps.clear();
 }
@@ -159,7 +152,7 @@ bool MultipleSink::setVolume(float volumePercentage)
   return bResult;
 }
 
-std::vector<float> MultipleSink::getPerSinkChannelVolumes(ISink* pSink, Volume::CHANNEL_VOLUME perChannelVolumes)
+std::vector<float> MultipleSink::getPerSinkChannelVolumes(std::shared_ptr<ISink> pSink, Volume::CHANNEL_VOLUME perChannelVolumes)
 {
   std::vector<float> result;
   if( pSink && mChannelMaps.contains(pSink) ){

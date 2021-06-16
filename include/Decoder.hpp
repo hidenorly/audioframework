@@ -24,14 +24,15 @@
 #include <string>
 #include <vector>
 #include <thread>
+#include <memory>
 #include "Media.hpp"
 #include "ResourceManager.hpp"
 
 class IDecoder : public ThreadBase, public IResourceConsumer
 {
 protected:
-  ISource* mpSource;
-  std::vector<InterPipeBridge*> mpInterPipeBridges;
+  std::shared_ptr<ISource> mpSource;
+  std::vector<std::shared_ptr<InterPipeBridge>> mpInterPipeBridges;
   virtual void unlockToStop(void);
 
 public:
@@ -40,10 +41,10 @@ public:
 
   virtual void configure(MediaParam param);
   virtual void configure(std::vector<MediaParam> params);
-  virtual ISource* attachSource(ISource* pSource);
-  virtual ISource* detachSource(void);
-  virtual ISource* allocateSourceAdaptor(void);
-  virtual void releaseSourceAdaptor(ISource* pSource, bool bDelete=true);
+  virtual std::shared_ptr<ISource> attachSource(std::shared_ptr<ISource> pSource);
+  virtual std::shared_ptr<ISource> detachSource(void);
+  virtual std::shared_ptr<ISource> allocateSourceAdaptor(void);
+  virtual void releaseSourceAdaptor(std::shared_ptr<ISource> pSource);
   virtual void seek(int64_t position);
   virtual int64_t getPosition(void);
 };

@@ -65,14 +65,14 @@ void ICapture::unlock(void)
   }
 }
 
-SinkTestBase::SinkTestBase(ISink* pSink) : ISink(), mpSink(pSink)
+SinkTestBase::SinkTestBase(std::shared_ptr<ISink> pSink) : ISink(), mpSink(pSink)
 {
 
 }
 
 SinkTestBase::~SinkTestBase()
 {
-  delete mpSink; mpSink = nullptr;
+  mpSink = nullptr;
 }
 
 std::vector<ISink::PRESENTATION> SinkTestBase::getAvailablePresentations(void)
@@ -138,7 +138,7 @@ int SinkTestBase::stateResourceConsumption(void)
 }
 
 
-SinkCapture::SinkCapture(ISink* pSink) : SinkTestBase(pSink), ICapture( pSink ? pSink->getAudioFormat() : AudioFormat() )
+SinkCapture::SinkCapture(std::shared_ptr<ISink> pSink) : SinkTestBase(pSink), ICapture( pSink ? pSink->getAudioFormat() : AudioFormat() )
 {
 
 }
@@ -161,7 +161,7 @@ bool SinkCapture::setAudioFormat(AudioFormat audioFormat)
   return mpSink ? mpSink->setAudioFormat( audioFormat )  : false;
 }
 
-SinkInjector::SinkInjector(ISink* pSink) : SinkTestBase(pSink), IInjector()
+SinkInjector::SinkInjector(std::shared_ptr<ISink> pSink) : SinkTestBase(pSink), IInjector()
 {
 
 }
@@ -186,17 +186,17 @@ bool SinkInjector::setAudioFormat(AudioFormat audioFormat)
   return mpSink ? mpSink->setAudioFormat( audioFormat )  : false;
 }
 
-SourceTestBase::SourceTestBase(ISource* pSource) : ISource(), mpSource( pSource )
+SourceTestBase::SourceTestBase(std::shared_ptr<ISource> pSource) : ISource(), mpSource( pSource )
 {
 
 }
 
 SourceTestBase::~SourceTestBase()
 {
-  delete mpSource; mpSource = nullptr;
+  mpSource = nullptr;
 };
 
-SourceCapture::SourceCapture(ISource* pSource) : SourceTestBase( pSource), ICapture( pSource ? pSource->getAudioFormat() : AudioFormat() )
+SourceCapture::SourceCapture(std::shared_ptr<ISource> pSource) : SourceTestBase( pSource), ICapture( pSource ? pSource->getAudioFormat() : AudioFormat() )
 {
 
 }
@@ -293,7 +293,7 @@ bool IInjector::getInjectorEnabled(void)
   return mInjectorEnabled;
 }
 
-SourceInjector::SourceInjector(ISource* pSource):IInjector(), SourceTestBase(pSource)
+SourceInjector::SourceInjector(std::shared_ptr<ISource> pSource):IInjector(), SourceTestBase(pSource)
 {
 
 }

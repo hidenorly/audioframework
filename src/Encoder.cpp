@@ -41,36 +41,33 @@ void IEncoder::configure(std::vector<MediaParam> params)
   }
 }
 
-ISink* IEncoder::attachSink(ISink* pSink)
+std::shared_ptr<ISink> IEncoder::attachSink(std::shared_ptr<ISink> pSink)
 {
-  ISink* pPrevSink = mpSink;
+  std::shared_ptr<ISink> pPrevSink = mpSink;
   mpSink = pSink;
   return pPrevSink;
 }
 
-ISink* IEncoder::detachSink(void)
+std::shared_ptr<ISink> IEncoder::detachSink(void)
 {
-  ISink* pPrevSink = mpSink;
+  std::shared_ptr<ISink> pPrevSink = mpSink;
   mpSink = nullptr;
   return pPrevSink;
 }
 
-ISink* IEncoder::allocateSinkAdaptor(void)
+std::shared_ptr<ISink> IEncoder::allocateSinkAdaptor(void)
 {
-  InterPipeBridge* pSink = new InterPipeBridge();
+  std::shared_ptr<InterPipeBridge> pSink = std::make_shared<InterPipeBridge>();
   pSink->setRequiredResourceConsumption( stateResourceConsumption() );
   mpInterPipeBridges.push_back( pSink );
-  return dynamic_cast<ISink*>( pSink );
+  return std::dynamic_pointer_cast<ISink>( pSink );
 }
 
-void IEncoder::releaseSinkAdaptor(ISink* pSink, bool bDelete)
+void IEncoder::releaseSinkAdaptor(std::shared_ptr<ISink> pSink)
 {
-  InterPipeBridge* pInterPipeBridge = dynamic_cast<InterPipeBridge*>(pSink);
+  std::shared_ptr<InterPipeBridge> pInterPipeBridge = std::dynamic_pointer_cast<InterPipeBridge>(pSink);
   if( pInterPipeBridge ){
     pInterPipeBridge->unlock();
-    if( bDelete ){
-      delete pInterPipeBridge;
-    }
     std::erase( mpInterPipeBridges, pInterPipeBridge );
   }
 }

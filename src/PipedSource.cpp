@@ -20,7 +20,7 @@
 
 PipedSource::PipedSource() : ISource(), mpSource(nullptr)
 {
-  mpInterPipeBridge = new InterPipeBridge();
+  mpInterPipeBridge = std::make_shared<InterPipeBridge>();
   mpPipe = new PipeMultiThread();
   mpPipe->attachSink ( mpInterPipeBridge );
 }
@@ -30,21 +30,21 @@ PipedSource::~PipedSource()
   stop();
   clearFilters();
   delete mpPipe; mpPipe = nullptr;
-  delete mpInterPipeBridge; mpInterPipeBridge = nullptr;
+  mpInterPipeBridge = nullptr;
 }
 
-ISource* PipedSource::attachSource(ISource* pSource)
+std::shared_ptr<ISource> PipedSource::attachSource(std::shared_ptr<ISource> pSource)
 {
   bool bIsRunning = isRunning();
   if( bIsRunning ){
     stop();
   }
 
-  ISource* prevSource = mpSource;
+  std::shared_ptr<ISource> prevSource = mpSource;
   mpSource = pSource;
 
   if( mpPipe ){
-    ISource* prevPipeSource = mpPipe->attachSource( pSource );
+    std::shared_ptr<ISource> prevPipeSource = mpPipe->attachSource( pSource );
     assert( !prevPipeSource || (prevPipeSource == prevSource) );
   }
 
@@ -55,16 +55,16 @@ ISource* PipedSource::attachSource(ISource* pSource)
   return prevSource;
 }
 
-ISource* PipedSource::detachSource(void)
+std::shared_ptr<ISource> PipedSource::detachSource(void)
 {
   if( isRunning() ){
     stop();
   }
-  ISource* prevSource = mpSource;
+  std::shared_ptr<ISource> prevSource = mpSource;
   mpSource = nullptr;
 
   if( mpPipe ){
-    ISource* prevPipeSource = mpPipe->detachSource();
+    std::shared_ptr<ISource> prevPipeSource = mpPipe->detachSource();
     assert( !prevPipeSource || (prevPipeSource == prevSource) );
   }
 

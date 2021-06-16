@@ -18,7 +18,7 @@
 #include "DelayFilter.hpp"
 #include "Buffer.hpp"
 
-AccousticEchoCancelledSource::AccousticEchoCancelledSource(ISource* pSource, ISource* pReferenceSound, bool bDelayOnly) : mpSource(pSource), mpReferenceSource( pReferenceSound )
+AccousticEchoCancelledSource::AccousticEchoCancelledSource(std::shared_ptr<ISource> pSource, std::shared_ptr<ISource> pReferenceSound, bool bDelayOnly) : mpSource(pSource), mpReferenceSource( pReferenceSound )
 {
   mpDelay = nullptr;
   mpAecFilter = nullptr;

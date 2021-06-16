@@ -55,12 +55,12 @@ void PipeMultiThread::createAndConnectPipesToHead(IPipe* pCurrentPipe)
     IPipe* pNewPipe = new Pipe();
     AudioFormat theUsingFormat = pCurrentPipe->getFilterAudioFormat();
 
-    InterPipeBridge* pInterBridge = new InterPipeBridge( theUsingFormat );
+    std::shared_ptr<InterPipeBridge> pInterBridge = std::make_shared<InterPipeBridge>( theUsingFormat );
     mInterPipeBridges.insert( mInterPipeBridges.begin(), pInterBridge );
 
-    ISource* pSource = pCurrentPipe->attachSource( (ISource*)pInterBridge );
+    std::shared_ptr<ISource> pSource = pCurrentPipe->attachSource( pInterBridge );
     pNewPipe->attachSource( pSource );
-    pNewPipe->attachSink( (ISink*)pInterBridge );
+    pNewPipe->attachSink( pInterBridge );
     mPipes.insert( mPipes.begin(), pNewPipe );
   }
 }
@@ -71,12 +71,12 @@ void PipeMultiThread::createAndConnectPipesToTail(IPipe* pCurrentPipe)
     IPipe* pNewPipe = new Pipe();
     AudioFormat theUsingFormat = pCurrentPipe->getFilterAudioFormat();
 
-    InterPipeBridge* pInterBridge = new InterPipeBridge(theUsingFormat);
+    std::shared_ptr<InterPipeBridge> pInterBridge = std::make_shared<InterPipeBridge>(theUsingFormat);
     mInterPipeBridges.push_back( pInterBridge  );
 
-    ISink* pSink = pCurrentPipe->attachSink( (ISink*)pInterBridge );
+    std::shared_ptr<ISink> pSink = pCurrentPipe->attachSink( pInterBridge );
     pNewPipe->attachSink( pSink );
-    pNewPipe->attachSource( (ISource*)pInterBridge );
+    pNewPipe->attachSource( pInterBridge );
     mPipes.push_back( pNewPipe );
   }
 }
@@ -190,14 +190,14 @@ bool PipeMultiThread::removeFilter(std::shared_ptr<IFilter> pFilter)
 }
 
 
-ISink* PipeMultiThread::attachSink(ISink* pSink)
+std::shared_ptr<ISink> PipeMultiThread::attachSink(std::shared_ptr<ISink> pSink)
 {
-  ISink* pResult = mpSink;
+  std::shared_ptr<ISink> pResult = mpSink;
   mpSink = pSink;
 
   IPipe* pPipe = getTailPipe();
   if( pPipe ){
-    ISink* pSinkFromPipe = pPipe->attachSink( pSink );
+    std::shared_ptr<ISink> pSinkFromPipe = pPipe->attachSink( pSink );
     mSinkAttached = true;
     pResult = pSinkFromPipe ? pSinkFromPipe : pResult;
   }
@@ -205,14 +205,14 @@ ISink* PipeMultiThread::attachSink(ISink* pSink)
   return pResult;
 }
 
-ISink* PipeMultiThread::detachSink(void)
+std::shared_ptr<ISink> PipeMultiThread::detachSink(void)
 {
-  ISink* pResult = mpSink;
+  std::shared_ptr<ISink> pResult = mpSink;
   mpSink = nullptr;
 
   IPipe* pPipe = getTailPipe();
   if( pPipe ){
-    ISink* pSinkFromPipe = pPipe->detachSink();
+    std::shared_ptr<ISink> pSinkFromPipe = pPipe->detachSink();
     mSourceAttached = false;
     pResult = pSinkFromPipe ? pSinkFromPipe : pResult;
   }
@@ -220,14 +220,14 @@ ISink* PipeMultiThread::detachSink(void)
   return pResult;
 }
 
-ISource* PipeMultiThread::attachSource(ISource* pSource)
+std::shared_ptr<ISource> PipeMultiThread::attachSource(std::shared_ptr<ISource> pSource)
 {
-  ISource* pResult = mpSource;
+  std::shared_ptr<ISource> pResult = mpSource;
   mpSource = pSource;
 
   IPipe* pPipe = getHeadPipe();
   if( pPipe ){
-    ISource* pSourceFromPipe = pPipe->attachSource( pSource );
+    std::shared_ptr<ISource> pSourceFromPipe = pPipe->attachSource( pSource );
     mSourceAttached = true;
     pResult = pSourceFromPipe ? pSourceFromPipe : pResult;
   }
@@ -235,14 +235,14 @@ ISource* PipeMultiThread::attachSource(ISource* pSource)
   return pResult;
 }
 
-ISource* PipeMultiThread::detachSource(void)
+std::shared_ptr<ISource> PipeMultiThread::detachSource(void)
 {
-  ISource* pResult = mpSource;
+  std::shared_ptr<ISource> pResult = mpSource;
   mpSource = nullptr;
 
   IPipe* pPipe = getHeadPipe();
   if( pPipe ){
-    ISource* pSourceFromPipe = pPipe->detachSource();
+    std::shared_ptr<ISource> pSourceFromPipe = pPipe->detachSource();
     mSourceAttached = false;
     pResult = pSourceFromPipe ? pSourceFromPipe : pResult;
   }
@@ -301,10 +301,6 @@ void PipeMultiThread::clearFilters(void)
     delete pPipe;
   }
   mPipes.clear();
-
-  for( auto& pInterPipeBridge : mInterPipeBridges ){
-    delete pInterPipeBridge;
-  }
   mInterPipeBridges.clear();
 }
 

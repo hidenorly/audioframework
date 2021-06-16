@@ -20,11 +20,12 @@
 #include "InterPipeBridge.hpp"
 #include "Sink.hpp"
 #include <mutex>
+#include <memory>
 
 class ReferenceSoundSinkSource : public InterPipeBridge
 {
 protected:
-  ISink* mpSink;
+  std::shared_ptr<ISink> mpSink;
   std::mutex mMutexSink;
 
 protected:
@@ -32,11 +33,11 @@ protected:
   virtual void writePrimitive(IAudioBuffer& buf);
 
 public:
-  ReferenceSoundSinkSource( ISink* pSink );
+  ReferenceSoundSinkSource( std::shared_ptr<ISink> pSink );
   virtual ~ReferenceSoundSinkSource();
 
-  ISink* attachSink(ISink* pSink);
-  ISink* detachSink(void);
+  std::shared_ptr<ISink> attachSink(std::shared_ptr<ISink> pSink);
+  std::shared_ptr<ISink> detachSink(void);
   void clearBuffer(void);
 
   virtual bool setAudioFormat(AudioFormat audioFormat);

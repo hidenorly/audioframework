@@ -40,10 +40,10 @@ public:
   virtual bool removeFilter(std::shared_ptr<IFilter> pFilter) = 0;
   virtual bool isFilterIncluded(std::shared_ptr<IFilter> pFilter) = 0;
 
-  virtual ISink* attachSink(ISink* pSink) = 0;
-  virtual ISink* detachSink(void) = 0;
-  virtual ISource* attachSource(ISource* pSource) = 0;
-  virtual ISource* detachSource(void) = 0;
+  virtual std::shared_ptr<ISink> attachSink(std::shared_ptr<ISink> pSink) = 0;
+  virtual std::shared_ptr<ISink> detachSink(void) = 0;
+  virtual std::shared_ptr<ISource> attachSource(std::shared_ptr<ISource> pSource) = 0;
+  virtual std::shared_ptr<ISource> detachSource(void) = 0;
 
   virtual void dump(void) = 0;
   virtual void clearFilters(void) = 0;
@@ -59,8 +59,8 @@ protected:
   std::mutex mMutexSink;
   std::mutex mMutexSource;
   std::vector<std::shared_ptr<IFilter>> mFilters;
-  ISink* mpSink;
-  ISource* mpSource;
+  std::shared_ptr<ISink> mpSink;
+  std::shared_ptr<ISource> mpSource;
 
 public:
   Pipe();
@@ -72,10 +72,10 @@ public:
   virtual bool isFilterIncluded(std::shared_ptr<IFilter> pFilter);
   virtual bool removeFilter(std::shared_ptr<IFilter> pFilter);
 
-  virtual ISink* attachSink(ISink* pSink);
-  virtual ISink* detachSink(void);
-  virtual ISource* attachSource(ISource* pSource);
-  virtual ISource* detachSource(void);
+  virtual std::shared_ptr<ISink> attachSink(std::shared_ptr<ISink> pSink);
+  virtual std::shared_ptr<ISink> detachSink(void);
+  virtual std::shared_ptr<ISource> attachSource(std::shared_ptr<ISource> pSource);
+  virtual std::shared_ptr<ISource> detachSource(void);
 
   virtual void dump(void);
   virtual void clearFilters(void);

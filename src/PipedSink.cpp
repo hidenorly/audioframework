@@ -20,7 +20,7 @@
 
 PipedSink::PipedSink() : ISink(), mpSink(nullptr)
 {
-  mpInterPipeBridge = new InterPipeBridge();
+  mpInterPipeBridge = std::make_shared<InterPipeBridge>();
   mpPipe = new PipeMultiThread();
   mpPipe->attachSource ( mpInterPipeBridge );
 }
@@ -30,21 +30,21 @@ PipedSink::~PipedSink()
   stop();
   clearFilters();
   delete mpPipe; mpPipe = nullptr;
-  delete mpInterPipeBridge; mpInterPipeBridge = nullptr;
+  mpInterPipeBridge = nullptr;
 }
 
-ISink* PipedSink::attachSink(ISink* pSink)
+std::shared_ptr<ISink> PipedSink::attachSink(std::shared_ptr<ISink> pSink)
 {
   bool bIsRunning = isRunning();
   if( bIsRunning ){
     stop();
   }
 
-  ISink* prevSink = mpSink;
+  std::shared_ptr<ISink> prevSink = mpSink;
   mpSink = pSink;
 
   if( mpPipe ){
-    ISink* prevPipeSink = mpPipe->attachSink( pSink );
+    std::shared_ptr<ISink> prevPipeSink = mpPipe->attachSink( pSink );
     assert( !prevPipeSink || (prevPipeSink == prevSink) );
   }
 
@@ -55,16 +55,16 @@ ISink* PipedSink::attachSink(ISink* pSink)
   return prevSink;
 }
 
-ISink* PipedSink::detachSink(void)
+std::shared_ptr<ISink> PipedSink::detachSink(void)
 {
   if( isRunning() ){
     stop();
   }
-  ISink* prevSink = mpSink;
+  std::shared_ptr<ISink> prevSink = mpSink;
   mpSink = nullptr;
 
   if( mpPipe ){
-    ISink* prevPipeSink = mpPipe->detachSink();
+    std::shared_ptr<ISink> prevPipeSink = mpPipe->detachSink();
     assert( !prevPipeSink || (prevPipeSink == prevSink) );
   }
 
@@ -93,11 +93,9 @@ bool PipedSink::setAudioFormat(AudioFormat audioFormat)
     if( bIsRunning ){
       stop();
     }
-    delete mpInterPipeBridge; mpInterPipeBridge = nullptr;
-    mpInterPipeBridge = new InterPipeBridge( audioFormat );
+    mpInterPipeBridge = std::make_shared<InterPipeBridge>( audioFormat );
     if( mpPipe ){
-      ISource* pSource = mpPipe->attachSource( mpInterPipeBridge );
-      delete pSource; pSource = nullptr;
+      mpPipe->attachSource( mpInterPipeBridge );
     }
     result = mpSink->setAudioFormat( audioFormat );
     if( bIsRunning ){

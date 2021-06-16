@@ -27,16 +27,16 @@
 class PipedSink : public ISink
 {
 protected:
-  ISink* mpSink;
+  std::shared_ptr<ISink> mpSink;
   IPipe* mpPipe;
-  InterPipeBridge* mpInterPipeBridge;
+  std::shared_ptr<InterPipeBridge> mpInterPipeBridge;
 
 public:
   PipedSink();
   virtual ~PipedSink();
 
-  virtual ISink* attachSink(ISink* pSink);
-  virtual ISink* detachSink(void);
+  virtual std::shared_ptr<ISink> attachSink(std::shared_ptr<ISink> pSink);
+  virtual std::shared_ptr<ISink> detachSink(void);
 
   virtual void addFilterToHead(std::shared_ptr<IFilter> pFilter);
   virtual void addFilterToTail(std::shared_ptr<IFilter> pFilter);

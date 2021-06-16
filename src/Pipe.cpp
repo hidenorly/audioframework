@@ -95,9 +95,9 @@ void Pipe::clearFilters(void)
   mMutexFilters.unlock();
 }
 
-ISink* Pipe::attachSink(ISink* pISink)
+std::shared_ptr<ISink> Pipe::attachSink(std::shared_ptr<ISink> pISink)
 {
-  ISink* pPrevISink = mpSink;
+  std::shared_ptr<ISink> pPrevISink = mpSink;
   mMutexSink.lock();
   mpSink = pISink;
   mMutexSink.unlock();
@@ -105,26 +105,26 @@ ISink* Pipe::attachSink(ISink* pISink)
   return pPrevISink;
 }
 
-ISink* Pipe::detachSink(void)
+std::shared_ptr<ISink> Pipe::detachSink(void)
 {
-  ISink* pPrevISink = mpSink;
+  std::shared_ptr<ISink> pPrevISink = mpSink;
   mpSink = nullptr;
 
   return pPrevISink;
 }
 
-ISource* Pipe::attachSource(ISource* pISource)
+std::shared_ptr<ISource> Pipe::attachSource(std::shared_ptr<ISource> pISource)
 {
-  ISource* pPrevISource = mpSource;
+  std::shared_ptr<ISource> pPrevISource = mpSource;
   mMutexSource.lock();
   mpSource = pISource;
   mMutexSource.unlock();
   return pPrevISource;
 }
 
-ISource* Pipe::detachSource(void)
+std::shared_ptr<ISource> Pipe::detachSource(void)
 {
-  ISource* pPrevISource = mpSource;
+  std::shared_ptr<ISource> pPrevISource = mpSource;
   mpSource = nullptr;
 
   return pPrevISource;
@@ -144,10 +144,10 @@ void Pipe::dump(void)
 
 void Pipe::unlockToStop(void)
 {
-  IUnlockable* pSource = dynamic_cast<IUnlockable*>(mpSource);
+  std::shared_ptr<IUnlockable> pSource = std::dynamic_pointer_cast<IUnlockable>(mpSource);
   if( pSource ) pSource->unlock();
 
-  IUnlockable* pSink = dynamic_cast<IUnlockable*>(mpSink);
+  std::shared_ptr<IUnlockable> pSink = std::dynamic_pointer_cast<IUnlockable>(mpSink);
   if( pSink ) pSink->unlock();
 }
 

@@ -41,36 +41,33 @@ void IDecoder::configure(std::vector<MediaParam> params)
   }
 }
 
-ISource* IDecoder::attachSource(ISource* pSource)
+std::shared_ptr<ISource> IDecoder::attachSource(std::shared_ptr<ISource> pSource)
 {
-  ISource* pPrevSource = mpSource;
+  std::shared_ptr<ISource> pPrevSource = mpSource;
   mpSource = pSource;
   return pPrevSource;
 }
 
-ISource* IDecoder::detachSource(void)
+std::shared_ptr<ISource> IDecoder::detachSource(void)
 {
-  ISource* pPrevSource = mpSource;
+  std::shared_ptr<ISource> pPrevSource = mpSource;
   mpSource = nullptr;
   return pPrevSource;
 }
 
-ISource* IDecoder::allocateSourceAdaptor(void)
+std::shared_ptr<ISource> IDecoder::allocateSourceAdaptor(void)
 {
-  InterPipeBridge* pSource = new InterPipeBridge();
+  std::shared_ptr<InterPipeBridge> pSource = std::make_shared<InterPipeBridge>();
   pSource->setRequiredResourceConsumption( stateResourceConsumption() );
   mpInterPipeBridges.push_back( pSource );
-  return dynamic_cast<ISource*>( pSource );
+  return std::dynamic_pointer_cast<ISource>( pSource );
 }
 
-void IDecoder::releaseSourceAdaptor(ISource* pSource, bool bDelete)
+void IDecoder::releaseSourceAdaptor(std::shared_ptr<ISource> pSource)
 {
-  InterPipeBridge* pInterPipeBridge = dynamic_cast<InterPipeBridge*>(pSource);
+  std::shared_ptr<InterPipeBridge> pInterPipeBridge = std::dynamic_pointer_cast<InterPipeBridge>(pSource);
   if( pInterPipeBridge ){
     pInterPipeBridge->unlock();
-    if( bDelete ){
-      delete pInterPipeBridge;
-    }
     std::erase( mpInterPipeBridges, pInterPipeBridge );
   }
 }

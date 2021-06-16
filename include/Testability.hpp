@@ -23,6 +23,7 @@
 #include "AudioFormat.hpp"
 #include "PipeAndFilterCommon.hpp"
 #include "FifoBufferReadReference.hpp"
+#include <memory>
 
 #ifndef __AFW_TEST__
    #define __AFW_TEST__ 1
@@ -74,10 +75,10 @@ public:
 class SinkTestBase : public ISink
 {
 protected:
-  ISink* mpSink;
+  std::shared_ptr<ISink> mpSink;
 
 public:
-  SinkTestBase(ISink* pSink);
+  SinkTestBase(std::shared_ptr<ISink> pSink);
   virtual ~SinkTestBase();
 
   virtual std::vector<PRESENTATION> getAvailablePresentations(void);
@@ -105,7 +106,7 @@ protected:
   virtual void writePrimitive(IAudioBuffer& buf);
 
 public:
-  SinkCapture(ISink* pSink);
+  SinkCapture(std::shared_ptr<ISink> pSink);
   virtual ~SinkCapture();
   virtual bool setAudioFormat(AudioFormat audioFormat);
 };
@@ -116,7 +117,7 @@ protected:
   virtual void writePrimitive(IAudioBuffer& buf);
 
 public:
-  SinkInjector(ISink* pSink);
+  SinkInjector(std::shared_ptr<ISink> pSink);
   virtual ~SinkInjector();
   virtual bool setAudioFormat(AudioFormat audioFormat);
 };
@@ -124,10 +125,10 @@ public:
 class SourceTestBase : public ISource
 {
 protected:
-  ISource* mpSource;
+  std::shared_ptr<ISource> mpSource;
 
 public:
-  SourceTestBase(ISource* pSource);
+  SourceTestBase(std::shared_ptr<ISource> pSource);
   virtual ~SourceTestBase();
 
   virtual int getLatencyUSec(void);
@@ -141,7 +142,7 @@ protected:
   virtual void readPrimitive(IAudioBuffer& buf);
 
 public:
-  SourceCapture(ISource* pSource);
+  SourceCapture(std::shared_ptr<ISource> pSource);
   virtual ~SourceCapture();
 };
 
@@ -151,7 +152,7 @@ protected:
   virtual void readPrimitive(IAudioBuffer& buf);
 
 public:
-  SourceInjector(ISource* pSource);
+  SourceInjector(std::shared_ptr<ISource> pSource);
   virtual ~SourceInjector();
 };
 

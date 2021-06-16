@@ -19,7 +19,7 @@
 #include "Mixer.hpp"
 #include <vector>
 
-PipeMixer::PipeMixer(AudioFormat format, ISink* pSink) : ThreadBase(), mFormat(format), mpSink(pSink)
+PipeMixer::PipeMixer(AudioFormat format, std::shared_ptr<ISink> pSink) : ThreadBase(), mFormat(format), mpSink(pSink)
 {
 
 }
@@ -27,8 +27,7 @@ PipeMixer::PipeMixer(AudioFormat format, ISink* pSink) : ThreadBase(), mFormat(f
 PipeMixer::~PipeMixer()
 {
   stop();
-  ISink* pSink = detachSink();
-  delete pSink;
+  detachSink();
 }
 
 bool PipeMixer::setAudioFormat(AudioFormat audioFormat)
@@ -42,16 +41,16 @@ AudioFormat PipeMixer::getAudioFormat(void)
   return mFormat;
 }
 
-ISink* PipeMixer::attachSink(ISink* pSink)
+std::shared_ptr<ISink> PipeMixer::attachSink(std::shared_ptr<ISink> pSink)
 {
-  ISink* pPrevSink = mpSink;
+  std::shared_ptr<ISink> pPrevSink = mpSink;
   mpSink = pSink;
   return pPrevSink;
 }
 
-ISink* PipeMixer::detachSink(void)
+std::shared_ptr<ISink> PipeMixer::detachSink(void)
 {
-  ISink* pPrevSink = mpSink;
+  std::shared_ptr<ISink> pPrevSink = mpSink;
   mpSink = nullptr;
   return pPrevSink;
 }
@@ -95,24 +94,21 @@ void PipeMixer::unlockToStop(void)
   }
 }
 
-ISink* PipeMixer::allocateSinkAdaptor(void)
+std::shared_ptr<ISink> PipeMixer::allocateSinkAdaptor(void)
 {
-  InterPipeBridge* pInterPipeBridge = new InterPipeBridge( mFormat );
+  std::shared_ptr<InterPipeBridge> pInterPipeBridge = std::make_shared<InterPipeBridge>( mFormat );
   mMutexPipe.lock();
   mpInterPipeBridges.push_back( pInterPipeBridge );
   mMutexPipe.unlock();
-  return (ISink*)pInterPipeBridge;
+  return pInterPipeBridge;
 }
 
-void PipeMixer::releaseSinkAdaptor(ISink* pSink, bool bDelete)
+void PipeMixer::releaseSinkAdaptor(std::shared_ptr<ISink> pSink)
 {
-  InterPipeBridge* pInterPipeBridge = dynamic_cast<InterPipeBridge*>(pSink);
+  std::shared_ptr<InterPipeBridge> pInterPipeBridge = std::dynamic_pointer_cast<InterPipeBridge>(pSink);
   if( pInterPipeBridge ){
     pInterPipeBridge->unlock(); // TODO: May not enough to unlock this only.
     mMutexPipe.lock();
-    if( bDelete ){
-      delete pInterPipeBridge;
-    }
     std::erase( mpInterPipeBridges, pInterPipeBridge );
     mMutexPipe.unlock();
   }

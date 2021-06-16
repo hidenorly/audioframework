@@ -33,10 +33,10 @@ public:
   virtual bool removeFilter(std::shared_ptr<IFilter> pFilter);
   virtual bool isFilterIncluded(std::shared_ptr<IFilter> pFilter);
 
-  virtual ISink* attachSink(ISink* pSink);
-  virtual ISink* detachSink(void);
-  virtual ISource* attachSource(ISource* pSource);
-  virtual ISource* detachSource(void);
+  virtual std::shared_ptr<ISink> attachSink(std::shared_ptr<ISink> pSink);
+  virtual std::shared_ptr<ISink> detachSink(void);
+  virtual std::shared_ptr<ISource> attachSource(std::shared_ptr<ISource> pSource);
+  virtual std::shared_ptr<ISource> detachSource(void);
 
   virtual void run(void);
   virtual void stop(void);
@@ -55,9 +55,9 @@ protected:
   IPipe* getTailPipe(bool bCreateInstance = false);
   IPipe* findPipe(std::shared_ptr<IFilter> pFilter);
   std::vector<IPipe*> mPipes;
-  std::vector<InterPipeBridge*> mInterPipeBridges;
-  ISink* mpSink;
-  ISource* mpSource;
+  std::vector<std::shared_ptr<InterPipeBridge>> mInterPipeBridges;
+  std::shared_ptr<ISink> mpSink;
+  std::shared_ptr<ISource> mpSource;
   bool mSinkAttached;
   bool mSourceAttached;
 

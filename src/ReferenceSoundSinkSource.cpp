@@ -17,7 +17,7 @@
 #include "ReferenceSoundSinkSource.hpp"
 #include <algorithm>
 
-ReferenceSoundSinkSource::ReferenceSoundSinkSource( ISink* pSink ) : InterPipeBridge( pSink ? pSink->getAudioFormat() : AudioFormat() ), mpSink( pSink )
+ReferenceSoundSinkSource::ReferenceSoundSinkSource( std::shared_ptr<ISink> pSink ) : InterPipeBridge( pSink ? pSink->getAudioFormat() : AudioFormat() ), mpSink( pSink )
 {
   setRequiredResourceConsumption(0);
 }
@@ -47,19 +47,19 @@ void ReferenceSoundSinkSource::writePrimitive(IAudioBuffer& buf)
   InterPipeBridge::writePrimitive( buf );
 }
 
-ISink* ReferenceSoundSinkSource::attachSink(ISink* pSink)
+std::shared_ptr<ISink> ReferenceSoundSinkSource::attachSink(std::shared_ptr<ISink> pSink)
 {
   mMutexSink.lock();
-  ISink* pPrevSink = mpSink;
+  std::shared_ptr<ISink> pPrevSink = mpSink;
   mpSink = pSink;
   mMutexSink.unlock();
   return pPrevSink;
 }
 
-ISink* ReferenceSoundSinkSource::detachSink(void)
+std::shared_ptr<ISink> ReferenceSoundSinkSource::detachSink(void)
 {
   mMutexSink.lock();
-  ISink* pPrevSink = mpSink;
+  std::shared_ptr<ISink> pPrevSink = mpSink;
   mpSink = nullptr;
   clearBuffer();
   mMutexSink.unlock();

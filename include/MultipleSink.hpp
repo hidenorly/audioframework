@@ -29,21 +29,21 @@
 class MultipleSink : public ISink
 {
 protected:
-  std::vector<ISink*> mpSinks;
-  std::map<ISink*, AudioFormat::ChannelMapper> mChannelMaps;
+  std::vector<std::shared_ptr<ISink>> mpSinks;
+  std::map<std::shared_ptr<ISink>, AudioFormat::ChannelMapper> mChannelMaps;
   AudioFormat mFormat;
-  std::map<ISink*, std::shared_ptr<DelayFilter>> mpDelayFilters;
+  std::map<std::shared_ptr<ISink>, std::shared_ptr<DelayFilter>> mpDelayFilters;
   int mMaxLatency;
 
   void ensureDelayFilters(bool bForceRecreate = false);
-  std::vector<float> getPerSinkChannelVolumes(ISink* pSink, Volume::CHANNEL_VOLUME perChannelVolumes);
+  std::vector<float> getPerSinkChannelVolumes(std::shared_ptr<ISink> pSink, Volume::CHANNEL_VOLUME perChannelVolumes);
 
 public:
   MultipleSink(AudioFormat audioFormat = AudioFormat());
   virtual ~MultipleSink();
-  virtual void attachSink(ISink* pSink, AudioFormat::ChannelMapper& map);
-  virtual bool detachSink(ISink* pSink, bool bDisposeSink = false);
-  virtual void clearSinks(bool bDisposeSinks = true);
+  virtual void attachSink(std::shared_ptr<ISink> pSink, AudioFormat::ChannelMapper& map);
+  virtual bool detachSink(std::shared_ptr<ISink> pSink);
+  virtual void clearSinks();
 
   virtual void writePrimitive(IAudioBuffer& buf);
   virtual std::string toString(void){ return "MultipleSink"; };

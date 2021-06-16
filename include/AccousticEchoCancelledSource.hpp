@@ -21,12 +21,13 @@
 #include "DelayFilter.hpp"
 #include "AccousticEchoCancelFilter.hpp"
 #include <mutex>
+#include <memory>
 
 class AccousticEchoCancelledSource : public ISource
 {
 protected:
-  ISource* mpSource;
-  ISource* mpReferenceSource;
+  std::shared_ptr<ISource> mpSource;
+  std::shared_ptr<ISource> mpReferenceSource;
   DelayFilter* mpDelay;
   AccousticEchoCancelFilter* mpAecFilter;
   int mDelayUsec;
@@ -37,7 +38,7 @@ protected:
   void createDelayFilter(void);
 
 public:
-  AccousticEchoCancelledSource(ISource* pSource, ISource* pReferenceSound = nullptr, bool bDelayOnly = false);
+  AccousticEchoCancelledSource(std::shared_ptr<ISource> pSource, std::shared_ptr<ISource> pReferenceSound = nullptr, bool bDelayOnly = false);
   virtual ~AccousticEchoCancelledSource();
   virtual std::string toString(void){return "AccousticEchoCanceledSource";};
   virtual void adjustDelay(void);

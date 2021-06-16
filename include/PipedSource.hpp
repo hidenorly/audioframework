@@ -27,16 +27,16 @@
 class PipedSource : public ISource
 {
 protected:
-  ISource* mpSource;
+  std::shared_ptr<ISource> mpSource;
   IPipe* mpPipe;
-  InterPipeBridge* mpInterPipeBridge;
+  std::shared_ptr<InterPipeBridge> mpInterPipeBridge;
 
 public:
   PipedSource();
   virtual ~PipedSource();
 
-  virtual ISource* attachSource(ISource* pSource);
-  virtual ISource* detachSource(void);
+  virtual std::shared_ptr<ISource> attachSource(std::shared_ptr<ISource> pSource);
+  virtual std::shared_ptr<ISource> detachSource(void);
 
   virtual void addFilterToHead(std::shared_ptr<IFilter> pFilter);
   virtual void addFilterToTail(std::shared_ptr<IFilter> pFilter);

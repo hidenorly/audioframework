@@ -24,29 +24,30 @@
 #include <vector>
 #include <mutex>
 #include <thread>
+#include <memory>
 
 class PipeMixer : public ThreadBase
 {
 protected:
   std::mutex mMutexPipe;
-  std::vector<InterPipeBridge*> mpInterPipeBridges;
+  std::vector<std::shared_ptr<InterPipeBridge>> mpInterPipeBridges;
   AudioFormat mFormat;
-  ISink* mpSink;
+  std::shared_ptr<ISink> mpSink;
 
   virtual void process(void);
   virtual void unlockToStop(void);
 
 public:
-  PipeMixer(AudioFormat format = AudioFormat(), ISink* pSink = nullptr );
+  PipeMixer(AudioFormat format = AudioFormat(), std::shared_ptr<ISink> pSink = nullptr );
   virtual ~PipeMixer();
   virtual bool setAudioFormat(AudioFormat audioFormat);
   virtual AudioFormat getAudioFormat(void);
 
-  virtual ISink* attachSink(ISink* pSink);
-  virtual ISink* detachSink(void);
+  virtual std::shared_ptr<ISink> attachSink(std::shared_ptr<ISink> pSink);
+  virtual std::shared_ptr<ISink> detachSink(void);
 
-  virtual ISink* allocateSinkAdaptor(void);
-  virtual void releaseSinkAdaptor(ISink* pSink, bool bDelete=true);
+  virtual std::shared_ptr<ISink> allocateSinkAdaptor(void);
+  virtual void releaseSinkAdaptor(std::shared_ptr<ISink> pSink);
 };
 
 #endif /* __PIPEMIXER_HPP__ */

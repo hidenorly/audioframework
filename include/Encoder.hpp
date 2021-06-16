@@ -24,14 +24,15 @@
 #include <string>
 #include <vector>
 #include <thread>
+#include <memory>
 #include "Media.hpp"
 #include "ResourceManager.hpp"
 
 class IEncoder : public ThreadBase, public IResourceConsumer
 {
 protected:
-  ISink* mpSink;
-  std::vector<InterPipeBridge*> mpInterPipeBridges;
+  std::shared_ptr<ISink> mpSink;
+  std::vector<std::shared_ptr<InterPipeBridge>> mpInterPipeBridges;
   virtual void unlockToStop(void);
 
 public:
@@ -41,11 +42,11 @@ public:
   virtual void configure(MediaParam param);
   virtual void configure(std::vector<MediaParam> params);
 
-  virtual ISink* allocateSinkAdaptor(void); // as encoder's source
-  virtual void releaseSinkAdaptor(ISink* pSink, bool bDelete=true);
+  virtual std::shared_ptr<ISink> allocateSinkAdaptor(void); // as encoder's source
+  virtual void releaseSinkAdaptor(std::shared_ptr<ISink> pSink);
 
-  virtual ISink* attachSink(ISink* pSink);
-  virtual ISink* detachSink(void);
+  virtual std::shared_ptr<ISink> attachSink(std::shared_ptr<ISink> pSink);
+  virtual std::shared_ptr<ISink> detachSink(void);
   virtual int64_t getPosition(void);
 };
 

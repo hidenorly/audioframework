@@ -86,14 +86,14 @@ AudioFormat PipedSource::getAudioFormat(void)
   return AudioFormat();
 }
 
-void PipedSource::addFilterToHead(Filter* pFilter)
+void PipedSource::addFilterToHead(std::shared_ptr<IFilter> pFilter)
 {
   if( mpPipe ){
     mpPipe->addFilterToHead(pFilter);
   }
 }
 
-void PipedSource::addFilterToTail(Filter* pFilter)
+void PipedSource::addFilterToTail(std::shared_ptr<IFilter> pFilter)
 {
   if( mpPipe ){
     mpPipe->addFilterToTail(pFilter);

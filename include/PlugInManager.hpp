@@ -20,6 +20,7 @@
 #include <string>
 #include <map>
 #include <vector>
+#include <memory>
 
 class IPlugIn
 {
@@ -31,7 +32,7 @@ public:
   virtual void onLoad(void) = 0;
   virtual void onUnload(void) = 0;
   virtual std::string getId(void) = 0;
-  virtual IPlugIn* newInstance(void) = 0;
+  virtual std::shared_ptr<IPlugIn> newInstance(void) = 0;
 
   // for PlugIn Manager
   virtual void load(void* libraryNativeHandle);
@@ -51,7 +52,7 @@ public:
 class IPlugInManagerUser
 {
 public:
-  virtual IPlugIn* getPlugIn(std::string plugInId) = 0;
+  virtual std::shared_ptr<IPlugIn> getPlugIn(std::string plugInId) = 0;
   virtual std::vector<std::string> getPlugInIds(void) = 0;
   virtual bool hasPlugIn(std::string plugInId) = 0;
 };
@@ -59,14 +60,14 @@ public:
 class IPlugInManagerPlugIn
 {
 public:
-  virtual std::string registerPlugIn(IPlugIn* pPlugIn) = 0;
+  virtual std::string registerPlugIn(std::shared_ptr<IPlugIn> pPlugIn) = 0;
   virtual void unregisterPlugIn(std::string plugInId) = 0;
 };
 
 class IPlugInManager : public IPlugInManagerAdmin, public IPlugInManagerUser, public IPlugInManagerPlugIn
 {
 protected:
-  std::map<std::string, IPlugIn*> mPlugIns;
+  std::map<std::string, std::shared_ptr<IPlugIn>> mPlugIns;
   std::string mPlugInPath;
 
 public:
@@ -78,12 +79,12 @@ public:
   virtual void terminate(void);
 
   // for Plug-In User APIs
-  virtual IPlugIn* getPlugIn(std::string plugInId);
+  virtual std::shared_ptr<IPlugIn> getPlugIn(std::string plugInId);
   virtual std::vector<std::string> getPlugInIds(void);
   virtual bool hasPlugIn(std::string plugInId);
 
   // for PlugIn implementor APIs
-  virtual std::string registerPlugIn(IPlugIn* pPlugIn);
+  virtual std::string registerPlugIn(std::shared_ptr<IPlugIn> pPlugIn);
   virtual void unregisterPlugIn(std::string plugInId);
 };
 
@@ -114,17 +115,17 @@ public:
     return mpManager;
   }
 
-  static IFCLASS* newInstanceById(std::string plugInId){
-    IFCLASS* pPlugInInstance = nullptr;
+  static std::shared_ptr<IFCLASS> newInstanceById(std::string plugInId){
+    std::shared_ptr<IFCLASS> pPlugInInstance = nullptr;
 
     if( !mpManager ){
       getInstance();
     }
 
     if( mpManager ){
-      IPlugIn* pPlugIn = mpManager->getPlugIn( plugInId );
+      std::shared_ptr<IPlugIn> pPlugIn = mpManager->getPlugIn( plugInId );
       if( pPlugIn ){
-        pPlugInInstance = dynamic_cast<IFCLASS*>( pPlugIn->newInstance() );
+        pPlugInInstance = std::dynamic_pointer_cast<IFCLASS>( pPlugIn->newInstance() );
       }
     }
 

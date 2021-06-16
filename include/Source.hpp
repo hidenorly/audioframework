@@ -18,6 +18,7 @@
 #define __SOURCE_HPP__
 
 #include <string>
+#include <memory>
 #include "Buffer.hpp"
 #include "AudioFormat.hpp"
 #include "PipeAndFilterCommon.hpp"
@@ -71,7 +72,7 @@ public:
   virtual void onLoad(void);
   virtual void onUnload(void);
   virtual std::string getId(void);
-  virtual IPlugIn* newInstance(void);
+  virtual std::shared_ptr<IPlugIn> newInstance(void);
 };
 
 typedef TPlugInManager<SourcePlugIn> SourceManager;

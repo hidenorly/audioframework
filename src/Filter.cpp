@@ -94,7 +94,7 @@ std::string FilterPlugIn::getId(void)
   return "FilterPlugInBase";
 }
 
-IPlugIn* FilterPlugIn::newInstance(void)
+std::shared_ptr<IPlugIn> FilterPlugIn::newInstance(void)
 {
-  return dynamic_cast<IPlugIn*>( new FilterPlugIn() );
+  return std::make_shared<FilterPlugIn>();
 }

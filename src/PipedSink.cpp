@@ -115,14 +115,14 @@ AudioFormat PipedSink::getAudioFormat(void)
   return AudioFormat();
 }
 
-void PipedSink::addFilterToHead(Filter* pFilter)
+void PipedSink::addFilterToHead(std::shared_ptr<IFilter> pFilter)
 {
   if( mpPipe ){
     mpPipe->addFilterToHead(pFilter);
   }
 }
 
-void PipedSink::addFilterToTail(Filter* pFilter)
+void PipedSink::addFilterToTail(std::shared_ptr<IFilter> pFilter)
 {
   if( mpPipe ){
     mpPipe->addFilterToTail(pFilter);

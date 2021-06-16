@@ -70,14 +70,11 @@ void MultipleSink::ensureDelayFilters(bool bForceRecreate)
   bool isDelayFiltersEmpty = mpDelayFilters.empty();
   if( bForceRecreate || isDelayFiltersEmpty ){
     if( !isDelayFiltersEmpty ){
-      for( auto& [pSink, pDelayFilter] : mpDelayFilters ){
-        delete pDelayFilter;
-      }
       mpDelayFilters.clear();
     }
     mMaxLatency = getLatencyUSec();
     for(auto& pSink : mpSinks ){
-      mpDelayFilters.insert_or_assign( pSink, new DelayFilter( pSink->getAudioFormat(), mMaxLatency-pSink->getLatencyUSec() ) );
+      mpDelayFilters.insert_or_assign( pSink, std::make_shared<DelayFilter>( pSink->getAudioFormat(), mMaxLatency-pSink->getLatencyUSec() ) );
     }
   }
 }
@@ -92,7 +89,7 @@ void MultipleSink::writePrimitive(IAudioBuffer& buf)
       AudioBuffer selectedChannelData = pBuf->getSelectedChannelData( pSink->getAudioFormat(), mapper );
       ensureDelayFilters();
       AudioBuffer delayedOut( pSink->getAudioFormat(), pBuf->getNumberOfSamples() );
-      DelayFilter* pDelayFilter = mpDelayFilters[ pSink ];
+      std::shared_ptr<DelayFilter> pDelayFilter = mpDelayFilters[ pSink ];
       pDelayFilter->process( selectedChannelData, delayedOut );
       pSink->write( delayedOut );
     } else {

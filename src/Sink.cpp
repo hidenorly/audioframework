@@ -204,9 +204,9 @@ std::string SinkPlugIn::getId(void)
   return "SinkPlugInBase";
 }
 
-IPlugIn* SinkPlugIn::newInstance(void)
+std::shared_ptr<IPlugIn> SinkPlugIn::newInstance(void)
 {
-  return new SinkPlugIn();
+  return std::make_shared<SinkPlugIn>();
 }
 
 void SinkPlugIn::writePrimitive(IAudioBuffer& buf)

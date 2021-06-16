@@ -81,7 +81,7 @@ void PipeMultiThread::createAndConnectPipesToTail(IPipe* pCurrentPipe)
   }
 }
 
-void PipeMultiThread::addFilterToHead(IFilter* pFilter)
+void PipeMultiThread::addFilterToHead(std::shared_ptr<IFilter> pFilter)
 {
   if( pFilter ){
     mMutexFilters.lock();
@@ -100,7 +100,7 @@ void PipeMultiThread::addFilterToHead(IFilter* pFilter)
   }
 }
 
-void PipeMultiThread::addFilterToTail(IFilter* pFilter)
+void PipeMultiThread::addFilterToTail(std::shared_ptr<IFilter> pFilter)
 {
   if( pFilter ){
     mMutexFilters.lock();
@@ -119,7 +119,7 @@ void PipeMultiThread::addFilterToTail(IFilter* pFilter)
   }
 }
 
-IPipe* PipeMultiThread::findPipe(IFilter* pFilter)
+IPipe* PipeMultiThread::findPipe(std::shared_ptr<IFilter> pFilter)
 {
   IPipe* result = nullptr;
 
@@ -135,7 +135,7 @@ IPipe* PipeMultiThread::findPipe(IFilter* pFilter)
   return result;
 }
 
-bool PipeMultiThread::isFilterIncluded(IFilter* pFilter)
+bool PipeMultiThread::isFilterIncluded(std::shared_ptr<IFilter> pFilter)
 {
   bool result = false;
 
@@ -151,7 +151,7 @@ bool PipeMultiThread::isFilterIncluded(IFilter* pFilter)
   return result;
 }
 
-bool PipeMultiThread::addFilterAfterFilter(IFilter* pFilter, IFilter* pPosition)
+bool PipeMultiThread::addFilterAfterFilter(std::shared_ptr<IFilter> pFilter, std::shared_ptr<IFilter> pPosition)
 {
   bool result = false;
 
@@ -174,7 +174,7 @@ bool PipeMultiThread::addFilterAfterFilter(IFilter* pFilter, IFilter* pPosition)
   return result;
 }
 
-bool PipeMultiThread::removeFilter(IFilter* pFilter)
+bool PipeMultiThread::removeFilter(std::shared_ptr<IFilter> pFilter)
 {
   bool result = false;
 

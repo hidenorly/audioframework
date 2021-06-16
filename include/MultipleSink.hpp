@@ -23,6 +23,7 @@
 #include "DelayFilter.hpp"
 #include <vector>
 #include <map>
+#include <memory>
 
 
 class MultipleSink : public ISink
@@ -31,7 +32,7 @@ protected:
   std::vector<ISink*> mpSinks;
   std::map<ISink*, AudioFormat::ChannelMapper> mChannelMaps;
   AudioFormat mFormat;
-  std::map<ISink*, DelayFilter*> mpDelayFilters;
+  std::map<ISink*, std::shared_ptr<DelayFilter>> mpDelayFilters;
   int mMaxLatency;
 
   void ensureDelayFilters(bool bForceRecreate = false);

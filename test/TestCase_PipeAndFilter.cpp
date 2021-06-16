@@ -55,6 +55,7 @@
 #include <iostream>
 #include <filesystem>
 #include <chrono>
+#include <memory>
 
 TestCase_PipeAndFilter::TestCase_PipeAndFilter()
 {
@@ -74,10 +75,10 @@ void TestCase_PipeAndFilter::TearDown()
 
 TEST_F(TestCase_PipeAndFilter, testAddFilters)
 {
-  Filter* pFilter1 = new Filter();
-  Filter* pFilter2 = new Filter();
-  Filter* pFilter3 = new Filter();
-  Filter* pFilter4 = new Filter();
+  std::shared_ptr<IFilter> pFilter1( std::make_shared<Filter>() );
+  std::shared_ptr<IFilter> pFilter2( std::make_shared<Filter>() );
+  std::shared_ptr<IFilter> pFilter3( std::make_shared<Filter>() );
+  std::shared_ptr<IFilter> pFilter4( std::make_shared<Filter>() );
 
   Pipe* pPipe = new Pipe();
   pPipe->addFilterToTail(pFilter1);
@@ -115,10 +116,10 @@ TEST_F(TestCase_PipeAndFilter, testAttachSourceSinkToPipe)
 
   EXPECT_EQ( nullptr, pPipe->attachSource( new Source() ) );
 
-  pPipe->addFilterToTail( new FilterIncrement() );
-  pPipe->addFilterToTail( new Filter() );
-  pPipe->addFilterToTail( new Filter() );
-  pPipe->addFilterToTail( new FilterIncrement() );
+  pPipe->addFilterToTail( std::make_shared<FilterIncrement>() );
+  pPipe->addFilterToTail( std::make_shared<Filter>() );
+  pPipe->addFilterToTail( std::make_shared<Filter>() );
+  pPipe->addFilterToTail( std::make_shared<FilterIncrement>() );
   pPipe->dump();
 
   pPipe->run();
@@ -183,8 +184,8 @@ TEST_F(TestCase_PipeAndFilter, testInterPipeBridge)
   // config pipe1
   EXPECT_EQ( nullptr, pPipe1->attachSource( new Source() ) );
   pPipe1->attachSink( dynamic_cast<ISink*>(&interPipe) );
-  pPipe1->addFilterToTail( new FilterIncrement() );
-  pPipe1->addFilterToTail( new Filter() );
+  pPipe1->addFilterToTail( std::make_shared<FilterIncrement>() );
+  pPipe1->addFilterToTail( std::make_shared<Filter>() );
 
   // config pipe2
   EXPECT_EQ( nullptr, pPipe2->attachSource( dynamic_cast<ISource*>(&interPipe) ) );
@@ -197,8 +198,8 @@ TEST_F(TestCase_PipeAndFilter, testInterPipeBridge)
   );
   pSink->setPresentation( Sink::PRESENTATION::SPEAKER_STEREO );
   EXPECT_EQ( nullptr, pPipe2->attachSink( pSink ) );
-  pPipe2->addFilterToTail( new FilterIncrement() );
-  pPipe2->addFilterToTail( new Filter() );
+  pPipe2->addFilterToTail( std::make_shared<FilterIncrement>() );
+  pPipe2->addFilterToTail( std::make_shared<Filter>() );
 
   std::cout << "run" << std::endl;
   // run pipe1 & 2
@@ -256,10 +257,10 @@ TEST_F(TestCase_PipeAndFilter, testPipeMultiThread)
 
   EXPECT_EQ( nullptr, pPipe->attachSource( new Source() ) );
 
-  pPipe->addFilterToTail( new FilterIncrement(IFilter::DEFAULT_WINDOW_SIZE_USEC * 2) );
-  pPipe->addFilterToTail( new Filter() );
-  pPipe->addFilterToTail( new Filter() );
-  pPipe->addFilterToTail( new FilterIncrement() );
+  pPipe->addFilterToTail( std::make_shared<FilterIncrement>(IFilter::DEFAULT_WINDOW_SIZE_USEC * 2) );
+  pPipe->addFilterToTail( std::make_shared<Filter>() );
+  pPipe->addFilterToTail( std::make_shared<Filter>() );
+  pPipe->addFilterToTail( std::make_shared<FilterIncrement>() );
 
   std::cout << "run" << std::endl;
   pPipe->run();
@@ -402,12 +403,12 @@ TEST_F(TestCase_PipeAndFilter, testPipeMixer)
   ISource* pSource1 = new Source();
   pStream1->attachSource( pSource1 );
   pStream1->attachSink( pPipeMixer->allocateSinkAdaptor() );
-  pStream1->addFilterToTail( new FilterIncrement() );
+  pStream1->addFilterToTail( std::make_shared<FilterIncrement>() );
 
   ISource* pSource2 = new Source();
   pStream2->attachSource( pSource2 );
   pStream2->attachSink( pPipeMixer->allocateSinkAdaptor() );
-  pStream2->addFilterToTail( new FilterIncrement() );
+  pStream2->addFilterToTail( std::make_shared<FilterIncrement>() );
 
   ISink* pSink = new Sink();
   pPipeMixer->attachSink( pSink );
@@ -464,10 +465,10 @@ TEST_F(TestCase_PipeAndFilter, testPipedSink)
 
   PipedSink* pPipedSink = new PipedSink();
   pPipedSink->attachSink( pActualSink );
-  pPipedSink->addFilterToTail( new FilterIncrement() );
+  pPipedSink->addFilterToTail( std::make_shared<FilterIncrement>() );
 
   IPipe* pPipe = new Pipe();
-  pPipe->addFilterToTail( new FilterIncrement() );
+  pPipe->addFilterToTail( std::make_shared<FilterIncrement>() );
   pPipe->attachSource( pSource );
   pPipe->attachSink( pPipedSink );
 
@@ -514,10 +515,10 @@ TEST_F(TestCase_PipeAndFilter, testPipedSource)
   ISource* pActualSource = new Source();
   PipedSource* pPipedSource = new PipedSource();
   pPipedSource->attachSource( pActualSource );
-  pPipedSource->addFilterToTail( new FilterIncrement() );
+  pPipedSource->addFilterToTail( std::make_shared<FilterIncrement>() );
 
   IPipe* pPipe = new Pipe();
-  pPipe->addFilterToTail( new FilterIncrement() );
+  pPipe->addFilterToTail( std::make_shared<FilterIncrement>() );
   pPipe->attachSource( pPipedSource );
   pPipe->attachSink( pSink );
 
@@ -565,7 +566,7 @@ TEST_F(TestCase_PipeAndFilter, testDecoder)
   IPipe* pPipe = new Pipe();
   pPipe->attachSource( pSourceAdaptor );
   pPipe->attachSink( pSink );
-  pPipe->addFilterToTail( new FilterIncrement() );
+  pPipe->addFilterToTail( std::make_shared<FilterIncrement>() );
 
   pDecoder->run();
   pPipe->run();
@@ -621,7 +622,7 @@ TEST_F(TestCase_PipeAndFilter, testPlayer)
   IPipe* pPipe = new Pipe();
   pPipe->attachSource( pSourceAdaptor );
   pPipe->attachSink( pSink );
-  pPipe->addFilterToTail( new FilterIncrement() );
+  pPipe->addFilterToTail( std::make_shared<FilterIncrement>() );
 
   pPlayer->play();
   pPipe->run();
@@ -682,7 +683,7 @@ TEST_F(TestCase_PipeAndFilter, testEncoder)
   ISink* pSink = new EncodedSink();
   IPipe* pPipe = new Pipe();
   pPipe->attachSource( pSource );
-  pPipe->addFilterToTail( new FilterIncrement() );
+  pPipe->addFilterToTail( std::make_shared<FilterIncrement>() );
   ISink* pSinkAdaptor = pEncoder->allocateSinkAdaptor();
   pPipe->attachSink( pSinkAdaptor );
   pEncoder->attachSink( pSink );
@@ -908,9 +909,8 @@ TEST_F(TestCase_PipeAndFilter, testFilterPlugInManager)
   for(auto& aPlugInId : plugInIds){
     EXPECT_TRUE( pManager->hasPlugIn( aPlugInId ) );
     EXPECT_NE( nullptr, pManager->getPlugIn( aPlugInId ) );
-    IFilter* pFilter = FilterManager::newInstanceById( aPlugInId );
+    std::shared_ptr<IFilter> pFilter = FilterManager::newInstanceById( aPlugInId );
     EXPECT_NE( nullptr, pFilter );
-    delete pFilter;
   }
   EXPECT_FALSE( FilterManager::newInstanceById( "hogehogehoge" ) );
 
@@ -927,9 +927,8 @@ TEST_F(TestCase_PipeAndFilter, testSourcePlugInManager)
   for(auto& aPlugInId : plugInIds){
     EXPECT_TRUE( pManager->hasPlugIn( aPlugInId ) );
     EXPECT_NE( nullptr, pManager->getPlugIn( aPlugInId ) );
-    ISource* pFilter = SourceManager::newInstanceById( aPlugInId );
-    EXPECT_NE( nullptr, pFilter );
-    delete pFilter;
+    std::shared_ptr<ISource> pSource = SourceManager::newInstanceById( aPlugInId );
+    EXPECT_NE( nullptr, pSource );
   }
   EXPECT_FALSE( SourceManager::newInstanceById( "hogehogehoge" ) );
 
@@ -946,9 +945,8 @@ TEST_F(TestCase_PipeAndFilter, testSinkPlugInManager)
   for(auto& aPlugInId : plugInIds){
     EXPECT_TRUE( pManager->hasPlugIn( aPlugInId ) );
     EXPECT_NE( nullptr, pManager->getPlugIn( aPlugInId ) );
-    ISink* pFilter = SinkManager::newInstanceById( aPlugInId );
-    EXPECT_NE( nullptr, pFilter );
-    delete pFilter;
+    std::shared_ptr<ISink> pSink = SinkManager::newInstanceById( aPlugInId );
+    EXPECT_NE( nullptr, pSink );
   }
   EXPECT_FALSE( SinkManager::newInstanceById( "hogehogehoge" ) );
 
@@ -967,8 +965,8 @@ TEST_F(TestCase_PipeAndFilter, testDelayFilter)
   channelDelay[AudioFormat::CH::L] = 0;
   channelDelay[AudioFormat::CH::R] = 20*120; // 20us = 1 sample delay @ 48KHz
 
-  pPipe->addFilterToTail( new DelayFilter( AudioFormat(), 20*120 ) );
-  pPipe->addFilterToTail( new PerChannelDelayFilter( AudioFormat(), channelDelay ) );
+  pPipe->addFilterToTail( std::make_shared<DelayFilter>( AudioFormat(), 20*120 ) );
+  pPipe->addFilterToTail( std::make_shared<PerChannelDelayFilter>( AudioFormat(), channelDelay ) );
   pPipe->attachSink(pSink);
 
   pPipe->run();
@@ -995,7 +993,7 @@ TEST_F(TestCase_PipeAndFilter, testSinkCapture)
   IPipe* pPipe = new Pipe();
 
   pPipe->attachSource( pSource );
-  pPipe->addFilterToTail( new FilterIncrement() );
+  pPipe->addFilterToTail( std::make_shared<FilterIncrement>() );
   pPipe->attachSink( pSink );
 
   pPipe->run();
@@ -1026,7 +1024,7 @@ TEST_F(TestCase_PipeAndFilter, testSinkInjector)
   IPipe* pPipe = new Pipe();
 
   pPipe->attachSource( pSource );
-  pPipe->addFilterToTail( new Filter() );
+  pPipe->addFilterToTail( std::make_shared<Filter>() );
   pPipe->attachSink( pSink );
 
   // 1st step: non injected
@@ -1084,7 +1082,7 @@ TEST_F(TestCase_PipeAndFilter, testSourceCapture)
   IPipe* pPipe = new Pipe();
 
   pPipe->attachSource( pSource );
-  pPipe->addFilterToTail( new FilterIncrement() );
+  pPipe->addFilterToTail( std::make_shared<FilterIncrement>() );
   pPipe->attachSink( pSink );
 
   pPipe->run();
@@ -1115,7 +1113,7 @@ TEST_F(TestCase_PipeAndFilter, testSourceInjector)
   IPipe* pPipe = new Pipe();
 
   pPipe->attachSource( pSource );
-  pPipe->addFilterToTail( new Filter() );
+  pPipe->addFilterToTail( std::make_shared<Filter>() );
   pPipe->attachSink( pSink );
 
   // 1st step: non injected
@@ -1177,10 +1175,10 @@ TEST_F(TestCase_PipeAndFilter, testFilterCapture)
   pPipe->attachSource( pSource );
   pPipe->attachSink( pSink );
 
-  pPipe->addFilterToTail( new FilterIncrement() );
-  IFilter* pFilter = new FilterCapture();
+  pPipe->addFilterToTail( std::make_shared<FilterIncrement>() );
+  std::shared_ptr<IFilter> pFilter = std::make_shared<FilterCapture>();
   pPipe->addFilterToTail( pFilter );
-  ICapture* pCapture = dynamic_cast<ICapture*>(pFilter);
+  std::shared_ptr<ICapture> pCapture = std::dynamic_pointer_cast<ICapture>(pFilter);
 
   pPipe->run();
   std::this_thread::sleep_for(std::chrono::microseconds(1000));
@@ -1212,10 +1210,10 @@ TEST_F(TestCase_PipeAndFilter, testFilterInjector)
   pPipe->attachSource( pSource );
   pPipe->attachSink( pSink );
 
-  pPipe->addFilterToTail( new FilterIncrement() );
-  IFilter* pFilter = new FilterInjector();
+  pPipe->addFilterToTail( std::make_shared<FilterIncrement>() );
+  std::shared_ptr<IFilter> pFilter = std::make_shared<FilterInjector>();
   pPipe->addFilterToTail( pFilter );
-  IInjector* pInjector = dynamic_cast<IInjector*>(pFilter);
+  std::shared_ptr<IInjector> pInjector = std::dynamic_pointer_cast<IInjector>(pFilter);
 
   // 1st step: non injected
   EXPECT_FALSE( pInjector->getInjectorEnabled() );
@@ -1412,7 +1410,7 @@ TEST_F(TestCase_PipeAndFilter, testResourceManager_Pipe)
   EXPECT_NE( pResourceManager, nullptr);
 
   IPipe* pPipe = new Pipe();
-  pPipe->addFilterToTail( new DummyFilter() );
+  pPipe->addFilterToTail( std::make_shared<DummyFilter>() );
 
   bool bSuccessAcquiredResource = pResourceManager->acquire(pPipe);
   EXPECT_TRUE( bSuccessAcquiredResource );
@@ -1422,7 +1420,7 @@ TEST_F(TestCase_PipeAndFilter, testResourceManager_Pipe)
     EXPECT_TRUE( pResourceManager->release(pPipe) );
   }
 
-  pPipe->addFilterToTail( new DummyFilter() );
+  pPipe->addFilterToTail( std::make_shared<DummyFilter>() );
   bSuccessAcquiredResource = pResourceManager->acquire(pPipe);
   EXPECT_TRUE( bSuccessAcquiredResource );
   if( bSuccessAcquiredResource ){
@@ -1431,7 +1429,7 @@ TEST_F(TestCase_PipeAndFilter, testResourceManager_Pipe)
     EXPECT_TRUE( pResourceManager->release(pPipe) );
   }
 
-  pPipe->addFilterToTail( new DummyFilter() );
+  pPipe->addFilterToTail( std::make_shared<DummyFilter>() );
   bSuccessAcquiredResource = pResourceManager->acquire(pPipe);
   EXPECT_TRUE( bSuccessAcquiredResource );
   if( bSuccessAcquiredResource ){
@@ -1440,7 +1438,7 @@ TEST_F(TestCase_PipeAndFilter, testResourceManager_Pipe)
     EXPECT_TRUE( pResourceManager->release(pPipe) );
   }
 
-  pPipe->addFilterToTail( new DummyFilter() );
+  pPipe->addFilterToTail( std::make_shared<DummyFilter>() );
   bSuccessAcquiredResource = pResourceManager->acquire(pPipe);
   EXPECT_FALSE( bSuccessAcquiredResource );
   if( bSuccessAcquiredResource ){
@@ -1453,7 +1451,7 @@ TEST_F(TestCase_PipeAndFilter, testResourceManager_Pipe)
   delete pPipe;
 
   pPipe = new PipeMultiThread();
-  pPipe->addFilterToTail( new DummyFilter() );
+  pPipe->addFilterToTail( std::make_shared<DummyFilter>() );
 
   bSuccessAcquiredResource = pResourceManager->acquire(pPipe);
   EXPECT_TRUE( bSuccessAcquiredResource );
@@ -1463,7 +1461,7 @@ TEST_F(TestCase_PipeAndFilter, testResourceManager_Pipe)
     EXPECT_TRUE( pResourceManager->release(pPipe) );
   }
 
-  pPipe->addFilterToTail( new DummyFilter() );
+  pPipe->addFilterToTail( std::make_shared<DummyFilter>() );
   bSuccessAcquiredResource = pResourceManager->acquire(pPipe);
   EXPECT_TRUE( bSuccessAcquiredResource );
   if( bSuccessAcquiredResource ){
@@ -1472,7 +1470,7 @@ TEST_F(TestCase_PipeAndFilter, testResourceManager_Pipe)
     EXPECT_TRUE( pResourceManager->release(pPipe) );
   }
 
-  pPipe->addFilterToTail( new DummyFilter() );
+  pPipe->addFilterToTail( std::make_shared<DummyFilter>() );
   bSuccessAcquiredResource = pResourceManager->acquire(pPipe);
   EXPECT_TRUE( bSuccessAcquiredResource );
   if( bSuccessAcquiredResource ){
@@ -1481,7 +1479,7 @@ TEST_F(TestCase_PipeAndFilter, testResourceManager_Pipe)
     EXPECT_TRUE( pResourceManager->release(pPipe) );
   }
 
-  pPipe->addFilterToTail( new DummyFilter() );
+  pPipe->addFilterToTail( std::make_shared<DummyFilter>() );
   bSuccessAcquiredResource = pResourceManager->acquire(pPipe);
   EXPECT_FALSE( bSuccessAcquiredResource );
   if( bSuccessAcquiredResource ){
@@ -1546,7 +1544,7 @@ TEST_F(TestCase_PipeAndFilter, testDynamicSignalFlow_AddNewPipeToPipeMixer)
   ISource* pSource1 = new Source();
   pStream1->attachSource( pSource1 );
   pStream1->attachSink( pPipeMixer->allocateSinkAdaptor() );
-  pStream1->addFilterToTail( new FilterIncrement() );
+  pStream1->addFilterToTail( std::make_shared<FilterIncrement>() );
 
   std::cout << "start:mixer & stream1" << std::endl;
   pStream1->run();
@@ -1561,7 +1559,7 @@ TEST_F(TestCase_PipeAndFilter, testDynamicSignalFlow_AddNewPipeToPipeMixer)
   ISink* pSinkAdaptor2 = pPipeMixer->allocateSinkAdaptor();
   pStream2->attachSink( pSinkAdaptor2 );
   std::cout << "added:stream2 during stream1 is running" << std::endl;
-  pStream2->addFilterToTail( new FilterIncrement() );
+  pStream2->addFilterToTail( std::make_shared<FilterIncrement>() );
   std::cout << "start:stream2 during stream1 is running" << std::endl;
   pStream2->run();
   std::cout << "started:stream2 during stream1 is running" << std::endl;
@@ -1628,7 +1626,7 @@ TEST_F(TestCase_PipeAndFilter, testDynamicSignalFlow_AddNewFilter)
   pStream->attachSource( pSource );
   ISink* pSink = new Sink();
   pStream->attachSink( pSink );
-  pStream->addFilterToTail( new FilterIncrement() );
+  pStream->addFilterToTail( std::make_shared<FilterIncrement>() );
 
   std::cout << "start" << std::endl;
   pStream->run();
@@ -1636,7 +1634,7 @@ TEST_F(TestCase_PipeAndFilter, testDynamicSignalFlow_AddNewFilter)
   std::this_thread::sleep_for(std::chrono::microseconds(1000));
 
   std::cout << "add:filter during stream is running" << std::endl;
-  IFilter* pFilter = new FilterIncrement();
+  std::shared_ptr<IFilter> pFilter = std::make_shared<FilterIncrement>();
   pStream->addFilterToTail( pFilter );
   std::cout << "added:filter during stream is running" << std::endl;
   std::this_thread::sleep_for(std::chrono::microseconds(1000));
@@ -1670,7 +1668,7 @@ TEST_F(TestCase_PipeAndFilter, testDynamicSignalFlow_AddNewFilter_PipeMultiThrea
   pStream->attachSource( pSource );
   ISink* pSink = new Sink();
   pStream->attachSink( pSink );
-  pStream->addFilterToTail( new FilterIncrement() );
+  pStream->addFilterToTail( std::make_shared<FilterIncrement>() );
 
   std::cout << "start" << std::endl;
   pStream->run();
@@ -1678,7 +1676,7 @@ TEST_F(TestCase_PipeAndFilter, testDynamicSignalFlow_AddNewFilter_PipeMultiThrea
   std::this_thread::sleep_for(std::chrono::microseconds(1000));
 
   std::cout << "add:filter during stream is running" << std::endl;
-  IFilter* pFilter = new FilterIncrement();
+  std::shared_ptr<IFilter> pFilter = std::make_shared<FilterIncrement>();
   pStream->addFilterToTail( pFilter );
   std::cout << "added:filter during stream is running" << std::endl;
   std::this_thread::sleep_for(std::chrono::microseconds(1000));
@@ -1715,7 +1713,7 @@ TEST_F(TestCase_PipeAndFilter, testDynamicSignalFlow_AddNewSinkToPipe)
   ISink* pSink1 = new Sink();
   pPipe->attachSink( pSink1 );
 
-  pPipe->addFilterToTail( new FilterIncrement() );
+  pPipe->addFilterToTail( std::make_shared<FilterIncrement>() );
 
   std::cout << "start" << std::endl;
   pPipe->run();
@@ -1757,7 +1755,7 @@ TEST_F(TestCase_PipeAndFilter, testDynamicSignalFlow_AddNewSinkToPipe_PipeMultiT
   ISink* pSink1 = new Sink();
   pPipe->attachSink( pSink1 );
 
-  pPipe->addFilterToTail( new FilterIncrement() );
+  pPipe->addFilterToTail( std::make_shared<FilterIncrement>() );
 
   std::cout << "start" << std::endl;
   pPipe->run();
@@ -1800,7 +1798,7 @@ TEST_F(TestCase_PipeAndFilter, testDynamicSignalFlow_AddNewSourceToPipe)
   ISink* pSink = new Sink();
   pPipe->attachSink( pSink );
 
-  pPipe->addFilterToTail( new FilterIncrement() );
+  pPipe->addFilterToTail( std::make_shared<FilterIncrement>() );
 
   std::cout << "start" << std::endl;
   pPipe->run();
@@ -1841,7 +1839,7 @@ TEST_F(TestCase_PipeAndFilter, testDynamicSignalFlow_AddNewSourceToPipe_PipeMult
   ISink* pSink = new Sink();
   pPipe->attachSink( pSink );
 
-  pPipe->addFilterToTail( new FilterIncrement() );
+  pPipe->addFilterToTail( std::make_shared<FilterIncrement>() );
 
   std::cout << "start" << std::endl;
   pPipe->run();
@@ -1879,7 +1877,7 @@ TEST_F(TestCase_PipeAndFilter, testSinkMute)
   pPipe->attachSource( pSource );
   ISink* pSink = new Sink();
   pPipe->attachSink( pSink );
-  pPipe->addFilterToTail( new FilterIncrement() );
+  pPipe->addFilterToTail( std::make_shared<FilterIncrement>() );
   pSink->setMuteEnabled( true, true );
   pPipe->run();
   std::this_thread::sleep_for(std::chrono::microseconds(1000));
@@ -1900,7 +1898,7 @@ TEST_F(TestCase_PipeAndFilter, testSourceMute)
   pPipe->attachSource( pSource );
   ISink* pSink = new Sink();
   pPipe->attachSink( pSink );
-  pPipe->addFilterToTail( new FilterIncrement() );
+  pPipe->addFilterToTail( std::make_shared<FilterIncrement>() );
   pSource->setMuteEnabled( true, true );
   pPipe->run();
   std::this_thread::sleep_for(std::chrono::microseconds(1000));
@@ -1921,7 +1919,7 @@ TEST_F(TestCase_PipeAndFilter, testPipeMute)
   ISink* pSink = new Sink();
   pPipe->attachSource( pSource );
   pPipe->attachSink( pSink );
-  pPipe->addFilterToTail( new FilterIncrement() );
+  pPipe->addFilterToTail( std::make_shared<FilterIncrement>() );
   pPipe->setMuteEnabled( true, true );
   EXPECT_TRUE( pPipe->getMuteEnabled() );
   EXPECT_TRUE( pSink->getMuteEnabled() );
@@ -1988,7 +1986,7 @@ TEST_F(TestCase_PipeAndFilter, testAecSource)
   ISource* pAecSource = new AccousticEchoCancelledSource( pSource, pReferenceSource );
   ISink* pSink = new Sink();
   pPipe->attachSource( pAecSource );
-  pPipe->addFilterToTail( new Filter() );
+  pPipe->addFilterToTail( std::make_shared<Filter>() );
   pPipe->attachSink( pSink );
   pPipe->run();
   std::this_thread::sleep_for(std::chrono::microseconds(1000));
@@ -2011,7 +2009,7 @@ TEST_F(TestCase_PipeAndFilter, testAecSourceDelayOnly)
   ISource* pAecSource = new AccousticEchoCancelledSource( pSource, pReferenceSource, true );
   ISink* pSink = new Sink();
   pPipe->attachSource( pAecSource );
-  pPipe->addFilterToTail( new Filter() );
+  pPipe->addFilterToTail( std::make_shared<Filter>() );
   pPipe->attachSink( pSink );
   pPipe->run();
   std::this_thread::sleep_for(std::chrono::microseconds(1000));
@@ -2037,7 +2035,7 @@ TEST_F(TestCase_PipeAndFilter, testDynamicSignalFlow_AddNewSinkToReferenceSoundS
 
   pPipe->attachSource( pAecedMicSource );
 
-  pPipe->addFilterToTail( new Filter() );
+  pPipe->addFilterToTail( std::make_shared<Filter>() );
 
   ISink* pMicSink = new Sink();
   pPipe->attachSink( pMicSink );
@@ -2079,7 +2077,7 @@ TEST_F(TestCase_PipeAndFilter, testPerChannelVolumeWithSink)
   IPipe* pPipe = new Pipe();
   pPipe->attachSource( pSource );
   pPipe->attachSink( pSink );
-  pPipe->addFilterToTail( new Filter() );
+  pPipe->addFilterToTail( std::make_shared<Filter>() );
   Volume::CHANNEL_VOLUME perChannelVolume;
   perChannelVolume.insert_or_assign( AudioFormat::CH::L, 100.0f );
   perChannelVolume.insert_or_assign( AudioFormat::CH::R, 0.0f );
@@ -2123,7 +2121,7 @@ TEST_F(TestCase_PipeAndFilter, testPerChannelVolumeWithMultiSink)
   IPipe* pPipe = new Pipe();
   pPipe->attachSource( pSource );
   pPipe->attachSink( pMultiSink );
-  pPipe->addFilterToTail( new Filter() );
+  pPipe->addFilterToTail( std::make_shared<Filter>() );
   Volume::CHANNEL_VOLUME perChannelVolume;
   perChannelVolume.insert_or_assign( AudioFormat::CH::L, 100.0f );
   perChannelVolume.insert_or_assign( AudioFormat::CH::R, 0.0f );

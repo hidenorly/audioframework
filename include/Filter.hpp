@@ -20,6 +20,7 @@
 #include "Buffer.hpp"
 #include "AudioFormat.hpp"
 #include <vector>
+#include <memory>
 #include "PlugInManager.hpp"
 #include "ResourceManager.hpp"
 
@@ -76,7 +77,7 @@ public:
   virtual std::string getId(void);
   /* @desc this is expected to use by strategy
      @return new YourFilter()'s result */
-  virtual IPlugIn* newInstance(void);
+  virtual std::shared_ptr<IPlugIn> newInstance(void);
 };
 
 typedef TPlugInManager<FilterPlugIn> FilterManager;

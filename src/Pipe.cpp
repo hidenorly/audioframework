@@ -37,21 +37,21 @@ Pipe::~Pipe()
   stop();
 }
 
-void Pipe::addFilterToHead(IFilter* pFilter)
+void Pipe::addFilterToHead(std::shared_ptr<IFilter> pFilter)
 {
   mMutexFilters.lock();
   mFilters.insert(mFilters.begin(), pFilter);
   mMutexFilters.unlock();
 }
 
-void Pipe::addFilterToTail(IFilter* pFilter)
+void Pipe::addFilterToTail(std::shared_ptr<IFilter> pFilter)
 {
   mMutexFilters.lock();
   mFilters.push_back(pFilter);
   mMutexFilters.unlock();
 }
 
-bool Pipe::addFilterAfterFilter(IFilter* pFilter, IFilter* pPosition)
+bool Pipe::addFilterAfterFilter(std::shared_ptr<IFilter> pFilter, std::shared_ptr<IFilter> pPosition)
 {
   bool result = false;
 
@@ -68,7 +68,7 @@ bool Pipe::addFilterAfterFilter(IFilter* pFilter, IFilter* pPosition)
   return result;
 }
 
-bool Pipe::removeFilter(IFilter* pFilter)
+bool Pipe::removeFilter(std::shared_ptr<IFilter> pFilter)
 {
   bool result = false;
 
@@ -82,7 +82,7 @@ bool Pipe::removeFilter(IFilter* pFilter)
   return result;
 }
 
-bool Pipe::isFilterIncluded(IFilter* pFilter)
+bool Pipe::isFilterIncluded(std::shared_ptr<IFilter> pFilter)
 {
   auto it = std::find( mFilters.begin(), mFilters.end(), pFilter );
   return ( it != mFilters.end() ) ? true : false;
@@ -91,9 +91,6 @@ bool Pipe::isFilterIncluded(IFilter* pFilter)
 void Pipe::clearFilters(void)
 {
   mMutexFilters.lock();
-  for( auto& pFilter : mFilters ) {
-    delete pFilter;
-  }
   mFilters.clear();
   mMutexFilters.unlock();
 }

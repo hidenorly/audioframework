@@ -71,7 +71,7 @@ void IPlugInManager::initialize(void)
           typedef void* (*GetPlugInInstance(void));
           GetPlugInInstance* pGetPlugInInstance = reinterpret_cast<GetPlugInInstance*>( dlsym(pNativeLibraryHandle, "getPlugInInstance") );
           if( pGetPlugInInstance ){
-            IPlugIn* pPlugIn = reinterpret_cast<IPlugIn*>(*pGetPlugInInstance());
+            std::shared_ptr<IPlugIn> pPlugIn( reinterpret_cast<IPlugIn*>(*pGetPlugInInstance()) );
             if( pPlugIn ){
               registerPlugIn(pPlugIn);
               pPlugIn->mLibraryNativeHandle = pNativeLibraryHandle;
@@ -101,7 +101,7 @@ void IPlugInManager::terminate(void)
   mPlugIns.clear();
 }
 
-IPlugIn* IPlugInManager::getPlugIn(std::string plugInId)
+std::shared_ptr<IPlugIn> IPlugInManager::getPlugIn(std::string plugInId)
 {
   return mPlugIns.contains( plugInId ) ? mPlugIns[ plugInId ] : nullptr;
 }
@@ -123,7 +123,7 @@ bool IPlugInManager::hasPlugIn(std::string plugInId)
 }
 
 
-std::string IPlugInManager::registerPlugIn(IPlugIn* pPlugIn)
+std::string IPlugInManager::registerPlugIn(std::shared_ptr<IPlugIn> pPlugIn)
 {
   std::string plugInId;
 
@@ -139,13 +139,12 @@ std::string IPlugInManager::registerPlugIn(IPlugIn* pPlugIn)
 void IPlugInManager::unregisterPlugIn(std::string plugInId)
 {
   if( !plugInId.empty() && mPlugIns.contains(plugInId) ){
-    IPlugIn* pPlugIn = mPlugIns[ plugInId ];
+    std::shared_ptr<IPlugIn> pPlugIn = mPlugIns[ plugInId ];
     mPlugIns.erase( plugInId );
     if( pPlugIn ){
       pPlugIn->unload();
       void* pHandle = pPlugIn->mLibraryNativeHandle ? pPlugIn->mLibraryNativeHandle : nullptr;
       pPlugIn->mLibraryNativeHandle = nullptr;
-      delete pPlugIn; pPlugIn = nullptr;
       dlclose( pHandle );
     }
   }

@@ -113,9 +113,9 @@ std::string SourcePlugIn::getId(void)
   return "SourcePlugInBase";
 }
 
-IPlugIn* SourcePlugIn::newInstance(void)
+std::shared_ptr<IPlugIn> SourcePlugIn::newInstance(void)
 {
-  return new SourcePlugIn();
+  return std::make_shared<SourcePlugIn>();
 }
 
 void SourcePlugIn::readPrimitive(IAudioBuffer& buf)

@@ -25,6 +25,7 @@
 #include <mutex>
 #include "ResourceManager.hpp"
 #include "PipeAndFilterCommon.hpp"
+#include <memory>
 
 
 class IPipe : public ThreadBase, public IResourceConsumer, public IMutable
@@ -33,11 +34,11 @@ public:
   IPipe():ThreadBase(){};
   virtual ~IPipe(){};
 
-  virtual void addFilterToHead(IFilter* pFilter) = 0;
-  virtual void addFilterToTail(IFilter* pFilter) = 0;
-  virtual bool addFilterAfterFilter(IFilter* pFilter, IFilter* pPosition) = 0;
-  virtual bool removeFilter(IFilter* pFilter) = 0;
-  virtual bool isFilterIncluded(IFilter* pFilter) = 0;
+  virtual void addFilterToHead(std::shared_ptr<IFilter> pFilter) = 0;
+  virtual void addFilterToTail(std::shared_ptr<IFilter> pFilter) = 0;
+  virtual bool addFilterAfterFilter(std::shared_ptr<IFilter> pFilter, std::shared_ptr<IFilter> pPosition) = 0;
+  virtual bool removeFilter(std::shared_ptr<IFilter> pFilter) = 0;
+  virtual bool isFilterIncluded(std::shared_ptr<IFilter> pFilter) = 0;
 
   virtual ISink* attachSink(ISink* pSink) = 0;
   virtual ISink* detachSink(void) = 0;
@@ -57,7 +58,7 @@ protected:
   std::mutex mMutexFilters;
   std::mutex mMutexSink;
   std::mutex mMutexSource;
-  std::vector<IFilter*> mFilters;
+  std::vector<std::shared_ptr<IFilter>> mFilters;
   ISink* mpSink;
   ISource* mpSource;
 
@@ -65,11 +66,11 @@ public:
   Pipe();
   virtual ~Pipe();
 
-  virtual void addFilterToHead(IFilter* pFilter);
-  virtual void addFilterToTail(IFilter* pFilter);
-  virtual bool addFilterAfterFilter(IFilter* pFilter, IFilter* pPosition);
-  virtual bool isFilterIncluded(IFilter* pFilter);
-  virtual bool removeFilter(IFilter* pFilter);
+  virtual void addFilterToHead(std::shared_ptr<IFilter> pFilter);
+  virtual void addFilterToTail(std::shared_ptr<IFilter> pFilter);
+  virtual bool addFilterAfterFilter(std::shared_ptr<IFilter> pFilter, std::shared_ptr<IFilter> pPosition);
+  virtual bool isFilterIncluded(std::shared_ptr<IFilter> pFilter);
+  virtual bool removeFilter(std::shared_ptr<IFilter> pFilter);
 
   virtual ISink* attachSink(ISink* pSink);
   virtual ISink* detachSink(void);

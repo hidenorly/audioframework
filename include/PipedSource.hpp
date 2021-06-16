@@ -38,8 +38,8 @@ public:
   virtual ISource* attachSource(ISource* pSource);
   virtual ISource* detachSource(void);
 
-  virtual void addFilterToHead(Filter* pFilter);
-  virtual void addFilterToTail(Filter* pFilter);
+  virtual void addFilterToHead(std::shared_ptr<IFilter> pFilter);
+  virtual void addFilterToTail(std::shared_ptr<IFilter> pFilter);
   virtual void run(void);
   virtual void stop(void);
   virtual bool isRunning(void);

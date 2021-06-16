@@ -24,6 +24,7 @@
 #include "Volume.hpp"
 #include <string>
 #include <vector>
+#include <memory>
 
 class SinkCapture;
 class SinkInjector;
@@ -110,7 +111,7 @@ public:
   virtual void onLoad(void);
   virtual void onUnload(void);
   virtual std::string getId(void);
-  virtual IPlugIn* newInstance(void);
+  virtual std::shared_ptr<IPlugIn> newInstance(void);
 
   virtual void writePrimitive(IAudioBuffer& buf);
   virtual bool setAudioFormat(AudioFormat audioFormat);

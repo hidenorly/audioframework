@@ -27,11 +27,11 @@ public:
   PipeMultiThread();
   virtual ~PipeMultiThread();
 
-  virtual void addFilterToHead(IFilter* pFilter);
-  virtual void addFilterToTail(IFilter* pFilter);
-  virtual bool addFilterAfterFilter(IFilter* pFilter, IFilter* pPosition);
-  virtual bool removeFilter(IFilter* pFilter);
-  virtual bool isFilterIncluded(IFilter* pFilter);
+  virtual void addFilterToHead(std::shared_ptr<IFilter> pFilter);
+  virtual void addFilterToTail(std::shared_ptr<IFilter> pFilter);
+  virtual bool addFilterAfterFilter(std::shared_ptr<IFilter> pFilter, std::shared_ptr<IFilter> pPosition);
+  virtual bool removeFilter(std::shared_ptr<IFilter> pFilter);
+  virtual bool isFilterIncluded(std::shared_ptr<IFilter> pFilter);
 
   virtual ISink* attachSink(ISink* pSink);
   virtual ISink* detachSink(void);
@@ -53,7 +53,7 @@ public:
 protected:
   IPipe* getHeadPipe(bool bCreateInstance = false);
   IPipe* getTailPipe(bool bCreateInstance = false);
-  IPipe* findPipe(IFilter* pFilter);
+  IPipe* findPipe(std::shared_ptr<IFilter> pFilter);
   std::vector<IPipe*> mPipes;
   std::vector<InterPipeBridge*> mInterPipeBridges;
   ISink* mpSink;

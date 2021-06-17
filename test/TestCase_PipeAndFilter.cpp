@@ -80,7 +80,7 @@ TEST_F(TestCase_PipeAndFilter, testAddFilters)
   std::shared_ptr<IFilter> pFilter3( std::make_shared<Filter>() );
   std::shared_ptr<IFilter> pFilter4( std::make_shared<Filter>() );
 
-  Pipe* pPipe = new Pipe();
+  std::unique_ptr<IPipe> pPipe = std::make_unique<Pipe>();
   pPipe->addFilterToTail(pFilter1);
   pPipe->dump();
 
@@ -93,16 +93,15 @@ TEST_F(TestCase_PipeAndFilter, testAddFilters)
   pPipe->addFilterAfterFilter(pFilter4, pFilter3);
   pPipe->dump();
 
-  pPipe->clearFilters(); // delete filter instances also.
+  pPipe->clearFilters();
   pPipe->dump();
-  delete pPipe; pPipe = nullptr;
 
   EXPECT_TRUE(true);
 }
 
 TEST_F(TestCase_PipeAndFilter, testAttachSourceSinkToPipe)
 {
-  IPipe* pPipe = new Pipe();
+  std::unique_ptr<IPipe> pPipe = std::make_unique<Pipe>();
 
   std::shared_ptr<ISink> pSink = std::make_shared<Sink>();
   pSink->setAudioFormat( AudioFormat(
@@ -137,11 +136,7 @@ TEST_F(TestCase_PipeAndFilter, testAttachSourceSinkToPipe)
   EXPECT_NE(nullptr, pSource);
   pPipe->dump();
 
-  pPipe->clearFilters(); // delete filter instances also.
-
-  delete pPipe; pPipe = nullptr;
-  pSink = nullptr;
-  pSource = nullptr;
+  pPipe->clearFilters();
 }
 
 TEST_F(TestCase_PipeAndFilter, testFifoBuffer)
@@ -177,8 +172,8 @@ TEST_F(TestCase_PipeAndFilter, testFifoBuffer)
 TEST_F(TestCase_PipeAndFilter, testInterPipeBridge)
 {
   AudioFormat theUsingFormat = AudioFormat();
-  Pipe* pPipe1 = new Pipe();
-  Pipe* pPipe2 = new Pipe();
+  std::unique_ptr<IPipe> pPipe1 = std::make_unique<Pipe>();
+  std::unique_ptr<IPipe> pPipe2 = std::make_unique<Pipe>();
   std::shared_ptr<InterPipeBridge> interPipe( std::make_shared<InterPipeBridge>(theUsingFormat) );
 
   // config pipe1
@@ -231,19 +226,13 @@ TEST_F(TestCase_PipeAndFilter, testInterPipeBridge)
   pSink->dump();
 
   // clean up
-  pPipe1->clearFilters(); // delete filter instances also.
-  pPipe2->clearFilters(); // delete filter instances also.
-
-  delete pPipe2; pPipe2 = nullptr;
-  delete pPipe1; pPipe1 = nullptr;
-
-  pSink = nullptr;
-  pSource = nullptr;
+  pPipe1->clearFilters();
+  pPipe2->clearFilters();
 }
 
 TEST_F(TestCase_PipeAndFilter, testPipeMultiThread)
 {
-  IPipe* pPipe = new PipeMultiThread();
+  std::unique_ptr<IPipe> pPipe = std::make_unique<PipeMultiThread>();
 
   std::shared_ptr<ISink> pSink = std::make_shared<Sink>();
   pSink->setAudioFormat( AudioFormat(
@@ -281,11 +270,7 @@ TEST_F(TestCase_PipeAndFilter, testPipeMultiThread)
   EXPECT_NE(nullptr, pSource);
   pPipe->dump();
 
-  pPipe->clearFilters(); // delete filter instances also.
-
-  delete pPipe; pPipe = nullptr;
-  pSink = nullptr;
-  pSource = nullptr;
+  pPipe->clearFilters();
 }
 
 TEST_F(TestCase_PipeAndFilter, testMultipleSink)
@@ -322,8 +307,7 @@ TEST_F(TestCase_PipeAndFilter, testMultipleSink)
   std::cout << "multi sink's latency : " << pMultiSink->getLatencyUSec() << std::endl;
   pMultiSink->dump();
 
-  pMultiSink->clearSinks(); // dispose all of sinks
-  pMultiSink = nullptr;
+  pMultiSink->clearSinks();
 }
 
 TEST_F(TestCase_PipeAndFilter, testMultipleSink2)
@@ -346,8 +330,7 @@ TEST_F(TestCase_PipeAndFilter, testMultipleSink2)
   std::cout << "multi sink's latency : " << pMultiSink->getLatencyUSec() << std::endl;
   pMultiSink->dump();
 
-  pMultiSink->clearSinks(); // dispose all of sinks
-  pMultiSink = nullptr;
+  pMultiSink->clearSinks();
 }
 
 TEST_F(TestCase_PipeAndFilter, testStreamSink)
@@ -395,10 +378,10 @@ TEST_F(TestCase_PipeAndFilter, testStreamSource)
 
 TEST_F(TestCase_PipeAndFilter, testPipeMixer)
 {
-  IPipe* pStream1 = new Pipe();
-  IPipe* pStream2 = new Pipe();
+  std::unique_ptr<IPipe> pStream1 = std::make_unique<Pipe>();
+  std::unique_ptr<IPipe> pStream2 = std::make_unique<Pipe>();
 
-  PipeMixer* pPipeMixer = new PipeMixer();
+  std::unique_ptr<PipeMixer> pPipeMixer = std::make_unique<PipeMixer>();
 
   std::shared_ptr<ISource> pSource1 = std::make_shared<Source>();
   pStream1->attachSource( pSource1 );
@@ -434,7 +417,6 @@ TEST_F(TestCase_PipeAndFilter, testPipeMixer)
   pPipeMixer->releaseSinkAdaptor( pSink1 );
   pSource1 = pStream1->detachSource();
   EXPECT_NE(nullptr, pSource1);
-  pSource1 = nullptr;
   pStream1->clearFilters();
 
   // finalize stream2, the source and the sink
@@ -443,18 +425,12 @@ TEST_F(TestCase_PipeAndFilter, testPipeMixer)
   pPipeMixer->releaseSinkAdaptor( pSink2 );
   pSource2 = pStream2->detachSource();
   EXPECT_NE(nullptr, pSource2);
-  pSource2 = nullptr;
   pStream2->clearFilters();
 
   // finalize pipemixer
   pSink = pPipeMixer->detachSink();
   EXPECT_NE(nullptr, pSink);
   pSink->dump();
-
-  delete pStream1;    pStream1 = nullptr;
-  delete pStream2;    pStream2 = nullptr;
-  pSink = nullptr;
-  delete pPipeMixer;  pPipeMixer = nullptr;
 }
 
 TEST_F(TestCase_PipeAndFilter, testPipedSink)
@@ -467,7 +443,7 @@ TEST_F(TestCase_PipeAndFilter, testPipedSink)
   pPipedSink->attachSink( pActualSink );
   pPipedSink->addFilterToTail( std::make_shared<FilterIncrement>() );
 
-  IPipe* pPipe = new Pipe();
+  std::unique_ptr<IPipe> pPipe = std::make_unique<Pipe>();
   pPipe->addFilterToTail( std::make_shared<FilterIncrement>() );
   pPipe->attachSource( pSource );
   pPipe->attachSink( pPipedSink );
@@ -501,11 +477,6 @@ TEST_F(TestCase_PipeAndFilter, testPipedSink)
   std::shared_ptr<ISource> pSource2 = pPipe->detachSource();
   EXPECT_EQ( pSource, pSource2 );
   pPipe->clearFilters();
-
-  pPipedSink = nullptr;
-  pActualSink = nullptr;
-  pSource = nullptr;
-  delete pPipe; pPipe = nullptr;
 }
 
 TEST_F(TestCase_PipeAndFilter, testPipedSource)
@@ -517,7 +488,7 @@ TEST_F(TestCase_PipeAndFilter, testPipedSource)
   pPipedSource->attachSource( pActualSource );
   pPipedSource->addFilterToTail( std::make_shared<FilterIncrement>() );
 
-  IPipe* pPipe = new Pipe();
+  std::unique_ptr<IPipe> pPipe = std::make_unique<Pipe>();
   pPipe->addFilterToTail( std::make_shared<FilterIncrement>() );
   pPipe->attachSource( pPipedSource );
   pPipe->attachSink( pSink );
@@ -542,11 +513,6 @@ TEST_F(TestCase_PipeAndFilter, testPipedSource)
   EXPECT_EQ( pDetachedSink, pSink );
 
   pPipe->clearFilters();
-
-  pPipedSource = nullptr; pDetachedSource = nullptr;
-  pActualSource = nullptr; pDetachedActualSource = nullptr;
-  pSink = nullptr;
-  delete pPipe; pPipe = nullptr;
 }
 
 TEST_F(TestCase_PipeAndFilter, testDecoder)
@@ -555,7 +521,7 @@ TEST_F(TestCase_PipeAndFilter, testDecoder)
   MediaParam param1("testKey1", "abc"); params.push_back(param1);
   MediaParam param2("testKey2", 3840);  params.push_back(param2);
   MediaParam param3("testKey3", true);  params.push_back(param3);
-  IDecoder* pDecoder = new NullDecoder();
+  std::shared_ptr<IDecoder> pDecoder = std::make_shared<NullDecoder>();
   pDecoder->configure(params);
 
   std::shared_ptr<ISource> pSource = std::make_shared<Source>();
@@ -563,7 +529,7 @@ TEST_F(TestCase_PipeAndFilter, testDecoder)
   std::shared_ptr<ISource> pSourceAdaptor = pDecoder->allocateSourceAdaptor();
   std::shared_ptr<ISink> pSink = std::make_shared<Sink>();
 
-  IPipe* pPipe = new Pipe();
+  std::unique_ptr<IPipe> pPipe = std::make_unique<Pipe>();
   pPipe->attachSource( pSourceAdaptor );
   pPipe->attachSink( pSink );
   pPipe->addFilterToTail( std::make_shared<FilterIncrement>() );
@@ -598,14 +564,10 @@ TEST_F(TestCase_PipeAndFilter, testDecoder)
   pSink = nullptr; pDetachedSink = nullptr;
 
   pPipe->clearFilters();
-  delete pPipe; pPipe = nullptr;
 
   std::shared_ptr<ISource> pDetachedDecoderSource = pDecoder->detachSource();
   EXPECT_NE( pDetachedDecoderSource, nullptr );
   EXPECT_EQ( pDetachedDecoderSource, pSource );
-  pDetachedSource = nullptr;
-
-  delete pDecoder; pDecoder = nullptr;
 }
 
 TEST_F(TestCase_PipeAndFilter, testPlayer)
@@ -614,12 +576,12 @@ TEST_F(TestCase_PipeAndFilter, testPlayer)
   std::shared_ptr<ISource> pSource = std::make_shared<Source>();
   std::shared_ptr<ISink> pSink = std::make_shared<Sink>();
 
-  IDecoder* pDecoder = new NullDecoder();
-  IPlayer* pPlayer = new Player();
+  std::shared_ptr<IDecoder> pDecoder = std::make_shared<NullDecoder>();
+  std::unique_ptr<IPlayer> pPlayer = std::make_unique<Player>();
   std::shared_ptr<ISource> pSourceAdaptor = pPlayer->prepare( pSource, pDecoder ); // handover the source and decoder
   EXPECT_EQ( pPlayer->isReady(), true );
 
-  IPipe* pPipe = new Pipe();
+  std::unique_ptr<IPipe> pPipe = std::make_unique<Pipe>();
   pPipe->attachSource( pSourceAdaptor );
   pPipe->attachSink( pSink );
   pPipe->addFilterToTail( std::make_shared<FilterIncrement>() );
@@ -655,19 +617,14 @@ TEST_F(TestCase_PipeAndFilter, testPlayer)
   std::shared_ptr<ISource> pDetachedPlayerSource = pPlayer->terminate( pDetachedSourceAdaptor );
   EXPECT_NE( pDetachedPlayerSource, nullptr );
   EXPECT_EQ( pDetachedPlayerSource, pSource );
-  pSource = pDetachedPlayerSource = nullptr;
 
   // detach sink from pipe
   std::shared_ptr<ISink> pDetachedSink = pPipe->detachSink();
   EXPECT_NE( pDetachedSink, nullptr );
   EXPECT_EQ( pDetachedSink, pSink );
-  pSink = pDetachedSink = nullptr;
 
   // clear (delete) the filters
   pPipe->clearFilters();
-
-  // then dispose the pipe
-  delete pPipe; pPipe = nullptr;
 }
 
 TEST_F(TestCase_PipeAndFilter, testEncoder)
@@ -676,12 +633,12 @@ TEST_F(TestCase_PipeAndFilter, testEncoder)
   MediaParam param1("testKey1", "abc"); params.push_back(param1);
   MediaParam param2("testKey2", 3840);  params.push_back(param2);
   MediaParam param3("testKey3", true);  params.push_back(param3);
-  IEncoder* pEncoder = new NullEncoder();
+  std::unique_ptr<IEncoder> pEncoder = std::make_unique<NullEncoder>();
   pEncoder->configure(params);
 
   std::shared_ptr<ISource> pSource = std::make_shared<Source>();
   std::shared_ptr<ISink> pSink = std::make_shared<EncodedSink>();
-  IPipe* pPipe = new Pipe();
+  std::unique_ptr<IPipe> pPipe = std::make_unique<Pipe>();
   pPipe->attachSource( pSource );
   pPipe->addFilterToTail( std::make_shared<FilterIncrement>() );
   std::shared_ptr<ISink> pSinkAdaptor = pEncoder->allocateSinkAdaptor();
@@ -728,12 +685,6 @@ TEST_F(TestCase_PipeAndFilter, testEncoder)
 
   // clear filter in the pipe
   pPipe->clearFilters();
-
-  // then clear pipe
-  delete pPipe; pPipe = nullptr;
-
-  // then clear encoder
-  delete pEncoder; pEncoder = nullptr;
 }
 
 
@@ -958,7 +909,7 @@ TEST_F(TestCase_PipeAndFilter, testDelayFilter)
 {
   std::shared_ptr<ISource> pSource = std::make_shared<Source>();
   std::shared_ptr<ISink> pSink = std::make_shared<Sink>();
-  IPipe* pPipe = new Pipe();
+  std::unique_ptr<IPipe> pPipe = std::make_unique<Pipe>();
 
   pPipe->attachSource(pSource);
   PerChannelDelayFilter::ChannelDelay channelDelay;
@@ -978,10 +929,6 @@ TEST_F(TestCase_PipeAndFilter, testDelayFilter)
   EXPECT_EQ( pSource, pPipe->detachSource());
   pSink->dump();
   pPipe->clearFilters();
-
-  delete pPipe; pPipe = nullptr;
-  pSink = nullptr;
-  pSource = nullptr;
 }
 
 
@@ -990,7 +937,7 @@ TEST_F(TestCase_PipeAndFilter, testSinkCapture)
   std::shared_ptr<ISource> pSource = std::make_shared<Source>();
   std::shared_ptr<ISink> pSink = std::dynamic_pointer_cast<ISink>( std::make_shared<SinkCapture>( std::make_shared<Sink>() ) );
   std::shared_ptr<ICapture> pCapture = std::dynamic_pointer_cast<ICapture>(pSink);
-  IPipe* pPipe = new Pipe();
+  std::unique_ptr<IPipe> pPipe = std::make_unique<Pipe>();
 
   pPipe->attachSource( pSource );
   pPipe->addFilterToTail( std::make_shared<FilterIncrement>() );
@@ -1010,10 +957,6 @@ TEST_F(TestCase_PipeAndFilter, testSinkCapture)
   pSink->dump();
   pPipe->clearFilters();
   pCapture->unlock();
-
-  delete pPipe; pPipe = nullptr;
-  pSink = nullptr;
-  pSource = nullptr;
 }
 
 TEST_F(TestCase_PipeAndFilter, testSinkInjector)
@@ -1021,7 +964,7 @@ TEST_F(TestCase_PipeAndFilter, testSinkInjector)
   std::shared_ptr<ISource> pSource = std::make_shared<Source>();
   std::shared_ptr<ISink> pSink = std::dynamic_pointer_cast<ISink>( std::make_shared<SinkInjector>( std::make_shared<Sink>() ) );
   std::shared_ptr<IInjector> pInjector = std::dynamic_pointer_cast<IInjector>(pSink);
-  IPipe* pPipe = new Pipe();
+  std::unique_ptr<IPipe> pPipe = std::make_unique<Pipe>();
 
   pPipe->attachSource( pSource );
   pPipe->addFilterToTail( std::make_shared<Filter>() );
@@ -1066,11 +1009,6 @@ TEST_F(TestCase_PipeAndFilter, testSinkInjector)
   pSink->dump();
   pPipe->clearFilters();
   pInjector->unlock();
-
-  delete pPipe; pPipe = nullptr;
-  pSink = nullptr;
-  pSource = nullptr;
-
 }
 
 
@@ -1079,7 +1017,7 @@ TEST_F(TestCase_PipeAndFilter, testSourceCapture)
   std::shared_ptr<ISource> pSource = std::dynamic_pointer_cast<ISource>( std::make_shared<SourceCapture>( std::make_shared<Source>() ) );
   std::shared_ptr<ISink> pSink = std::make_shared<Sink>();
   std::shared_ptr<ICapture> pCapture = std::dynamic_pointer_cast<ICapture>(pSource);
-  IPipe* pPipe = new Pipe();
+  std::unique_ptr<IPipe> pPipe = std::make_unique<Pipe>();
 
   pPipe->attachSource( pSource );
   pPipe->addFilterToTail( std::make_shared<FilterIncrement>() );
@@ -1099,10 +1037,6 @@ TEST_F(TestCase_PipeAndFilter, testSourceCapture)
   pSink->dump();
   pPipe->clearFilters();
   pCapture->unlock();
-
-  delete pPipe; pPipe = nullptr;
-  pSink = nullptr;
-  pSource = nullptr;
 }
 
 TEST_F(TestCase_PipeAndFilter, testSourceInjector)
@@ -1110,7 +1044,7 @@ TEST_F(TestCase_PipeAndFilter, testSourceInjector)
   std::shared_ptr<ISource> pSource = std::dynamic_pointer_cast<ISource>( std::make_shared<SourceInjector>( std::make_shared<Source>() ) );
   std::shared_ptr<ISink> pSink = std::make_shared<Sink>();
   std::shared_ptr<IInjector> pInjector = std::dynamic_pointer_cast<IInjector>(pSource);
-  IPipe* pPipe = new Pipe();
+  std::unique_ptr<IPipe> pPipe = std::make_unique<Pipe>();
 
   pPipe->attachSource( pSource );
   pPipe->addFilterToTail( std::make_shared<Filter>() );
@@ -1158,10 +1092,6 @@ TEST_F(TestCase_PipeAndFilter, testSourceInjector)
   pSink->dump();
   pPipe->clearFilters();
   pInjector->unlock();
-
-  delete pPipe; pPipe = nullptr;
-  pSink = nullptr;
-  pSource = nullptr;
 }
 
 
@@ -1169,7 +1099,7 @@ TEST_F(TestCase_PipeAndFilter, testFilterCapture)
 {
   std::shared_ptr<ISource> pSource = std::make_shared<Source>();
   std::shared_ptr<ISink> pSink = std::make_shared<Sink>();
-  IPipe* pPipe = new Pipe();
+  std::unique_ptr<IPipe> pPipe = std::make_unique<Pipe>();
 
   pPipe->attachSource( pSource );
   pPipe->attachSink( pSink );
@@ -1193,10 +1123,6 @@ TEST_F(TestCase_PipeAndFilter, testFilterCapture)
   pSink->dump();
   pPipe->clearFilters();
   pCapture->unlock();
-
-  delete pPipe; pPipe = nullptr;
-  pSink = nullptr;
-  pSource = nullptr;
 }
 
 
@@ -1204,7 +1130,7 @@ TEST_F(TestCase_PipeAndFilter, testFilterInjector)
 {
   std::shared_ptr<ISource> pSource = std::make_shared<Source>();
   std::shared_ptr<ISink> pSink = std::make_shared<Sink>();
-  IPipe* pPipe = new Pipe();
+  std::unique_ptr<IPipe> pPipe = std::make_unique<Pipe>();
 
   pPipe->attachSource( pSource );
   pPipe->attachSink( pSink );
@@ -1256,10 +1182,6 @@ TEST_F(TestCase_PipeAndFilter, testFilterInjector)
   pSink->dump();
   pPipe->clearFilters();
   pInjector->unlock();
-
-  delete pPipe; pPipe = nullptr;
-  pSink = nullptr;
-  pSource = nullptr;
 }
 
 TEST_F(TestCase_PipeAndFilter, testResourceManager)
@@ -1531,14 +1453,13 @@ TEST_F(TestCase_PipeAndFilter, testStrategy)
 }
 
 
-
 TEST_F(TestCase_PipeAndFilter, testDynamicSignalFlow_AddNewPipeToPipeMixer)
 {
-  PipeMixer* pPipeMixer = new PipeMixer();
+  std::unique_ptr<PipeMixer> pPipeMixer = std::make_unique<PipeMixer>();
   std::shared_ptr<ISink> pSink = std::make_shared<Sink>();
   pPipeMixer->attachSink( pSink );
 
-  IPipe* pStream1 = new Pipe();
+  std::unique_ptr<IPipe> pStream1 = std::make_unique<Pipe>();
   std::shared_ptr<ISource> pSource1 = std::make_shared<Source>();
   pStream1->attachSource( pSource1 );
   pStream1->attachSink( pPipeMixer->allocateSinkAdaptor() );
@@ -1551,7 +1472,7 @@ TEST_F(TestCase_PipeAndFilter, testDynamicSignalFlow_AddNewPipeToPipeMixer)
   std::this_thread::sleep_for(std::chrono::microseconds(1000));
 
   std::cout << "add:stream2 during stream1 is running" << std::endl;
-  IPipe* pStream2 = new Pipe();
+  std::unique_ptr<IPipe> pStream2 = std::make_unique<Pipe>();
   std::shared_ptr<ISource> pSource2 = std::make_shared<Source>();
   pStream2->attachSource( pSource2 );
   std::shared_ptr<ISink> pSinkAdaptor2 = pPipeMixer->allocateSinkAdaptor();
@@ -1610,16 +1531,11 @@ TEST_F(TestCase_PipeAndFilter, testDynamicSignalFlow_AddNewPipeToPipeMixer)
   pSink = pPipeMixer->detachSink();
   EXPECT_NE(nullptr, pSink);
   pSink->dump();
-
-  delete pStream1;    pStream1 = nullptr;
-  delete pStream2;    pStream2 = nullptr;
-        pSink = nullptr;
-  delete pPipeMixer;  pPipeMixer = nullptr;
 }
 
 TEST_F(TestCase_PipeAndFilter, testDynamicSignalFlow_AddNewFilter)
 {
-  IPipe* pStream = new Pipe();
+  std::unique_ptr<IPipe> pStream = std::make_unique<Pipe>();
   std::shared_ptr<ISource> pSource = std::make_shared<Source>();
   pStream->attachSource( pSource );
   std::shared_ptr<ISink> pSink = std::make_shared<Sink>();
@@ -1655,13 +1571,11 @@ TEST_F(TestCase_PipeAndFilter, testDynamicSignalFlow_AddNewFilter)
   pSource = pDetachedSource = nullptr;
 
   pStream->clearFilters();
-
-  delete pStream;    pStream = nullptr;
 }
 
 TEST_F(TestCase_PipeAndFilter, testDynamicSignalFlow_AddNewFilter_PipeMultiThread)
 {
-  IPipe* pStream = new PipeMultiThread();
+  std::unique_ptr<IPipe> pStream = std::make_unique<PipeMultiThread>();
   std::shared_ptr<ISource> pSource = std::make_shared<Source>();
   pStream->attachSource( pSource );
   std::shared_ptr<ISink> pSink = std::make_shared<Sink>();
@@ -1690,20 +1604,16 @@ TEST_F(TestCase_PipeAndFilter, testDynamicSignalFlow_AddNewFilter_PipeMultiThrea
   std::shared_ptr<ISink> pDetachedSink = pStream->detachSink();
   EXPECT_EQ(pSink, pDetachedSink);
   pSink->dump();
-  pSink = pDetachedSink = nullptr;
 
   std::shared_ptr<ISource> pDetachedSource = pStream->detachSource();
   EXPECT_EQ(pSource, pDetachedSource);
-  pSource = pDetachedSource = nullptr;
 
   pStream->clearFilters();
-
-  delete pStream;    pStream = nullptr;
 }
 
 TEST_F(TestCase_PipeAndFilter, testDynamicSignalFlow_AddNewSinkToPipe)
 {
-  IPipe* pPipe = new Pipe();
+  std::unique_ptr<IPipe> pPipe = std::make_unique<Pipe>();
 
   std::shared_ptr<ISource> pSource = std::make_shared<Source>();
   pPipe->attachSource( pSource );
@@ -1724,7 +1634,6 @@ TEST_F(TestCase_PipeAndFilter, testDynamicSignalFlow_AddNewSinkToPipe)
   std::cout << "attached new Sink to pipe during the pipe is running" << std::endl;
   EXPECT_EQ( pDetachedSink1, pSink1 );
   pDetachedSink1->dump();
-  pDetachedSink1 = nullptr; pSink1 = nullptr;
   std::this_thread::sleep_for(std::chrono::microseconds(1000));
 
   std::cout << "stop" << std::endl;
@@ -1734,18 +1643,14 @@ TEST_F(TestCase_PipeAndFilter, testDynamicSignalFlow_AddNewSinkToPipe)
   std::shared_ptr<ISink> pDetachedSink2 = pPipe->detachSink();
   EXPECT_EQ( pDetachedSink2, pSink2 );
   pDetachedSink2->dump();
-  pDetachedSink2 = nullptr; pSink2 = nullptr;
 
   std::shared_ptr<ISource> pDetachedSource = pPipe->detachSource();
   EXPECT_EQ( pDetachedSource, pSource );
-  pDetachedSource = nullptr; pSource = nullptr;
-
-  delete pPipe; pPipe = nullptr;
 }
 
 TEST_F(TestCase_PipeAndFilter, testDynamicSignalFlow_AddNewSinkToPipe_PipeMultiThread)
 {
-  IPipe* pPipe = new PipeMultiThread();
+  std::unique_ptr<IPipe> pPipe = std::make_unique<PipeMultiThread>();
 
   std::shared_ptr<ISource> pSource = std::make_shared<Source>();
   pPipe->attachSource( pSource );
@@ -1766,7 +1671,6 @@ TEST_F(TestCase_PipeAndFilter, testDynamicSignalFlow_AddNewSinkToPipe_PipeMultiT
   std::cout << "attached new Sink to pipe during the pipe is running" << std::endl;
   EXPECT_EQ( pDetachedSink1, pSink1 );
   pDetachedSink1->dump();
-  pDetachedSink1 = nullptr; pSink1 = nullptr;
   std::this_thread::sleep_for(std::chrono::microseconds(1000));
 
   std::cout << "stop" << std::endl;
@@ -1776,19 +1680,15 @@ TEST_F(TestCase_PipeAndFilter, testDynamicSignalFlow_AddNewSinkToPipe_PipeMultiT
   std::shared_ptr<ISink> pDetachedSink2 = pPipe->detachSink();
   EXPECT_EQ( pDetachedSink2, pSink2 );
   pDetachedSink2->dump();
-  pDetachedSink2 = nullptr; pSink2 = nullptr;
 
   std::shared_ptr<ISource> pDetachedSource = pPipe->detachSource();
   EXPECT_EQ( pDetachedSource, pSource );
-  pDetachedSource = nullptr; pSource = nullptr;
-
-  delete pPipe; pPipe = nullptr;
 }
 
 
 TEST_F(TestCase_PipeAndFilter, testDynamicSignalFlow_AddNewSourceToPipe)
 {
-  IPipe* pPipe = new Pipe();
+  std::unique_ptr<IPipe> pPipe = std::make_unique<Pipe>();
 
   std::shared_ptr<ISource> pSource1 = std::make_shared<Source>();
   pPipe->attachSource( pSource1 );
@@ -1808,7 +1708,6 @@ TEST_F(TestCase_PipeAndFilter, testDynamicSignalFlow_AddNewSourceToPipe)
   std::shared_ptr<ISource> pDetachedSource1 = pPipe->attachSource( pSource2 );
   std::cout << "attached new Source to pipe during the pipe is running" << std::endl;
   EXPECT_EQ( pDetachedSource1, pSource1 );
-  pDetachedSource1 = nullptr; pSource1 = nullptr;
   std::this_thread::sleep_for(std::chrono::microseconds(1000));
 
   std::cout << "stop" << std::endl;
@@ -1818,18 +1717,14 @@ TEST_F(TestCase_PipeAndFilter, testDynamicSignalFlow_AddNewSourceToPipe)
   std::shared_ptr<ISink> pDetachedSink = pPipe->detachSink();
   EXPECT_EQ( pDetachedSink, pSink );
   pDetachedSink->dump();
-  pDetachedSink = nullptr; pSink = nullptr;
 
   std::shared_ptr<ISource> pDetachedSource2 = pPipe->detachSource();
   EXPECT_EQ( pDetachedSource2, pSource2 );
-  pDetachedSource2 = nullptr; pSource2 = nullptr;
-
-  delete pPipe; pPipe = nullptr;
 }
 
 TEST_F(TestCase_PipeAndFilter, testDynamicSignalFlow_AddNewSourceToPipe_PipeMultiThread)
 {
-  IPipe* pPipe = new PipeMultiThread();
+  std::unique_ptr<IPipe> pPipe = std::make_unique<PipeMultiThread>();
 
   std::shared_ptr<ISource> pSource1 = std::make_shared<Source>();
   pPipe->attachSource( pSource1 );
@@ -1849,7 +1744,6 @@ TEST_F(TestCase_PipeAndFilter, testDynamicSignalFlow_AddNewSourceToPipe_PipeMult
   std::shared_ptr<ISource> pDetachedSource1 = pPipe->attachSource( pSource2 );
   std::cout << "attached new Source to pipe during the pipe is running" << std::endl;
   EXPECT_EQ( pDetachedSource1, pSource1 );
-  pDetachedSource1 = nullptr; pSource1 = nullptr;
   std::this_thread::sleep_for(std::chrono::microseconds(1000));
 
   std::cout << "stop" << std::endl;
@@ -1859,18 +1753,14 @@ TEST_F(TestCase_PipeAndFilter, testDynamicSignalFlow_AddNewSourceToPipe_PipeMult
   std::shared_ptr<ISink> pDetachedSink = pPipe->detachSink();
   EXPECT_EQ( pDetachedSink, pSink );
   pDetachedSink->dump();
-  pDetachedSink = nullptr; pSink = nullptr;
 
   std::shared_ptr<ISource> pDetachedSource2 = pPipe->detachSource();
   EXPECT_EQ( pDetachedSource2, pSource2 );
-  pDetachedSource2 = nullptr; pSource2 = nullptr;
-
-  delete pPipe; pPipe = nullptr;
 }
 
 TEST_F(TestCase_PipeAndFilter, testSinkMute)
 {
-  IPipe* pPipe = new Pipe();
+  std::unique_ptr<IPipe> pPipe = std::make_unique<Pipe>();
   std::shared_ptr<ISource> pSource = std::make_shared<Source>();
   pPipe->attachSource( pSource );
   std::shared_ptr<ISink> pSink = std::make_shared<Sink>();
@@ -1883,15 +1773,12 @@ TEST_F(TestCase_PipeAndFilter, testSinkMute)
   std::this_thread::sleep_for(std::chrono::microseconds(1000));
   pPipe->stop();
   pSink->dump();
-  pSource = nullptr;
-  pSink = nullptr;
   pPipe->clearFilters();
-  delete pPipe; pPipe = nullptr;
 }
 
 TEST_F(TestCase_PipeAndFilter, testSourceMute)
 {
-  IPipe* pPipe = new Pipe();
+  std::unique_ptr<IPipe> pPipe = std::make_unique<Pipe>();
   std::shared_ptr<ISource> pSource = std::make_shared<Source>();
   pPipe->attachSource( pSource );
   std::shared_ptr<ISink> pSink = std::make_shared<Sink>();
@@ -1904,15 +1791,12 @@ TEST_F(TestCase_PipeAndFilter, testSourceMute)
   std::this_thread::sleep_for(std::chrono::microseconds(1000));
   pPipe->stop();
   pSink->dump();
-  pSource = nullptr;
-  pSink = nullptr;
   pPipe->clearFilters();
-  delete pPipe; pPipe = nullptr;
 }
 
 TEST_F(TestCase_PipeAndFilter, testPipeMute)
 {
-  IPipe* pPipe = new Pipe();
+  std::unique_ptr<IPipe> pPipe = std::make_unique<Pipe>();
   std::shared_ptr<ISource> pSource = std::make_shared<Source>();
   std::shared_ptr<ISink> pSink = std::make_shared<Sink>();
   pPipe->attachSource( pSource );
@@ -1931,10 +1815,7 @@ TEST_F(TestCase_PipeAndFilter, testPipeMute)
   std::this_thread::sleep_for(std::chrono::microseconds(1000));
   pPipe->stop();
   pSink->dump();
-  pSource = nullptr;
-  pSink = nullptr;
   pPipe->clearFilters();
-  delete pPipe; pPipe = nullptr;
 }
 
 TEST_F(TestCase_PipeAndFilter, testPowerManager)
@@ -1977,7 +1858,7 @@ public:
 
 TEST_F(TestCase_PipeAndFilter, testAecSource)
 {
-  IPipe* pPipe = new Pipe();
+  std::unique_ptr<IPipe> pPipe = std::make_unique<Pipe>();
   std::shared_ptr<ISource> pSource = std::make_shared<TestSource>( 5*1000 );
   std::shared_ptr<ISink> pActualSink = std::make_shared<TestSink>( 5*1000 ); // 5 msec latency
   std::shared_ptr<ISource> pReferenceSource = std::make_shared<ReferenceSoundSinkSource>( pActualSink );
@@ -1990,17 +1871,11 @@ TEST_F(TestCase_PipeAndFilter, testAecSource)
   std::this_thread::sleep_for(std::chrono::microseconds(1000));
   pPipe->stop();
   pSink->dump();
-  pSink = nullptr;
-  pActualSink = nullptr;
-  pSource = nullptr;
-  pAecSource = nullptr;
-  pReferenceSource = nullptr;
-  delete pPipe; pPipe = nullptr;
 }
 
 TEST_F(TestCase_PipeAndFilter, testAecSourceDelayOnly)
 {
-  IPipe* pPipe = new Pipe();
+  std::unique_ptr<IPipe> pPipe = std::make_unique<Pipe>();
   std::shared_ptr<ISource> pSource = std::make_shared<TestSource>( 5*1000 );
   std::shared_ptr<ISink> pActualSink = std::make_shared<TestSink>( 5*1000 ); // 5 msec latency
   std::shared_ptr<ISource> pReferenceSource = std::make_shared<ReferenceSoundSinkSource>( pActualSink );
@@ -2013,18 +1888,12 @@ TEST_F(TestCase_PipeAndFilter, testAecSourceDelayOnly)
   std::this_thread::sleep_for(std::chrono::microseconds(1000));
   pPipe->stop();
   pSink->dump();
-  pSink = nullptr;
-  pActualSink = nullptr;
-  pSource = nullptr;
-  pAecSource = nullptr;
-  pReferenceSource = nullptr;
-  delete pPipe; pPipe = nullptr;
 }
 
 
 TEST_F(TestCase_PipeAndFilter, testDynamicSignalFlow_AddNewSinkToReferenceSoundSink)
 {
-  IPipe* pPipe = new Pipe();
+  std::unique_ptr<IPipe> pPipe = std::make_unique<Pipe>();
 
   std::shared_ptr<ISink> pGlobalSink1 = std::make_shared<Sink>();
   std::shared_ptr<ReferenceSoundSinkSource> pReferenceSource = std::make_shared<ReferenceSoundSinkSource>( pGlobalSink1 );
@@ -2045,7 +1914,6 @@ TEST_F(TestCase_PipeAndFilter, testDynamicSignalFlow_AddNewSinkToReferenceSoundS
   std::shared_ptr<ISink> pDetachedSinkFromRefSound1 = pReferenceSource->attachSink(pGlobalSink2);
   EXPECT_EQ( pDetachedSinkFromRefSound1, pGlobalSink1 );
   pAecedMicSource->adjustDelay();
-  pGlobalSink1 = nullptr; pDetachedSinkFromRefSound1 = nullptr;
   std::this_thread::sleep_for(std::chrono::microseconds(5000));
 
   pPipe->stop();
@@ -2053,26 +1921,19 @@ TEST_F(TestCase_PipeAndFilter, testDynamicSignalFlow_AddNewSinkToReferenceSoundS
 
   std::shared_ptr<ISink> pDetachedMicSink = pPipe->detachSink();
   EXPECT_EQ( pDetachedMicSink, pMicSink );
-  pMicSink = nullptr; pDetachedMicSink = nullptr;
 
   std::shared_ptr<ISource> pDetachedMicSource = pPipe->detachSource();
   EXPECT_EQ( pDetachedMicSource, pAecedMicSource );
-  pDetachedMicSource = nullptr; pAecedMicSource = nullptr;
 
-  pRawMicSource = nullptr;
   std::shared_ptr<ISink> pDetachedSinkFromRefSound2 = pReferenceSource->detachSink();
   EXPECT_EQ( pDetachedSinkFromRefSound2, pGlobalSink2 );
-  pDetachedSinkFromRefSound2 = nullptr; pGlobalSink2 = nullptr;
-  pReferenceSource = nullptr;
-
-  delete pPipe; pPipe = nullptr;
 }
 
 TEST_F(TestCase_PipeAndFilter, testPerChannelVolumeWithSink)
 {
   std::shared_ptr<ISource> pSource = std::make_shared<Source>();
   std::shared_ptr<ISink> pSink = std::make_shared<Sink>();
-  IPipe* pPipe = new Pipe();
+  std::unique_ptr<IPipe> pPipe = std::make_unique<Pipe>();
   pPipe->attachSource( pSource );
   pPipe->attachSink( pSink );
   pPipe->addFilterToTail( std::make_shared<Filter>() );
@@ -2085,9 +1946,6 @@ TEST_F(TestCase_PipeAndFilter, testPerChannelVolumeWithSink)
   pPipe->stop();
   pSink->dump();
   pPipe->clearFilters();
-  pSink = nullptr;
-  pSource = nullptr;
-  delete pPipe; pPipe = nullptr;
 }
 
 TEST_F(TestCase_PipeAndFilter, testPerChannelVolumeWithMultiSink)
@@ -2116,7 +1974,7 @@ TEST_F(TestCase_PipeAndFilter, testPerChannelVolumeWithMultiSink)
   chMap2.insert( std::make_pair(AudioFormat::CH::R, AudioFormat::CH::R) ); // dst, src
   pMultiSink->attachSink( pSink2, chMap2 );
 
-  IPipe* pPipe = new Pipe();
+  std::unique_ptr<IPipe> pPipe = std::make_unique<Pipe>();
   pPipe->attachSource( pSource );
   pPipe->attachSink( pMultiSink );
   pPipe->addFilterToTail( std::make_shared<Filter>() );
@@ -2131,9 +1989,6 @@ TEST_F(TestCase_PipeAndFilter, testPerChannelVolumeWithMultiSink)
   pMultiSink->dump();
   pMultiSink->clearSinks();
   pPipe->clearFilters();
-  pMultiSink = nullptr;
-  pSource = nullptr;
-  delete pPipe; pPipe = nullptr;
 }
 
 

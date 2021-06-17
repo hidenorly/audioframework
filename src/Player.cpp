@@ -26,7 +26,7 @@ Player::~Player()
 
 }
 
-std::shared_ptr<ISource> Player::prepare(std::shared_ptr<ISource> pSource, IDecoder* pDecoder)
+std::shared_ptr<ISource> Player::prepare(std::shared_ptr<ISource> pSource, std::shared_ptr<IDecoder> pDecoder)
 {
   std::shared_ptr<ISource> pDec2Pipe = nullptr;
 
@@ -48,7 +48,7 @@ std::shared_ptr<ISource> Player::terminate(std::shared_ptr<ISource> pSourceAdapt
     mpDecoder->stop();
     mpDecoder->releaseSourceAdaptor( pSourceAdaptor );
     pDecoderSource = mpDecoder->detachSource();
-    delete mpDecoder; mpDecoder = nullptr;
+    mpDecoder.reset();
   }
   mbIsSetupDone = false;
   mbIsPaused = false;

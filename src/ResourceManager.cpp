@@ -175,4 +175,3 @@ void CpuResourceManager::admin_terminate(void)
   delete mpInstance;
   mpInstance = nullptr;
 }
-

@@ -53,7 +53,7 @@ public:
      @return true: success to write / false: fail to write */
   virtual bool readLine(std::string& line){ return false; };
 
-  /* @desc close the stream. After this, you should dispose this instance. */
+  /* @desc close the stream. */
   virtual void close(void){};
 };
 

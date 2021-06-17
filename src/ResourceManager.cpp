@@ -141,7 +141,17 @@ bool IResourceManager::acquire(IResourceConsumer* consumer)
   return consumer ? acquire(*consumer) : false;
 }
 
+bool IResourceManager::acquire(std::shared_ptr<IResourceConsumer> consumer)
+{
+  return consumer ? acquire(*consumer) : false;
+}
+
 bool IResourceManager::release(IResourceConsumer* consumer)
+{
+  return consumer ? release(*consumer) : false;
+}
+
+bool IResourceManager::release(std::shared_ptr<IResourceConsumer> consumer)
 {
   return consumer ? release(*consumer) : false;
 }

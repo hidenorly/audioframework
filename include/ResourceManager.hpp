@@ -20,6 +20,7 @@
 #include <map>
 #include <mutex>
 #include <vector>
+#include <memory>
 
 class CpuResource
 {
@@ -62,11 +63,13 @@ public:
      @return true: success to acquire, false: fail to acquire */
   virtual bool acquire(IResourceConsumer& consumer);
   virtual bool acquire(IResourceConsumer* consumer);
+  virtual bool acquire(std::shared_ptr<IResourceConsumer> consumer);
   /* @desc release acquired resource
      @arg IResourceConsumer which is implemented by ISink, ISource, IFilter instance
      @return true: success to release, false: fail to release */
   virtual bool release(IResourceConsumer& consumer);
   virtual bool release(IResourceConsumer* consumer);
+  virtual bool release(std::shared_ptr<IResourceConsumer> consumer);
 };
 
 class CpuResourceManager;

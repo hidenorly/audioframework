@@ -1263,6 +1263,51 @@ TEST_F(TestCase_PipeAndFilter, testResourceManager_ResourceConsumer)
   delete consumer5; consumer5=nullptr;
 }
 
+TEST_F(TestCase_PipeAndFilter, testResourceManager_ResourceConsumer_SharedPtr)
+{
+  class DummyConsumer:public IResourceConsumer
+  {
+  public:
+    DummyConsumer(){};
+    virtual ~DummyConsumer(){};
+    virtual int stateResourceConsumption(void){ return 300; };
+  };
+
+  CpuResourceManager::admin_setResource(1000);
+  IResourceManager* pResourceManager = CpuResourceManager::getInstance();
+  EXPECT_NE( pResourceManager, nullptr);
+
+  std::shared_ptr<DummyConsumer> consumer1 = std::make_shared<DummyConsumer>();
+  EXPECT_TRUE( pResourceManager->acquire(consumer1) );
+  EXPECT_FALSE( pResourceManager->acquire(consumer1) );
+
+  std::shared_ptr<DummyConsumer> consumer2 = std::make_shared<DummyConsumer>();
+  EXPECT_TRUE( pResourceManager->acquire(consumer2) );
+
+  std::shared_ptr<DummyConsumer> consumer3 = std::make_shared<DummyConsumer>();
+  EXPECT_TRUE( pResourceManager->acquire(consumer3) );
+
+  std::shared_ptr<DummyConsumer> consumer4 = std::make_shared<DummyConsumer>();
+  EXPECT_FALSE( pResourceManager->acquire(consumer4) );
+
+  EXPECT_TRUE( pResourceManager->release(consumer3) );
+  EXPECT_FALSE( pResourceManager->release(consumer3) );
+  EXPECT_TRUE( pResourceManager->acquire(consumer4) );
+
+  consumer4.reset();
+
+  std::shared_ptr<DummyConsumer> consumer5 = std::make_shared<DummyConsumer>();
+  EXPECT_TRUE( pResourceManager->acquire(consumer5) );
+  EXPECT_FALSE( pResourceManager->release(consumer4) );
+  EXPECT_FALSE( pResourceManager->release(consumer3) );
+
+  consumer1.reset();
+  consumer2.reset();
+
+  CpuResourceManager::admin_terminate();
+  pResourceManager = nullptr;
+}
+
 TEST_F(TestCase_PipeAndFilter, testResourceManager_Filter)
 {
   class DummyConsumer:public Filter
@@ -1311,6 +1356,53 @@ TEST_F(TestCase_PipeAndFilter, testResourceManager_Filter)
 
   delete consumer3; consumer3=nullptr;
   delete consumer5; consumer5=nullptr;
+}
+
+TEST_F(TestCase_PipeAndFilter, testResourceManager_Filter_SharedPtr)
+{
+  class DummyConsumer:public Filter
+  {
+  public:
+    DummyConsumer():Filter(){};
+    virtual ~DummyConsumer(){};
+    virtual int stateResourceConsumption(void){
+      return (int)((float)CpuResource::getComputingResource()/3.333f);
+    };
+  };
+
+  CpuResourceManager::admin_setResource( CpuResource::getComputingResource() );
+  IResourceManager* pResourceManager = CpuResourceManager::getInstance();
+  EXPECT_NE( pResourceManager, nullptr);
+
+  std::shared_ptr<DummyConsumer> consumer1 = std::make_shared<DummyConsumer>();
+  EXPECT_TRUE( pResourceManager->acquire(consumer1) );
+  EXPECT_FALSE( pResourceManager->acquire(consumer1) );
+
+  std::shared_ptr<DummyConsumer> consumer2 = std::make_shared<DummyConsumer>();
+  EXPECT_TRUE( pResourceManager->acquire(consumer2) );
+
+  std::shared_ptr<DummyConsumer> consumer3 = std::make_shared<DummyConsumer>();
+  EXPECT_TRUE( pResourceManager->acquire(consumer3) );
+
+  std::shared_ptr<DummyConsumer> consumer4 = std::make_shared<DummyConsumer>();
+  EXPECT_FALSE( pResourceManager->acquire(consumer4) );
+
+  EXPECT_TRUE( pResourceManager->release(consumer3) );
+  EXPECT_FALSE( pResourceManager->release(consumer3) );
+  EXPECT_TRUE( pResourceManager->acquire(consumer4) );
+
+  consumer4.reset();
+
+  std::shared_ptr<DummyConsumer> consumer5 = std::make_shared<DummyConsumer>();
+  EXPECT_TRUE( pResourceManager->acquire(consumer5) );
+  EXPECT_FALSE( pResourceManager->release(consumer4) );
+  EXPECT_FALSE( pResourceManager->release(consumer3) );
+
+  consumer1.reset();
+  consumer2.reset();
+
+  CpuResourceManager::admin_terminate();
+  pResourceManager = nullptr;
 }
 
 TEST_F(TestCase_PipeAndFilter, testResourceManager_Pipe)
@@ -1414,6 +1506,108 @@ TEST_F(TestCase_PipeAndFilter, testResourceManager_Pipe)
   CpuResourceManager::admin_terminate();
   pResourceManager = nullptr;
 }
+
+TEST_F(TestCase_PipeAndFilter, testResourceManager_Pipe_SharedPtr)
+{
+  class DummyFilter:public Filter
+  {
+  public:
+    DummyFilter():Filter(){};
+    virtual ~DummyFilter(){};
+    virtual int stateResourceConsumption(void){
+      return (int)((float)CpuResource::getComputingResource()/3.333f);
+    };
+  };
+
+  CpuResourceManager::admin_setResource( CpuResource::getComputingResource() );
+  IResourceManager* pResourceManager = CpuResourceManager::getInstance();
+  EXPECT_NE( pResourceManager, nullptr);
+
+  std::shared_ptr<IPipe> pPipe = std::make_shared<Pipe>();
+  pPipe->addFilterToTail( std::make_shared<DummyFilter>() );
+
+  bool bSuccessAcquiredResource = pResourceManager->acquire(pPipe);
+  EXPECT_TRUE( bSuccessAcquiredResource );
+  if( bSuccessAcquiredResource ){
+    pPipe->run();
+    pPipe->stop();
+    EXPECT_TRUE( pResourceManager->release(pPipe) );
+  }
+
+  pPipe->addFilterToTail( std::make_shared<DummyFilter>() );
+  bSuccessAcquiredResource = pResourceManager->acquire(pPipe);
+  EXPECT_TRUE( bSuccessAcquiredResource );
+  if( bSuccessAcquiredResource ){
+    pPipe->run();
+    pPipe->stop();
+    EXPECT_TRUE( pResourceManager->release(pPipe) );
+  }
+
+  pPipe->addFilterToTail( std::make_shared<DummyFilter>() );
+  bSuccessAcquiredResource = pResourceManager->acquire(pPipe);
+  EXPECT_TRUE( bSuccessAcquiredResource );
+  if( bSuccessAcquiredResource ){
+    pPipe->run();
+    pPipe->stop();
+    EXPECT_TRUE( pResourceManager->release(pPipe) );
+  }
+
+  pPipe->addFilterToTail( std::make_shared<DummyFilter>() );
+  bSuccessAcquiredResource = pResourceManager->acquire(pPipe);
+  EXPECT_FALSE( bSuccessAcquiredResource );
+  if( bSuccessAcquiredResource ){
+    pPipe->run();
+    pPipe->stop();
+    EXPECT_TRUE( pResourceManager->release(pPipe) );
+  }
+
+  pPipe->clearFilters();
+  pPipe.reset();
+
+  pPipe = std::make_shared<PipeMultiThread>();
+  pPipe->addFilterToTail( std::make_shared<DummyFilter>() );
+
+  bSuccessAcquiredResource = pResourceManager->acquire(pPipe);
+  EXPECT_TRUE( bSuccessAcquiredResource );
+  if( bSuccessAcquiredResource ){
+    pPipe->run();
+    pPipe->stop();
+    EXPECT_TRUE( pResourceManager->release(pPipe) );
+  }
+
+  pPipe->addFilterToTail( std::make_shared<DummyFilter>() );
+  bSuccessAcquiredResource = pResourceManager->acquire(pPipe);
+  EXPECT_TRUE( bSuccessAcquiredResource );
+  if( bSuccessAcquiredResource ){
+    pPipe->run();
+    pPipe->stop();
+    EXPECT_TRUE( pResourceManager->release(pPipe) );
+  }
+
+  pPipe->addFilterToTail( std::make_shared<DummyFilter>() );
+  bSuccessAcquiredResource = pResourceManager->acquire(pPipe);
+  EXPECT_TRUE( bSuccessAcquiredResource );
+  if( bSuccessAcquiredResource ){
+    pPipe->run();
+    pPipe->stop();
+    EXPECT_TRUE( pResourceManager->release(pPipe) );
+  }
+
+  pPipe->addFilterToTail( std::make_shared<DummyFilter>() );
+  bSuccessAcquiredResource = pResourceManager->acquire(pPipe);
+  EXPECT_FALSE( bSuccessAcquiredResource );
+  if( bSuccessAcquiredResource ){
+    pPipe->run();
+    pPipe->stop();
+    EXPECT_TRUE( pResourceManager->release(pPipe) );
+  }
+
+  pPipe->clearFilters();
+
+  CpuResourceManager::admin_terminate();
+  pResourceManager = nullptr;
+}
+
 
 TEST_F(TestCase_PipeAndFilter, testStrategy)
 {

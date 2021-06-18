@@ -34,16 +34,17 @@ int AudioFormat::getSampleByte(AudioFormat::ENCODING encoding)
     case PCM_8BIT:
       sampleByte = 1;
       break;
-    case PCM_16BIT:
-    case PCM_UNKNOWN:
-      sampleByte = 2;
-      break;
     case PCM_24BIT_PACKED:
       sampleByte = 3;
       break;
     case PCM_32BIT:
     case PCM_FLOAT:
       sampleByte = 4;
+      break;
+    case PCM_16BIT:
+    case PCM_UNKNOWN:
+    default:
+      sampleByte = 2;
       break;
   }
 
@@ -166,8 +167,24 @@ AudioFormat::ENCODING AudioFormat::getEncoding(void)
 
 bool AudioFormat::isEncodingPcm(void)
 {
-  return getEncoding() < ENCODING::PCM_UNKNOWN;
+  return isEncodingPcm( getEncoding() );
 }
+
+bool AudioFormat::isEncodingPcm(AudioFormat::ENCODING encoding)
+{
+  return encoding < ENCODING::PCM_UNKNOWN;
+}
+
+bool AudioFormat::isEncodingCompressed(void)
+{
+  return !isEncodingPcm();
+}
+
+bool AudioFormat::isEncodingCompressed(AudioFormat::ENCODING encoding)
+{
+  return !isEncodingPcm( encoding );
+}
+
 
 int AudioFormat::getNumberOfChannels(void)
 {
@@ -196,8 +213,12 @@ std::string AudioFormat::getEncodingString(AudioFormat::ENCODING encoding)
       result = "PCM_FLOAT";
       break;
     case PCM_UNKNOWN:
+    default:
       result = "PCM_UNKNOWN";
       break;
+  }
+  if( isEncodingCompressed(encoding) ){
+    result = "COMPRESSED_" + std::to_string(encoding - AudioFormat::ENCODING::COMPRESSED);
   }
 
   return result;

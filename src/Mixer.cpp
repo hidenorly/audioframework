@@ -123,6 +123,7 @@ bool Mixer::doMixPrimitive( AudioBuffer* pInBuffer1, AudioBuffer* pInBuffer2, Au
         bHandled = MixerPrimitive::mix24( pRawInBuf1, pRawInBuf2, pRawOutBuf, nChannelSamples);
         break;
       case AudioFormat::ENCODING::PCM_UNKNOWN:
+      default:
         bHandled = false;
         break;
     }

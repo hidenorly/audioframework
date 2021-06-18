@@ -50,6 +50,7 @@ int AudioFormat::getSampleByte(AudioFormat::ENCODING encoding)
   return sampleByte;
 }
 
+
 int AudioFormat::getNumberOfChannels(AudioFormat::CHANNEL channel)
 {
   int numOfChannels = 0;
@@ -161,6 +162,11 @@ int AudioFormat::getChannelsSampleByte(AudioFormat::ENCODING encoding, AudioForm
 AudioFormat::ENCODING AudioFormat::getEncoding(void)
 {
   return mEncoding;
+}
+
+bool AudioFormat::isEncodingPcm(void)
+{
+  return getEncoding() < ENCODING::PCM_UNKNOWN;
 }
 
 int AudioFormat::getNumberOfChannels(void)
@@ -315,7 +321,11 @@ int AudioFormat::getOffSetByteInSample(AudioFormat::CH ch)
   return getSampleByte() * getOffSetInSample(mChannel, ch);
 }
 
-
+std::string AudioFormat::toString(void)
+{
+  std::string result = "encoding:" + getEncodingString() + " channel:" + std::to_string(getNumberOfChannels()) + " samplingRate:" + std::to_string(getSamplingRate());
+  return result;
+}
 
 std::vector<AudioFormat> AudioBase::getSupportedAudioFormats(void)
 {
@@ -335,4 +345,34 @@ bool AudioBase::isAvailableFormat(AudioFormat format)
   }
 
   return bResult;
+}
+
+std::vector<AudioFormat> AudioBase::audioFormatOpAND(std::vector<AudioFormat>& formats1, std::vector<AudioFormat>& formats2)
+{
+  std::vector<AudioFormat> result;
+  for( auto& aValue1 : formats1 ){
+    for( auto& aValue2 : formats2 ){
+      if( aValue1.equal( aValue2 ) ){
+        result.push_back( aValue1 );
+        break;
+      }
+    }
+  }
+  return result;
+}
+
+std::vector<AudioFormat> AudioBase::audioFormatOpOR(std::vector<AudioFormat>& formats1, std::vector<AudioFormat>& formats2)
+{
+  std::vector<AudioFormat> result = formats1;
+  for( auto& aValue2 : formats2 ){
+    bool bFound = false;
+    for( auto& aValue1 : formats1 ){
+      bFound |= aValue2.equal ( aValue1 );
+      if( bFound ) break;
+    }
+    if( !bFound ){
+      result.push_back( aValue2 );
+    }
+  }
+  return result;
 }

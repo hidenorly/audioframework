@@ -19,7 +19,7 @@
 #include <iostream>
 
 
-MultipleSink::MultipleSink(AudioFormat audioFormat):ISink(), mFormat(audioFormat), mMaxLatency(0)
+MultipleSink::MultipleSink(AudioFormat audioFormat, bool bSupportedFormatsOpOR):ISink(), mFormat(audioFormat), mMaxLatency(0), mbSupportedFormatsOpOR(bSupportedFormatsOpOR)
 {
 
 }
@@ -79,12 +79,15 @@ void MultipleSink::writePrimitive(IAudioBuffer& buf)
   for(auto& pSink : mpSinks ){
     if( pBuf ){
       AudioFormat::ChannelMapper mapper = mChannelMaps[ pSink ];
-      AudioBuffer selectedChannelData = pBuf->getSelectedChannelData( pSink->getAudioFormat(), mapper );
-      ensureDelayFilters();
-      AudioBuffer delayedOut( pSink->getAudioFormat(), pBuf->getNumberOfSamples() );
-      std::shared_ptr<DelayFilter> pDelayFilter = mpDelayFilters[ pSink ];
-      pDelayFilter->process( selectedChannelData, delayedOut );
-      pSink->write( delayedOut );
+      AudioFormat sinkFormat = pSink->getAudioFormat();
+      if( sinkFormat.getNumberOfChannels() >= mapper.size() ){
+        AudioBuffer selectedChannelData = pBuf->getSelectedChannelData( sinkFormat, mapper );
+        ensureDelayFilters();
+        AudioBuffer delayedOut( sinkFormat, pBuf->getNumberOfSamples() );
+        std::shared_ptr<DelayFilter> pDelayFilter = mpDelayFilters[ pSink ];
+        pDelayFilter->process( selectedChannelData, delayedOut );
+        pSink->write( delayedOut );
+      }
     } else {
       pSink->write( buf );
     }
@@ -105,29 +108,33 @@ void MultipleSink::dump(void)
   }
 }
 
+void MultipleSink::setAudioFormatSupportOrModeEnabled(bool bSupportedFormatsOpOR)
+{
+  mbSupportedFormatsOpOR = bSupportedFormatsOpOR;
+}
+
+bool MultipleSink::getAudioFormatSupportOrModeEnabled(void)
+{
+  return mbSupportedFormatsOpOR;
+}
+
 bool MultipleSink::setAudioFormat(AudioFormat audioFormat)
 {
-  mFormat = audioFormat;
-  return true;
+  return setAudioFormat(audioFormat, false);
+}
+
+bool MultipleSink::setAudioFormat(AudioFormat audioFormat, bool bForce)
+{
+  bool bResult = isAvailableFormat( audioFormat ) | bForce;
+  if( bResult ){
+    mFormat = audioFormat;
+  }
+  return bResult;
 }
 
 AudioFormat MultipleSink::getAudioFormat(void)
 {
   return mFormat;
-}
-
-std::vector<AudioFormat> MultipleSink::andAudioFormatOperation(std::vector<AudioFormat>& formats1, std::vector<AudioFormat>& formats2)
-{
-  std::vector<AudioFormat> result;
-  for(auto& aValue1 : formats1){
-    for(auto& aValue2 : formats2){
-      if( aValue1.equal( aValue2) ){
-        result.push_back( aValue1 );
-        break;
-      }
-    }
-  }
-  return result;
 }
 
 std::vector<AudioFormat> MultipleSink::getSupportedAudioFormats(void)
@@ -137,7 +144,7 @@ std::vector<AudioFormat> MultipleSink::getSupportedAudioFormats(void)
     result = mpSinks[0]->getSupportedAudioFormats();
     for( int i=1; i<mpSinks.size(); i++ ){
       std::vector<AudioFormat> theFormats = mpSinks[i]->getSupportedAudioFormats();
-      result = andAudioFormatOperation( result, theFormats );
+      result = mbSupportedFormatsOpOR ? audioFormatOpOR( result, theFormats ) : audioFormatOpAND( result, theFormats );
     }
   }
   return result;

@@ -37,6 +37,7 @@ protected:
   void testMultipleSink(void);
   void testMultipleSink_Same(void);
   void testMultipleSink_Format(void);
+  void testMultipleSink_FormatOR(void);
   void testStreamSink(void);
   void testStreamSink_DifferentFormat(void);
   void testStreamSource(void);

@@ -34,13 +34,13 @@ protected:
   AudioFormat mFormat;
   std::map<std::shared_ptr<ISink>, std::shared_ptr<DelayFilter>> mpDelayFilters;
   int mMaxLatency;
+  bool mbSupportedFormatsOpOR;
 
   void ensureDelayFilters(bool bForceRecreate = false);
   std::vector<float> getPerSinkChannelVolumes(std::shared_ptr<ISink> pSink, Volume::CHANNEL_VOLUME perChannelVolumes);
-  std::vector<AudioFormat> andAudioFormatOperation(std::vector<AudioFormat>& formats1, std::vector<AudioFormat>& formats2);
 
 public:
-  MultipleSink(AudioFormat audioFormat = AudioFormat());
+  MultipleSink(AudioFormat audioFormat = AudioFormat(), bool bSupportedFormatsOpOR = false);
   virtual ~MultipleSink();
   virtual void attachSink(std::shared_ptr<ISink> pSink, AudioFormat::ChannelMapper& map);
   virtual bool detachSink(std::shared_ptr<ISink> pSink);
@@ -49,7 +49,10 @@ public:
   virtual void writePrimitive(IAudioBuffer& buf);
   virtual std::string toString(void){ return "MultipleSink"; };
 
+  virtual void setAudioFormatSupportOrModeEnabled(bool bSupportedFormatsOpOR);
+  virtual bool getAudioFormatSupportOrModeEnabled(void);
   virtual bool setAudioFormat(AudioFormat audioFormat);
+  virtual bool setAudioFormat(AudioFormat audioFormat, bool bForce);
   virtual AudioFormat getAudioFormat(void);
   virtual std::vector<AudioFormat> getSupportedAudioFormats(void);
 

@@ -362,11 +362,70 @@ TEST_F(TestCase_PipeAndFilter, testMultipleSink_Format)
   pMultiSink->attachSink( pSink2, chMap2 );
 
   auto&& sinkFormats = pMultiSink->getSupportedAudioFormats();
-  auto&& expected = pSink1->getSupportedAudioFormats();
-
+  bool bResult1 = true;
+  bool bResult2 = true;
   for( auto& aFormat : sinkFormats ){
-    EXPECT_TRUE( pSink1->isAvailableFormat( aFormat ) );
+    std::cout << aFormat.toString() << std::endl;
+    bResult1 &= pSink1->isAvailableFormat( aFormat );
+    bResult2 &= pSink2->isAvailableFormat( aFormat );
   }
+  EXPECT_TRUE( bResult1 );
+  EXPECT_TRUE( bResult2 );
+}
+
+TEST_F(TestCase_PipeAndFilter, testMultipleSink_FormatOR)
+{
+  class TestSink : public Sink
+  {
+  protected:
+    std::vector<AudioFormat> mFormats;
+  public:
+    TestSink(std::vector<AudioFormat> formats) : mFormats(formats){}
+    virtual std::vector<AudioFormat> getSupportedAudioFormats(void)
+    {
+      return mFormats;
+    }
+  };
+
+  std::shared_ptr<MultipleSink> pMultiSink = std::make_shared<MultipleSink>(AudioFormat(), true);
+  EXPECT_TRUE( pMultiSink->getAudioFormatSupportOrModeEnabled() );
+
+  std::vector<AudioFormat> formats;
+  formats.push_back( AudioFormat() );
+  formats.push_back( AudioFormat(AudioFormat::ENCODING::PCM_16BIT, AudioFormat::SAMPLING_RATE::SAMPLING_RATE_96_KHZ) );
+  std::shared_ptr<ISink> pSink1 = std::make_shared<TestSink>( formats );
+  AudioFormat::ChannelMapper chMap1 = pSink1->getAudioFormat().getSameChannelMapper();
+  pMultiSink->attachSink( pSink1, chMap1 );
+
+  formats.push_back( AudioFormat(AudioFormat::ENCODING::PCM_16BIT, AudioFormat::SAMPLING_RATE::SAMPLING_RATE_192_KHZ) );
+  std::shared_ptr<ISink> pSink2 = std::make_shared<TestSink>( formats );
+  AudioFormat::ChannelMapper chMap2 = pSink2->getAudioFormat().getSameChannelMapper();
+  pMultiSink->attachSink( pSink2, chMap2 );
+
+  std::cout << "result of OR:" << std::endl;
+  auto&& sinkFormats = pMultiSink->getSupportedAudioFormats();
+  bool bResult1 = true;
+  bool bResult2 = true;
+  for( auto& aFormat : sinkFormats ){
+    std::cout << aFormat.toString() << std::endl;
+    bResult1 &= pSink1->isAvailableFormat( aFormat );
+    bResult2 &= pSink2->isAvailableFormat( aFormat );
+  }
+  EXPECT_FALSE( bResult1 );
+  EXPECT_TRUE( bResult2 );
+
+  std::cout << "result of AND:" << std::endl;
+  pMultiSink->setAudioFormatSupportOrModeEnabled(false);
+  bResult1 = true;
+  bResult2 = true;
+  sinkFormats = pMultiSink->getSupportedAudioFormats();
+  for( auto& aFormat : sinkFormats ){
+    std::cout << aFormat.toString() << std::endl;
+    bResult1 &= pSink1->isAvailableFormat( aFormat );
+    bResult2 &= pSink2->isAvailableFormat( aFormat );
+  }
+  EXPECT_TRUE( bResult1 );
+  EXPECT_TRUE( bResult2 );
 }
 
 

@@ -85,6 +85,7 @@ public:
   virtual ~AudioFormat();
 
   ENCODING getEncoding(void);
+  bool isEncodingPcm(void);
   static std::string getEncodingString(ENCODING encoding);
   int getNumberOfChannels(void);
   static int getNumberOfChannels(CHANNEL channel);
@@ -102,6 +103,7 @@ public:
   bool equal(AudioFormat arg2);
   ChannelMapper getSameChannelMapper(void);
   static ChannelMapper getSameChannelMapper(CHANNEL channel);
+  std::string toString(void);
 };
 
 class AudioBase
@@ -109,6 +111,8 @@ class AudioBase
 public:
   virtual std::vector<AudioFormat> getSupportedAudioFormats(void);
   virtual bool isAvailableFormat(AudioFormat format);
+  virtual std::vector<AudioFormat> audioFormatOpAND(std::vector<AudioFormat>& formats1, std::vector<AudioFormat>& formats2);
+  virtual std::vector<AudioFormat> audioFormatOpOR(std::vector<AudioFormat>& formats1, std::vector<AudioFormat>& formats2);
 };
 
 #endif /* __AUDIO_FORMAT_HPP__ */

@@ -310,7 +310,7 @@ TEST_F(TestCase_PipeAndFilter, testMultipleSink)
   pMultiSink->clearSinks();
 }
 
-TEST_F(TestCase_PipeAndFilter, testMultipleSink2)
+TEST_F(TestCase_PipeAndFilter, testMultipleSink_Same)
 {
   std::shared_ptr<MultipleSink> pMultiSink = std::make_shared<MultipleSink>();
 
@@ -332,6 +332,43 @@ TEST_F(TestCase_PipeAndFilter, testMultipleSink2)
 
   pMultiSink->clearSinks();
 }
+
+TEST_F(TestCase_PipeAndFilter, testMultipleSink_Format)
+{
+  class TestSink : public Sink
+  {
+  protected:
+    std::vector<AudioFormat> mFormats;
+  public:
+    TestSink(std::vector<AudioFormat> formats) : mFormats(formats){}
+    virtual std::vector<AudioFormat> getSupportedAudioFormats(void)
+    {
+      return mFormats;
+    }
+  };
+
+  std::shared_ptr<MultipleSink> pMultiSink = std::make_shared<MultipleSink>();
+
+  std::vector<AudioFormat> formats;
+  formats.push_back( AudioFormat() );
+  formats.push_back( AudioFormat(AudioFormat::ENCODING::PCM_16BIT, AudioFormat::SAMPLING_RATE::SAMPLING_RATE_96_KHZ) );
+  std::shared_ptr<ISink> pSink1 = std::make_shared<TestSink>( formats );
+  AudioFormat::ChannelMapper chMap1 = pSink1->getAudioFormat().getSameChannelMapper();
+  pMultiSink->attachSink( pSink1, chMap1 );
+
+  formats.push_back( AudioFormat(AudioFormat::ENCODING::PCM_16BIT, AudioFormat::SAMPLING_RATE::SAMPLING_RATE_192_KHZ) );
+  std::shared_ptr<ISink> pSink2 = std::make_shared<TestSink>( formats );
+  AudioFormat::ChannelMapper chMap2 = pSink2->getAudioFormat().getSameChannelMapper();
+  pMultiSink->attachSink( pSink2, chMap2 );
+
+  auto&& sinkFormats = pMultiSink->getSupportedAudioFormats();
+  auto&& expected = pSink1->getSupportedAudioFormats();
+
+  for( auto& aFormat : sinkFormats ){
+    EXPECT_TRUE( pSink1->isAvailableFormat( aFormat ) );
+  }
+}
+
 
 TEST_F(TestCase_PipeAndFilter, testStreamSink)
 {

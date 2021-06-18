@@ -37,6 +37,7 @@ protected:
 
   void ensureDelayFilters(bool bForceRecreate = false);
   std::vector<float> getPerSinkChannelVolumes(std::shared_ptr<ISink> pSink, Volume::CHANNEL_VOLUME perChannelVolumes);
+  std::vector<AudioFormat> andAudioFormatOperation(std::vector<AudioFormat>& formats1, std::vector<AudioFormat>& formats2);
 
 public:
   MultipleSink(AudioFormat audioFormat = AudioFormat());
@@ -50,6 +51,7 @@ public:
 
   virtual bool setAudioFormat(AudioFormat audioFormat);
   virtual AudioFormat getAudioFormat(void);
+  virtual std::vector<AudioFormat> getSupportedAudioFormats(void);
 
   virtual int getLatencyUSec(void);
   virtual float getVolume(void);

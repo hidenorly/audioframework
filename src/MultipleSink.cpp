@@ -116,6 +116,33 @@ AudioFormat MultipleSink::getAudioFormat(void)
   return mFormat;
 }
 
+std::vector<AudioFormat> MultipleSink::andAudioFormatOperation(std::vector<AudioFormat>& formats1, std::vector<AudioFormat>& formats2)
+{
+  std::vector<AudioFormat> result;
+  for(auto& aValue1 : formats1){
+    for(auto& aValue2 : formats2){
+      if( aValue1.equal( aValue2) ){
+        result.push_back( aValue1 );
+        break;
+      }
+    }
+  }
+  return result;
+}
+
+std::vector<AudioFormat> MultipleSink::getSupportedAudioFormats(void)
+{
+  std::vector<AudioFormat> result;
+  if( mpSinks.size()>=1 ){
+    result = mpSinks[0]->getSupportedAudioFormats();
+    for( int i=1; i<mpSinks.size(); i++ ){
+      std::vector<AudioFormat> theFormats = mpSinks[i]->getSupportedAudioFormats();
+      result = andAudioFormatOperation( result, theFormats );
+    }
+  }
+  return result;
+}
+
 
 int MultipleSink::getLatencyUSec(void)
 {

@@ -126,6 +126,11 @@ $ make; ./bin/afw_test;
   * [done] Per-channel Volume in ISink()
   * [done] Per-channel Volume in MultipleSink()
   * [done] Add get latency
+  * [] EncoderSink
+    * pass through
+    * transcode
+      * enc
+      * dec+enc
 * Source
   * [done] StreamSource : input from the stream
   * [done] Add get latency
@@ -181,6 +186,8 @@ $ make; ./bin/afw_test;
         * PowerManagerPrimitive
           * [done] Linux resume monitor from suspend
       * the handler in the example strategy
+* StreamManager
+  * id, request for the stream, stream(=the pipe) which includes the source, the filters and the sink.
 * Testability support
   * [done] dump
   * [done] file in/out with StreamFile and SteramSource/StreamSink

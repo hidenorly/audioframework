@@ -47,6 +47,7 @@
 #include "Util.hpp"
 #include "ResourceManager.hpp"
 #include "Strategy.hpp"
+#include "StreamManager.hpp"
 #include "PowerManager.hpp"
 #include "PowerManagerPrimitive.hpp"
 #include "AccousticEchoCancelledSource.hpp"
@@ -1740,6 +1741,37 @@ TEST_F(TestCase_PipeAndFilter, testStrategy)
   strategy.registerStrategy( new StrategyB() );
   strategy.registerStrategy( new StrategyA() );
   EXPECT_TRUE( strategy.execute(context) );
+}
+
+TEST_F(TestCase_PipeAndFilter, testStreamManager)
+{
+  StreamManager* pManager = StreamManager::getInstance();
+
+  std::shared_ptr<StrategyContext> pContext = std::make_shared<StrategyContext>();
+  std::shared_ptr<IPipe> pPipe = std::make_shared<Pipe>();
+
+  pManager->add( pContext, pPipe );
+  std::shared_ptr<StreamInfo> pStreamInfo = pManager->get( pContext );
+
+  EXPECT_EQ( pStreamInfo->pipe, pPipe );
+  EXPECT_EQ( pStreamInfo->context, pContext );
+
+  int id = pStreamInfo->id;
+
+  pStreamInfo.reset();
+  pStreamInfo = pManager->get( pPipe );
+  EXPECT_EQ( pStreamInfo->pipe, pPipe );
+  EXPECT_EQ( pStreamInfo->context, pContext );
+
+  pStreamInfo.reset();
+  pStreamInfo = pManager->get( id );
+  EXPECT_EQ( pStreamInfo->pipe, pPipe );
+  EXPECT_EQ( pStreamInfo->context, pContext );
+
+  EXPECT_TRUE( pManager->remove( pStreamInfo ) );
+  pStreamInfo.reset();
+  pStreamInfo = pManager->get( pPipe );
+  EXPECT_EQ( pStreamInfo, nullptr );
 }
 
 

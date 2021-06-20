@@ -75,6 +75,7 @@ protected:
   void testResourceManager_Pipe_SharedPtr(void);
 
   void testStrategy(void);
+  void testStreamManager(void);
 
   void testDynamicSignalFlow_AddNewPipeToPipeMixer(void);
   void testDynamicSignalFlow_AddNewFilter(void);

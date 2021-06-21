@@ -102,6 +102,7 @@ TEST_F(TestCase_PipeAndFilter, testAddFilters)
 
 TEST_F(TestCase_PipeAndFilter, testAttachSourceSinkToPipe)
 {
+  // Signal flow : Source -> Pipe(->FilterIncrement->Filter->Filter->FilterIncrement) -> Sink
   std::unique_ptr<IPipe> pPipe = std::make_unique<Pipe>();
 
   std::shared_ptr<ISink> pSink = std::make_shared<Sink>();
@@ -172,6 +173,8 @@ TEST_F(TestCase_PipeAndFilter, testFifoBuffer)
 
 TEST_F(TestCase_PipeAndFilter, testInterPipeBridge)
 {
+  // Signal flow
+  //   Source -> Pipe1(->FilterIncrement->Filter->) -> <InterPipeBridge> -> Pipe2(->FilterIncrement->Filter->) -> Sink
   AudioFormat theUsingFormat = AudioFormat();
   std::unique_ptr<IPipe> pPipe1 = std::make_unique<Pipe>();
   std::unique_ptr<IPipe> pPipe2 = std::make_unique<Pipe>();
@@ -233,6 +236,9 @@ TEST_F(TestCase_PipeAndFilter, testInterPipeBridge)
 
 TEST_F(TestCase_PipeAndFilter, testPipeMultiThread)
 {
+  // Signal flow
+  //   Source -> Pipe(->FilterIncrement->Filter->Filter->FilterIncrement) -> Sink
+
   std::unique_ptr<IPipe> pPipe = std::make_unique<PipeMultiThread>();
 
   std::shared_ptr<ISink> pSink = std::make_shared<Sink>();
@@ -475,6 +481,10 @@ TEST_F(TestCase_PipeAndFilter, testStreamSource)
 
 TEST_F(TestCase_PipeAndFilter, testPipeMixer)
 {
+  // Signal flow
+  //  Source1 -> Pipe1(->FilterIncrement->) -> |PipeMixer | -> Sink
+  //  Source2 -> Pipe2(->FilterIncrement->) -> |(mix here)|
+
   std::unique_ptr<IPipe> pStream1 = std::make_unique<Pipe>();
   std::unique_ptr<IPipe> pStream2 = std::make_unique<Pipe>();
 
@@ -532,9 +542,11 @@ TEST_F(TestCase_PipeAndFilter, testPipeMixer)
 
 TEST_F(TestCase_PipeAndFilter, testPipedSink)
 {
+  // Signal flow : Source -> Pipe(->FilterIncrement->) -> PipedSink(->FilterIncrement->) -> ActualSink
+
   std::shared_ptr<ISource> pSource = std::make_shared<Source>();
   std::shared_ptr<ISink> pActualSink = std::make_shared<Sink>();
-  pActualSink->setVolume(50.0);
+  pActualSink->setVolume(50.0f);
 
   std::shared_ptr<PipedSink> pPipedSink = std::make_shared<PipedSink>();
   pPipedSink->attachSink( pActualSink );
@@ -578,6 +590,7 @@ TEST_F(TestCase_PipeAndFilter, testPipedSink)
 
 TEST_F(TestCase_PipeAndFilter, testPipedSource)
 {
+  // Signal flow : Actual Source -> PipedSource(->FilterIncrement->) -> Pipe(->FilterIncrement->) -> Sink
   std::shared_ptr<ISink> pSink = std::make_shared<Sink>();
 
   std::shared_ptr<ISource> pActualSource = std::make_shared<Source>();
@@ -614,6 +627,8 @@ TEST_F(TestCase_PipeAndFilter, testPipedSource)
 
 TEST_F(TestCase_PipeAndFilter, testDecoder)
 {
+  // Signal flow : Source -> Decoder -> <SourceAdaptor> -> Pipe(->Filter->) -> Sink
+
   std::vector<MediaParam> params;
   MediaParam param1("testKey1", "abc"); params.push_back(param1);
   MediaParam param2("testKey2", 3840);  params.push_back(param2);
@@ -669,6 +684,7 @@ TEST_F(TestCase_PipeAndFilter, testDecoder)
 
 TEST_F(TestCase_PipeAndFilter, testPlayer)
 {
+  // Signal flow : Source -> Player(decoder) -> <SourceAdaptor> -> Pipe(->Filter->) -> Sink
   // player(source, decoder) --via source adaptor -> pipe(filter) -> sink
   std::shared_ptr<ISource> pSource = std::make_shared<Source>();
   std::shared_ptr<ISink> pSink = std::make_shared<Sink>();
@@ -726,6 +742,7 @@ TEST_F(TestCase_PipeAndFilter, testPlayer)
 
 TEST_F(TestCase_PipeAndFilter, testEncoder)
 {
+  // Signal flow : Source -> Pipe(->Filter->) -> <SinkAdaptor> -> Encoder -> EncodedSink
   std::vector<MediaParam> params;
   MediaParam param1("testKey1", "abc"); params.push_back(param1);
   MediaParam param2("testKey2", 3840);  params.push_back(param2);
@@ -1004,6 +1021,7 @@ TEST_F(TestCase_PipeAndFilter, testSinkPlugInManager)
 
 TEST_F(TestCase_PipeAndFilter, testDelayFilter)
 {
+  // Signal flow : Source -> Pipe(->Delay->PerChannelDelayFilter->) -> Sink
   std::shared_ptr<ISource> pSource = std::make_shared<Source>();
   std::shared_ptr<ISink> pSink = std::make_shared<Sink>();
   std::unique_ptr<IPipe> pPipe = std::make_unique<Pipe>();
@@ -1031,6 +1049,9 @@ TEST_F(TestCase_PipeAndFilter, testDelayFilter)
 
 TEST_F(TestCase_PipeAndFilter, testSinkCapture)
 {
+  // Signal flow
+  //   Source -> Pipe(->FilterIncrement->) -> SinkCapture ------> Sink
+  //                                              +--(FifoRef)--> captureRead
   std::shared_ptr<ISource> pSource = std::make_shared<Source>();
   std::shared_ptr<ISink> pSink = std::dynamic_pointer_cast<ISink>( std::make_shared<SinkCapture>( std::make_shared<Sink>() ) );
   std::shared_ptr<ICapture> pCapture = std::dynamic_pointer_cast<ICapture>(pSink);
@@ -1058,6 +1079,9 @@ TEST_F(TestCase_PipeAndFilter, testSinkCapture)
 
 TEST_F(TestCase_PipeAndFilter, testSinkInjector)
 {
+  // Signal flow
+  //   Source -> Pipe(->FilterIncrement->) -> SinkInjector ------> Sink
+  //                                inject -------^
   std::shared_ptr<ISource> pSource = std::make_shared<Source>();
   std::shared_ptr<ISink> pSink = std::dynamic_pointer_cast<ISink>( std::make_shared<SinkInjector>( std::make_shared<Sink>() ) );
   std::shared_ptr<IInjector> pInjector = std::dynamic_pointer_cast<IInjector>(pSink);
@@ -1111,6 +1135,9 @@ TEST_F(TestCase_PipeAndFilter, testSinkInjector)
 
 TEST_F(TestCase_PipeAndFilter, testSourceCapture)
 {
+  // Signal flow
+  //   SourceCapture -> Pipe(->FilterIncrement->) -> Sink
+  //     +-(FifoRef)--> captureRead
   std::shared_ptr<ISource> pSource = std::dynamic_pointer_cast<ISource>( std::make_shared<SourceCapture>( std::make_shared<Source>() ) );
   std::shared_ptr<ISink> pSink = std::make_shared<Sink>();
   std::shared_ptr<ICapture> pCapture = std::dynamic_pointer_cast<ICapture>(pSource);
@@ -1138,6 +1165,9 @@ TEST_F(TestCase_PipeAndFilter, testSourceCapture)
 
 TEST_F(TestCase_PipeAndFilter, testSourceInjector)
 {
+  // Signal flow
+  //        Source -> Pipe(->FilterIncrement->) -> Sink
+  // inject --^
   std::shared_ptr<ISource> pSource = std::dynamic_pointer_cast<ISource>( std::make_shared<SourceInjector>( std::make_shared<Source>() ) );
   std::shared_ptr<ISink> pSink = std::make_shared<Sink>();
   std::shared_ptr<IInjector> pInjector = std::dynamic_pointer_cast<IInjector>(pSource);
@@ -1194,6 +1224,9 @@ TEST_F(TestCase_PipeAndFilter, testSourceInjector)
 
 TEST_F(TestCase_PipeAndFilter, testFilterCapture)
 {
+  // Signal flow
+  //   Source -> Pipe(->FilterIncrement->FilterCapture->) -> Sink
+  //                                          +-(FifoRef)--> captureRead
   std::shared_ptr<ISource> pSource = std::make_shared<Source>();
   std::shared_ptr<ISink> pSink = std::make_shared<Sink>();
   std::unique_ptr<IPipe> pPipe = std::make_unique<Pipe>();
@@ -1225,6 +1258,9 @@ TEST_F(TestCase_PipeAndFilter, testFilterCapture)
 
 TEST_F(TestCase_PipeAndFilter, testFilterInjector)
 {
+  // Signal flow
+  //   Source -> Pipe(->FilterIncrement->FilterInjector->) -> Sink
+  //                                    inject --^
   std::shared_ptr<ISource> pSource = std::make_shared<Source>();
   std::shared_ptr<ISink> pSink = std::make_shared<Sink>();
   std::unique_ptr<IPipe> pPipe = std::make_unique<Pipe>();

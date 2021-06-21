@@ -1768,6 +1768,15 @@ TEST_F(TestCase_PipeAndFilter, testStreamManager)
   EXPECT_EQ( pStreamInfo->pipe, pPipe );
   EXPECT_EQ( pStreamInfo->context, pContext );
 
+  EXPECT_EQ( pPipe, pManager->getPipe( id ) );
+  EXPECT_EQ( pPipe, pManager->getPipe( pContext ) );
+
+  EXPECT_EQ( id, pManager->getId( pPipe ) );
+  EXPECT_EQ( id, pManager->getId( pContext ) );
+
+  EXPECT_EQ( pContext, pManager->getContext( id ) );
+  EXPECT_EQ( pContext, pManager->getContext( pPipe ) );
+
   EXPECT_TRUE( pManager->remove( pStreamInfo ) );
   pStreamInfo.reset();
   pStreamInfo = pManager->get( pPipe );

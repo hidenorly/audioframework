@@ -147,3 +147,45 @@ void StreamManager::clear(void)
   }
   mStreamInfos.clear();
 }
+
+int StreamManager::getId(std::shared_ptr<IPipe> pPipe)
+{
+  std::shared_ptr<StreamInfo> pStreamInfo = get( pPipe );
+
+  return pStreamInfo ? pStreamInfo->id : -1;
+}
+
+int StreamManager::getId(std::shared_ptr<StrategyContext> pContext)
+{
+  std::shared_ptr<StreamInfo> pStreamInfo = get( pContext );
+
+  return pStreamInfo ? pStreamInfo->id : -1;
+}
+
+std::shared_ptr<IPipe> StreamManager::getPipe(int id)
+{
+  std::shared_ptr<StreamInfo> pStreamInfo = get( id );
+
+  return pStreamInfo ? pStreamInfo->pipe : nullptr;
+}
+
+std::shared_ptr<IPipe> StreamManager::getPipe(std::shared_ptr<StrategyContext> pContext)
+{
+  std::shared_ptr<StreamInfo> pStreamInfo = get( pContext );
+
+  return pStreamInfo ? pStreamInfo->pipe : nullptr;
+}
+
+std::shared_ptr<StrategyContext> StreamManager::getContext(int id)
+{
+  std::shared_ptr<StreamInfo> pStreamInfo = get( id );
+
+  return pStreamInfo ? pStreamInfo->context : nullptr;
+}
+
+std::shared_ptr<StrategyContext> StreamManager::getContext(std::shared_ptr<IPipe> pPipe)
+{
+  std::shared_ptr<StreamInfo> pStreamInfo = get( pPipe );
+
+  return pStreamInfo ? pStreamInfo->context : nullptr;
+}

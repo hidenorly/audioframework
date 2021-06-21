@@ -208,6 +208,7 @@ $ make; ./bin/afw_test;
     * [done] Player (ES controller)
   * [] A/V sync support
     * [] Tiny speed controller (with TinySRC)
+* selectPrentation
 * OSAL
   * Example Sink for ALSA and/or MacOSX
   * Example Source for ALSA and/or MacOSX

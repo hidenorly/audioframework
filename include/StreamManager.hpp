@@ -64,6 +64,15 @@ public:
   bool remove(std::shared_ptr<StreamInfo> pStreamInfo);
 
   void clear(void);
+
+  int getId(std::shared_ptr<IPipe> pPipe);
+  int getId(std::shared_ptr<StrategyContext> pContext);
+
+  std::shared_ptr<IPipe> getPipe(int id);
+  std::shared_ptr<IPipe> getPipe(std::shared_ptr<StrategyContext> pContext);
+
+  std::shared_ptr<StrategyContext> getContext(int id);
+  std::shared_ptr<StrategyContext> getContext(std::shared_ptr<IPipe> pPipe);
 };
 
 #endif /* __STREAM_MANAGER_HPP__ */

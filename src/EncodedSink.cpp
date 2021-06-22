@@ -15,8 +15,9 @@
 */
 
 #include "EncodedSink.hpp"
+#include "Util.hpp"
 
-EncodedSink::EncodedSink(std::shared_ptr<ISink> pSink, bool bTranscode):Sink(), mpSink(pSink), mbTranscode(bTranscode), mpDecoder(nullptr), mpEncoder(nullptr)
+EncodedSink::EncodedSink(std::shared_ptr<ISink> pSink, bool bTranscode):ISink(), mpSink(pSink), mbTranscode(bTranscode), mpDecoder(nullptr), mpEncoder(nullptr)
 {
   mpBuf = new CompressAudioBuffer( AudioFormat(AudioFormat::ENCODING::COMPRESSED), 0 );
 }
@@ -84,11 +85,6 @@ std::vector<AudioFormat> EncodedSink::getSupportedAudioFormats(void)
   return result;
 }
 
-int EncodedSink::getLatencyUSec(void)
-{
-  return mpSink ? mpSink->getLatencyUSec() : 0;
-}
-
 float EncodedSink::getVolume(void)
 {
   return mpSink ? mpSink->getVolume() : 0.0f;
@@ -97,4 +93,62 @@ float EncodedSink::getVolume(void)
 bool EncodedSink::setVolume(float volumePercentage)
 {
   return mpSink ? mpSink->setVolume(volumePercentage) : false;
+}
+
+bool EncodedSink::setVolume(Volume::CHANNEL_VOLUME perChannelVolumes)
+{
+  return mpSink ? mpSink->setVolume(perChannelVolumes) : false;
+}
+
+bool EncodedSink::setVolume(std::vector<float> perChannelVolumes)
+{
+  return mpSink ? mpSink->setVolume(perChannelVolumes) : false;
+}
+
+std::vector<ISink::PRESENTATION> EncodedSink::getAvailablePresentations(void)
+{
+  std::vector<ISink::PRESENTATION> result;
+  if( mpSink ){
+    result = mpSink->getAvailablePresentations();
+  }
+  return result;
+}
+
+bool EncodedSink::isAvailablePresentation(ISink::PRESENTATION presentation)
+{
+  return mpSink ? mpSink->isAvailablePresentation(presentation) : false;
+}
+
+bool EncodedSink::setPresentation(ISink::PRESENTATION presentation)
+{
+  return mpSink ? mpSink->setPresentation(presentation) : false;
+}
+
+ISink::PRESENTATION EncodedSink::getPresentation(void)
+{
+  return mpSink ? mpSink->getPresentation() : ISink::PRESENTATION();
+}
+
+int EncodedSink::getLatencyUSec(void)
+{
+  return mpSink ? mpSink->getLatencyUSec() : 0;
+}
+
+int64_t EncodedSink::getSinkPts(void)
+{
+  return mpSink ? mpSink->getSinkPts() : 0;
+}
+
+void EncodedSink::dump(void)
+{
+  if( mpSink ){
+    mpSink->dump();
+  } else {
+    Util::dumpBuffer("Dump Sink data", mpBuf);
+  }
+}
+
+int EncodedSink::stateResourceConsumption(void)
+{
+  return mpSink ? mpSink->stateResourceConsumption() : 0;
 }

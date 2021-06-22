@@ -23,9 +23,10 @@
 #include "Decoder.hpp"
 #include <memory>
 
-class EncodedSink : public Sink
+class EncodedSink : public ISink
 {
 protected:
+  IAudioBuffer* mpBuf;
   bool mbTranscode;
   std::shared_ptr<IDecoder> mpDecoder;
   std::shared_ptr<IDecoder> mpEncoder;
@@ -46,9 +47,21 @@ public:
   virtual AudioFormat getAudioFormat(void);
   virtual std::vector<AudioFormat> getSupportedAudioFormats(void);
 
-  virtual int getLatencyUSec(void);
   virtual float getVolume(void);
   virtual bool setVolume(float volumePercentage);
+  virtual bool setVolume(Volume::CHANNEL_VOLUME perChannelVolumes);
+  virtual bool setVolume(std::vector<float> perChannelVolumes);
+
+  virtual std::vector<PRESENTATION> getAvailablePresentations(void);
+  virtual bool isAvailablePresentation(PRESENTATION presentation);
+  virtual bool setPresentation(PRESENTATION presentation);
+  virtual PRESENTATION getPresentation(void);
+
+  virtual int getLatencyUSec(void);
+  virtual int64_t getSinkPts(void);
+
+  virtual void dump(void);
+  virtual int stateResourceConsumption(void);
 };
 
 #endif /* __ENCODEDSINK_HPP__ */

@@ -1822,6 +1822,11 @@ TEST_F(TestCase_PipeAndFilter, testStreamManager)
 
 TEST_F(TestCase_PipeAndFilter, testDynamicSignalFlow_AddNewPipeToPipeMixer)
 {
+  // Signal flow: adding filterduring pipe is running
+  //   step1: Source -> Pipe(->FilterIncrement->) -> SinkAdaptor -> [PipeMixer ] -> Sink
+  //
+  //   step2: Source -> Pipe(->FilterIncrement->) -> SinkAdaptor -> [PipeMixer ] -> Sink
+  //          Source -> Pipe(->FilterIncrement->) -> SinkAdaptor -> [(mix here)]
   std::unique_ptr<PipeMixer> pPipeMixer = std::make_unique<PipeMixer>();
   std::shared_ptr<ISink> pSink = std::make_shared<Sink>();
   pPipeMixer->attachSink( pSink );
@@ -1902,6 +1907,10 @@ TEST_F(TestCase_PipeAndFilter, testDynamicSignalFlow_AddNewPipeToPipeMixer)
 
 TEST_F(TestCase_PipeAndFilter, testDynamicSignalFlow_AddNewFilter)
 {
+  // Signal flow: adding filterduring pipe is running
+  //   step1: Source -> Pipe(->FilterIncrement->) -> Sink
+  //   step2: Source -> Pipe(->FilterIncrement->FilterIncrement->) -> Sink
+  //   step3: Source -> Pipe(->FilterIncrement->) -> Sink
   std::unique_ptr<IPipe> pStream = std::make_unique<Pipe>();
   std::shared_ptr<ISource> pSource = std::make_shared<Source>();
   pStream->attachSource( pSource );
@@ -1942,6 +1951,10 @@ TEST_F(TestCase_PipeAndFilter, testDynamicSignalFlow_AddNewFilter)
 
 TEST_F(TestCase_PipeAndFilter, testDynamicSignalFlow_AddNewFilter_PipeMultiThread)
 {
+  // Signal flow: adding filterduring pipe is running
+  //   step1: Source -> PipeMultiThread(->FilterIncrement->) -> Sink
+  //   step2: Source -> PipeMultiThread(->FilterIncrement->FilterIncrement->) -> Sink
+  //   step3: Source -> PipeMultiThread(->FilterIncrement->) -> Sink
   std::unique_ptr<IPipe> pStream = std::make_unique<PipeMultiThread>();
   std::shared_ptr<ISource> pSource = std::make_shared<Source>();
   pStream->attachSource( pSource );
@@ -1980,6 +1993,9 @@ TEST_F(TestCase_PipeAndFilter, testDynamicSignalFlow_AddNewFilter_PipeMultiThrea
 
 TEST_F(TestCase_PipeAndFilter, testDynamicSignalFlow_AddNewSinkToPipe)
 {
+  // Signal flow: switch sink during pipe is running
+  //   before: Source -> Pipe(->FilterIncrement->) -> Sink1
+  //   after:  Source -> Pipe(->FilterIncrement->) -> Sink2
   std::unique_ptr<IPipe> pPipe = std::make_unique<Pipe>();
 
   std::shared_ptr<ISource> pSource = std::make_shared<Source>();
@@ -2017,6 +2033,9 @@ TEST_F(TestCase_PipeAndFilter, testDynamicSignalFlow_AddNewSinkToPipe)
 
 TEST_F(TestCase_PipeAndFilter, testDynamicSignalFlow_AddNewSinkToPipe_PipeMultiThread)
 {
+  // Signal flow: switch sink during pipe is running
+  //   before: Source -> PipeMultiThread(->FilterIncrement->) -> Sink1
+  //   after:  Source -> PipeMultiThread(->FilterIncrement->) -> Sink2
   std::unique_ptr<IPipe> pPipe = std::make_unique<PipeMultiThread>();
 
   std::shared_ptr<ISource> pSource = std::make_shared<Source>();
@@ -2055,6 +2074,9 @@ TEST_F(TestCase_PipeAndFilter, testDynamicSignalFlow_AddNewSinkToPipe_PipeMultiT
 
 TEST_F(TestCase_PipeAndFilter, testDynamicSignalFlow_AddNewSourceToPipe)
 {
+  // Signal flow
+  //   before: Source1 -> Pipe(->FilterIncrement->) -> Sink
+  //   after:  Source2 -> Pipe(->FilterIncrement->) -> Sink
   std::unique_ptr<IPipe> pPipe = std::make_unique<Pipe>();
 
   std::shared_ptr<ISource> pSource1 = std::make_shared<Source>();
@@ -2091,6 +2113,9 @@ TEST_F(TestCase_PipeAndFilter, testDynamicSignalFlow_AddNewSourceToPipe)
 
 TEST_F(TestCase_PipeAndFilter, testDynamicSignalFlow_AddNewSourceToPipe_PipeMultiThread)
 {
+  // Signal flow
+  //   before: Source1 -> PipeMultiThread(->FilterIncrement->) -> Sink
+  //   after:  Source2 -> PipeMultiThread(->FilterIncrement->) -> Sink
   std::unique_ptr<IPipe> pPipe = std::make_unique<PipeMultiThread>();
 
   std::shared_ptr<ISource> pSource1 = std::make_shared<Source>();
@@ -2127,6 +2152,9 @@ TEST_F(TestCase_PipeAndFilter, testDynamicSignalFlow_AddNewSourceToPipe_PipeMult
 
 TEST_F(TestCase_PipeAndFilter, testSinkMute)
 {
+  // Signal flow
+  //   Source -> Pipe(->FilterIncrement->) -> Sink
+  //   setMuteEnabled(true,true)----------------^  # 2nd arg (=bUseZero)=true means output zero
   std::unique_ptr<IPipe> pPipe = std::make_unique<Pipe>();
   std::shared_ptr<ISource> pSource = std::make_shared<Source>();
   pPipe->attachSource( pSource );
@@ -2145,6 +2173,9 @@ TEST_F(TestCase_PipeAndFilter, testSinkMute)
 
 TEST_F(TestCase_PipeAndFilter, testSourceMute)
 {
+  // Signal flow
+  //   Source -> Pipe(->FilterIncrement->) -> Sink
+  //      ^----- setMuteEnabled(true,true) # 2nd arg (=bUseZero)=true means output zero
   std::unique_ptr<IPipe> pPipe = std::make_unique<Pipe>();
   std::shared_ptr<ISource> pSource = std::make_shared<Source>();
   pPipe->attachSource( pSource );
@@ -2163,6 +2194,9 @@ TEST_F(TestCase_PipeAndFilter, testSourceMute)
 
 TEST_F(TestCase_PipeAndFilter, testPipeMute)
 {
+  // Signal flow
+  //   Source -> Pipe(->FilterIncrement->) -> Sink
+  //      ^----- setMuteEnabled(true,true) # 2nd arg (=bUseZero)=true means output zero
   std::unique_ptr<IPipe> pPipe = std::make_unique<Pipe>();
   std::shared_ptr<ISource> pSource = std::make_shared<Source>();
   std::shared_ptr<ISink> pSink = std::make_shared<Sink>();

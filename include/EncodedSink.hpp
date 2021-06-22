@@ -19,11 +19,36 @@
 
 #include "Sink.hpp"
 #include "Buffer.hpp"
+#include "Encoder.hpp"
+#include "Decoder.hpp"
+#include <memory>
 
 class EncodedSink : public Sink
 {
+protected:
+  bool mbTranscode;
+  std::shared_ptr<IDecoder> mpDecoder;
+  std::shared_ptr<IDecoder> mpEncoder;
+  std::shared_ptr<ISink> mpSink;
+
 public:
-  EncodedSink();
+  EncodedSink(std::shared_ptr<ISink> pSink = nullptr, bool bTranscode = false);
+  virtual ~EncodedSink();
+
+  virtual std::shared_ptr<ISink> attachSink(std::shared_ptr<ISink> pSink);
+  virtual std::shared_ptr<ISink> detachSink(void);
+  virtual void clearSink();
+
+  virtual void writePrimitive(IAudioBuffer& buf);
+  virtual std::string toString(void){ return "EncodedSink"; };
+
+  virtual bool setAudioFormat(AudioFormat audioFormat);
+  virtual AudioFormat getAudioFormat(void);
+  virtual std::vector<AudioFormat> getSupportedAudioFormats(void);
+
+  virtual int getLatencyUSec(void);
+  virtual float getVolume(void);
+  virtual bool setVolume(float volumePercentage);
 };
 
 #endif /* __ENCODEDSINK_HPP__ */

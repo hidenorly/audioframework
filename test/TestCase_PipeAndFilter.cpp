@@ -2392,6 +2392,104 @@ TEST_F(TestCase_PipeAndFilter, testPerChannelVolumeWithMultiSink)
   pPipe->clearFilters();
 }
 
+TEST_F(TestCase_PipeAndFilter, testEncodedSink)
+{
+  class CompressedSource : public Source
+  {
+  protected:
+    AudioFormat mFormat;
+  public:
+    CompressedSource():Source(){};
+    virtual ~CompressedSource(){};
+    virtual void setAudioFormat(AudioFormat format){ mFormat=format; };
+    virtual void readPrimitive(IAudioBuffer& buf){
+      ByteBuffer esRawBuf( 256, 0 );
+      buf.setRawBuffer( esRawBuf );
+      buf.setAudioFormat( mFormat );
+    }
+  };
+
+  class CompressedSink : public Sink
+  {
+  protected:
+    std::vector<AudioFormat> mAudioFormats;
+    AudioFormat mFormat;
+
+  public:
+    CompressedSink(AudioFormat::ENCODING encodingStartPoint = AudioFormat::ENCODING::COMPRESSED):Sink(){
+      for(int anEncoding = encodingStartPoint; anEncoding < AudioFormat::ENCODING::COMPRESSED_UNKNOWN; anEncoding++){
+        mAudioFormats.push_back( AudioFormat((AudioFormat::ENCODING)anEncoding) );
+      }
+    };
+    virtual ~CompressedSink(){};
+    virtual bool setAudioFormat(AudioFormat format){ mFormat=format; return true; };
+    virtual AudioFormat getAudioFormat(void){ return mFormat; };
+    std::vector<AudioFormat> getSupportedAudioFormats(void){ return mAudioFormats; };
+  };
+
+  std::shared_ptr<IPipe> pPipe = std::make_shared<Pipe>();
+  std::shared_ptr<CompressedSource> pSource = std::make_shared<CompressedSource>();
+  std::shared_ptr<EncodedSink> pSink = std::make_shared<EncodedSink>();
+  pSink->attachSink( std::make_shared<CompressedSink>( AudioFormat::ENCODING::COMPRESSED_AC3 ) );
+  pSink->setTranscodeEnabled(true);
+  pPipe->attachSource( pSource );
+  pPipe->attachSink( pSink );
+
+  // Sink can support case
+  std::cout << "Sink supportable case : " << 
+    AudioFormat::getEncodingString(AudioFormat::ENCODING::COMPRESSED_AC3) << "->" <<
+    AudioFormat::getEncodingString(AudioFormat::ENCODING::COMPRESSED_AC3) << 
+    std::endl;
+  pSource->setAudioFormat( AudioFormat::ENCODING::COMPRESSED_AC3 );
+  pSink->setAudioFormat( AudioFormat::ENCODING::COMPRESSED_AC3 );
+  pPipe->run();
+  std::this_thread::sleep_for(std::chrono::microseconds(1000));
+  pPipe->stop();
+
+  // Decoder only case
+  std::cout << "Decoder only case : " << 
+    AudioFormat::getEncodingString(AudioFormat::ENCODING::COMPRESSED_AAC) << "->" <<
+    AudioFormat::getEncodingString(AudioFormat::ENCODING::PCM_16BIT) << 
+    std::endl;
+  pSource->setAudioFormat( AudioFormat::ENCODING::COMPRESSED_AAC );
+  pSink->setAudioFormat( AudioFormat::ENCODING::PCM_16BIT );
+  pPipe->run();
+  std::this_thread::sleep_for(std::chrono::microseconds(1000));
+  pPipe->stop();
+
+  // Encoder only case
+  std::cout << "Encoder only case : " << 
+    AudioFormat::getEncodingString(AudioFormat::ENCODING::PCM_16BIT) << "->" <<
+    AudioFormat::getEncodingString(AudioFormat::ENCODING::COMPRESSED_AC3) << 
+    std::endl;
+  pSource->setAudioFormat( AudioFormat::ENCODING::PCM_16BIT );
+  pSink->setAudioFormat( AudioFormat::ENCODING::COMPRESSED_AC3 );
+  pPipe->run();
+  std::this_thread::sleep_for(std::chrono::microseconds(1000));
+  pPipe->stop();
+
+  // transcoder case
+  std::cout << "Transcoder case : " << 
+    AudioFormat::getEncodingString(AudioFormat::ENCODING::COMPRESSED_AAC) << "->" <<
+    AudioFormat::getEncodingString(AudioFormat::ENCODING::COMPRESSED_AC3) << 
+    std::endl;
+  pSource->setAudioFormat( AudioFormat::ENCODING::COMPRESSED_AAC );
+  pSink->setAudioFormat( AudioFormat::ENCODING::COMPRESSED_AC3 );
+  pPipe->run();
+  std::this_thread::sleep_for(std::chrono::microseconds(1000));
+  pPipe->stop();
+
+  // PCM format conversion case
+  std::cout << "format conversion case : " << 
+    AudioFormat::getEncodingString(AudioFormat::ENCODING::PCM_16BIT) << "->" <<
+    AudioFormat::getEncodingString(AudioFormat::ENCODING::PCM_32BIT) << 
+    std::endl;
+  pSource->setAudioFormat( AudioFormat::ENCODING::PCM_16BIT );
+  pSink->setAudioFormat( AudioFormat::ENCODING::PCM_32BIT );
+  pPipe->run();
+  std::this_thread::sleep_for(std::chrono::microseconds(1000));
+  pPipe->stop();
+}
 
 int main(int argc, char **argv)
 {

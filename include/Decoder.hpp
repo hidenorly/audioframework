@@ -18,6 +18,7 @@
 #define __DECODER_HPP__
 
 #include "Buffer.hpp"
+#include "AudioFormat.hpp"
 #include "Source.hpp"
 #include "InterPipeBridge.hpp"
 #include "ThreadBase.hpp"
@@ -28,12 +29,15 @@
 #include "Media.hpp"
 #include "ResourceManager.hpp"
 
+class IDecoder;
+
 class IDecoder : public ThreadBase, public IResourceConsumer
 {
 protected:
   std::shared_ptr<ISource> mpSource;
   std::vector<std::shared_ptr<InterPipeBridge>> mpInterPipeBridges;
   virtual void unlockToStop(void);
+  virtual void process(void);
 
 public:
   IDecoder();
@@ -47,19 +51,29 @@ public:
   virtual void releaseSourceAdaptor(std::shared_ptr<ISource> pSource);
   virtual void seek(int64_t position);
   virtual int64_t getPosition(void);
+
+  virtual int getEsChunkSize(void) = 0;
+  virtual void doProcess(IAudioBuffer& inBuf, IAudioBuffer& outBuf) = 0;
+  virtual AudioFormat getFormat(void) = 0;
+
+  static std::shared_ptr<IDecoder> createByFormat(AudioFormat format);
 };
 
 class NullDecoder : public IDecoder
 {
+protected:
+  AudioFormat mFormat;
+
 public:
-  NullDecoder();
+  NullDecoder( AudioFormat format = AudioFormat(AudioFormat::ENCODING::COMPRESSED) );
   ~NullDecoder();
 
   virtual void configure(MediaParam param);
   virtual int stateResourceConsumption(void);
 
-protected:
-  virtual void process(void);
+  virtual int getEsChunkSize(void);
+  virtual void doProcess(IAudioBuffer& inBuf, IAudioBuffer& outBuf);
+  virtual AudioFormat getFormat(void);
 };
 
 #endif /* __DECODER_HPP__ */

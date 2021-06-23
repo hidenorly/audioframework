@@ -29,8 +29,11 @@ protected:
   IAudioBuffer* mpBuf;
   bool mbTranscode;
   std::shared_ptr<IDecoder> mpDecoder;
-  std::shared_ptr<IDecoder> mpEncoder;
+  std::shared_ptr<IEncoder> mpEncoder;
   std::shared_ptr<ISink> mpSink;
+
+protected:
+  virtual void ensureTranscoder(AudioFormat srcFormat, AudioFormat dstFormat);
 
 public:
   EncodedSink(std::shared_ptr<ISink> pSink = nullptr, bool bTranscode = false);
@@ -39,6 +42,8 @@ public:
   virtual std::shared_ptr<ISink> attachSink(std::shared_ptr<ISink> pSink);
   virtual std::shared_ptr<ISink> detachSink(void);
   virtual void clearSink();
+  virtual void setTranscodeEnabled(bool bTranscode);
+  virtual bool getTranscodeEnabled(void);
 
   virtual void writePrimitive(IAudioBuffer& buf);
   virtual std::string toString(void){ return "EncodedSink"; };

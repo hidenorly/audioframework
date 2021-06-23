@@ -126,11 +126,13 @@ $ make; ./bin/afw_test;
   * [done] Per-channel Volume in ISink()
   * [done] Per-channel Volume in MultipleSink()
   * [done] Add get latency
-  * [] EncoderSink
-    * pass through
-    * transcode
-      * enc
-      * dec+enc
+  * [done] EncoderSink
+    * [done] pass through
+    * [done] transcode
+      * [done] decoder only case
+      * [done] encoder only case
+      * [done] decoder+encoder only case
+      * [done] PCM format conversion case
 * Source
   * [done] StreamSource : input from the stream
   * [done] Add get latency

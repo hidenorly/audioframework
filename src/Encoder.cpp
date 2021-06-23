@@ -84,8 +84,37 @@ void IEncoder::unlockToStop(void)
   }
 }
 
+void IEncoder::process(void)
+{
+  AudioFormat format(AudioFormat::ENCODING::COMPRESSED);
 
-NullEncoder::NullEncoder():IEncoder()
+  CompressAudioBuffer esBuf( format, getEsChunkSize() );
+
+  AudioFormat inBufFormat;
+  for( auto& pInterPipe : mpInterPipeBridges ){
+    inBufFormat = pInterPipe->getAudioFormat();
+    break;
+  }
+  AudioBuffer inPcmBuf( inBufFormat, getRequiredSamples() );
+  while( mbIsRunning && mpSink && !mpInterPipeBridges.empty() ){
+    for( auto& pInterPipe : mpInterPipeBridges ){
+      pInterPipe->read( inPcmBuf );
+      break;
+    }
+    doProcess( inPcmBuf, esBuf );
+    mpSink->write( esBuf );
+  }
+}
+
+
+std::shared_ptr<IEncoder> IEncoder::createByFormat(AudioFormat format)
+{
+  // TODO get instance from EncoderManager with the format
+  return std::make_shared<NullEncoder>(format);
+}
+
+
+NullEncoder::NullEncoder(AudioFormat format):IEncoder(),mFormat(format)
 {
 
 }
@@ -100,30 +129,27 @@ void NullEncoder::configure(MediaParam param)
 
 }
 
-void NullEncoder::process(void)
-{
-  AudioFormat format(AudioFormat::ENCODING::COMPRESSED);
-
-  CompressAudioBuffer esBuf( format );
-
-  AudioFormat inBufFormat;
-  for( auto& pInterPipe : mpInterPipeBridges ){
-    inBufFormat = pInterPipe->getAudioFormat();
-    break;
-  }
-  AudioBuffer inPcmBuf(inBufFormat, 256);
-  while( mbIsRunning && mpSink && !mpInterPipeBridges.empty() ){
-    for( auto& pInterPipe : mpInterPipeBridges ){
-      pInterPipe->read( inPcmBuf );
-      break;
-    }
-    // TODO : encode. the following is no encoded just copy the byte data...
-    esBuf.setRawBuffer( inPcmBuf.getRawBuffer() );
-    mpSink->write( esBuf );
-  }
-}
-
 int NullEncoder::stateResourceConsumption(void)
 {
   return 0;
+}
+
+int NullEncoder::getEsChunkSize(void)
+{
+  return 256; // dummy size of ES chunk
+}
+
+int NullEncoder::getRequiredSamples(void)
+{
+  return 256; // dummy required samples
+}
+
+void NullEncoder::doProcess(IAudioBuffer& inBuf, IAudioBuffer& outBuf)
+{
+  outBuf.setRawBuffer( inBuf.getRawBuffer() );
+}
+
+AudioFormat NullEncoder::getFormat(void)
+{
+  return mFormat;
 }

@@ -96,6 +96,8 @@ protected:
   void testPowerManager(void);
   void testPerChannelVolumeWithSink(void);
   void testPerChannelVolumeWithMultiSink(void);
+
+  void testEncodedSink(void);
 };
 
 #endif /* __TESTCASE_PIPEANDFILTER_HPP__ */

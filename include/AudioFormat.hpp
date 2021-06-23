@@ -68,6 +68,8 @@ public:
     COMPRESSED_LHDC,
     COMPRESSED_LHDC_LL,
     COMPRESSED_LC3,
+
+    COMPRESSED_UNKNOWN
   };
 
   enum CH {

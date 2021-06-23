@@ -89,8 +89,29 @@ void IDecoder::unlockToStop(void)
   }
 }
 
+void IDecoder::process(void)
+{
+  AudioFormat format(AudioFormat::ENCODING::COMPRESSED);
+  CompressAudioBuffer esBuf( format, getEsChunkSize() );
 
-NullDecoder::NullDecoder():IDecoder()
+  AudioBuffer outBuf;
+  while( mbIsRunning && mpSource && !mpInterPipeBridges.empty() ){
+    mpSource->read( esBuf );
+    doProcess( esBuf, outBuf );
+
+    for( auto& pInterPipe : mpInterPipeBridges ){
+      pInterPipe->write( outBuf );
+    }
+  }
+}
+
+std::shared_ptr<IDecoder> IDecoder::createByFormat(AudioFormat format)
+{
+  // TODO get instance from DecoderManager with the format
+  return std::make_shared<NullDecoder>(format);
+}
+
+NullDecoder::NullDecoder(AudioFormat format):IDecoder(),mFormat(format)
 {
 
 }
@@ -105,26 +126,23 @@ void NullDecoder::configure(MediaParam param)
 
 }
 
-void NullDecoder::process(void)
-{
-  AudioFormat format(AudioFormat::ENCODING::COMPRESSED);
-
-  CompressAudioBuffer esBuf( format );
-
-  AudioBuffer outBuf;
-  while( mbIsRunning && mpSource && !mpInterPipeBridges.empty() ){
-    mpSource->read( esBuf );
-    // do decode the buf
-    ByteBuffer tmpBuffer(256, 0);
-    outBuf.setRawBuffer(tmpBuffer);
-
-    for( auto& pInterPipe : mpInterPipeBridges ){
-      pInterPipe->write( outBuf );
-    }
-  }
-}
-
 int NullDecoder::stateResourceConsumption(void)
 {
   return 0;
+}
+
+int NullDecoder::getEsChunkSize(void)
+{
+  return 256; // dummy size of ES chunk
+}
+
+void NullDecoder::doProcess(IAudioBuffer& inBuf, IAudioBuffer& outBuf)
+{
+  ByteBuffer tmpBuffer(256, 0);
+  outBuf.setRawBuffer(tmpBuffer);
+}
+
+AudioFormat NullDecoder::getFormat(void)
+{
+  return mFormat;
 }

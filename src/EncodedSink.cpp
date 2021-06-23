@@ -16,6 +16,8 @@
 
 #include "EncodedSink.hpp"
 #include "Util.hpp"
+#include "AudioFormatAdaptor.hpp"
+#include <iostream>
 
 EncodedSink::EncodedSink(std::shared_ptr<ISink> pSink, bool bTranscode):ISink(), mpSink(pSink), mbTranscode(bTranscode), mpDecoder(nullptr), mpEncoder(nullptr)
 {
@@ -51,10 +53,65 @@ void EncodedSink::clearSink()
   mpSink.reset();
 }
 
+void EncodedSink::setTranscodeEnabled(bool bTranscode)
+{
+  mbTranscode = bTranscode;
+}
+
+bool EncodedSink::getTranscodeEnabled(void)
+{
+  return mbTranscode;
+}
+
+void EncodedSink::ensureTranscoder(AudioFormat srcFormat, AudioFormat dstFormat)
+{
+  if( !mpDecoder || (mpDecoder && !mpDecoder->getFormat().equal( srcFormat ) ) ){
+    if( srcFormat.isEncodingCompressed() ){
+      mpDecoder = IDecoder::createByFormat( srcFormat );
+    } else {
+      mpDecoder.reset();
+    }
+  }
+  if( !mpEncoder || (mpEncoder && !mpEncoder->getFormat().equal( dstFormat ) ) ){
+    if( dstFormat.isEncodingCompressed() ){
+      mpEncoder = IEncoder::createByFormat( dstFormat );
+    } else {
+      mpEncoder.reset();
+    }
+  }
+}
+
 void EncodedSink::writePrimitive(IAudioBuffer& buf)
 {
+  AudioFormat srcFormat = buf.getAudioFormat();
   if( mpSink ){
-    mpSink->write( buf );
+    AudioFormat dstFormat = mpSink->getAudioFormat();
+    if( mpSink->isAvailableFormat( srcFormat ) ){
+      mpSink->write( buf );
+    } else if ( mbTranscode ){
+      ensureTranscoder( srcFormat, dstFormat );
+      AudioBuffer* pTmpBuf = dynamic_cast<AudioBuffer*>(&buf);
+      int nTmpOutSamples = pTmpBuf ? pTmpBuf->getNumberOfSamples() : 240; // the size is not matter. the codec can use any size
+      AudioBuffer tmpOutBuf( dstFormat, nTmpOutSamples );
+      IAudioBuffer* pInBuf = &buf;
+      IAudioBuffer* pOutBuf = &tmpOutBuf;
+      if( !mpDecoder && !mpEncoder ){
+        // src & out are PCM then format conversion
+        AudioFormatAdaptor::convert( *dynamic_cast<AudioBuffer*>(pInBuf), *dynamic_cast<AudioBuffer*>(pOutBuf) );
+        pOutBuf = pInBuf;
+      } else {
+        if( mpDecoder ){
+          mpDecoder->doProcess( *pInBuf, *pOutBuf );
+          if( mpEncoder ){
+            mpEncoder->doProcess( *pOutBuf, *pInBuf );
+            std::swap( pInBuf, pOutBuf );
+          }
+        } else if ( mpEncoder ){
+            mpEncoder->doProcess( *pInBuf, *pOutBuf );
+        }
+      }
+      mpSink->write( *pOutBuf );
+    }
   } else {
     if( mpBuf ){
       mpBuf->append( buf );

@@ -34,6 +34,7 @@ protected:
   std::shared_ptr<ISink> mpSink;
   std::vector<std::shared_ptr<InterPipeBridge>> mpInterPipeBridges;
   virtual void unlockToStop(void);
+  virtual void process(void);
 
 public:
   IEncoder();
@@ -48,19 +49,31 @@ public:
   virtual std::shared_ptr<ISink> attachSink(std::shared_ptr<ISink> pSink);
   virtual std::shared_ptr<ISink> detachSink(void);
   virtual int64_t getPosition(void);
+
+  virtual int getEsChunkSize(void) = 0;
+  virtual int getRequiredSamples(void) = 0;
+  virtual void doProcess(IAudioBuffer& inBuf, IAudioBuffer& outBuf) = 0;
+  virtual AudioFormat getFormat(void) = 0;
+
+  static std::shared_ptr<IEncoder> createByFormat(AudioFormat format);
 };
 
 class NullEncoder : public IEncoder
 {
+protected:
+  AudioFormat mFormat;
+
 public:
-  NullEncoder();
+  NullEncoder( AudioFormat format = AudioFormat(AudioFormat::ENCODING::COMPRESSED) );
   ~NullEncoder();
 
   virtual void configure(MediaParam param);
   virtual int stateResourceConsumption(void);
 
-protected:
-  virtual void process(void);
+  virtual int getEsChunkSize(void);
+  virtual int getRequiredSamples(void);
+  virtual void doProcess(IAudioBuffer& inBuf, IAudioBuffer& outBuf);
+  virtual AudioFormat getFormat(void);
 };
 
 #endif /* __ENCODER_HPP__ */

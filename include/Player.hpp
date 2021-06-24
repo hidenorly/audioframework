@@ -27,7 +27,7 @@ class IPlayer
 {
 public:
   virtual ~IPlayer(){};
-  virtual std::shared_ptr<ISource> prepare(std::shared_ptr<ISource> pSource, std::shared_ptr<IDecoder> pDecoder) = 0;
+  virtual std::shared_ptr<ISource> prepare(std::shared_ptr<ISource> pSource, std::shared_ptr<IMediaCodec> pDecoder) = 0;
   virtual std::shared_ptr<ISource> terminate(std::shared_ptr<ISource> pSource) = 0;
   virtual bool isReady(void) = 0;
 
@@ -51,7 +51,7 @@ public:
   Player();
   virtual ~Player();
 
-  virtual std::shared_ptr<ISource> prepare(std::shared_ptr<ISource> pSource, std::shared_ptr<IDecoder> pDecoder);
+  virtual std::shared_ptr<ISource> prepare(std::shared_ptr<ISource> pSource, std::shared_ptr<IMediaCodec> pDecoder);
   virtual std::shared_ptr<ISource> terminate(std::shared_ptr<ISource> pSourceAdaptor);
   virtual bool isReady(void);
 

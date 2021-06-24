@@ -35,6 +35,7 @@ public:
     }
   };
   virtual int getRequiredWindowSizeUsec(void){ return mWindowSize; };
+  virtual std::string toString(void){ return "FilterIncrement"; };
 };
 
 

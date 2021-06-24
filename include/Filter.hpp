@@ -21,6 +21,7 @@
 #include "AudioFormat.hpp"
 #include <vector>
 #include <memory>
+#include <string>
 #include "PlugInManager.hpp"
 #include "ResourceManager.hpp"
 
@@ -47,6 +48,7 @@ public:
   /* @desc report per-process() processing time
            report the latency in case of the reported getRequiredWindowSizeUsec() */
   virtual int getExpectedProcessingUSec(void) = 0;
+  virtual std::string toString(void){ return "IFilter"; };
 };
 
 class Filter : public IFilter
@@ -60,6 +62,7 @@ public:
   // per-second processing resource (DMIPS*1000)
   virtual int stateResourceConsumption(void);
   virtual int getExpectedProcessingUSec(void);
+  virtual std::string toString(void){ return "Filter"; };
 };
 
 class FilterPlugIn : public Filter, public IPlugIn
@@ -78,6 +81,7 @@ public:
   /* @desc this is expected to use by strategy
      @return new YourFilter()'s result */
   virtual std::shared_ptr<IPlugIn> newInstance(void);
+  virtual std::string toString(void){ return "FilterPlugIn"; };
 };
 
 typedef TPlugInManager<FilterPlugIn> FilterManager;

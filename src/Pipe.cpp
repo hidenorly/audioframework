@@ -137,7 +137,7 @@ void Pipe::dump(void)
 
   std::cout << "Filters:" << std::endl;
   for( auto& pFilter : mFilters ) {
-    std::cout << pFilter << std::endl;
+    std::cout << pFilter->toString() << std::endl;
   }
   std::cout << std::endl;
 }

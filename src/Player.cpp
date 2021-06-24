@@ -26,14 +26,14 @@ Player::~Player()
 
 }
 
-std::shared_ptr<ISource> Player::prepare(std::shared_ptr<ISource> pSource, std::shared_ptr<IDecoder> pDecoder)
+std::shared_ptr<ISource> Player::prepare(std::shared_ptr<ISource> pSource, std::shared_ptr<IMediaCodec> pDecoder)
 {
   std::shared_ptr<ISource> pDec2Pipe = nullptr;
 
   if( !mpDecoder && pSource && pDecoder ){
-    mpDecoder = pDecoder;
-    pDecoder->attachSource( pSource );
-    pDec2Pipe = pDecoder->allocateSourceAdaptor();
+    mpDecoder = std::dynamic_pointer_cast<IDecoder>(pDecoder);
+    mpDecoder->attachSource( pSource );
+    pDec2Pipe = mpDecoder->allocateSourceAdaptor();
     mbIsSetupDone = true;
     mbIsPaused = false;
   }

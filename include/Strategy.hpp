@@ -18,9 +18,13 @@
 #define __STRATEGY_HPP__
 
 #include <vector>
+#include <memory>
 
 class StrategyContext
 {
+public:
+  StrategyContext(){};
+  virtual ~StrategyContext(){};
 };
 
 class IStrategy
@@ -28,21 +32,21 @@ class IStrategy
 public:
   virtual ~IStrategy(){};
 
-  virtual bool canHandle(StrategyContext context) = 0;
-  virtual bool execute(StrategyContext context) = 0;
+  virtual bool canHandle(std::shared_ptr<StrategyContext> context) = 0;
+  virtual bool execute(std::shared_ptr<StrategyContext> context) = 0;
 };
 
 class Strategy
 {
 protected:
-  std::vector<IStrategy*> mStrategies;
+  std::vector<std::shared_ptr<IStrategy>> mStrategies;
 public:
   Strategy();
   virtual ~Strategy();
 
-  bool execute(StrategyContext context);
-  void registerStrategy(IStrategy* aStrategy);
-  void unregisterStrategy(IStrategy* aStrategy);
+  bool execute(std::shared_ptr<StrategyContext> context);
+  void registerStrategy(std::shared_ptr<IStrategy> aStrategy);
+  void unregisterStrategy(std::shared_ptr<IStrategy> aStrategy);
 };
 
 #endif /* __STRATEGY_HPP__ */

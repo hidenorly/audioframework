@@ -52,7 +52,7 @@ int64_t IMediaCodec::getPosition(void)
   return 0;
 }
 
-std::shared_ptr<IMediaCodec> createByFormat(AudioFormat format, bool bDecoder)
+std::shared_ptr<IMediaCodec> IMediaCodec::createByFormat(AudioFormat format, bool bDecoder)
 {
   return bDecoder ? IDecoder::createByFormat(format) : IEncoder::createByFormat(format);
 }

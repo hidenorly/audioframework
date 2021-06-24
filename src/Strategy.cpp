@@ -23,14 +23,11 @@ Strategy::Strategy()
 
 Strategy::~Strategy()
 {
-  for( auto& aStrategy : mStrategies){
-    delete aStrategy;
-  }
   mStrategies.clear();
 }
 
 
-bool Strategy::execute(StrategyContext context)
+bool Strategy::execute(std::shared_ptr<StrategyContext> context)
 {
   bool result = false;
  
@@ -45,15 +42,14 @@ bool Strategy::execute(StrategyContext context)
 }
 
 
-void Strategy::registerStrategy(IStrategy* aStrategy)
+void Strategy::registerStrategy(std::shared_ptr<IStrategy> aStrategy)
 {
   mStrategies.push_back( aStrategy );
 }
 
-void Strategy::unregisterStrategy(IStrategy* aStrategy)
+void Strategy::unregisterStrategy(std::shared_ptr<IStrategy> aStrategy)
 {
   if( aStrategy ){
     std::erase( mStrategies, aStrategy );
-    delete aStrategy;
   }
 }

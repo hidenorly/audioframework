@@ -1750,10 +1750,10 @@ TEST_F(TestCase_PipeAndFilter, testStrategy)
     StrategyA():IStrategy(){};
     virtual ~StrategyA(){};
 
-    virtual bool canHandle(StrategyContext context){
+    virtual bool canHandle(std::shared_ptr<StrategyContext> context){
       return true;
     }
-    virtual bool execute(StrategyContext context){
+    virtual bool execute(std::shared_ptr<StrategyContext> context){
       std::cout << "StrategyA is executed" << std::endl;
       return true;
     }
@@ -1764,18 +1764,18 @@ TEST_F(TestCase_PipeAndFilter, testStrategy)
     StrategyB():IStrategy(){};
     virtual ~StrategyB(){};
 
-    virtual bool canHandle(StrategyContext context){
+    virtual bool canHandle(std::shared_ptr<StrategyContext> context){
       return false;
     }
-    virtual bool execute(StrategyContext context){
+    virtual bool execute(std::shared_ptr<StrategyContext> context){
       std::cout << "StrategyB is executed" << std::endl;
       return true;
     }
   };
   Strategy strategy;
-  StrategyContext context;
-  strategy.registerStrategy( new StrategyB() );
-  strategy.registerStrategy( new StrategyA() );
+  std::shared_ptr<StrategyContext> context = std::make_shared<StrategyContext>();
+  strategy.registerStrategy( std::make_shared<StrategyB>() );
+  strategy.registerStrategy( std::make_shared<StrategyA>() );
   EXPECT_TRUE( strategy.execute(context) );
 }
 
@@ -2392,43 +2392,49 @@ TEST_F(TestCase_PipeAndFilter, testPerChannelVolumeWithMultiSink)
   pPipe->clearFilters();
 }
 
+class CompressedSource : public Source
+{
+protected:
+  AudioFormat mFormat;
+public:
+  CompressedSource():Source(){};
+  virtual ~CompressedSource(){};
+  virtual void setAudioFormat(AudioFormat format){ mFormat=format; };
+  virtual AudioFormat getAudioFormat(void){ return mFormat; };
+  virtual void readPrimitive(IAudioBuffer& buf){
+    ByteBuffer esRawBuf( 256, 0 );
+    buf.setRawBuffer( esRawBuf );
+    buf.setAudioFormat( mFormat );
+  }
+  virtual std::string toString(void){return "CompressedSource";};
+};
+
+class CompressedSink : public Sink
+{
+protected:
+  std::vector<AudioFormat> mAudioFormats;
+  AudioFormat mFormat;
+
+public:
+  CompressedSink(AudioFormat::ENCODING encodingStartPoint = AudioFormat::ENCODING::COMPRESSED):Sink(){
+    for(int anEncoding = encodingStartPoint; anEncoding < AudioFormat::ENCODING::COMPRESSED_UNKNOWN; anEncoding++){
+      mAudioFormats.push_back( AudioFormat((AudioFormat::ENCODING)anEncoding) );
+    }
+  };
+  virtual ~CompressedSink(){};
+  virtual bool setAudioFormat(AudioFormat format){
+    mFormat=format;
+    Sink::setAudioFormat(format);
+    return true;
+  };
+  virtual AudioFormat getAudioFormat(void){ return mFormat; };
+  std::vector<AudioFormat> getSupportedAudioFormats(void){ return mAudioFormats; };
+  virtual std::string toString(void){return "CompressedSink";};
+};
+
 TEST_F(TestCase_PipeAndFilter, testEncodedSink)
 {
   // Signal flow : CompressedSource -> Pipe -> EncodedSink -> CompressedSink
-
-  class CompressedSource : public Source
-  {
-  protected:
-    AudioFormat mFormat;
-  public:
-    CompressedSource():Source(){};
-    virtual ~CompressedSource(){};
-    virtual void setAudioFormat(AudioFormat format){ mFormat=format; };
-    virtual void readPrimitive(IAudioBuffer& buf){
-      ByteBuffer esRawBuf( 256, 0 );
-      buf.setRawBuffer( esRawBuf );
-      buf.setAudioFormat( mFormat );
-    }
-  };
-
-  class CompressedSink : public Sink
-  {
-  protected:
-    std::vector<AudioFormat> mAudioFormats;
-    AudioFormat mFormat;
-
-  public:
-    CompressedSink(AudioFormat::ENCODING encodingStartPoint = AudioFormat::ENCODING::COMPRESSED):Sink(){
-      for(int anEncoding = encodingStartPoint; anEncoding < AudioFormat::ENCODING::COMPRESSED_UNKNOWN; anEncoding++){
-        mAudioFormats.push_back( AudioFormat((AudioFormat::ENCODING)anEncoding) );
-      }
-    };
-    virtual ~CompressedSink(){};
-    virtual bool setAudioFormat(AudioFormat format){ mFormat=format; return true; };
-    virtual AudioFormat getAudioFormat(void){ return mFormat; };
-    std::vector<AudioFormat> getSupportedAudioFormats(void){ return mAudioFormats; };
-  };
-
   std::shared_ptr<IPipe> pPipe = std::make_shared<Pipe>();
   std::shared_ptr<CompressedSource> pSource = std::make_shared<CompressedSource>();
   std::shared_ptr<EncodedSink> pSink = std::make_shared<EncodedSink>();
@@ -2492,6 +2498,235 @@ TEST_F(TestCase_PipeAndFilter, testEncodedSink)
   std::this_thread::sleep_for(std::chrono::microseconds(1000));
   pPipe->stop();
 }
+
+class VirtualizerA : public Filter
+{
+public:
+  static inline std::string applyConditionKey = "virtualizer.virtualizerA.applyCondition";
+  static void ensureDefaultAssumption(void){
+    std::vector<AudioFormat::ENCODING> encodingsA = {
+      AudioFormat::ENCODING::COMPRESSED_AC3,
+      AudioFormat::ENCODING::COMPRESSED_E_AC3,
+      AudioFormat::ENCODING::COMPRESSED_AC4,
+      AudioFormat::ENCODING::COMPRESSED_DOLBY_TRUEHD,
+      AudioFormat::ENCODING::COMPRESSED_MAT,
+    };
+    std::string applyConditionA;
+    for(auto& anEncoding : encodingsA ){
+      applyConditionA = applyConditionA + std::to_string((int)anEncoding) + ",";
+    }
+    ParameterManager* pParams = ParameterManager::getManager();
+    pParams->setParameter(applyConditionKey, applyConditionA);
+  };
+  VirtualizerA():Filter(){
+    ensureDefaultAssumption();
+  }
+  virtual ~VirtualizerA(){};
+  virtual void process(AudioBuffer& inBuf, AudioBuffer& outBuf)
+  {
+    std::cout << "virtualizer A" << std::endl;
+    ByteBuffer buf( inBuf.getRawBuffer().size(), 'A');
+    outBuf.setRawBuffer(buf);
+  }
+  virtual std::string toString(void){ return "VirtualizerA"; };
+};
+
+class VirtualizerB : public Filter
+{
+public:
+  static inline std::string applyConditionKey = "virtualizer.virtualizerB.applyCondition";
+  static void ensureDefaultAssumption(void){
+    std::vector<AudioFormat::ENCODING> encodingsB = {
+      AudioFormat::ENCODING::COMPRESSED_DTS,
+      AudioFormat::ENCODING::COMPRESSED_DTS_HD,
+    };
+    std::string applyConditionB;
+    for(auto& anEncoding : encodingsB ){
+      applyConditionB = applyConditionB + std::to_string((int)anEncoding) + ",";
+    }
+    ParameterManager* pParams = ParameterManager::getManager();
+    pParams->setParameter(applyConditionKey, applyConditionB);
+  };
+  VirtualizerB():Filter(){
+    ensureDefaultAssumption();
+  };
+  virtual ~VirtualizerB(){};
+  virtual void process(AudioBuffer& inBuf, AudioBuffer& outBuf)
+  {
+    std::cout << "virtualizer B" << std::endl;
+    ByteBuffer buf( inBuf.getRawBuffer().size(), 'B');
+    outBuf.setRawBuffer(buf);
+  }
+  virtual std::string toString(void){ return "VirtualizerA"; };
+};
+
+TEST_F(TestCase_PipeAndFilter, testPipeSetupByCondition)
+{
+  ParameterManager* pParams = ParameterManager::getManager();
+
+  class TunnelPlaybackContext : public StrategyContext
+  {
+  public:
+    std::shared_ptr<IPipe> pPipe;
+    std::shared_ptr<ISource> pSource;
+    std::shared_ptr<ISink> pSink;
+    std::shared_ptr<IPlayer> pPlayer;
+
+  public:
+    TunnelPlaybackContext():StrategyContext(){};
+    TunnelPlaybackContext(std::shared_ptr<IPipe> pPipe, std::shared_ptr<ISource> pSource, std::shared_ptr<ISink> pSink):StrategyContext(), pPipe(pPipe), pSource(pSource), pSink(pSink){};
+    virtual ~TunnelPlaybackContext(){
+      pPipe.reset();
+      pSource.reset();
+      pSink.reset();
+      pPlayer.reset();
+    };
+  };
+
+  class TunnelPlaybackStrategy : public IStrategy
+  {
+  protected:
+    std::shared_ptr<IMediaCodec> getCodec(AudioFormat format){
+      return IMediaCodec::createByFormat(format, true);
+    }
+    bool shouldHandleFormat(AudioFormat format, std::string encodings)
+    {
+      std::cout << "shouldHandleFormat(" << (int)format.getEncoding() << " , " << encodings << " )" << std::endl;
+      // TODO: should expand not only encodings but also the other conditions such as channels
+      StringTokenizer tok(encodings, ",");
+      AudioFormat::ENCODING theEncoding = format.getEncoding();
+      while( tok.hasNext() ){
+        if( (int)theEncoding == std::stoi(tok.getNext()) ){
+          return true;
+        }
+      }
+      return false;
+    }
+    std::shared_ptr<IFilter> getVirtualizer(AudioFormat format, std::shared_ptr<StrategyContext> context){
+      ParameterManager* pParams = ParameterManager::getManager();
+      if( shouldHandleFormat(format, pParams->getParameter(VirtualizerA::applyConditionKey) ) ){
+        std::cout << "Create instance of Virtualizer A" << std::endl;
+        return std::make_shared<VirtualizerA>();
+      } else if( shouldHandleFormat(format, pParams->getParameter(VirtualizerB::applyConditionKey) ) ){
+        std::cout << "Create instance of Virtualizer B" << std::endl;
+        return std::make_shared<VirtualizerB>();
+      }
+      return nullptr;
+    }
+    std::vector<std::shared_ptr<IFilter>> getFilters(AudioFormat format, std::shared_ptr<StrategyContext> context){
+      std::vector<std::shared_ptr<IFilter>> filters;
+      std::shared_ptr<IFilter> pFilter = getVirtualizer(format, context);
+      if( pFilter ){
+        filters.push_back( pFilter );
+      }
+
+      return filters;
+    }
+  public:
+    TunnelPlaybackStrategy():IStrategy(){};
+    virtual ~TunnelPlaybackStrategy(){};
+    virtual bool canHandle(std::shared_ptr<StrategyContext> context){
+      return true;
+    }
+    virtual bool execute(std::shared_ptr<StrategyContext> pContext){
+      std::shared_ptr<TunnelPlaybackContext> context = std::dynamic_pointer_cast<TunnelPlaybackContext>(pContext);
+      if( context ){
+        ParameterManager* pParams = ParameterManager::getManager();
+        // ensure pipe
+        if( !context->pPipe ){
+          std::cout << "create Pipe instance" << std::endl;
+          context->pPipe = std::make_shared<Pipe>();
+        } else {
+          context->pPipe->stop();
+          context->pPipe->clearFilters();
+        }
+        // setup encoder sink if necessary
+        bool bTranscoder = pParams->getParameterBool("sink.transcoder");
+        if( bTranscoder && context->pSink && !std::dynamic_pointer_cast<EncodedSink>(context->pSink) ){
+          std::cout << "create EncodedSink instance" << std::endl;
+          context->pSink = std::make_shared<EncodedSink>(context->pSink, bTranscoder);
+        }
+        // setup source : player if necessary
+        // should be sink.passthrough = false if SpeakerSink, HeadphoneSink and BluetoothAudioSink
+        if( context->pSource ){
+          AudioFormat srcFormat = context->pSource->getAudioFormat();
+          if( srcFormat.isEncodingCompressed() && !pParams->getParameterBool("sink.passthrough") ){
+            std::cout << "create Player instance" << std::endl;
+            context->pPlayer = std::make_shared<Player>();
+            context->pPipe->attachSource(
+              context->pPlayer->prepare(
+                context->pSource,
+                getCodec( context->pSource->getAudioFormat() )
+              )
+            );
+          }
+          if( srcFormat.isEncodingPcm() || context->pPlayer ){
+            std::cout << "create Filter instance" << std::endl;
+            std::vector<std::shared_ptr<IFilter>> pFilters = getFilters(srcFormat, context);
+            for( auto& aFilter : pFilters ){
+              context->pPipe->addFilterToTail( aFilter );
+            }
+          }
+          context->pPipe->attachSource( context->pSource );
+        }
+
+        // setup sink
+        context->pPipe->attachSink(context->pSink);
+
+        return context->pPipe != nullptr;
+      } else {
+        return false;
+      }
+    }
+  };
+
+  VirtualizerA::ensureDefaultAssumption();
+  VirtualizerB::ensureDefaultAssumption();
+
+  std::shared_ptr<CompressedSource> pSource = std::make_shared<CompressedSource>();
+  pSource->setAudioFormat( AudioFormat::ENCODING::COMPRESSED_AC3 );
+  std::shared_ptr<CompressedSink> pSink = std::make_shared<CompressedSink>(AudioFormat::ENCODING::COMPRESSED_AC3);
+  pSink->setAudioFormat(AudioFormat::ENCODING::COMPRESSED_AC3);
+
+  std::shared_ptr<TunnelPlaybackContext> pContext = std::make_shared<TunnelPlaybackContext>();
+  pContext->pSource = pSource;
+  pContext->pSink = pSink;
+  std::shared_ptr<TunnelPlaybackStrategy> pStrategy = std::make_shared<TunnelPlaybackStrategy>();
+
+  // no player, no filter, EncodedSink with transcode
+  pParams->setParameterBool("sink.transcoder", true);
+  pParams->setParameterBool("sink.passthrough", true);
+  EXPECT_TRUE( pStrategy->execute(pContext) );
+  pContext->pPipe->dump();
+  pContext->pPipe->run();
+  std::this_thread::sleep_for(std::chrono::microseconds(1000));
+  pContext->pPipe->stop();
+  pContext->pSink->dump();
+
+  // player, virtualizerA filter, Sink
+  pSink->setAudioFormat(AudioFormat::ENCODING::PCM_16BIT);
+  pParams->setParameterBool("sink.transcoder", false);
+  pParams->setParameterBool("sink.passthrough", false);
+  EXPECT_TRUE( pStrategy->execute(pContext) );
+  pContext->pPipe->dump();
+  pContext->pPipe->run();
+  std::this_thread::sleep_for(std::chrono::microseconds(1000));
+  pContext->pPipe->stop();
+  pContext->pSink->dump();
+
+  // player, virtualizerB filter, Sink
+  pSink->setAudioFormat(AudioFormat::ENCODING::PCM_16BIT);
+  pSource->setAudioFormat(AudioFormat::ENCODING::COMPRESSED_DTS);
+  pParams->setParameterBool("sink.transcoder", false);
+  pParams->setParameterBool("sink.passthrough", false);
+  EXPECT_TRUE( pStrategy->execute(pContext) );
+  pContext->pPipe->dump();
+  pContext->pPipe->run();
+  std::this_thread::sleep_for(std::chrono::microseconds(1000));
+  pContext->pPipe->stop();
+  pContext->pSink->dump();
+}
+
 
 int main(int argc, char **argv)
 {

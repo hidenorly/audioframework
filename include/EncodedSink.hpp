@@ -45,7 +45,13 @@ public:
   virtual bool getTranscodeEnabled(void);
 
   virtual void writePrimitive(IAudioBuffer& buf);
-  virtual std::string toString(void){ return "EncodedSink"; };
+  virtual std::string toString(void){
+    std::string result = "EncodedSink";
+    if( mpSink ){
+      result = result + "(" + mpSink->toString() + ")";
+    }
+    return result;
+  };
 
   virtual bool setAudioFormat(AudioFormat audioFormat);
   virtual AudioFormat getAudioFormat(void);

@@ -15,11 +15,9 @@
 */
 
 #include "Encoder.hpp"
-#include "ThreadBase.hpp"
 #include "Buffer.hpp"
-#include <vector>
 
-IEncoder::IEncoder() : ThreadBase(), IResourceConsumer(), mpSink(nullptr)
+IEncoder::IEncoder() : IMediaCodec(), mpSink(nullptr)
 {
 
 }
@@ -27,18 +25,6 @@ IEncoder::IEncoder() : ThreadBase(), IResourceConsumer(), mpSink(nullptr)
 IEncoder::~IEncoder()
 {
 
-}
-
-void IEncoder::configure(MediaParam param)
-{
-
-}
-
-void IEncoder::configure(std::vector<MediaParam> params)
-{
-  for(MediaParam& aParam : params){
-    configure(aParam);
-  }
 }
 
 std::shared_ptr<ISink> IEncoder::attachSink(std::shared_ptr<ISink> pSink)
@@ -72,18 +58,6 @@ void IEncoder::releaseSinkAdaptor(std::shared_ptr<ISink> pSink)
   }
 }
 
-int64_t IEncoder::getPosition(void)
-{
-  return 0;
-}
-
-void IEncoder::unlockToStop(void)
-{
-  for( auto& pInterPipeBridge : mpInterPipeBridges ){
-    pInterPipeBridge->unlock();
-  }
-}
-
 void IEncoder::process(void)
 {
   AudioFormat format(AudioFormat::ENCODING::COMPRESSED);
@@ -106,8 +80,7 @@ void IEncoder::process(void)
   }
 }
 
-
-std::shared_ptr<IEncoder> IEncoder::createByFormat(AudioFormat format)
+std::shared_ptr<IMediaCodec> IEncoder::createByFormat(AudioFormat format, bool bDecoder)
 {
   // TODO get instance from EncoderManager with the format
   return std::make_shared<NullEncoder>(format);

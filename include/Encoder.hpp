@@ -17,45 +17,31 @@
 #ifndef __ENCODER_HPP__
 #define __ENCODER_HPP__
 
-#include "Buffer.hpp"
-#include "Sink.hpp"
-#include "InterPipeBridge.hpp"
-#include "ThreadBase.hpp"
-#include <string>
-#include <vector>
-#include <thread>
-#include <memory>
 #include "Media.hpp"
-#include "ResourceManager.hpp"
+#include "Buffer.hpp"
+#include "AudioFormat.hpp"
+#include "Sink.hpp"
+#include <memory>
 
-class IEncoder : public ThreadBase, public IResourceConsumer
+class IEncoder : public IMediaCodec
 {
 protected:
   std::shared_ptr<ISink> mpSink;
-  std::vector<std::shared_ptr<InterPipeBridge>> mpInterPipeBridges;
-  virtual void unlockToStop(void);
   virtual void process(void);
 
 public:
   IEncoder();
   virtual ~IEncoder();
 
-  virtual void configure(MediaParam param);
-  virtual void configure(std::vector<MediaParam> params);
-
   virtual std::shared_ptr<ISink> allocateSinkAdaptor(void); // as encoder's source
   virtual void releaseSinkAdaptor(std::shared_ptr<ISink> pSink);
 
   virtual std::shared_ptr<ISink> attachSink(std::shared_ptr<ISink> pSink);
   virtual std::shared_ptr<ISink> detachSink(void);
-  virtual int64_t getPosition(void);
 
-  virtual int getEsChunkSize(void) = 0;
   virtual int getRequiredSamples(void) = 0;
-  virtual void doProcess(IAudioBuffer& inBuf, IAudioBuffer& outBuf) = 0;
-  virtual AudioFormat getFormat(void) = 0;
 
-  static std::shared_ptr<IEncoder> createByFormat(AudioFormat format);
+  static std::shared_ptr<IMediaCodec> createByFormat(AudioFormat format, bool bDecoder = false);
 };
 
 class NullEncoder : public IEncoder

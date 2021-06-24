@@ -21,14 +21,10 @@
 
 EncodedSink::EncodedSink(std::shared_ptr<ISink> pSink, bool bTranscode):ISink(), mpSink(pSink), mbTranscode(bTranscode), mpDecoder(nullptr), mpEncoder(nullptr)
 {
-  mpBuf = new CompressAudioBuffer( AudioFormat(AudioFormat::ENCODING::COMPRESSED), 0 );
 }
 
 EncodedSink::~EncodedSink()
 {
-  if( mpBuf ){
-    delete mpBuf; mpBuf = nullptr;
-  }
   mpSink.reset();
   mpDecoder.reset();
   mpEncoder.reset();
@@ -96,8 +92,12 @@ void EncodedSink::writePrimitive(IAudioBuffer& buf)
       IAudioBuffer* pInBuf = &buf;
       IAudioBuffer* pOutBuf = &tmpOutBuf;
       if( !mpDecoder && !mpEncoder ){
-        // src & out are PCM then format conversion
-        AudioFormatAdaptor::convert( *dynamic_cast<AudioBuffer*>(pInBuf), *dynamic_cast<AudioBuffer*>(pOutBuf) );
+        // src & dst are PCM then format conversion
+        AudioBuffer* pTmpInBuf = dynamic_cast<AudioBuffer*>(pInBuf);
+        AudioBuffer* pTmpOutBuf = dynamic_cast<AudioBuffer*>(pOutBuf);
+        if( pTmpInBuf && pTmpOutBuf /* just in case, double check */ ){
+          AudioFormatAdaptor::convert( *dynamic_cast<AudioBuffer*>(pInBuf), *dynamic_cast<AudioBuffer*>(pOutBuf) );
+        }
         pOutBuf = pInBuf;
       } else {
         if( mpDecoder ){
@@ -111,10 +111,6 @@ void EncodedSink::writePrimitive(IAudioBuffer& buf)
         }
       }
       mpSink->write( *pOutBuf );
-    }
-  } else {
-    if( mpBuf ){
-      mpBuf->append( buf );
     }
   }
 }
@@ -200,8 +196,6 @@ void EncodedSink::dump(void)
 {
   if( mpSink ){
     mpSink->dump();
-  } else {
-    Util::dumpBuffer("Dump Sink data", mpBuf);
   }
 }
 

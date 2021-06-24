@@ -26,10 +26,9 @@
 class EncodedSink : public ISink
 {
 protected:
-  IAudioBuffer* mpBuf;
   bool mbTranscode;
-  std::shared_ptr<IDecoder> mpDecoder;
-  std::shared_ptr<IEncoder> mpEncoder;
+  std::shared_ptr<IMediaCodec> mpDecoder;
+  std::shared_ptr<IMediaCodec> mpEncoder;
   std::shared_ptr<ISink> mpSink;
 
 protected:

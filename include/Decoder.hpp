@@ -17,46 +17,30 @@
 #ifndef __DECODER_HPP__
 #define __DECODER_HPP__
 
+#include "Media.hpp"
 #include "Buffer.hpp"
 #include "AudioFormat.hpp"
 #include "Source.hpp"
-#include "InterPipeBridge.hpp"
-#include "ThreadBase.hpp"
-#include <string>
-#include <vector>
-#include <thread>
 #include <memory>
-#include "Media.hpp"
-#include "ResourceManager.hpp"
 
 class IDecoder;
 
-class IDecoder : public ThreadBase, public IResourceConsumer
+class IDecoder : public IMediaCodec
 {
 protected:
   std::shared_ptr<ISource> mpSource;
-  std::vector<std::shared_ptr<InterPipeBridge>> mpInterPipeBridges;
-  virtual void unlockToStop(void);
   virtual void process(void);
 
 public:
   IDecoder();
   virtual ~IDecoder();
 
-  virtual void configure(MediaParam param);
-  virtual void configure(std::vector<MediaParam> params);
   virtual std::shared_ptr<ISource> attachSource(std::shared_ptr<ISource> pSource);
   virtual std::shared_ptr<ISource> detachSource(void);
   virtual std::shared_ptr<ISource> allocateSourceAdaptor(void);
   virtual void releaseSourceAdaptor(std::shared_ptr<ISource> pSource);
-  virtual void seek(int64_t position);
-  virtual int64_t getPosition(void);
 
-  virtual int getEsChunkSize(void) = 0;
-  virtual void doProcess(IAudioBuffer& inBuf, IAudioBuffer& outBuf) = 0;
-  virtual AudioFormat getFormat(void) = 0;
-
-  static std::shared_ptr<IDecoder> createByFormat(AudioFormat format);
+  static std::shared_ptr<IMediaCodec> createByFormat(AudioFormat format, bool bDecoder = true);
 };
 
 class NullDecoder : public IDecoder

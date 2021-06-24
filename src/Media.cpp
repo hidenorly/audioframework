@@ -15,3 +15,44 @@
 */
 
 #include "Media.hpp"
+#include "Decoder.hpp"
+#include "Encoder.hpp"
+
+IMediaCodec::IMediaCodec() : ThreadBase(), IResourceConsumer()
+{
+
+}
+
+IMediaCodec::~IMediaCodec()
+{
+
+}
+
+void IMediaCodec::configure(std::vector<MediaParam> params)
+{
+  for(MediaParam& aParam : params){
+    configure(aParam);
+  }
+}
+
+void IMediaCodec::unlockToStop(void)
+{
+  for( auto& pInterPipeBridge : mpInterPipeBridges ){
+    pInterPipeBridge->unlock();
+  }
+}
+
+void IMediaCodec::seek(int64_t position)
+{
+
+}
+
+int64_t IMediaCodec::getPosition(void)
+{
+  return 0;
+}
+
+std::shared_ptr<IMediaCodec> createByFormat(AudioFormat format, bool bDecoder)
+{
+  return bDecoder ? IDecoder::createByFormat(format) : IEncoder::createByFormat(format);
+}

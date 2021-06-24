@@ -2394,6 +2394,8 @@ TEST_F(TestCase_PipeAndFilter, testPerChannelVolumeWithMultiSink)
 
 TEST_F(TestCase_PipeAndFilter, testEncodedSink)
 {
+  // Signal flow : CompressedSource -> Pipe -> EncodedSink -> CompressedSink
+
   class CompressedSource : public Source
   {
   protected:

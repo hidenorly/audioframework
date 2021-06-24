@@ -19,6 +19,11 @@
 
 #include <vector>
 #include <string>
+#include <memory>
+#include "AudioFormat.hpp"
+#include "InterPipeBridge.hpp"
+#include "ThreadBase.hpp"
+#include "ResourceManager.hpp"
 
 class MediaParam
 {
@@ -37,6 +42,30 @@ public:
   MediaParam(std::string key, std::string value):key(key){ set(value); };
   MediaParam(std::string key, int value):key(key){ setInt(value); };
   MediaParam(std::string key, bool value):key(key){ setBool(value); };
+};
+
+class IMediaCodec;
+
+class IMediaCodec : public ThreadBase, public IResourceConsumer
+{
+protected:
+  std::vector<std::shared_ptr<InterPipeBridge>> mpInterPipeBridges;
+  virtual void unlockToStop(void);
+
+public:
+  IMediaCodec();
+  virtual ~IMediaCodec();
+
+  virtual void configure(MediaParam param) = 0;
+  virtual void configure(std::vector<MediaParam> params);
+
+  virtual void seek(int64_t position);
+  virtual int64_t getPosition(void);
+  virtual int getEsChunkSize(void) = 0;
+  virtual void doProcess(IAudioBuffer& inBuf, IAudioBuffer& outBuf) = 0;
+  virtual AudioFormat getFormat(void) = 0;
+
+  static std::shared_ptr<IMediaCodec> createByFormat(AudioFormat format, bool bDecoder = true);
 };
 
 #endif /* __MEDIA_HPP__ */

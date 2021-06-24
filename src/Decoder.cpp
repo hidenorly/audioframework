@@ -15,11 +15,9 @@
 */
 
 #include "Decoder.hpp"
-#include "ThreadBase.hpp"
 #include "Buffer.hpp"
-#include <vector>
 
-IDecoder::IDecoder() : ThreadBase(), IResourceConsumer(), mpSource(nullptr)
+IDecoder::IDecoder() : IMediaCodec(), mpSource(nullptr)
 {
 
 }
@@ -27,18 +25,6 @@ IDecoder::IDecoder() : ThreadBase(), IResourceConsumer(), mpSource(nullptr)
 IDecoder::~IDecoder()
 {
 
-}
-
-void IDecoder::configure(MediaParam param)
-{
-
-}
-
-void IDecoder::configure(std::vector<MediaParam> params)
-{
-  for(MediaParam& aParam : params){
-    configure(aParam);
-  }
 }
 
 std::shared_ptr<ISource> IDecoder::attachSource(std::shared_ptr<ISource> pSource)
@@ -72,23 +58,6 @@ void IDecoder::releaseSourceAdaptor(std::shared_ptr<ISource> pSource)
   }
 }
 
-void IDecoder::seek(int64_t position)
-{
-
-}
-
-int64_t IDecoder::getPosition(void)
-{
-  return 0;
-}
-
-void IDecoder::unlockToStop(void)
-{
-  for( auto& pInterPipeBridge : mpInterPipeBridges ){
-    pInterPipeBridge->unlock();
-  }
-}
-
 void IDecoder::process(void)
 {
   AudioFormat format(AudioFormat::ENCODING::COMPRESSED);
@@ -105,7 +74,7 @@ void IDecoder::process(void)
   }
 }
 
-std::shared_ptr<IDecoder> IDecoder::createByFormat(AudioFormat format)
+std::shared_ptr<IMediaCodec> IDecoder::createByFormat(AudioFormat format, bool bDecoder)
 {
   // TODO get instance from DecoderManager with the format
   return std::make_shared<NullDecoder>(format);

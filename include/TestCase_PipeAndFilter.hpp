@@ -30,7 +30,6 @@ protected:
   void testAddFilters(void);
   void testAttachSourceSinkToPipe(void);
 
-  void testFifoBuffer(void);
   void testInterPipeBridge(void);
 
   void testPipeMultiThread(void);
@@ -49,33 +48,7 @@ protected:
   void testPlayer(void);
   void testEncoder(void);
 
-  void testParameterManager(void);
-  void testStringTokenizer(void);
-
-  void testPlugInManager(void);
-  void testFilterPlugInManager(void);
-  void testSourcePlugInManager(void);
-  void testSinkPlugInManager(void);
-
   void testDelayFilter(void);
-
-  void testSinkCapture(void);
-  void testSinkInjector(void);
-  void testSourceCapture(void);
-  void testSourceInjector(void);
-  void testFilterCapture(void);
-  void testFilterInjector(void);
-
-  void testResourceManager(void);
-  void testResourceManager_ResourceConsumer(void);
-  void testResourceManager_ResourceConsumer_SharedPtr(void);
-  void testResourceManager_Filter(void);
-  void testResourceManager_Filter_SharedPtr(void);
-  void testResourceManager_Pipe(void);
-  void testResourceManager_Pipe_SharedPtr(void);
-
-  void testStrategy(void);
-  void testStreamManager(void);
 
   void testDynamicSignalFlow_AddNewPipeToPipeMixer(void);
   void testDynamicSignalFlow_AddNewFilter(void);
@@ -93,7 +66,6 @@ protected:
   void testAecSourceDelayOnly(void);
   void testDynamicSignalFlow_AddNewSinkToReferenceSoundSink(void);
 
-  void testPowerManager(void);
   void testPerChannelVolumeWithSink(void);
   void testPerChannelVolumeWithMultiSink(void);
 

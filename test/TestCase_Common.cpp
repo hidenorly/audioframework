@@ -1,4 +1,4 @@
-/*
+/* 
   Copyright (C) 2021 hidenorly
 
    Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,22 +14,5 @@
    limitations under the License.
 */
 
-#ifndef __TESTCASE_UTIL_HPP__
-#define __TESTCASE_UTIL_HPP__
-
 #include <gtest/gtest.h>
-
-class TestCase_Util : public ::testing::Test
-{
-protected:
-  TestCase_Util();
-  virtual ~TestCase_Util();
-  virtual void SetUp();
-  virtual void TearDown();
-
-  void testStringTokenizer(void);
-
-  void testFifoBuffer(void);
-};
-
-#endif /* __TESTCASE_UTIL_HPP__ */
+#include "TestCase_Common.hpp"

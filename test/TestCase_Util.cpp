@@ -1,4 +1,4 @@
-/* 
+/*
   Copyright (C) 2021 hidenorly
 
    Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,20 +14,8 @@
    limitations under the License.
 */
 
-#include <gtest/gtest.h>
-
+#include "TestCase_Common.hpp"
 #include "TestCase_Util.hpp"
-
-#include "StringTokenizer.hpp"
-#include "Util.hpp"
-#include "Buffer.hpp"
-#include "AudioFormat.hpp"
-#include "FifoBuffer.hpp"
-
-#include <iostream>
-#include <filesystem>
-#include <chrono>
-#include <memory>
 #include <thread>
 
 

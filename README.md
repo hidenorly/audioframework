@@ -189,7 +189,7 @@ $ make; ./bin/afw_test;
           * [done] Linux resume monitor from suspend
       * the handler in the example strategy
 * StreamManager
-  * id, request for the stream, stream(=the pipe) which includes the source, the filters and the sink.
+  * [done] id, request for the stream, stream(=the pipe) which includes the source, the filters and the sink.
 * Testability support
   * [done] dump
   * [done] file in/out with StreamFile and SteramSource/StreamSink
@@ -200,8 +200,9 @@ $ make; ./bin/afw_test;
     * [Done] SourceCapture
     * [Done] FilterInjector
     * [Done] FilterCapture
+  * [done] Split test cases as several files per component characteristic
 * All
-  * [] Compressed data support
+  * [done] Compressed data support
     * [done] AudioFormat
     * [done] IAudioBufer, CompressedAudioBuffer
     * [done] Sink, Source

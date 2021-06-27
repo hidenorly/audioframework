@@ -1,4 +1,4 @@
-/* 
+/*
   Copyright (C) 2021 hidenorly
 
    Licensed under the Apache License, Version 2.0 (the "License");
@@ -50,21 +50,12 @@ protected:
 
   void testDelayFilter(void);
 
-  void testDynamicSignalFlow_AddNewPipeToPipeMixer(void);
-  void testDynamicSignalFlow_AddNewFilter(void);
-  void testDynamicSignalFlow_AddNewFilter_PipeMultiThread(void);
-  void testDynamicSignalFlow_AddNewSinkToPipe(void);
-  void testDynamicSignalFlow_AddNewSinkToPipe_PipeMultiThread(void);
-  void testDynamicSignalFlow_AddNewSourceToPipe(void);
-  void testDynamicSignalFlow_AddNewSourceToPipe_PipeMultiThread(void);
-
   void testSinkMute(void);
   void testSourceMute(void);
   void testPipeMute(void);
 
   void testAecSource(void);
   void testAecSourceDelayOnly(void);
-  void testDynamicSignalFlow_AddNewSinkToReferenceSoundSink(void);
 
   void testPerChannelVolumeWithSink(void);
   void testPerChannelVolumeWithMultiSink(void);

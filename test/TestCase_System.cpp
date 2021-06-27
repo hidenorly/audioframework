@@ -1,4 +1,4 @@
-/* 
+/*
   Copyright (C) 2021 hidenorly
 
    Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,49 +14,8 @@
    limitations under the License.
 */
 
-#include <gtest/gtest.h>
-
+#include "TestCase_Common.hpp"
 #include "TestCase_System.hpp"
-
-#include "Pipe.hpp"
-#include "Filter.hpp"
-#include "Source.hpp"
-#include "Sink.hpp"
-#include "AudioFormat.hpp"
-#include "FilterExample.hpp"
-#include "FifoBuffer.hpp"
-#include "InterPipeBridge.hpp"
-#include "PipeMultiThread.hpp"
-#include "MultipleSink.hpp"
-#include "Stream.hpp"
-#include "StreamSink.hpp"
-#include "StreamSource.hpp"
-#include "PipeMixer.hpp"
-#include "PipedSink.hpp"
-#include "PipedSource.hpp"
-#include "Media.hpp"
-#include "Decoder.hpp"
-#include "Encoder.hpp"
-#include "EncodedSink.hpp"
-#include "Player.hpp"
-#include "ParameterManager.hpp"
-#include "StringTokenizer.hpp"
-#include "PlugInManager.hpp"
-#include "DelayFilter.hpp"
-#include "Testability.hpp"
-#include "Util.hpp"
-#include "ResourceManager.hpp"
-#include "Strategy.hpp"
-#include "StreamManager.hpp"
-#include "PowerManager.hpp"
-#include "PowerManagerPrimitive.hpp"
-#include "AccousticEchoCancelledSource.hpp"
-#include "ReferenceSoundSinkSource.hpp"
-
-#include <iostream>
-#include <filesystem>
-#include <chrono>
-#include <memory>
 
 TestCase_System::TestCase_System()
 {

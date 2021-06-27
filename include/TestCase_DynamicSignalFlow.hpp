@@ -14,22 +14,27 @@
    limitations under the License.
 */
 
-#ifndef __TESTCASE_UTIL_HPP__
-#define __TESTCASE_UTIL_HPP__
+#ifndef __TESTCASE_DYNAMICSIGNALFLOW_HPP__
+#define __TESTCASE_DYNAMICSIGNALFLOW_HPP__
 
 #include <gtest/gtest.h>
 
-class TestCase_Util : public ::testing::Test
+class TestCase_DynamicSignal : public ::testing::Test
 {
 protected:
-  TestCase_Util();
-  virtual ~TestCase_Util();
+  TestCase_DynamicSignal();
+  virtual ~TestCase_DynamicSignal();
   virtual void SetUp();
   virtual void TearDown();
 
-  void testStringTokenizer(void);
-
-  void testFifoBuffer(void);
+  void testAddNewPipeToPipeMixer(void);
+  void testAddNewFilter(void);
+  void testAddNewFilter_PipeMultiThread(void);
+  void testAddNewSinkToPipe(void);
+  void testAddNewSinkToPipe_PipeMultiThread(void);
+  void testAddNewSourceToPipe(void);
+  void testAddNewSourceToPipe_PipeMultiThread(void);
+  void testAddNewSinkToReferenceSoundSink(void);
 };
 
-#endif /* __TESTCASE_UTIL_HPP__ */
+#endif /* __TESTCASE_DYNAMICSIGNALFLOW_HPP__ */

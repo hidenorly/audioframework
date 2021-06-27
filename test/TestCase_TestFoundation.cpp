@@ -1,4 +1,4 @@
-/* 
+/*
   Copyright (C) 2021 hidenorly
 
    Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,23 +14,8 @@
    limitations under the License.
 */
 
-#include <gtest/gtest.h>
-
+#include "TestCase_Common.hpp"
 #include "TestCase_TestFoundation.hpp"
-
-#include "Pipe.hpp"
-#include "Filter.hpp"
-#include "Source.hpp"
-#include "Sink.hpp"
-#include "AudioFormat.hpp"
-#include "FilterExample.hpp"
-#include "Testability.hpp"
-#include "Util.hpp"
-
-#include <iostream>
-#include <filesystem>
-#include <chrono>
-#include <memory>
 
 TestCase_TestFoundation::TestCase_TestFoundation()
 {

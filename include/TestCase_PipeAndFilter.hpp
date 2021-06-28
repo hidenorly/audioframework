@@ -61,7 +61,6 @@ protected:
   void testPerChannelVolumeWithMultiSink(void);
 
   void testEncodedSink(void);
-  void testPipeSetupByCondition(void);
 };
 
 #endif /* __TESTCASE_PIPEANDFILTER_HPP__ */

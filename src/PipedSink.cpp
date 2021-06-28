@@ -18,10 +18,10 @@
 #include "PipeMultiThread.hpp"
 #include <cassert>
 
-PipedSink::PipedSink() : ISink(), mpSink(nullptr)
+PipedSink::PipedSink( std::shared_ptr<ISink> pSink ) : ISink(), mpSink(pSink)
 {
   mpInterPipeBridge = std::make_shared<InterPipeBridge>();
-  mpPipe = new PipeMultiThread();
+  mpPipe = std::make_shared<PipeMultiThread>();
   mpPipe->attachSource ( mpInterPipeBridge );
 }
 
@@ -29,8 +29,8 @@ PipedSink::~PipedSink()
 {
   stop();
   clearFilters();
-  delete mpPipe; mpPipe = nullptr;
-  mpInterPipeBridge = nullptr;
+  mpPipe.reset();
+  mpInterPipeBridge.reset();
 }
 
 std::shared_ptr<ISink> PipedSink::attachSink(std::shared_ptr<ISink> pSink)

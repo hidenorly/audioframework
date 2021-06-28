@@ -177,7 +177,79 @@ public:
     ByteBuffer buf( inBuf.getRawBuffer().size(), 'B');
     outBuf.setRawBuffer(buf);
   }
-  virtual std::string toString(void){ return "VirtualizerA"; };
+  virtual std::string toString(void){ return "VirtualizerB"; };
 };
+
+class VirtualizerC : public Filter
+{
+public:
+  static inline std::string applyConditionKey = "virtualizer.virtualizerC.applyCondition";
+  static void ensureDefaultAssumption(void){
+    ParameterManager* pParams = ParameterManager::getManager();
+    pParams->setParameter(applyConditionKey, "*");
+  };
+  VirtualizerC():Filter(){
+    ensureDefaultAssumption();
+  };
+  virtual ~VirtualizerC(){};
+  virtual void process(AudioBuffer& inBuf, AudioBuffer& outBuf)
+  {
+    std::cout << "virtualizer C" << std::endl;
+    ByteBuffer buf( inBuf.getRawBuffer().size(), 'C');
+    outBuf.setRawBuffer(buf);
+  }
+  virtual std::string toString(void){ return "VirtualizerC"; };
+};
+
+class SpeakerProtectionFilter : public Filter
+{
+public:
+  SpeakerProtectionFilter(){};
+  virtual ~SpeakerProtectionFilter(){};
+};
+
+// examples
+class HdmiAudioSink : public CompressedSink
+{
+public:
+  HdmiAudioSink():CompressedSink(){};
+  virtual ~HdmiAudioSink(){};
+};
+
+class SpdifSink : public CompressedSink
+{
+public:
+  SpdifSink():CompressedSink(){};
+  virtual ~SpdifSink(){};
+};
+
+class  LPcmSink : public Sink
+{
+public:
+  LPcmSink():Sink(){};
+  virtual ~LPcmSink(){};
+};
+
+class  SpeakerSink : public LPcmSink
+{
+public:
+  SpeakerSink():LPcmSink(){};
+  virtual ~SpeakerSink(){};
+};
+
+class  HeadphoneSink : public LPcmSink
+{
+public:
+  HeadphoneSink():LPcmSink(){};
+  virtual ~HeadphoneSink(){};
+};
+
+class  BluetoothAudioSink : public LPcmSink
+{
+public:
+  BluetoothAudioSink():LPcmSink(){};
+  virtual ~BluetoothAudioSink(){};
+};
+
 
 #endif /* __TESTCASE_COMMON_HPP__ */

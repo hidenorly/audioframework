@@ -23,16 +23,17 @@
 #include "AudioFormat.hpp"
 #include "Pipe.hpp"
 #include <string>
+#include <memory>
 
 class PipedSink : public ISink
 {
 protected:
   std::shared_ptr<ISink> mpSink;
-  IPipe* mpPipe;
+  std::shared_ptr<IPipe> mpPipe;
   std::shared_ptr<InterPipeBridge> mpInterPipeBridge;
 
 public:
-  PipedSink();
+  PipedSink( std::shared_ptr<ISink> pSink = nullptr );
   virtual ~PipedSink();
 
   virtual std::shared_ptr<ISink> attachSink(std::shared_ptr<ISink> pSink);

@@ -365,24 +365,6 @@ TEST_F(TestCase_DynamicSignal, testAddNewSourceToPipe_PipeMultiThread)
 
 TEST_F(TestCase_DynamicSignal, testAddNewSinkToReferenceSoundSink)
 {
-  class TestSink : public Sink
-  {
-    int mTestLatency;
-  public:
-    TestSink(int latencyUsec): Sink(), mTestLatency(latencyUsec){};
-    virtual ~TestSink(){};
-    virtual int getLatencyUSec(void){ return mTestLatency; };
-  };
-
-  class TestSource : public Source
-  {
-    int mTestLatency;
-  public:
-    TestSource(int latencyUsec): Source(), mTestLatency(latencyUsec){};
-    virtual ~TestSource(){};
-    virtual int getLatencyUSec(void){ return mTestLatency; };
-  };
-
   std::unique_ptr<IPipe> pPipe = std::make_unique<Pipe>();
 
   std::shared_ptr<ISink> pGlobalSink1 = std::make_shared<Sink>();

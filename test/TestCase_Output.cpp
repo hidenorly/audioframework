@@ -210,8 +210,8 @@ TEST_F(TestCase_Output, testOutputSinkSwitch)
       std::map<std::string, std::shared_ptr<ISink>> sinkManager;
       sinkManager.insert_or_assign("speaker",   std::make_shared<PipedSink>( std::make_shared<SpeakerSink>() ));
       sinkManager.insert_or_assign("headphone", std::make_shared<HeadphoneSink>());
-      sinkManager.insert_or_assign("hdmi",      std::make_shared<HdmiAudioSink>());
-      sinkManager.insert_or_assign("spdif",     std::make_shared<SpdifSink>());
+      sinkManager.insert_or_assign("hdmi",      std::make_shared<EncodedSink>( std::make_shared<HdmiAudioSink>(), /* trasncoder */ true ));
+      sinkManager.insert_or_assign("spdif",     std::make_shared<EncodedSink>( std::make_shared<SpdifSink>(), /* trasncoder */ true ));
       sinkManager.insert_or_assign("bluetooth", std::make_shared<BluetoothAudioSink>());
 
       return sinkManager;
@@ -221,8 +221,8 @@ TEST_F(TestCase_Output, testOutputSinkSwitch)
   std::map<std::string, std::shared_ptr<ISink>> sinkManager = SinkFactory::getSinks();
 
   // --- start condition : speaker + spdif
-  // stream 1: Source -> Pipe -> PipeMixer -> MultipleSink -> Speaker
-  // stream 2: Source -> Pipe ->                           -> Spdif
+  // stream 1: Source -> Pipe -> PipeMixer -> MultipleSink -> PipeSink(SpeakerProtection) -> Speaker
+  // stream 2: Source -> Pipe ->                           -> EncodedSink -> Spdif
   std::shared_ptr<MultipleSink> pMultiSink = std::make_shared<MultipleSink>();
   // add spdif sink
   AudioFormat::ChannelMapper chMapSpdif = sinkManager["spdif"]->getAudioFormat().getSameChannelMapper();
@@ -236,22 +236,55 @@ TEST_F(TestCase_Output, testOutputSinkSwitch)
 
   std::shared_ptr<PipeMixer> pPipeMixer = std::make_shared<PipeMixer>();
   pPipeMixer->attachSink( pMultiSink );
+  pPipeMixer->run();
 
   // attaching stream1 to PipeMixer
   std::shared_ptr<IPipe> pStream1 = std::make_shared<Pipe>();
   pStream1->attachSource( std::make_shared<Source>() );
+  pStream1->addFilterToTail( std::make_shared<FilterIncrement>());
   pStream1->attachSink( pPipeMixer->allocateSinkAdaptor() );
 
   // attaching stream2 to PipeMixer
   std::shared_ptr<IPipe> pStream2 = std::make_shared<Pipe>();
   pStream2->attachSource( std::make_shared<Source>() );
+  pStream2->addFilterToTail( std::make_shared<FilterIncrement>());
   pStream2->attachSink( pPipeMixer->allocateSinkAdaptor() );
 
   pStream1->run();
   pStream2->run();
+  std::this_thread::sleep_for(std::chrono::microseconds(1000));
+ 
+  pMultiSink->dump();
 
-  sinkManager["speaker"]->dump();
-  sinkManager["spdif"]->dump();
+  // --- switch to audio system + spdif
+  // switch from:
+  //  stream 1: Source -> Pipe -> PipeMixer -> MultipleSink -> PipeSink(SpeakerProtection) -> Speaker
+  //  stream 2: Source -> Pipe ->                           -> EncodedSink -> Spdif
+  // switch to:
+  //  stream 1: Source -> Pipe -> PipeMixer -> MultipleSink -> EncodedSink -> Hdmi
+  //  stream 2: Source -> Pipe ->                           -> EncodedSink -> Spdif
+  pMultiSink->detachSink( sinkManager["speaker"] );
+  AudioFormat::ChannelMapper chMapHdmi = sinkManager["hdmi"]->getAudioFormat().getSameChannelMapper();
+  pMultiSink->attachSink( sinkManager["hdmi"], chMapHdmi );
+
+  std::this_thread::sleep_for(std::chrono::microseconds(1000));
+  pMultiSink->dump();
+
+
+  // --- switch to bluetooth + spdif
+  // switch from:
+  //  stream 1: Source -> Pipe -> PipeMixer -> MultipleSink -> EncodedSink -> Hdmi
+  //  stream 2: Source -> Pipe ->                           -> EncodedSink -> Spdif
+  // switch to:
+  //  stream 1: Source -> Pipe -> PipeMixer -> MultipleSink -> Bluetooth
+  //  stream 2: Source -> Pipe ->                           -> EncodedSink -> Spdif
+  pMultiSink->detachSink( sinkManager["hdmi"] );
+  AudioFormat::ChannelMapper chMapBT = sinkManager["bluetooth"]->getAudioFormat().getSameChannelMapper();
+  pMultiSink->attachSink( sinkManager["bluetooth"], chMapBT );
+
+  std::this_thread::sleep_for(std::chrono::microseconds(1000));
+  pMultiSink->dump();
 
   // TODO : convert the above to Stratgey and add several Strategy to switch sink
+
 }

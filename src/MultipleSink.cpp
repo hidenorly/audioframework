@@ -96,10 +96,10 @@ void MultipleSink::writePrimitive(IAudioBuffer& buf)
 
 void MultipleSink::dump(void)
 {
-  std::cout << "MultipleSink::list of sinks" << std::endl;
+  std::cout << "MultipleSink::list of sinks (MaxLatency = " << getLatencyUSec() << ")" << std::endl;
 
   for(auto& pSink : mpSinks ){
-    std::cout << "Sink:" << pSink << std::endl;
+    std::cout << "Sink:" << pSink->toString() << ":" << pSink << " latency: " << pSink->getLatencyUSec() << std::endl;
     AudioFormat::ChannelMapper mapper = mChannelMaps[ pSink ];
     for( const auto& [dstCh, srcCh] : mapper ){
       std::cout << "SrcCh:" << srcCh << " -> DstCh:" << dstCh << std::endl;

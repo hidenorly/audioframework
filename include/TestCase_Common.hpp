@@ -206,6 +206,7 @@ class SpeakerProtectionFilter : public Filter
 public:
   SpeakerProtectionFilter(){};
   virtual ~SpeakerProtectionFilter(){};
+  virtual void process(AudioBuffer& inBuf, AudioBuffer& outBuf){ outBuf = inBuf; };
 };
 
 // examples

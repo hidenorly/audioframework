@@ -252,5 +252,4 @@ public:
   virtual ~BluetoothAudioSink(){};
 };
 
-
 #endif /* __TESTCASE_COMMON_HPP__ */

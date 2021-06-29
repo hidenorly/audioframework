@@ -30,11 +30,13 @@ MultipleSink::~MultipleSink()
 }
 
 
-void MultipleSink::attachSink(std::shared_ptr<ISink> pSink, AudioFormat::ChannelMapper& map)
+void MultipleSink::attachSink(std::shared_ptr<ISink> pSink, AudioFormat::ChannelMapper map)
 {
   if( pSink ){
+    mSinkMutex.lock();
     mpSinks.push_back( pSink );
     mChannelMaps.insert_or_assign( pSink, map );
+    mSinkMutex.unlock();
   }
 }
 
@@ -42,32 +44,42 @@ bool MultipleSink::detachSink(std::shared_ptr<ISink> pSink)
 {
   bool result = false;
 
+  mSinkMutex.lock();
   if( mChannelMaps.contains( pSink ) ){
     std::erase( mpSinks, pSink );
     mChannelMaps.erase( pSink );
+    if( mpDelayFilters.contains(pSink) ){
+      mpDelayFilters.erase( pSink );
+    }
     result = true;
     pSink = nullptr;
   }
+  mSinkMutex.unlock();
 
   return result;
 }
 
 void MultipleSink::clearSinks(void)
 {
+  mSinkMutex.lock();
   mpSinks.clear();
   mChannelMaps.clear();
+  mSinkMutex.unlock();
 }
 
-void MultipleSink::ensureDelayFilters(bool bForceRecreate)
+void MultipleSink::ensureDelayFiltersLocked(bool bForceRecreate)
 {
   bool isDelayFiltersEmpty = mpDelayFilters.empty();
   if( bForceRecreate || isDelayFiltersEmpty ){
     if( !isDelayFiltersEmpty ){
       mpDelayFilters.clear();
     }
-    mMaxLatency = getLatencyUSec();
+    mMaxLatency = getLatencyUSecLocked();
     for(auto& pSink : mpSinks ){
-      mpDelayFilters.insert_or_assign( pSink, std::make_shared<DelayFilter>( pSink->getAudioFormat(), mMaxLatency-pSink->getLatencyUSec() ) );
+      int nDelay = mMaxLatency-pSink->getLatencyUSec();
+      if( nDelay && !mpDelayFilters.contains( pSink ) ){
+        mpDelayFilters.insert_or_assign( pSink, std::make_shared<DelayFilter>( pSink->getAudioFormat(), nDelay ) );
+      }
     }
   }
 }
@@ -76,22 +88,30 @@ void MultipleSink::ensureDelayFilters(bool bForceRecreate)
 void MultipleSink::writePrimitive(IAudioBuffer& buf)
 {
   AudioBuffer* pBuf = dynamic_cast<AudioBuffer*>(&buf);
+  mSinkMutex.lock();
   for(auto& pSink : mpSinks ){
+    std::cout << pSink->toString() << std::endl;
     if( pBuf ){
       AudioFormat::ChannelMapper mapper = mChannelMaps[ pSink ];
       AudioFormat sinkFormat = pSink->getAudioFormat();
       if( sinkFormat.getNumberOfChannels() >= mapper.size() ){
         AudioBuffer selectedChannelData = pBuf->getSelectedChannelData( sinkFormat, mapper );
-        ensureDelayFilters();
-        AudioBuffer delayedOut( sinkFormat, pBuf->getNumberOfSamples() );
-        std::shared_ptr<DelayFilter> pDelayFilter = mpDelayFilters[ pSink ];
-        pDelayFilter->process( selectedChannelData, delayedOut );
-        pSink->write( delayedOut );
+        ensureDelayFiltersLocked();
+        if( mpDelayFilters.contains( pSink ) ){
+          AudioBuffer delayedOut( sinkFormat, pBuf->getNumberOfSamples() );
+          std::shared_ptr<DelayFilter> pDelayFilter = mpDelayFilters[ pSink ];
+          pDelayFilter->process( selectedChannelData, delayedOut );
+          pSink->write( delayedOut );
+        } else {
+          pSink->write( selectedChannelData );
+        }
       }
     } else {
+        std::cout << "11" << std::endl;
       pSink->write( buf );
     }
   }
+  mSinkMutex.unlock();
 }
 
 void MultipleSink::dump(void)
@@ -140,6 +160,7 @@ AudioFormat MultipleSink::getAudioFormat(void)
 std::vector<AudioFormat> MultipleSink::getSupportedAudioFormats(void)
 {
   std::vector<AudioFormat> result;
+  mSinkMutex.lock();
   if( mpSinks.size()>=1 ){
     result = mpSinks[0]->getSupportedAudioFormats();
     for( int i=1; i<mpSinks.size(); i++ ){
@@ -147,11 +168,12 @@ std::vector<AudioFormat> MultipleSink::getSupportedAudioFormats(void)
       result = mbSupportedFormatsOpOR ? audioFormatOpOR( result, theFormats ) : audioFormatOpAND( result, theFormats );
     }
   }
+  mSinkMutex.unlock();
   return result;
 }
 
 
-int MultipleSink::getLatencyUSec(void)
+int MultipleSink::getLatencyUSecLocked(void)
 {
   int nLatencyUsec = 0;
 
@@ -163,13 +185,26 @@ int MultipleSink::getLatencyUSec(void)
   return nLatencyUsec;
 }
 
+int MultipleSink::getLatencyUSec(void)
+{
+  int nLatencyUsec = 0;
+
+  mSinkMutex.lock();
+  nLatencyUsec = getLatencyUSecLocked();
+  mSinkMutex.unlock();
+
+  return nLatencyUsec;
+}
+
 float MultipleSink::getVolume(void)
 {
   float result = 0.0f;
 
+  mSinkMutex.lock();
   for(auto& pSink : mpSinks ){
     result = std::max<float>( result, pSink->getVolume() );
   }
+  mSinkMutex.unlock();
 
   return result;
 }
@@ -179,14 +214,16 @@ bool MultipleSink::setVolume(float volumePercentage)
 {
   bool bResult = ISink::setVolume(volumePercentage);
 
+  mSinkMutex.lock();
   for(auto& pSink : mpSinks ){
     bResult &= pSink->setVolume(volumePercentage);
   }
+  mSinkMutex.unlock();
 
   return bResult;
 }
 
-std::vector<float> MultipleSink::getPerSinkChannelVolumes(std::shared_ptr<ISink> pSink, Volume::CHANNEL_VOLUME perChannelVolumes)
+std::vector<float> MultipleSink::getPerSinkChannelVolumesLocked(std::shared_ptr<ISink> pSink, Volume::CHANNEL_VOLUME perChannelVolumes)
 {
   std::vector<float> result;
   if( pSink && mChannelMaps.contains(pSink) ){
@@ -209,9 +246,11 @@ bool MultipleSink::setVolume(Volume::CHANNEL_VOLUME perChannelVolumes)
 {
   bool bResult = true;
 
+  mSinkMutex.lock();
   for(auto& pSink : mpSinks ){
-    bResult &= pSink->setVolume( getPerSinkChannelVolumes(pSink, perChannelVolumes) );
+    bResult &= pSink->setVolume( getPerSinkChannelVolumesLocked(pSink, perChannelVolumes) );
   }
+  mSinkMutex.unlock();
 
   return bResult;
 }
@@ -220,9 +259,11 @@ bool MultipleSink::setVolume(Volume::CHANNEL_VOLUME perChannelVolumes)
 int MultipleSink::stateResourceConsumption(void)
 {
   int nProcessingResource = 0;
+  mSinkMutex.lock();
   for(auto& pSink : mpSinks ){
     nProcessingResource += pSink->stateResourceConsumption();
   }
+  mSinkMutex.unlock();
 
   return nProcessingResource;
 }

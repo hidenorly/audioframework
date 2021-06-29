@@ -218,21 +218,40 @@ TEST_F(TestCase_Output, testOutputSinkSwitch)
     }
   };
 
+  class OutputManager : public MultipleSink
+  {
+    std::map<std::string, std::shared_ptr<ISink>> mSinks;
+    std::string mPrimaryOutput;
+    std::string mConcurrentOutput;
+  public:
+    OutputManager(std::map<std::string, std::shared_ptr<ISink>> sinks, std::string primayOutput, std::string concurrentOutput = ""){
+      mSinks = sinks;
+      setPrimaryOutput(primayOutput, concurrentOutput);
+    };
+    virtual ~OutputManager(){};
+    void setPrimaryOutput(std::string primaryOutput, std::string concurrentOutput = ""){
+      std::cout << "setPrimaryOutput(" << primaryOutput << ", " << concurrentOutput << ")" << std::endl;
+      if( ( mPrimaryOutput != primaryOutput ) && mSinks.contains(primaryOutput) && mSinks[primaryOutput] ){
+        detachSink( mSinks[mPrimaryOutput] );
+        attachSink( mSinks[primaryOutput], mSinks[primaryOutput]->getAudioFormat().getSameChannelMapper() );
+        mPrimaryOutput = primaryOutput;
+      }
+      if( ( concurrentOutput != "" ) && ( mConcurrentOutput != concurrentOutput ) && mSinks.contains(concurrentOutput) && mSinks[concurrentOutput]){
+        detachSink( mSinks[mConcurrentOutput] );
+        attachSink( mSinks[concurrentOutput], mSinks[concurrentOutput]->getAudioFormat().getSameChannelMapper() );
+        mConcurrentOutput = concurrentOutput;
+      }
+    };
+  };
+
   std::map<std::string, std::shared_ptr<ISink>> sinkManager = SinkFactory::getSinks();
+  std::shared_ptr<PipedSink> pSpeakerSink = std::dynamic_pointer_cast<PipedSink>( sinkManager["speaker"] );
+  pSpeakerSink->addFilterToTail( std::make_shared<SpeakerProtectionFilter>() );
 
   // --- start condition : speaker + spdif
   // stream 1: Source -> Pipe -> PipeMixer -> MultipleSink -> PipeSink(SpeakerProtection) -> Speaker
   // stream 2: Source -> Pipe ->                           -> EncodedSink -> Spdif
-  std::shared_ptr<MultipleSink> pMultiSink = std::make_shared<MultipleSink>();
-  // add spdif sink
-  AudioFormat::ChannelMapper chMapSpdif = sinkManager["spdif"]->getAudioFormat().getSameChannelMapper();
-  pMultiSink->attachSink( sinkManager["spdif"], chMapSpdif );
-  // add/setup SpeakerSink
-  std::shared_ptr<PipedSink> pSpeakerSink = std::dynamic_pointer_cast<PipedSink>( sinkManager["speaker"] );
-  pSpeakerSink->addFilterToTail( std::make_shared<SpeakerProtectionFilter>() );
-  AudioFormat::ChannelMapper chMapSpeaker = pSpeakerSink->getAudioFormat().getSameChannelMapper();
-  pMultiSink->attachSink( pSpeakerSink, chMapSpeaker );
-  pSpeakerSink->run();
+  std::shared_ptr<OutputManager> pMultiSink = std::make_shared<OutputManager>( sinkManager, "speaker", "spdif" );
 
   std::shared_ptr<PipeMixer> pPipeMixer = std::make_shared<PipeMixer>();
   pPipeMixer->attachSink( pMultiSink );
@@ -253,7 +272,7 @@ TEST_F(TestCase_Output, testOutputSinkSwitch)
   pStream1->run();
   pStream2->run();
   std::this_thread::sleep_for(std::chrono::microseconds(1000));
- 
+
   pMultiSink->dump();
 
   // --- switch to audio system + spdif
@@ -263,13 +282,10 @@ TEST_F(TestCase_Output, testOutputSinkSwitch)
   // switch to:
   //  stream 1: Source -> Pipe -> PipeMixer -> MultipleSink -> EncodedSink -> Hdmi
   //  stream 2: Source -> Pipe ->                           -> EncodedSink -> Spdif
-  pMultiSink->detachSink( sinkManager["speaker"] );
-  AudioFormat::ChannelMapper chMapHdmi = sinkManager["hdmi"]->getAudioFormat().getSameChannelMapper();
-  pMultiSink->attachSink( sinkManager["hdmi"], chMapHdmi );
+  pMultiSink->setPrimaryOutput("hdmi");
 
   std::this_thread::sleep_for(std::chrono::microseconds(1000));
   pMultiSink->dump();
-
 
   // --- switch to bluetooth + spdif
   // switch from:
@@ -278,13 +294,10 @@ TEST_F(TestCase_Output, testOutputSinkSwitch)
   // switch to:
   //  stream 1: Source -> Pipe -> PipeMixer -> MultipleSink -> Bluetooth
   //  stream 2: Source -> Pipe ->                           -> EncodedSink -> Spdif
-  pMultiSink->detachSink( sinkManager["hdmi"] );
-  AudioFormat::ChannelMapper chMapBT = sinkManager["bluetooth"]->getAudioFormat().getSameChannelMapper();
-  pMultiSink->attachSink( sinkManager["bluetooth"], chMapBT );
+  pMultiSink->setPrimaryOutput("bluetooth");
 
   std::this_thread::sleep_for(std::chrono::microseconds(1000));
   pMultiSink->dump();
 
   // TODO : convert the above to Stratgey and add several Strategy to switch sink
-
 }

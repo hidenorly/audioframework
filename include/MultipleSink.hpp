@@ -24,11 +24,13 @@
 #include <vector>
 #include <map>
 #include <memory>
+#include <mutex>
 
 
 class MultipleSink : public ISink
 {
 protected:
+  std::mutex mSinkMutex;
   std::vector<std::shared_ptr<ISink>> mpSinks;
   std::map<std::shared_ptr<ISink>, AudioFormat::ChannelMapper> mChannelMaps;
   AudioFormat mFormat;
@@ -36,13 +38,14 @@ protected:
   int mMaxLatency;
   bool mbSupportedFormatsOpOR;
 
-  void ensureDelayFilters(bool bForceRecreate = false);
-  std::vector<float> getPerSinkChannelVolumes(std::shared_ptr<ISink> pSink, Volume::CHANNEL_VOLUME perChannelVolumes);
+  void ensureDelayFiltersLocked(bool bForceRecreate = false);
+  std::vector<float> getPerSinkChannelVolumesLocked(std::shared_ptr<ISink> pSink, Volume::CHANNEL_VOLUME perChannelVolumes);
+  virtual int getLatencyUSecLocked(void);
 
 public:
   MultipleSink(AudioFormat audioFormat = AudioFormat(), bool bSupportedFormatsOpOR = false);
   virtual ~MultipleSink();
-  virtual void attachSink(std::shared_ptr<ISink> pSink, AudioFormat::ChannelMapper& map);
+  virtual void attachSink(std::shared_ptr<ISink> pSink, AudioFormat::ChannelMapper map);
   virtual bool detachSink(std::shared_ptr<ISink> pSink);
   virtual void clearSinks();
 

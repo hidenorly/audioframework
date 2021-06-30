@@ -90,10 +90,10 @@ void MultipleSink::writePrimitive(IAudioBuffer& buf)
   AudioBuffer* pBuf = dynamic_cast<AudioBuffer*>(&buf);
   mSinkMutex.lock();
   for(auto& pSink : mpSinks ){
-    std::cout << pSink->toString() << std::endl;
-    if( pBuf ){
+//    std::cout << "MultipleSink::writePrimitive to " << pSink->toString() << std::endl;
+    AudioFormat sinkFormat = pSink->getAudioFormat();
+    if( pBuf && sinkFormat.isEncodingPcm() ){
       AudioFormat::ChannelMapper mapper = mChannelMaps[ pSink ];
-      AudioFormat sinkFormat = pSink->getAudioFormat();
       if( sinkFormat.getNumberOfChannels() >= mapper.size() ){
         AudioBuffer selectedChannelData = pBuf->getSelectedChannelData( sinkFormat, mapper );
         ensureDelayFiltersLocked();
@@ -107,7 +107,6 @@ void MultipleSink::writePrimitive(IAudioBuffer& buf)
         }
       }
     } else {
-        std::cout << "11" << std::endl;
       pSink->write( buf );
     }
   }

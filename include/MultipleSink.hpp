@@ -50,7 +50,14 @@ public:
   virtual void clearSinks();
 
   virtual void writePrimitive(IAudioBuffer& buf);
-  virtual std::string toString(void){ return "MultipleSink"; };
+  virtual std::string toString(void){
+    std::string result = "MultipleSink(";
+    for(auto& pSink : mpSinks){
+      result = result + pSink->toString() +",";
+    }
+    result = result + ")";
+    return result;
+  };
 
   virtual void setAudioFormatSupportOrModeEnabled(bool bSupportedFormatsOpOR);
   virtual bool getAudioFormatSupportOrModeEnabled(void);

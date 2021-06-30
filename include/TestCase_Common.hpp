@@ -83,7 +83,7 @@ class CompressedSource : public Source
 protected:
   AudioFormat mFormat;
 public:
-  CompressedSource():Source(){};
+  CompressedSource():Source(),mFormat(AudioFormat::ENCODING::COMPRESSED){};
   virtual ~CompressedSource(){};
   virtual void setAudioFormat(AudioFormat format){ mFormat=format; };
   virtual AudioFormat getAudioFormat(void){ return mFormat; };
@@ -102,7 +102,7 @@ protected:
   AudioFormat mFormat;
 
 public:
-  CompressedSink(AudioFormat::ENCODING encodingStartPoint = AudioFormat::ENCODING::COMPRESSED):Sink(){
+  CompressedSink(AudioFormat::ENCODING encodingStartPoint = AudioFormat::ENCODING::COMPRESSED):Sink(),mFormat(AudioFormat::ENCODING::ENCODING_DEFAULT){
     for(int anEncoding = encodingStartPoint; anEncoding < AudioFormat::ENCODING::COMPRESSED_UNKNOWN; anEncoding++){
       mAudioFormats.push_back( AudioFormat((AudioFormat::ENCODING)anEncoding) );
     }
@@ -215,6 +215,7 @@ class HdmiAudioSink : public CompressedSink
 public:
   HdmiAudioSink():CompressedSink(){};
   virtual ~HdmiAudioSink(){};
+  virtual std::string toString(void){ return "HdmiAudioSink";};
 };
 
 class SpdifSink : public CompressedSink
@@ -222,34 +223,80 @@ class SpdifSink : public CompressedSink
 public:
   SpdifSink():CompressedSink(){};
   virtual ~SpdifSink(){};
+  virtual std::string toString(void){ return "SpdifSink";};
 };
 
-class  LPcmSink : public Sink
+class LPcmSink : public Sink
 {
 public:
   LPcmSink():Sink(){};
   virtual ~LPcmSink(){};
 };
 
-class  SpeakerSink : public LPcmSink
+class SpeakerSink : public LPcmSink
 {
 public:
   SpeakerSink():LPcmSink(){};
   virtual ~SpeakerSink(){};
+  virtual std::string toString(void){ return "SpeakerSink";};
 };
 
-class  HeadphoneSink : public LPcmSink
+class HeadphoneSink : public LPcmSink
 {
 public:
   HeadphoneSink():LPcmSink(){};
   virtual ~HeadphoneSink(){};
+  virtual std::string toString(void){ return "HeadphoneSink";};
 };
 
-class  BluetoothAudioSink : public LPcmSink
+class BluetoothAudioSink : public LPcmSink
 {
 public:
   BluetoothAudioSink():LPcmSink(){};
   virtual ~BluetoothAudioSink(){};
+  virtual std::string toString(void){ return "BluetoothAudioSink";};
+};
+
+class SinkFactory
+{
+public:
+  static std::map<std::string, std::shared_ptr<ISink>> getSinks(void)
+  {
+    std::map<std::string, std::shared_ptr<ISink>> sinkManager;
+    sinkManager.insert_or_assign("speaker",   std::make_shared<PipedSink>( std::make_shared<SpeakerSink>() ));
+    sinkManager.insert_or_assign("headphone", std::make_shared<HeadphoneSink>());
+    sinkManager.insert_or_assign("hdmi",      std::make_shared<EncodedSink>( std::make_shared<HdmiAudioSink>(), /* trasncoder */ true ));
+    sinkManager.insert_or_assign("spdif",     std::make_shared<EncodedSink>( std::make_shared<SpdifSink>(), /* trasncoder */ true ));
+    sinkManager.insert_or_assign("bluetooth", std::make_shared<BluetoothAudioSink>());
+
+    return sinkManager;
+  }
+};
+
+class OutputManager : public MultipleSink
+{
+  std::map<std::string, std::shared_ptr<ISink>> mSinks;
+  std::string mPrimaryOutput;
+  std::string mConcurrentOutput;
+public:
+  OutputManager(std::map<std::string, std::shared_ptr<ISink>> sinks, std::string primayOutput, std::string concurrentOutput = ""){
+    mSinks = sinks;
+    setPrimaryOutput(primayOutput, concurrentOutput);
+  };
+  virtual ~OutputManager(){};
+  void setPrimaryOutput(std::string primaryOutput, std::string concurrentOutput = ""){
+    std::cout << "setPrimaryOutput(" << primaryOutput << ", " << concurrentOutput << ")" << std::endl;
+    if( ( mPrimaryOutput != primaryOutput ) && mSinks.contains(primaryOutput) && mSinks[primaryOutput] ){
+      detachSink( mSinks[mPrimaryOutput] );
+      attachSink( mSinks[primaryOutput], mSinks[primaryOutput]->getAudioFormat().getSameChannelMapper() );
+      mPrimaryOutput = primaryOutput;
+    }
+    if( ( concurrentOutput != "" ) && ( mConcurrentOutput != concurrentOutput ) && mSinks.contains(concurrentOutput) && mSinks[concurrentOutput]){
+      detachSink( mSinks[mConcurrentOutput] );
+      attachSink( mSinks[concurrentOutput], mSinks[concurrentOutput]->getAudioFormat().getSameChannelMapper() );
+      mConcurrentOutput = concurrentOutput;
+    }
+  };
 };
 
 #endif /* __TESTCASE_COMMON_HPP__ */

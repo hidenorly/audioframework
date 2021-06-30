@@ -200,50 +200,8 @@ TEST_F(TestCase_Output, testPipeSetupByCondition)
   pContext->pSink->dump();
 }
 
-TEST_F(TestCase_Output, testOutputSinkSwitch)
+TEST_F(TestCase_Output, testOutputSinkSwitchLpcm)
 {
-  class SinkFactory
-  {
-  public:
-    static std::map<std::string, std::shared_ptr<ISink>> getSinks(void)
-    {
-      std::map<std::string, std::shared_ptr<ISink>> sinkManager;
-      sinkManager.insert_or_assign("speaker",   std::make_shared<PipedSink>( std::make_shared<SpeakerSink>() ));
-      sinkManager.insert_or_assign("headphone", std::make_shared<HeadphoneSink>());
-      sinkManager.insert_or_assign("hdmi",      std::make_shared<EncodedSink>( std::make_shared<HdmiAudioSink>(), /* trasncoder */ true ));
-      sinkManager.insert_or_assign("spdif",     std::make_shared<EncodedSink>( std::make_shared<SpdifSink>(), /* trasncoder */ true ));
-      sinkManager.insert_or_assign("bluetooth", std::make_shared<BluetoothAudioSink>());
-
-      return sinkManager;
-    }
-  };
-
-  class OutputManager : public MultipleSink
-  {
-    std::map<std::string, std::shared_ptr<ISink>> mSinks;
-    std::string mPrimaryOutput;
-    std::string mConcurrentOutput;
-  public:
-    OutputManager(std::map<std::string, std::shared_ptr<ISink>> sinks, std::string primayOutput, std::string concurrentOutput = ""){
-      mSinks = sinks;
-      setPrimaryOutput(primayOutput, concurrentOutput);
-    };
-    virtual ~OutputManager(){};
-    void setPrimaryOutput(std::string primaryOutput, std::string concurrentOutput = ""){
-      std::cout << "setPrimaryOutput(" << primaryOutput << ", " << concurrentOutput << ")" << std::endl;
-      if( ( mPrimaryOutput != primaryOutput ) && mSinks.contains(primaryOutput) && mSinks[primaryOutput] ){
-        detachSink( mSinks[mPrimaryOutput] );
-        attachSink( mSinks[primaryOutput], mSinks[primaryOutput]->getAudioFormat().getSameChannelMapper() );
-        mPrimaryOutput = primaryOutput;
-      }
-      if( ( concurrentOutput != "" ) && ( mConcurrentOutput != concurrentOutput ) && mSinks.contains(concurrentOutput) && mSinks[concurrentOutput]){
-        detachSink( mSinks[mConcurrentOutput] );
-        attachSink( mSinks[concurrentOutput], mSinks[concurrentOutput]->getAudioFormat().getSameChannelMapper() );
-        mConcurrentOutput = concurrentOutput;
-      }
-    };
-  };
-
   std::map<std::string, std::shared_ptr<ISink>> sinkManager = SinkFactory::getSinks();
   std::shared_ptr<PipedSink> pSpeakerSink = std::dynamic_pointer_cast<PipedSink>( sinkManager["speaker"] );
   pSpeakerSink->addFilterToTail( std::make_shared<SpeakerProtectionFilter>() );
@@ -261,13 +219,73 @@ TEST_F(TestCase_Output, testOutputSinkSwitch)
   std::shared_ptr<IPipe> pStream1 = std::make_shared<Pipe>();
   pStream1->attachSource( std::make_shared<Source>() );
   pStream1->addFilterToTail( std::make_shared<FilterIncrement>());
-  pStream1->attachSink( pPipeMixer->allocateSinkAdaptor() );
+  pStream1->attachSink( pPipeMixer->allocateSinkAdaptor(pStream1) );
 
   // attaching stream2 to PipeMixer
   std::shared_ptr<IPipe> pStream2 = std::make_shared<Pipe>();
   pStream2->attachSource( std::make_shared<Source>() );
   pStream2->addFilterToTail( std::make_shared<FilterIncrement>());
-  pStream2->attachSink( pPipeMixer->allocateSinkAdaptor() );
+  pStream2->attachSink( pPipeMixer->allocateSinkAdaptor(pStream2) );
+
+  pStream1->run();
+  pStream2->run();
+  std::this_thread::sleep_for(std::chrono::microseconds(1000));
+
+  pMultiSink->dump();
+
+  // --- switch to audio system + spdif
+  // switch from:
+  //  stream 1: Source -> Pipe -> PipeMixer -> MultipleSink -> PipeSink(SpeakerProtection) -> Speaker
+  //  stream 2: Source -> Pipe ->                           -> EncodedSink -> Spdif
+  // switch to:
+  //  stream 1: Source -> Pipe -> PipeMixer -> MultipleSink -> EncodedSink -> Hdmi
+  //  stream 2: Source -> Pipe ->                           -> EncodedSink -> Spdif
+  pMultiSink->setPrimaryOutput("hdmi");
+
+  std::this_thread::sleep_for(std::chrono::microseconds(1000));
+  pMultiSink->dump();
+
+  // --- switch to bluetooth + spdif
+  // switch from:
+  //  stream 1: Source -> Pipe -> PipeMixer -> MultipleSink -> EncodedSink -> Hdmi
+  //  stream 2: Source -> Pipe ->                           -> EncodedSink -> Spdif
+  // switch to:
+  //  stream 1: Source -> Pipe -> PipeMixer -> MultipleSink -> Bluetooth
+  //  stream 2: Source -> Pipe ->                           -> EncodedSink -> Spdif
+  pMultiSink->setPrimaryOutput("bluetooth");
+
+  std::this_thread::sleep_for(std::chrono::microseconds(1000));
+  pMultiSink->dump();
+
+  // TODO : convert the above to Stratgey and add several Strategy to switch sink
+}
+
+TEST_F(TestCase_Output, testOutputSinkSwitchCompressed)
+{
+  std::map<std::string, std::shared_ptr<ISink>> sinkManager = SinkFactory::getSinks();
+  std::shared_ptr<PipedSink> pSpeakerSink = std::dynamic_pointer_cast<PipedSink>( sinkManager["speaker"] );
+  pSpeakerSink->addFilterToTail( std::make_shared<SpeakerProtectionFilter>() );
+
+  // --- start condition : speaker + spdif
+  // stream 1: Source -> Pipe -> PipeMixer -> MultipleSink -> PipeSink(SpeakerProtection) -> Speaker
+  // stream 2: Source -> Pipe ->                           -> EncodedSink -> Spdif
+  std::shared_ptr<OutputManager> pMultiSink = std::make_shared<OutputManager>( sinkManager, "speaker", "spdif" );
+
+  std::shared_ptr<PipeMixer> pPipeMixer = std::make_shared<PipeMixer>();
+  pPipeMixer->attachSink( pMultiSink );
+  pPipeMixer->run();
+
+  // attaching stream1 to PipeMixer
+  std::shared_ptr<IPipe> pStream1 = std::make_shared<Pipe>();
+  pStream1->attachSource( std::make_shared<CompressedSource>() );
+  pStream1->addFilterToTail( std::make_shared<FilterIncrement>());
+  pStream1->attachSink( pPipeMixer->allocateSinkAdaptor(pStream1) );
+
+  // attaching stream2 to PipeMixer
+  std::shared_ptr<IPipe> pStream2 = std::make_shared<Pipe>();
+  pStream2->attachSource( std::make_shared<Source>() );
+  pStream2->addFilterToTail( std::make_shared<FilterIncrement>());
+  pStream2->attachSink( pPipeMixer->allocateSinkAdaptor(pStream2) );
 
   pStream1->run();
   pStream2->run();

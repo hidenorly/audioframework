@@ -18,12 +18,14 @@
 #define __PIPEMIXER_HPP__
 
 #include "Sink.hpp"
+#include "Pipe.hpp"
 #include "InterPipeBridge.hpp"
 #include "AudioFormat.hpp"
 #include "ThreadBase.hpp"
 #include <vector>
 #include <mutex>
 #include <thread>
+#include <map>
 #include <memory>
 
 class PipeMixer : public ThreadBase
@@ -31,6 +33,7 @@ class PipeMixer : public ThreadBase
 protected:
   std::mutex mMutexPipe;
   std::vector<std::shared_ptr<InterPipeBridge>> mpInterPipeBridges;
+  std::map<std::shared_ptr<InterPipeBridge>, std::weak_ptr<IPipe>> mpPipes;
   AudioFormat mFormat;
   std::shared_ptr<ISink> mpSink;
 
@@ -46,7 +49,7 @@ public:
   virtual std::shared_ptr<ISink> attachSink(std::shared_ptr<ISink> pSink);
   virtual std::shared_ptr<ISink> detachSink(void);
 
-  virtual std::shared_ptr<ISink> allocateSinkAdaptor(void);
+  virtual std::shared_ptr<ISink> allocateSinkAdaptor(std::shared_ptr<IPipe> pPipe = nullptr);
   virtual void releaseSinkAdaptor(std::shared_ptr<ISink> pSink);
 };
 

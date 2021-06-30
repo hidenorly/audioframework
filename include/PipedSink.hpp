@@ -47,7 +47,7 @@ public:
   virtual void clearFilters(void);
 
   virtual void writePrimitive(IAudioBuffer& buf);
-  virtual std::string toString(void){ return "PipedSink"; };
+  virtual std::string toString(void){ return std::string("PipedSink(") + (mpSink ? mpSink->toString() : "") + ")"; };
   virtual void dump(void);
 
   virtual bool setAudioFormat(AudioFormat audioFormat);

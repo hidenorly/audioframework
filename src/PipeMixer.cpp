@@ -28,6 +28,8 @@ PipeMixer::~PipeMixer()
 {
   stop();
   detachSink();
+  mpInterPipeBridges.clear();
+  mpPipes.clear();
 }
 
 bool PipeMixer::setAudioFormat(AudioFormat audioFormat)
@@ -69,7 +71,17 @@ void PipeMixer::process(void)
     while( mbIsRunning && (nCurrentPipeSize == mpInterPipeBridges.size()) ){
       mMutexPipe.lock();
       for(int i=0; mbIsRunning && i<mpInterPipeBridges.size(); i++){
-        mpInterPipeBridges[i]->read( *buffers[i] );
+        std::shared_ptr<IPipe> pPipe = nullptr;
+        if( mpPipes.contains( mpInterPipeBridges[i] ) ){
+          pPipe = mpPipes[mpInterPipeBridges[i]].lock();
+        }
+        if( pPipe && pPipe->isRunning() || !pPipe ){
+          mpInterPipeBridges[i]->read( *buffers[i] );
+        } else {
+          ByteBuffer zeroBuffer( buffers[i]->getRawBuffer().size(), 0 );
+          buffers[i]->setRawBuffer(zeroBuffer);
+        }
+        pPipe.reset();
       }
       mMutexPipe.unlock();
       if( mbIsRunning ){
@@ -94,11 +106,12 @@ void PipeMixer::unlockToStop(void)
   }
 }
 
-std::shared_ptr<ISink> PipeMixer::allocateSinkAdaptor(void)
+std::shared_ptr<ISink> PipeMixer::allocateSinkAdaptor(std::shared_ptr<IPipe> pPipe)
 {
   std::shared_ptr<InterPipeBridge> pInterPipeBridge = std::make_shared<InterPipeBridge>( mFormat );
   mMutexPipe.lock();
   mpInterPipeBridges.push_back( pInterPipeBridge );
+  mpPipes.insert_or_assign( pInterPipeBridge, pPipe );
   mMutexPipe.unlock();
   return pInterPipeBridge;
 }
@@ -110,6 +123,7 @@ void PipeMixer::releaseSinkAdaptor(std::shared_ptr<ISink> pSink)
     pInterPipeBridge->unlock(); // TODO: May not enough to unlock this only.
     mMutexPipe.lock();
     std::erase( mpInterPipeBridges, pInterPipeBridge );
+    mpPipes.erase( pInterPipeBridge );
     mMutexPipe.unlock();
   }
 }

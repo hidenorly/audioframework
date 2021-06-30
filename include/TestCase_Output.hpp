@@ -28,7 +28,8 @@ protected:
   virtual void TearDown();
 
   void testPipeSetupByCondition(void);
-  void testOutputSinkSwitch(void);
+  void testOutputSinkSwitchLpcm(void);
+  void testOutputSinkSwitchCompressed(void);
 };
 
 #endif /* __TESTCASE_OUTPUT_HPP__ */

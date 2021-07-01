@@ -39,7 +39,7 @@ void FifoBufferBase::setFifoSizeLimit(int nSampleLimit)
   mFifoSizeLimit = nChannelSampleByte ? (nSampleLimit * nChannelSampleByte) : nSampleLimit;
 }
 
-void FifoBufferBase::setAudioFormat( AudioFormat audioFormat )
+bool FifoBufferBase::setAudioFormat( AudioFormat audioFormat )
 {
   if( !audioFormat.equal( mFormat) ){
     unlock();
@@ -49,6 +49,7 @@ void FifoBufferBase::setAudioFormat( AudioFormat audioFormat )
     setFifoSizeLimit( nSamples );
     mBuf.clear();
   }
+  return true;
 }
 
 void FifoBufferBase::clearBuffer(void)

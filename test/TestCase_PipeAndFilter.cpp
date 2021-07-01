@@ -469,6 +469,93 @@ TEST_F(TestCase_PipeAndFilter, testPipeMixer)
   pSink->dump();
 }
 
+TEST_F(TestCase_PipeAndFilter, testMixerSplitter)
+{
+  // Signal flow
+  //  Source1 -> Pipe1(->FilterIncrement->) -> |MixerSplitter | -> Sink
+  //  Source2 -> Pipe2(->FilterIncrement->) -> |(mix here)    |
+
+  std::shared_ptr<MixerSplitter> pMixerSplitter = std::make_shared<MixerSplitter>();
+  std::shared_ptr<ISink> pSink1 = std::make_shared<LPcmSink>();
+  std::shared_ptr<ISink> pSink2 = std::make_shared<CompressedSink>();
+  pSink2->setAudioFormat( AudioFormat(AudioFormat::ENCODING::PCM_16BIT));
+  pMixerSplitter->addSink( pSink1 );
+  pMixerSplitter->addSink( pSink2 );
+
+  std::shared_ptr<IPipe> pStream1 = std::make_shared<Pipe>();
+  std::shared_ptr<ISource> pSource1 = std::make_shared<Source>();
+  pStream1->attachSource( pSource1 );
+  pStream1->addFilterToTail( std::make_shared<FilterIncrement>() );
+  std::shared_ptr<ISink> pSinkAdaptor1 = pMixerSplitter->allocateSinkAdaptor( AudioFormat(), pStream1 );
+  pStream1->attachSink( pSinkAdaptor1 );
+
+  std::shared_ptr<IPipe> pStream2 = std::make_shared<Pipe>();
+  std::shared_ptr<ISource> pSource2 = std::make_shared<Source>();
+  pStream2->attachSource( pSource2 );
+  pStream2->attachSink( pMixerSplitter->allocateSinkAdaptor( AudioFormat(), pStream2 ) );
+  pStream2->addFilterToTail( std::make_shared<FilterIncrement>() );
+  std::shared_ptr<ISink> pSinkAdaptor2 = pMixerSplitter->allocateSinkAdaptor( AudioFormat(), pStream2 );
+  pStream2->attachSink( pSinkAdaptor2 );
+
+  pMixerSplitter->map( pSinkAdaptor1, pSink1 );
+  pMixerSplitter->map( pSinkAdaptor2, pSink1 );
+
+  std::cout << "pStream1+pStream2=>pSink1" << std::endl;
+  pStream1->run();
+  pStream2->run();
+  pMixerSplitter->run();
+
+  std::this_thread::sleep_for(std::chrono::microseconds(1000));
+
+  pMixerSplitter->stop();
+  pStream1->stop();
+  pStream2->stop();
+  EXPECT_FALSE(pMixerSplitter->isRunning());
+
+  pMixerSplitter->dump();
+
+  EXPECT_TRUE( pMixerSplitter->unmap( pSinkAdaptor2 ) );
+  pMixerSplitter->map( pSinkAdaptor2, pSink2 );
+
+  std::cout << "pStream1=>pSink1, pStream2=>pSink2" << std::endl;
+  pStream1->run();
+  pStream2->run();
+  pMixerSplitter->run();
+  std::this_thread::sleep_for(std::chrono::microseconds(1000));
+
+  pMixerSplitter->stop();
+  pStream1->stop();
+  pStream2->stop();
+  EXPECT_FALSE(pMixerSplitter->isRunning());
+
+  pMixerSplitter->dump();
+
+
+  EXPECT_TRUE( pMixerSplitter->unmap( pSinkAdaptor2 ) );
+  pMixerSplitter->conditionalMap( pSinkAdaptor2, pSink1, std::make_shared<MixerSplitter::MapAnyPcmCondition>() );
+  pMixerSplitter->conditionalMap( pSinkAdaptor2, pSink1, std::make_shared<MixerSplitter::MapAnyCompressedCondition>() );
+
+  std::cout << "pStream1+pStream2(if PCM)=>pSink1" << std::endl;
+  std::cout << "pStream1=>pSink1, pStream2(if Compressed)=>pSink2" << std::endl;
+  pStream2->attachSource( std::make_shared<CompressedSource>() );
+  pSinkAdaptor2->setAudioFormat(AudioFormat(AudioFormat::ENCODING::COMPRESSED));
+  pSink2->setAudioFormat(AudioFormat(AudioFormat::ENCODING::COMPRESSED));
+  pStream2->clearFilters();
+
+  pStream1->run();
+  pStream2->run();
+  pMixerSplitter->run();
+  std::this_thread::sleep_for(std::chrono::microseconds(1000));
+
+  pMixerSplitter->stop();
+  pStream1->stop();
+  pStream2->stop();
+  EXPECT_FALSE(pMixerSplitter->isRunning());
+
+  pMixerSplitter->dump();
+
+}
+
 TEST_F(TestCase_PipeAndFilter, testPipedSink)
 {
   // Signal flow : Source -> Pipe(->FilterIncrement->) -> PipedSink(->FilterIncrement->) -> ActualSink

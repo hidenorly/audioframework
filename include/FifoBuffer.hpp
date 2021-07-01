@@ -43,7 +43,7 @@ public:
   int getBufferedSamples(void);
   void setFifoSizeLimit(int nSampleLimit);
   AudioFormat getAudioFormat(void){ return mFormat; };
-  void setAudioFormat( AudioFormat audioFormat );
+  bool setAudioFormat( AudioFormat audioFormat );
   void clearBuffer(void);
 };
 

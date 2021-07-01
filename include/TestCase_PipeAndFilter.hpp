@@ -43,6 +43,7 @@ protected:
   void testPipedSink(void);
   void testPipedSource(void);
   void testPipeMixer(void);
+  void testMixerSplitter(void);
 
   void testDecoder(void);
   void testPlayer(void);

@@ -40,8 +40,7 @@ void InterPipeBridge::writePrimitive(IAudioBuffer& buf)
 
 bool InterPipeBridge::setAudioFormat(AudioFormat audioFormat)
 {
-  throw std::runtime_error( "setAudioFormat is unsupported" );
-	return false;
+  return mFifoBuffer.setAudioFormat( audioFormat );
 }
 
 AudioFormat InterPipeBridge::getAudioFormat(void)

@@ -33,6 +33,7 @@
 #include "StreamSink.hpp"
 #include "StreamSource.hpp"
 #include "PipeMixer.hpp"
+#include "MixerSplitter.hpp"
 #include "PipedSink.hpp"
 #include "PipedSource.hpp"
 #include "Media.hpp"
@@ -231,6 +232,7 @@ class LPcmSink : public Sink
 public:
   LPcmSink():Sink(){};
   virtual ~LPcmSink(){};
+  virtual std::string toString(void){ return "LPcmSink";};
 };
 
 class SpeakerSink : public LPcmSink

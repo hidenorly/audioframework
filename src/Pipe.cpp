@@ -155,39 +155,52 @@ void Pipe::unlockToStop(void)
 void Pipe::process(void)
 {
   while(mbIsRunning && mpSource && mpSink){
-    float windowSizeUsec = getCommonWindowSizeUsec();
-    AudioFormat usingAudioFormat = getFilterAudioFormat();
-    float usingSamplingRate = usingAudioFormat.getSamplingRate();
-    float perSampleDurationUsec = 1000000.0f / usingSamplingRate;
-    int samples = windowSizeUsec / perSampleDurationUsec;
+    if( mpSource->getAudioFormat().isEncodingPcm() && mpSink->getAudioFormat().isEncodingPcm() ){
+      // TODO: Should check not only filter format but also source/sink formats.
+      float windowSizeUsec = getCommonWindowSizeUsec();
+      AudioFormat usingAudioFormat = getFilterAudioFormat();
+      float usingSamplingRate = usingAudioFormat.getSamplingRate();
+      float perSampleDurationUsec = 1000000.0f / usingSamplingRate;
+      int samples = windowSizeUsec / perSampleDurationUsec;
 
-    AudioBuffer* pInBuf = new AudioBuffer( usingAudioFormat, samples );
-    AudioBuffer* pOutBuf= new AudioBuffer( usingAudioFormat, samples );
-    AudioBuffer* pSinkOut = pInBuf;
+      AudioBuffer* pInBuf = new AudioBuffer( usingAudioFormat, samples );
+      AudioBuffer* pOutBuf= new AudioBuffer( usingAudioFormat, samples );
+      AudioBuffer* pSinkOut = pInBuf;
 
-    int nFilterSize = mFilters.size();
-    while( mbIsRunning && ( nFilterSize == mFilters.size() ) ) {
-      // TODO: implement wait during muting and implement unlock for the mute wait
-      mMutexSource.lock();
-      mpSource->read( *pInBuf );
-      mMutexSource.unlock();
+      int nFilterSize = mFilters.size();
+      while( mbIsRunning && ( nFilterSize == mFilters.size() && (mpSource->getAudioFormat().isEncodingPcm() && mpSink->getAudioFormat().isEncodingPcm())) ) {
+        // TODO: implement wait during muting and implement unlock for the mute wait
+        mMutexSource.lock();
+        mpSource->read( *pInBuf );
+        mMutexSource.unlock();
 
-      mMutexFilters.lock();
-      for( auto& pFilter : mFilters ) {
-        pFilter->process( *pInBuf, *pOutBuf );
-        pSinkOut = pOutBuf;
-        std::swap( pInBuf, pOutBuf );
+        mMutexFilters.lock();
+        for( auto& pFilter : mFilters ) {
+          pFilter->process( *pInBuf, *pOutBuf );
+          pSinkOut = pOutBuf;
+          std::swap( pInBuf, pOutBuf );
+        }
+        mMutexFilters.unlock();
+
+        // TODO : May change as directly write to the following buffer from the last filter to avoid the copy.
+        mMutexSink.lock();
+        mpSink->write( *pSinkOut );
+        mMutexSink.unlock();
       }
-      mMutexFilters.unlock();
 
-      // TODO : May change as directly write to the following buffer from the last filter to avoid the copy.
-      mMutexSink.lock();
-      mpSink->write( *pSinkOut );
-      mMutexSink.unlock();
+      delete pInBuf;  pInBuf = nullptr;
+      delete pOutBuf; pOutBuf = nullptr;
+    } else {
+      while( mbIsRunning && (mpSource->getAudioFormat().isEncodingCompressed() && mpSink->getAudioFormat().isEncodingCompressed()) ) {
+        CompressAudioBuffer buf;
+        mMutexSource.lock();
+        mpSource->read( buf );
+        mMutexSource.unlock();
+        mMutexSink.lock();
+        mpSink->write( buf );
+        mMutexSink.unlock();
+      }
     }
-
-    delete pInBuf;  pInBuf = nullptr;
-    delete pOutBuf; pOutBuf = nullptr;
   }
 }
 

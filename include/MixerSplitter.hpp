@@ -105,6 +105,7 @@ protected:
   std::shared_ptr<SourceSinkMapper> getSourceSinkMapperLocked(std::shared_ptr<ISink> pSource);
   virtual void mixPrimitiveLocked(std::vector<std::shared_ptr<ISink>> pSources, std::shared_ptr<ISink> pSink);
   bool removeMapperLocked(std::shared_ptr<ISink> srcSink);
+  bool isPipeRunningOrNotRegistered(std::shared_ptr<ISink> srcSink);
 
 public:
   MixerSplitter();

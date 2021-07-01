@@ -20,6 +20,16 @@
 #include <set>
 #include <iostream>
 
+bool MixerSplitter::isPipeRunningOrNotRegistered(std::shared_ptr<ISink> srcSink)
+{
+  std::shared_ptr<IPipe> pPipe = nullptr;
+  if( mpSourcePipes.contains( srcSink ) ){
+    pPipe = mpSourcePipes[ srcSink ].lock();
+  }
+  return ( pPipe && pPipe->isRunning() || !pPipe );
+}
+
+
 void MixerSplitter::mixPrimitiveLocked(std::vector<std::shared_ptr<ISink>> pSources, std::shared_ptr<ISink> pSink)
 {
   if( pSink->getAudioFormat().isEncodingPcm() ){
@@ -33,12 +43,8 @@ void MixerSplitter::mixPrimitiveLocked(std::vector<std::shared_ptr<ISink>> pSour
     }
 
     for(int i=0; mbIsRunning && i<pSources.size(); i++){
-      std::shared_ptr<IPipe> pPipe = nullptr;
-      if( mpSourcePipes.contains( pSources[i] ) ){
-        pPipe = mpSourcePipes[pSources[i]].lock();
-      }
       bool bZeroData = true;
-      if( pPipe && pPipe->isRunning() || !pPipe ){
+      if( isPipeRunningOrNotRegistered( pSources[i] ) ){
         std::shared_ptr<InterPipeBridge> pSource = std::dynamic_pointer_cast<InterPipeBridge>(pSources[i]);
         if( pSource && pSource->getAudioFormat().isEncodingPcm() ){
           pSource->read( *buffers[i] );
@@ -49,7 +55,6 @@ void MixerSplitter::mixPrimitiveLocked(std::vector<std::shared_ptr<ISink>> pSour
         ByteBuffer zeroBuffer( buffers[i]->getRawBuffer().size(), 0 );
         buffers[i]->setRawBuffer(zeroBuffer);
       }
-      pPipe.reset();
     }
 
     if( mbIsRunning ){
@@ -66,15 +71,9 @@ void MixerSplitter::mixPrimitiveLocked(std::vector<std::shared_ptr<ISink>> pSour
     CompressAudioBuffer buf;
     for(auto& aSource : pSources){
       std::shared_ptr<InterPipeBridge> pSource = std::dynamic_pointer_cast<InterPipeBridge>(aSource);
-      std::shared_ptr<IPipe> pPipe = nullptr;
-      if( mpSourcePipes.contains( aSource ) ){
-        pPipe = mpSourcePipes[ aSource ].lock();
-      }
-      if( pPipe && pPipe->isRunning() || !pPipe ){
-        if( pSource ){
-          pSource->read( buf );
-          break;
-        }
+      if( isPipeRunningOrNotRegistered( aSource ) && pSource ){
+        pSource->read( buf );
+        break;
       }
     }
     pSink->write( buf );

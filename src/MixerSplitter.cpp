@@ -29,62 +29,10 @@ bool MixerSplitter::isPipeRunningOrNotRegistered(std::shared_ptr<ISink> srcSink)
   return ( pPipe && pPipe->isRunning() || !pPipe );
 }
 
-
-void MixerSplitter::mixPrimitiveLocked(std::vector<std::shared_ptr<ISink>> pSources, std::shared_ptr<ISink> pSink)
-{
-  if( pSink->getAudioFormat().isEncodingPcm() ){
-    int nSamples = 256;
-    AudioFormat outFormat = pSink->getAudioFormat();
-    AudioBuffer outBuf( outFormat, nSamples );
-    std::vector<AudioBuffer*> buffers;
-    int nCurrentPipeSize = pSources.size();
-    for(int i=0; i<nCurrentPipeSize; i++){
-      buffers.push_back( new AudioBuffer(outFormat, nSamples) );
-    }
-
-    for(int i=0; mbIsRunning && i<pSources.size(); i++){
-      bool bZeroData = true;
-      if( isPipeRunningOrNotRegistered( pSources[i] ) ){
-        std::shared_ptr<InterPipeBridge> pSource = std::dynamic_pointer_cast<InterPipeBridge>(pSources[i]);
-        if( pSource && pSource->getAudioFormat().isEncodingPcm() ){
-          pSource->read( *buffers[i] );
-          bZeroData = false;
-        }
-      }
-      if( bZeroData ) {
-        ByteBuffer zeroBuffer( buffers[i]->getRawBuffer().size(), 0 );
-        buffers[i]->setRawBuffer(zeroBuffer);
-      }
-    }
-
-    if( mbIsRunning ){
-      Mixer::process( buffers, &outBuf );
-    }
-    if( mbIsRunning ){
-      pSink->write( outBuf );
-    }
-    for( auto& pBuffer : buffers ){
-      delete pBuffer;
-    }
-    buffers.clear();
-  } else {
-    CompressAudioBuffer buf;
-    for(auto& aSource : pSources){
-      std::shared_ptr<InterPipeBridge> pSource = std::dynamic_pointer_cast<InterPipeBridge>(aSource);
-      if( isPipeRunningOrNotRegistered( aSource ) && pSource ){
-        pSource->read( buf );
-        break;
-      }
-    }
-    pSink->write( buf );
-  }
-}
-
 void MixerSplitter::process(void)
 {
   while( mbIsRunning && !mpSinks.empty() && !mpSources.empty() ){
     mMutexSourceSink.lock();
-
     std::map<std::shared_ptr<ISink>, std::vector<std::shared_ptr<ISink>>> mapper;
     for(auto& pConditionMapper : mSourceSinkMapper){
       if( !mapper.contains( pConditionMapper->sink ) ){
@@ -92,17 +40,36 @@ void MixerSplitter::process(void)
         mapper.insert_or_assign( pConditionMapper->sink, emptyArray );
       }
       std::shared_ptr<IPipe> pPipe = mpSourcePipes[ pConditionMapper->source ].lock();
-      if( pPipe && pPipe->isRunning() && pConditionMapper->condition->canHandle( pConditionMapper->sink->getAudioFormat() ) ){
+      if( ( (pPipe && pPipe->isRunning()) || !pPipe ) && pConditionMapper->condition->canHandle( pConditionMapper->source->getAudioFormat() ) ){
         mapper[ pConditionMapper->sink ].push_back( pConditionMapper->source );
       }
     }
 
-    // TODO: following mixPrimitiveLocked() should be executed in parallell by thread.
     for( auto& [pSink, pSources] : mapper ){
-        mixPrimitiveLocked( pSources, pSink );
-    }
+      // ensure PipeMixer
+      if( !mpMixers.contains(pSink) ){
+        mpMixers.insert_or_assign( pSink, std::make_shared<PipeMixer>( pSink->getAudioFormat(), pSink ) );
+      }
+      // setup PipeMixer
+      std::shared_ptr<PipeMixer> pPipeMixer = mpMixers[pSink];
+      pPipeMixer->attachSink( pSink );
+      std::vector<std::shared_ptr<ISink>> sources = pPipeMixer->getSinkAdaptors();
+      for( auto& pSinkAdaptor : pSources ){
+        pPipeMixer->attachSinkAdaptor( std::dynamic_pointer_cast<InterPipeBridge>(pSinkAdaptor), mpSourcePipes[ pSinkAdaptor ].lock() );
+        std::erase( sources, pSinkAdaptor );
+      }
+      // remove unused sink adaptors(=Source for the mixer) from pPipeMixer
+      for( auto& pSinkAdaptor : sources ){
+        pPipeMixer->releaseSinkAdaptor( pSinkAdaptor );
+      }
 
+      pPipeMixer->run();
+    }
     mMutexSourceSink.unlock();
+    std::this_thread::sleep_for(std::chrono::microseconds(1000));
+  }
+  for( auto& [pSink, pPipeMixer] : mpMixers ){
+    pPipeMixer->stop();
   }
 }
 
@@ -134,6 +101,7 @@ MixerSplitter::~MixerSplitter()
   mpSources.clear();
   mpSourcePipes.clear();
   mpSinks.clear();
+  mpMixers.clear();
 }
 
 std::vector<std::shared_ptr<ISink>> MixerSplitter::getAllOfSinks(void)
@@ -156,6 +124,10 @@ bool MixerSplitter::removeSink(std::shared_ptr<ISink> pSink)
     std::shared_ptr<IUnlockable> pLockable = std::dynamic_pointer_cast<IUnlockable>(pSink);
     if( pLockable ){
       pLockable->unlock();
+    }
+    if( mpMixers.contains( pSink ) ){
+      mpMixers[pSink]->stop();
+      mpMixers.erase(pSink);
     }
     int nCurrentSize = mpSinks.size();
     std::erase( mpSinks, pSink );

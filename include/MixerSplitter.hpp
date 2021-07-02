@@ -22,6 +22,7 @@
 #include "InterPipeBridge.hpp"
 #include "AudioFormat.hpp"
 #include "ThreadBase.hpp"
+#include "PipeMixer.hpp"
 #include <vector>
 #include <mutex>
 #include <thread>
@@ -95,6 +96,7 @@ protected:
   std::vector<std::shared_ptr<ISink>> mpSources;
   std::map<std::shared_ptr<ISink>, std::weak_ptr<IPipe>> mpSourcePipes;
   std::vector<std::shared_ptr<SourceSinkConditionMapper>> mSourceSinkMapper;
+  std::map<std::shared_ptr<ISink>, std::shared_ptr<PipeMixer>> mpMixers;
 
 protected:
   virtual void process(void);
@@ -103,7 +105,6 @@ protected:
   bool isSourceAvailableLocked(std::shared_ptr<ISink> pSink);
   std::shared_ptr<SourceSinkConditionMapper> getSourceSinkMapperLocked(std::shared_ptr<ISink> pSource, std::shared_ptr<ISink> pSink);
   std::shared_ptr<SourceSinkMapper> getSourceSinkMapperLocked(std::shared_ptr<ISink> pSource);
-  virtual void mixPrimitiveLocked(std::vector<std::shared_ptr<ISink>> pSources, std::shared_ptr<ISink> pSink);
   bool removeMapperLocked(std::shared_ptr<ISink> srcSink);
   bool isPipeRunningOrNotRegistered(std::shared_ptr<ISink> srcSink);
 

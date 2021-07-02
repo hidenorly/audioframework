@@ -537,6 +537,24 @@ TEST_F(TestCase_PipeAndFilter, testMixerSplitter)
 
   std::cout << "pStream1+pStream2(if PCM)=>pSink1" << std::endl;
   std::cout << "pStream1=>pSink1, pStream2(if Compressed)=>pSink2" << std::endl;
+  std::cout << "playback:pStream2 as PCM" << std::endl;
+
+  pStream1->run();
+  pStream2->run();
+  pMixerSplitter->run();
+  std::this_thread::sleep_for(std::chrono::microseconds(1000));
+
+  pMixerSplitter->stop();
+  pStream1->stop();
+  pStream2->stop();
+  EXPECT_FALSE(pMixerSplitter->isRunning());
+
+  pMixerSplitter->dump();
+
+  std::cout << "pStream1+pStream2(if PCM)=>pSink1" << std::endl;
+  std::cout << "pStream1=>pSink1, pStream2(if Compressed)=>pSink2" << std::endl;
+  std::cout << "playback:pStream2 as compressed" << std::endl;
+
   pStream2->attachSource( std::make_shared<CompressedSource>() );
   pSinkAdaptor2->setAudioFormat(AudioFormat(AudioFormat::ENCODING::COMPRESSED));
   pSink2->setAudioFormat(AudioFormat(AudioFormat::ENCODING::COMPRESSED));

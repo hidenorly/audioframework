@@ -86,12 +86,10 @@ void MixerSplitter::process(void)
     mMutexSourceSink.lock();
 
     std::map<std::shared_ptr<ISink>, std::vector<std::shared_ptr<ISink>>> mapper;
-    std::set<std::shared_ptr<ISink>> pSinks;
     for(auto& pConditionMapper : mSourceSinkMapper){
       if( !mapper.contains( pConditionMapper->sink ) ){
         std::vector<std::shared_ptr<ISink>> emptyArray;
         mapper.insert_or_assign( pConditionMapper->sink, emptyArray );
-        pSinks.insert( pConditionMapper->sink );
       }
       std::shared_ptr<IPipe> pPipe = mpSourcePipes[ pConditionMapper->source ].lock();
       if( pPipe && pPipe->isRunning() && pConditionMapper->condition->canHandle( pConditionMapper->sink->getAudioFormat() ) ){
@@ -100,8 +98,8 @@ void MixerSplitter::process(void)
     }
 
     // TODO: following mixPrimitiveLocked() should be executed in parallell by thread.
-    for( auto& pSink : pSinks ){ // for( auto& pSink, pSources : mapper ){ cannot enumerate...
-        mixPrimitiveLocked(mapper[pSink], pSink );
+    for( auto& [pSink, pSources] : mapper ){
+        mixPrimitiveLocked( pSources, pSink );
     }
 
     mMutexSourceSink.unlock();

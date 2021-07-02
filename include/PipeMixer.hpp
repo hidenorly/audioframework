@@ -39,6 +39,7 @@ protected:
 
   virtual void process(void);
   virtual void unlockToStop(void);
+  std::shared_ptr<ISink> getSinkFromPipe(std::shared_ptr<IPipe> pArgPipe);
 
 public:
   PipeMixer(AudioFormat format = AudioFormat(), std::shared_ptr<ISink> pSink = nullptr );
@@ -49,6 +50,7 @@ public:
   virtual std::shared_ptr<ISink> attachSink(std::shared_ptr<ISink> pSink);
   virtual std::shared_ptr<ISink> detachSink(void);
 
+  virtual void attachSinkAdaptor(std::shared_ptr<InterPipeBridge> pSource, std::shared_ptr<IPipe> pPipe = nullptr);
   virtual std::shared_ptr<ISink> allocateSinkAdaptor(std::shared_ptr<IPipe> pPipe = nullptr);
   virtual void releaseSinkAdaptor(std::shared_ptr<ISink> pSink);
 };

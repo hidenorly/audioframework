@@ -18,6 +18,7 @@
 #include "Buffer.hpp"
 #include "Mixer.hpp"
 #include <vector>
+#include <memory>
 
 PipeMixer::PipeMixer(AudioFormat format, std::shared_ptr<ISink> pSink) : ThreadBase(), mFormat(format), mpSink(pSink)
 {
@@ -106,14 +107,42 @@ void PipeMixer::unlockToStop(void)
   }
 }
 
+std::shared_ptr<ISink> PipeMixer::getSinkFromPipe(std::shared_ptr<IPipe> pArgPipe)
+{
+  std::shared_ptr<ISink> result;
+  if( pArgPipe ){
+    mMutexPipe.lock();
+    for( auto& [pInterPipeBridge, pPipe] : mpPipes){
+      if( pPipe.lock() == pArgPipe ){
+        result = pInterPipeBridge;
+        break;
+      }
+    }
+    mMutexPipe.unlock();
+  }
+  return result;
+}
+
+void PipeMixer::attachSinkAdaptor(std::shared_ptr<InterPipeBridge> pSource, std::shared_ptr<IPipe> pPipe)
+{
+  mMutexPipe.lock();
+  if( !mpPipes.contains( pSource ) /* std::find(mpInterPipeBridges.begin(), mpInterPipeBridges.end(), pSource) == mpInterPipeBridges.end()*/ ){
+    mpInterPipeBridges.push_back( pSource );
+    mpPipes.insert_or_assign( pSource, pPipe );
+  }
+  mMutexPipe.unlock();
+}
+
+
 std::shared_ptr<ISink> PipeMixer::allocateSinkAdaptor(std::shared_ptr<IPipe> pPipe)
 {
-  std::shared_ptr<InterPipeBridge> pInterPipeBridge = std::make_shared<InterPipeBridge>( mFormat );
-  mMutexPipe.lock();
-  mpInterPipeBridges.push_back( pInterPipeBridge );
-  mpPipes.insert_or_assign( pInterPipeBridge, pPipe );
-  mMutexPipe.unlock();
-  return pInterPipeBridge;
+  std::shared_ptr<ISink> result = getSinkFromPipe( pPipe );
+  if( !result ){
+    std::shared_ptr<InterPipeBridge> pInterPipeBridge = std::make_shared<InterPipeBridge>( mFormat );
+    attachSinkAdaptor( pInterPipeBridge, pPipe );
+    result = pInterPipeBridge;
+  }
+  return result;
 }
 
 void PipeMixer::releaseSinkAdaptor(std::shared_ptr<ISink> pSink)

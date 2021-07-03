@@ -4,37 +4,73 @@ This is intending to establish audio framework.
 The expection is to implement android audio hal, surround amplifier, mediaplayer, etc. with this framework.
 
 * C++20 based audio framework
+  * Common
+    * Use smart pointer ```std::make_shared<>``` to create instances
+      e.g. ```std::shared_ptr<ISource> pSource = std::make_shared<Source>();```
+
   * Pipe and filter
     * Source
-      * Interface is ISoure
-      * Require to create instance by ```new``` and dispose it by ```delete```
+      * This is input source. Pipe read data from the source.
+      * Interface is ```ISoure```
+      * Concrete classes are derived from the ISource.
     * Sink
-      * Interface is ISink
-      * Require to create instance by ```new``` and dispose it by ```delete```
-      * MultipleSink : For multiple output
+      * This is output destination. Pipe output to the Sink.
+      * Interface is ```ISink```
+      * Concrete classes are derived from the ISink.
+      * Use MultipleSink to split the Sink for actual multiple sinks(=output)
+    * Pipe
+      * Pipe is place to do signal processing for read data from Source and output the result to Sink.
+        * ```Source``` --> ```Pipe``` --> ```Sink```
+      * Note that actual signal processing is done by attached filters to the pipe.
+      * The interface is ```IPipe```
+      * Concrete classes are derived from the IPipe.
+      * There are 2 types of pipe.
+      * ```Pipe```
+        * Different window size filters are supported.
+          * LCM window size processing by Pipe
+          * Minimum window size processing by PipeMultiThread which is multi threads & FIFO buffer connected among them.
+            * Same window size is running in same thread
+            * But the different window size will create different pipe and interconnected by FiFO Buffers automatically
+      * ```PipeMultiThread```
+        * Internally ```PipeMultiThread``` includes ```Pipe``` instances to execute Pipes concurrently.
+        * Since ```Pipe``` is using window size as LCM manner,
+          this internally create ```Pipe``` instances if required filter size is different for attached filter.
+          Therefore using this class enables you to reduce total latency by concurrent execution with minimized window size.
+        * Note that the Pipe and the Pipe are connected by ```InterPipeBridge``` which is FifoBuffer which is working as ```ISink``` and ```ISource```.
     * Filter
-      * The instance is attachable to Pipe
-      * Pipe::clearFilters() will dispose the attached instances.
-      * Accoustic Echo Cancel Filter
+      * In the Pipe, attached filteres will do signal processing.
+      * The instance is attachable to ```IPipe```
+      * ```Pipe::clearFilters()``` will detach the attached instances.
+      * Special filter: Accoustic Echo Cancel Filter
+        * This filter read Source(e.g. Mic) and Sink (e.g. Speaker) to cancel the accoustic echo.
         * Note that the implementation is quite tiny.
           You need to replace high quality implementation. See the .cpp, you need to define the macro to disable the default implementations.
           * ```USE_TINY_AEC_IMPL 0```
-    * Pipes
-      * Different window size filters are supported.
-        * LCM window size processing by Pipe
-        * Minimum window size processing by PipeMultiThread which is multi threads & FIFO buffer connected among them.
-          * Same window size is running in same thread
-          * But the different window size will create different pipe and interconnected by FiFO Buffers automatically
-      * PipeMixer
-        * Mixing pipe output.
-        * You can get the SinkAdaptor. And you can attach the SinkAdaptor instance to your Pipe.
-        * You can attach Sink to output the mixed result.
+    * PipeMixer
+      * Mixing pipe output.
+      * This provides ```SinkAdapator``` for the Pipe's Sink.
+      * And this output to Sink.
         * Note that the implementation is quite tiny.
           You need to replace high quality implementation. See the .cpp, you need to define the macro to disable the default implementations.
           * ```USE_TINY_MIXER_IMPL 0```
           * ```USE_TINY_MIXER_PRIMITIVE_IMPL 0```
+    * MixerSplitter
+      * This enables flexible signal flow.
+        * case 1: Mapping specified Pipe to Sink
+          * Pipe1 ---> Sink1
+          * Pip22 ---> Sink2
+        * case 2: Mix pipe outputs and output to specified Sink
+          * Pipe1+Pipe2 --> Sink2
+        * case 3: depending on the AudioFormat, change the Sink
+          * Pipe1+Pipe2 if PCM ----> Sink1
+          * Pipe2 --ifCompressed --> Sink2
+      * You can specify mapping (SinkAdaptor-Sink) and mapping condition with ```MapCondition``` dynamically.
+        * Use ```map()```, ```conditionalMap()``` and ```unmap()```
   * Utilities
     * AudioBuffer
+      * IAudioBuffer : interface class. The following classes are derived from this.
+        * AudioBuffer : Buffer for PCM encoding data
+        * CompressedBuffer : Buffer for ES(Compressed) data
     * AudioFormatAdaptor
       * PCM Format Conversion
         * Convertable bi-directltionally.
@@ -55,6 +91,7 @@ The expection is to implement android audio hal, surround amplifier, mediaplayer
         * e.g. FileStream can provide file input/output.
       * StreamSource : Work as Source but the source data is provided by attched Stream.
       * StreamSink : Work as Sink but the sink data is stored to attached Stream.
+
     * ParameterManager
       * This provides registry (parameter database).
       * You can subscribe the value change.
@@ -75,14 +112,55 @@ The expection is to implement android audio hal, surround amplifier, mediaplayer
           return CPU_RESOURCE_VALUE;
         }
         ```
+    * Test foundation
+      * ICapture
+        * This enables to capture the result without any impact to the Source, Sink, Filter which implements this.
+        * You can capture and check the result to verify what's going on.
+        * SourceCapture : Capture the read source's data.
+        * SinkCapture : Capture the data written to the Sink.
+        * FilterCapture : Capture Filter's output data.
+      * IInjector
+        * This enables to inject data instead of the actual data without any impact to the Source, Sink, Filter which implements this.
+        * You can inject data even to verify behavior with the injected data.
+        * SourceInjector : Instead of actual Source Data, inject data is read by Pipe.
+        * SinkInjector : Instead of written Sink data, injected data is output to actual Sink.
+        * FilterInjector : Instead of signal processed data, inject data is used as the filter output.
 
  * Test case framework is gtest.
+    * TestCase_Common
+      * Define the common classes for testcases
     * TestCase_PipeAndFilter
       * Basic Pipe, Source, Sink setup.
       * Basic PipeMultiThread, Source, Sink.
       * MultiSink
       * StreamSource, StreamSink
-    * Split test cases as several files per component characteristic
+      * PipeMixer, MixerSplit
+      * Decoder, Encoder
+      * EncodedSink with transcoder/passthrough
+      * Format Conversion
+        * Encoding format conversion
+        * Sampling rate conversion
+        * Channel conversion
+      * Filters
+        * Example: FilterIncrement
+        * DelayFilter, AccousticEchoCancelFilter
+    * TestCase_TestFoundation
+      * Capture, Injection
+      * for Source, Sink, Filter
+    * TestCase_Output
+      * Output (Sink) related test cases
+    * TestCase_DynamicSignalFlow
+      * Add/Change/Remove filter
+      * Attach/Detach Sink, Source
+    * TestCase_System
+      * PowerManagement
+      * Property
+      * PlugIn
+      * ResourceManager
+      * Starategy
+    * TestCas_Util
+      * StringTokenizer
+      * FifoBuffer
 
 # Status
 
@@ -91,9 +169,17 @@ under developing. It's in quite early stage.
 # Build
 
 ```
-$ make; ./bin/afw_test;
+$ make -j4; ./bin/afw_test;
 
 ```
+
+| make target | description |
+| :--- | :--- |
+|  ```make``` | build test case executable | 
+| ```make afw``` | build ```libafw.a``` for static link library |
+| ```make test``` | build test case executable with ```libafw.a``` |
+| ```make testshared``` | build ```libafw.so``` or ```libafw.dylib``` |
+
 
 # External Dependencies
 
@@ -104,12 +190,6 @@ $ make; ./bin/afw_test;
 
 * Build
   * [done] Separate test and afw in Makefile
-    | make target | description |
-    | :--- | :--- |
-    |  ```make``` | build test case executable | 
-    | ```make afw``` | build ```libafw.a``` for static link library |
-    | ```make test``` | build test case executable with ```libafw.a``` |
-    | ```make testshared``` | build ```libafw.so``` or ```libafw.dylib``` |
   * [done] Support -j option
   * [] Filter, Source, Sink development kit
 * Filter example
@@ -224,7 +304,6 @@ $ make; ./bin/afw_test;
   * Example Source for ALSA and/or MacOSX
 
 
-
 # Build environment setup
 
 ## For MacOSX
@@ -232,6 +311,6 @@ $ make; ./bin/afw_test;
 ## For Ubuntu 20.04LTS
 
 ```
-$ sudo apt-get install -y git build-essential clang-11 googletest libgtest-dev
+$ sudo apt-get install -y git build-essential ccache clang-11 googletest libgtest-dev
 ```
 

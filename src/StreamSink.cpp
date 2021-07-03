@@ -17,7 +17,7 @@
 #include "StreamSink.hpp"
 #include "AudioFormatAdaptor.hpp"
 
-StreamSink::StreamSink(AudioFormat format, IStream* pStream): ISink(), mFormat(format), mpStream(pStream)
+StreamSink::StreamSink(AudioFormat format, std::shared_ptr<IStream> pStream): ISink(), mFormat(format), mpStream(pStream)
 {
 
 }
@@ -31,7 +31,7 @@ void StreamSink::close(void)
 {
   if( mpStream ){
     mpStream->close();
-    delete mpStream; mpStream = nullptr;
+    mpStream.reset();
   }
 }
 

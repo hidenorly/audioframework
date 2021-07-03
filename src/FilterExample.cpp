@@ -15,3 +15,12 @@
 */
 
 #include "FilterExample.hpp"
+
+void FilterIncrement::process(AudioBuffer& inBuf, AudioBuffer& outBuf)
+{
+  uint8_t* rawOutBuf = outBuf.getRawBufferPointer();
+  for(auto& aData : inBuf.getRawBuffer()){
+    *rawOutBuf = (uint8_t)((aData + 1) & 0xFF);
+    rawOutBuf++;
+  }
+}

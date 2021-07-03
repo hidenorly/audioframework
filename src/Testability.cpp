@@ -293,7 +293,7 @@ bool IInjector::getInjectorEnabled(void)
   return mInjectorEnabled;
 }
 
-SourceInjector::SourceInjector(std::shared_ptr<ISource> pSource):IInjector(), SourceTestBase(pSource)
+SourceInjector::SourceInjector(std::shared_ptr<ISource> pSource):SourceTestBase(pSource), IInjector()
 {
 
 }

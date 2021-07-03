@@ -93,7 +93,6 @@ void ISink::write(IAudioBuffer& buf)
   int nSamples = 0;
   AudioFormat format;
   AudioBuffer* pBuf = dynamic_cast<AudioBuffer*>(&buf);
-  AudioBuffer* pZeroBuf = nullptr;
   if( pBuf ){
     // AudioBuffer instance
     nSamples = pBuf->getNumberOfSamples();

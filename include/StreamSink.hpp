@@ -22,15 +22,16 @@
 #include "Sink.hpp"
 #include "Stream.hpp"
 #include <string>
+#include <memory>
 
 class StreamSink : public ISink
 {
 protected:
-  IStream*  mpStream;
   AudioFormat mFormat;
+  std::shared_ptr<IStream> mpStream;
 
 public:
-  StreamSink(AudioFormat format, IStream* pStream);
+  StreamSink(AudioFormat format, std::shared_ptr<IStream> pStream);
   virtual ~StreamSink();
 
   virtual void serialize(IAudioBuffer& srcAudioBuf, ByteBuffer& outStreamBuf);

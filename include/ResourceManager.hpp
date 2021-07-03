@@ -44,9 +44,9 @@ protected:
   std::map<int, int> mResources;
   std::vector<IResourceConsumer*> mResourceConsumers;
   std::mutex mMutexResource;
-  int mId;
   int mResource;
   int mResourceCurrent;
+  int mId;
   IResourceManager(int resource);
   virtual ~IResourceManager();
 
@@ -97,8 +97,8 @@ public:
 class IResourceConsumer
 {
 protected:
-  int mResourceConsumptionId;
   IResourceManager* mpResourceManager;
+  int mResourceConsumptionId;
 
   IResourceConsumer():mpResourceManager(nullptr), mResourceConsumptionId(-1){};
   virtual ~IResourceConsumer();

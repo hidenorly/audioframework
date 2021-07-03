@@ -55,14 +55,7 @@ public:
     @arg bEnableMute. true: mute, false: unmute
     @arg bUseZero. true: use zero data during mute is enabled.
   */
-  virtual void setMuteEnabled(bool bEnableMute, bool bUseZero=false){
-    bool bChanged = ( bEnableMute != mMuteEnabled );
-    mMuteEnabled = bEnableMute;
-    mMuteUseZeroEnabled = bUseZero;
-    if( bChanged ){
-      mutePrimitive(bEnableMute, bUseZero);
-    }
-  }
+  virtual void setMuteEnabled(bool bEnableMute, bool bUseZero=false);
 };
 
 /* Common interfaces on ISink and ISource */

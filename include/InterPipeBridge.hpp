@@ -24,7 +24,7 @@
 #include "Source.hpp"
 #include <string>
 
-class InterPipeBridge : public ISink, public ISource, public IUnlockable
+class InterPipeBridge : public ISource, public ISink, public IUnlockable
 {
 protected:
   FifoBuffer mFifoBuffer;

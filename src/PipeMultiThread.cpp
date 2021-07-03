@@ -34,7 +34,6 @@ PipeMultiThread::~PipeMultiThread()
 
 IPipe* PipeMultiThread::getHeadPipe(bool bCreateInstance)
 {
-  IPipe* result = nullptr;
   if( bCreateInstance && mPipes.empty() ){
     mPipes.insert( mPipes.begin(), new Pipe() );
   }

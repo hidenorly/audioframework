@@ -27,13 +27,7 @@ protected:
 public:
   FilterIncrement(int windowSize = DEFAULT_WINDOW_SIZE_USEC) : mWindowSize(windowSize){};
   virtual ~FilterIncrement(){};
-  virtual void process(AudioBuffer& inBuf, AudioBuffer& outBuf){
-    uint8_t* rawOutBuf = outBuf.getRawBufferPointer();
-    for(auto& aData : inBuf.getRawBuffer()){
-      *rawOutBuf = (uint8_t)((aData + 1) & 0xFF);
-      rawOutBuf++;
-    }
-  };
+  virtual void process(AudioBuffer& inBuf, AudioBuffer& outBuf);
   virtual int getRequiredWindowSizeUsec(void){ return mWindowSize; };
   virtual std::string toString(void){ return "FilterIncrement"; };
 };

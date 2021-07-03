@@ -164,10 +164,10 @@ public:
   CompressAudioBuffer& operator=(CompressAudioBuffer& buf);
 
   /* @desc change AudioFormat. Usually */
-  virtual void setAudioFormat( AudioFormat format, int nChunkSize = DEFAULT_CHUNK_SIZE );
+  virtual void setAudioFormat( AudioFormat format );
 
 
-  virtual void append(CompressAudioBuffer& buf);
+  virtual void append(IAudioBuffer& buf);
 };
 
 #endif /* __BUFFER_HPP__ */

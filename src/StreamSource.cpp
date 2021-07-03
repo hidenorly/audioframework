@@ -17,7 +17,7 @@
 #include "StreamSource.hpp"
 #include "AudioFormatAdaptor.hpp"
 
-StreamSource::StreamSource(AudioFormat format, IStream* pStream): ISource(), mFormat(format), mpStream(pStream)
+StreamSource::StreamSource(AudioFormat format, std::shared_ptr<IStream> pStream): ISource(), mFormat(format), mpStream(pStream)
 {
 
 }
@@ -31,7 +31,7 @@ void StreamSource::close(void)
 {
   if( mpStream ){
     mpStream->close();
-    delete mpStream; mpStream = nullptr;
+    mpStream.reset();
   }
 }
 

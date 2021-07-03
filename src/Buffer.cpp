@@ -243,18 +243,17 @@ CompressAudioBuffer& CompressAudioBuffer::operator=(CompressAudioBuffer& buf)
   return *this;
 }
 
-void CompressAudioBuffer::setAudioFormat( AudioFormat format, int nChunkSize )
+void CompressAudioBuffer::setAudioFormat( AudioFormat format )
 {
   if( !mFormat.equal(format) ){
+    int nChunkSize = mBuf.size();
     mBuf.clear();
     mBuf = ByteBuffer( nChunkSize, 0 );
-  } else {
-    mBuf.resize( nChunkSize );
   }
   mFormat = format;
 }
 
-void CompressAudioBuffer::append(CompressAudioBuffer& buf)
+void CompressAudioBuffer::append(IAudioBuffer& buf)
 {
   ByteBuffer extBuf = buf.getRawBuffer();
 

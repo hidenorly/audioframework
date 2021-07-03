@@ -367,8 +367,8 @@ TEST_F(TestCase_PipeAndFilter, testMultipleSink_FormatOR)
 
 TEST_F(TestCase_PipeAndFilter, testStreamSink)
 {
-  IStream* pStream = new FileStream("test.bin");
-  StreamSink* pSink = new StreamSink(AudioFormat(), pStream);
+  std::shared_ptr<IStream> pStream = std::make_shared<FileStream>("test.bin");
+  std::shared_ptr<StreamSink> pSink = std::make_shared<StreamSink>(AudioFormat(), pStream);
   AudioBuffer audioBuf(AudioFormat(), 256);
   ByteBuffer buf = audioBuf.getRawBuffer();
   for(int i=0; i<buf.size(); i++){
@@ -382,8 +382,8 @@ TEST_F(TestCase_PipeAndFilter, testStreamSink)
 
 TEST_F(TestCase_PipeAndFilter, testStreamSink_DifferentFormat)
 {
-  IStream* pStream = new FileStream("test_32b96k.bin");
-  StreamSink* pSink = new StreamSink(AudioFormat(AudioFormat::ENCODING::PCM_32BIT, AudioFormat::SAMPLING_RATE::SAMPLING_RATE_96_KHZ, AudioFormat::CHANNEL::CHANNEL_STEREO), pStream);
+  std::shared_ptr<IStream> pStream = std::make_shared<FileStream>("test_32b96k.bin");
+  std::shared_ptr<StreamSink> pSink = std::make_shared<StreamSink>(AudioFormat(AudioFormat::ENCODING::PCM_32BIT, AudioFormat::SAMPLING_RATE::SAMPLING_RATE_96_KHZ, AudioFormat::CHANNEL::CHANNEL_STEREO), pStream);
   AudioBuffer audioBuf(AudioFormat(), 256);
   ByteBuffer buf = audioBuf.getRawBuffer();
   for(int i=0; i<buf.size(); i++){
@@ -397,8 +397,8 @@ TEST_F(TestCase_PipeAndFilter, testStreamSink_DifferentFormat)
 
 TEST_F(TestCase_PipeAndFilter, testStreamSource)
 {
-  IStream* pStream = new FileStream("test.bin");
-  StreamSource* pSource = new StreamSource(AudioFormat(), pStream);
+  std::shared_ptr<IStream> pStream = std::make_shared<FileStream>("test.bin");
+  std::shared_ptr<StreamSource> pSource = std::make_shared<StreamSource>(AudioFormat(), pStream);
   AudioBuffer audioBuf(AudioFormat(), 256);
   pSource->read( audioBuf );
 

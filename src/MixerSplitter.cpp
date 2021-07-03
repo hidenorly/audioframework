@@ -26,7 +26,7 @@ bool MixerSplitter::isPipeRunningOrNotRegistered(std::shared_ptr<ISink> srcSink)
   if( mpSourcePipes.contains( srcSink ) ){
     pPipe = mpSourcePipes[ srcSink ].lock();
   }
-  return ( pPipe && pPipe->isRunning() || !pPipe );
+  return ( (pPipe && pPipe->isRunning()) || !pPipe );
 }
 
 void MixerSplitter::process(void)

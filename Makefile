@@ -1,15 +1,15 @@
 # compiler env.
 UNAME := $(shell uname -s)
 ifeq ($(UNAME),Linux)
-	CXX=clang++
+	CXX=ccache clang++
 	LDLIBS=-ldl
 endif
 ifeq ($(UNAME),Darwin)
-	CXX=clang++
+	CXX=ccache clang++
 	LDLIBS=-stdlib=libc++
 endif
 
-CXXFLAGS=-std=c++2a -MMD -MP
+CXXFLAGS=-std=c++2a -MMD -MP -Wall
 LDFLAGS=-pthread
 
 # project config
@@ -67,11 +67,12 @@ AFW_TARGET = $(LIB_DIR)/libafw.a
 
 afw: $(AFW_TARGET)
 .PHONY: afw
+#CXXFLAGS+= -flto=full
 
 $(AFW_TARGET): $(AFW_OBJS)
 	@[ -d $(LIB_DIR) ] || mkdir -p $(LIB_DIR)
-	ar rc $(AFW_TARGET) $(AFW_OBJS)
-	ranlib $@
+	ar rs $(AFW_TARGET) $(AFW_OBJS)
+	ranlib -c $(AFW_TARGET)
 #	$(AR) rvs $(AFW_TARGET) $(AFW_OBJS)
 #	ranlib -c $@
 

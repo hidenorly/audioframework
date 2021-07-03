@@ -15,3 +15,13 @@
 */
 
 #include "PipeAndFilterCommon.hpp"
+
+void IMutable::setMuteEnabled(bool bEnableMute, bool bUseZero)
+{
+  bool bChanged = ( bEnableMute != mMuteEnabled );
+  mMuteEnabled = bEnableMute;
+  mMuteUseZeroEnabled = bUseZero;
+  if( bChanged ){
+    mutePrimitive(bEnableMute, bUseZero);
+  }
+}

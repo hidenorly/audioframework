@@ -65,7 +65,7 @@ bool PipeMixer::isPipeRunningOrNotRegistered(std::shared_ptr<InterPipeBridge> sr
   if( mpPipes.contains( srcSink ) ){
     pPipe = mpPipes[ srcSink ].lock();
   }
-  return ( pPipe && pPipe->isRunning() || !pPipe );
+  return ( ( pPipe && pPipe->isRunning() ) || !pPipe );
 }
 
 void PipeMixer::process(void)

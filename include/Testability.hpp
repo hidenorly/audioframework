@@ -175,7 +175,7 @@ public:
 class FilterCapture : public FilterTestBase, public ICapture
 {
 public:
-  FilterCapture(int windowSize = DEFAULT_WINDOW_SIZE_USEC, int latencyUsec = DEFAULT_WINDOW_SIZE_USEC, int processingResource = Filter::DEFAULT_REQUIRED_PROCESSING_RESOURCE) : ICapture(), FilterTestBase(windowSize, latencyUsec, processingResource){};
+  FilterCapture(int windowSize = DEFAULT_WINDOW_SIZE_USEC, int latencyUsec = DEFAULT_WINDOW_SIZE_USEC, int processingResource = Filter::DEFAULT_REQUIRED_PROCESSING_RESOURCE) : FilterTestBase(windowSize, latencyUsec, processingResource), ICapture(){};
   virtual ~FilterCapture(){};
   virtual void process(AudioBuffer& inBuf, AudioBuffer& outBuf);
 };
@@ -183,7 +183,7 @@ public:
 class FilterInjector : public FilterTestBase, public IInjector
 {
 public:
-  FilterInjector(int windowSize = DEFAULT_WINDOW_SIZE_USEC, int latencyUsec = DEFAULT_WINDOW_SIZE_USEC, int processingResource = Filter::DEFAULT_REQUIRED_PROCESSING_RESOURCE) : IInjector(), FilterTestBase(windowSize, latencyUsec, processingResource){};
+  FilterInjector(int windowSize = DEFAULT_WINDOW_SIZE_USEC, int latencyUsec = DEFAULT_WINDOW_SIZE_USEC, int processingResource = Filter::DEFAULT_REQUIRED_PROCESSING_RESOURCE) : FilterTestBase(windowSize, latencyUsec, processingResource), IInjector(){};
   virtual ~FilterInjector(){};
   virtual void process(AudioBuffer& inBuf, AudioBuffer& outBuf);
 };

@@ -20,18 +20,19 @@
 #include "Source.hpp"
 #include "Stream.hpp"
 #include "AudioFormat.hpp"
+#include <memory>
 
 class StreamSource : public ISource
 {
 protected:
-  IStream* mpStream;
   AudioFormat mFormat;
+  std::shared_ptr<IStream> mpStream;
 
 protected:
   virtual void readPrimitive(IAudioBuffer& buf);
 
 public:
-  StreamSource(AudioFormat format = AudioFormat(), IStream* pStream = nullptr);
+  StreamSource(AudioFormat format = AudioFormat(), std::shared_ptr<IStream> pStream = nullptr);
   virtual ~StreamSource();
   virtual void close(void);
   virtual std::string toString(void){return "StreamSource";};

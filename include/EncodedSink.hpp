@@ -26,10 +26,10 @@
 class EncodedSink : public ISink
 {
 protected:
+  std::shared_ptr<ISink> mpSink;
   bool mbTranscode;
   std::shared_ptr<IMediaCodec> mpDecoder;
   std::shared_ptr<IMediaCodec> mpEncoder;
-  std::shared_ptr<ISink> mpSink;
 
 protected:
   virtual void ensureTranscoder(AudioFormat srcFormat, AudioFormat dstFormat);

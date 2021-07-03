@@ -67,7 +67,7 @@ AFW_TARGET = $(LIB_DIR)/libafw.a
 
 afw: $(AFW_TARGET)
 .PHONY: afw
-#CXXFLAGS+= -flto=full
+CXXFLAGS+= -fPIC #-flto=full
 
 $(AFW_TARGET): $(AFW_OBJS)
 	@[ -d $(LIB_DIR) ] || mkdir -p $(LIB_DIR)
@@ -77,17 +77,34 @@ $(AFW_TARGET): $(AFW_OBJS)
 #	ranlib -c $@
 
 
-# --- Build for test cases ------------
+# --- Build for AFW(shared) ------------
+UNAME := $(shell uname -s)
+ifeq ($(UNAME),Linux)
+	AFW_SO_TARGET = $(LIB_DIR)/libafw.so
+	SHARED_CXXFLAGS= -fPIC -shared
+endif
+ifeq ($(UNAME),Darwin)
+	AFW_SO_TARGET = $(LIB_DIR)/libafw.dylib
+	SHARED_CXXFLAGS= -flat_namespace -dynamiclib
+endif
+
+afwshared: $(AFW_SO_TARGET)
+.PHONY: afwshared
+
+$(AFW_SO_TARGET): $(AFW_OBJS)
+	$(CXX) $(LDFLAGS) $(AFW_OBJS) $(SHARED_CXXFLAGS) -o $@ $(LDLIBS)
+
+# --- Build for test cases w/libafw.a ---
 TEST_TARGET = $(BIN_DIR)/test_with_afwlib
 TEST_LDLIBS = $(LDLIBS) -L$(LIB_DIR)
-TEST_LDLIBS += -lafw
+TEST_LIBS = $(AFW_TARGET)
 
 test: $(TEST_TARGET)
 .PHONY: test
 
 $(TEST_TARGET): $(TEST_OBJS)
 	@[ -d $(BIN_DIR) ] || mkdir -p $(BIN_DIR)
-	$(CXX) $(LDFLAGS) $(TEST_LDLIBS) $(TEST_OBJS) -o $@ -lgtest_main -lgtest
+	$(CXX) $(LDFLAGS) $(TEST_LDLIBS) $(TEST_OBJS) $(TEST_LIBS) -o $@ -lgtest_main -lgtest
 
 
 # --- clean up ------------------------

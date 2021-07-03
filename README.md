@@ -103,7 +103,13 @@ $ make; ./bin/afw_test;
 # Plans to implement
 
 * Build
-  * [partially done] Separate test and afw in Makefile : partially done. ```make``` equals ```make afw; make test;```.
+  * [done] Separate test and afw in Makefile
+    | make target | description |
+    | :--- | :--- |
+    |  ```make``` | build test case executable | 
+    | ```make afw``` | build ```libafw.a``` for static link library |
+    | ```make test``` | build test case executable with ```libafw.a``` |
+    | ```make testshared``` | build ```libafw.so``` or ```libafw.dylib``` |
   * [done] Support -j option
   * [] Filter, Source, Sink development kit
 * Filter example

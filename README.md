@@ -103,7 +103,8 @@ $ make; ./bin/afw_test;
 # Plans to implement
 
 * Build
-  * [] Separate test and afw in Makefile : partially done. ```make``` equals ```make afw; make test;```.
+  * [partially done] Separate test and afw in Makefile : partially done. ```make``` equals ```make afw; make test;```.
+  * [done] Support -j option
   * [] Filter, Source, Sink development kit
 * Filter example
   * [] Add reverb with ParameterManager

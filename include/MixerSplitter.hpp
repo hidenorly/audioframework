@@ -25,6 +25,7 @@
 #include "PipeMixer.hpp"
 #include <vector>
 #include <mutex>
+#include <atomic>
 #include <thread>
 #include <map>
 #include <memory>
@@ -94,9 +95,11 @@ protected:
   std::mutex mMutexSourceSink;
   std::vector<std::shared_ptr<ISink>> mpSinks;
   std::vector<std::shared_ptr<ISink>> mpSources;
+  std::map<std::shared_ptr<ISink>, std::shared_ptr<AudioFormat>> mpSourceAudioFormats;
   std::map<std::shared_ptr<ISink>, std::weak_ptr<IPipe>> mpSourcePipes;
   std::vector<std::shared_ptr<SourceSinkConditionMapper>> mSourceSinkMapper;
   std::map<std::shared_ptr<ISink>, std::shared_ptr<PipeMixer>> mpMixers;
+  std::atomic<bool> mbOnChanged;
 
 protected:
   virtual void process(void);
@@ -107,6 +110,7 @@ protected:
   std::shared_ptr<SourceSinkMapper> getSourceSinkMapperLocked(std::shared_ptr<ISink> pSource);
   bool removeMapperLocked(std::shared_ptr<ISink> srcSink);
   bool isPipeRunningOrNotRegistered(std::shared_ptr<ISink> srcSink);
+  bool isSituationChanged(void);
 
 public:
   MixerSplitter();

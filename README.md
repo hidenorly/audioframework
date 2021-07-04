@@ -175,7 +175,7 @@ $ make -j4; ./bin/afw_test;
 
 | make target | description |
 | :--- | :--- |
-|  ```make``` | build test case executable | 
+|  ```make``` | build test case executable |
 | ```make afw``` | build ```libafw.a``` for static link library |
 | ```make test``` | build test case executable with ```libafw.a``` |
 | ```make testshared``` | build ```libafw.so``` or ```libafw.dylib``` |

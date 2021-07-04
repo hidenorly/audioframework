@@ -20,6 +20,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <memory>
 
 class AudioFormat
 {
@@ -144,6 +145,7 @@ public:
   ChannelMapper getSameChannelMapper(void);
   static ChannelMapper getSameChannelMapper(CHANNEL channel);
   std::string toString(void);
+  std::shared_ptr<AudioFormat> getCopiedNewSharedInstance(void);
 };
 
 class AudioBase

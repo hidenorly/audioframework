@@ -397,3 +397,8 @@ std::vector<AudioFormat> AudioBase::audioFormatOpOR(std::vector<AudioFormat>& fo
   }
   return result;
 }
+
+std::shared_ptr<AudioFormat> AudioFormat::getCopiedNewSharedInstance(void)
+{
+  return std::make_shared<AudioFormat>( getEncoding(), getSamplingRate(), getChannels() );
+}

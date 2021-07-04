@@ -29,44 +29,63 @@ bool MixerSplitter::isPipeRunningOrNotRegistered(std::shared_ptr<ISink> srcSink)
   return ( (pPipe && pPipe->isRunning()) || !pPipe );
 }
 
+bool MixerSplitter::isSituationChanged(void)
+{
+  bool bIsChanged = mbOnChanged;
+  mbOnChanged = false;
+  if( bIsChanged ) return bIsChanged;
+  for( auto& pSource : mpSources ){
+    if( !mpSourceAudioFormats.contains( pSource ) || !mpSourceAudioFormats[pSource]->equal( pSource->getAudioFormat() )){
+      bIsChanged = true;
+      mpSourceAudioFormats.insert_or_assign( pSource, pSource->getAudioFormat().getCopiedNewSharedInstance() );
+      break;
+    }
+  }
+  return bIsChanged;
+}
+
+
 void MixerSplitter::process(void)
 {
   while( mbIsRunning && !mpSinks.empty() && !mpSources.empty() ){
-    mMutexSourceSink.lock();
-    std::map<std::shared_ptr<ISink>, std::vector<std::shared_ptr<ISink>>> mapper;
-    for(auto& pConditionMapper : mSourceSinkMapper){
-      if( !mapper.contains( pConditionMapper->sink ) ){
-        std::vector<std::shared_ptr<ISink>> emptyArray;
-        mapper.insert_or_assign( pConditionMapper->sink, emptyArray );
-      }
-      std::shared_ptr<IPipe> pPipe = mpSourcePipes[ pConditionMapper->source ].lock();
-      if( ( (pPipe && pPipe->isRunning()) || !pPipe ) && pConditionMapper->condition->canHandle( pConditionMapper->source->getAudioFormat() ) ){
-        mapper[ pConditionMapper->sink ].push_back( pConditionMapper->source );
-      }
-    }
-
-    for( auto& [pSink, pSources] : mapper ){
-      // ensure PipeMixer
-      if( !mpMixers.contains(pSink) ){
-        mpMixers.insert_or_assign( pSink, std::make_shared<PipeMixer>( pSink->getAudioFormat(), pSink ) );
-      }
-      // setup PipeMixer
-      std::shared_ptr<PipeMixer> pPipeMixer = mpMixers[pSink];
-      pPipeMixer->attachSink( pSink );
-      std::vector<std::shared_ptr<ISink>> sources = pPipeMixer->getSinkAdaptors();
-      for( auto& pSinkAdaptor : pSources ){
-        pPipeMixer->attachSinkAdaptor( std::dynamic_pointer_cast<InterPipeBridge>(pSinkAdaptor), mpSourcePipes[ pSinkAdaptor ].lock() );
-        std::erase( sources, pSinkAdaptor );
-      }
-      // remove unused sink adaptors(=Source for the mixer) from pPipeMixer
-      for( auto& pSinkAdaptor : sources ){
-        pPipeMixer->releaseSinkAdaptor( pSinkAdaptor );
+    if( isSituationChanged() ){
+      mMutexSourceSink.lock();
+      std::map<std::shared_ptr<ISink>, std::vector<std::shared_ptr<ISink>>> mapper;
+      for(auto& pConditionMapper : mSourceSinkMapper){
+        if( !mapper.contains( pConditionMapper->sink ) ){
+          std::vector<std::shared_ptr<ISink>> emptyArray;
+          mapper.insert_or_assign( pConditionMapper->sink, emptyArray );
+        }
+        std::shared_ptr<IPipe> pPipe = mpSourcePipes[ pConditionMapper->source ].lock();
+        if( ( (pPipe && pPipe->isRunning()) || !pPipe ) && pConditionMapper->condition->canHandle( pConditionMapper->source->getAudioFormat() ) ){
+          mapper[ pConditionMapper->sink ].push_back( pConditionMapper->source );
+        }
       }
 
-      pPipeMixer->run();
+      for( auto& [pSink, pSources] : mapper ){
+        // ensure PipeMixer
+        if( !mpMixers.contains(pSink) ){
+          mpMixers.insert_or_assign( pSink, std::make_shared<PipeMixer>( pSink->getAudioFormat(), pSink ) );
+        }
+        // setup PipeMixer
+        std::shared_ptr<PipeMixer> pPipeMixer = mpMixers[pSink];
+        pPipeMixer->attachSink( pSink );
+        std::vector<std::shared_ptr<ISink>> sources = pPipeMixer->getSinkAdaptors();
+        for( auto& pSinkAdaptor : pSources ){
+          pPipeMixer->attachSinkAdaptor( std::dynamic_pointer_cast<InterPipeBridge>(pSinkAdaptor), mpSourcePipes[ pSinkAdaptor ].lock() );
+          std::erase( sources, pSinkAdaptor );
+        }
+        // remove unused sink adaptors(=Source for the mixer) from pPipeMixer
+        for( auto& pSinkAdaptor : sources ){
+          pPipeMixer->releaseSinkAdaptor( pSinkAdaptor );
+        }
+
+        pPipeMixer->run();
+      }
+      mMutexSourceSink.unlock();
+    } else {
+      std::this_thread::sleep_for(std::chrono::microseconds(1000));
     }
-    mMutexSourceSink.unlock();
-    std::this_thread::sleep_for(std::chrono::microseconds(1000));
   }
   for( auto& [pSink, pPipeMixer] : mpMixers ){
     pPipeMixer->stop();
@@ -89,7 +108,7 @@ void MixerSplitter::unlockToStop(void)
   }
 }
 
-MixerSplitter::MixerSplitter():ThreadBase()
+MixerSplitter::MixerSplitter():ThreadBase(),mbOnChanged(false)
 {
 
 }
@@ -99,6 +118,7 @@ MixerSplitter::~MixerSplitter()
   stop();
   mSourceSinkMapper.clear();
   mpSources.clear();
+  mpSourceAudioFormats.clear();
   mpSourcePipes.clear();
   mpSinks.clear();
   mpMixers.clear();
@@ -114,6 +134,7 @@ void MixerSplitter::addSink(std::shared_ptr<ISink> pSink)
   mMutexSourceSink.lock();
   mpSinks.push_back( pSink );
   mMutexSourceSink.unlock();
+  mbOnChanged = true;
 }
 
 bool MixerSplitter::removeSink(std::shared_ptr<ISink> pSink)
@@ -142,6 +163,7 @@ bool MixerSplitter::removeSink(std::shared_ptr<ISink> pSink)
     }
   }
   mMutexSourceSink.unlock();
+  mbOnChanged = true;
 
   return result;
 }
@@ -157,7 +179,9 @@ std::shared_ptr<ISink> MixerSplitter::allocateSinkAdaptor(AudioFormat format, st
   mMutexSourceSink.lock();
   mpSources.push_back( pInterPipeBridge );
   mpSourcePipes.insert_or_assign( pInterPipeBridge, pPipe );
+  mpSourceAudioFormats.insert_or_assign( pInterPipeBridge, format.getCopiedNewSharedInstance() );
   mMutexSourceSink.unlock();
+  mbOnChanged = true;
   return pInterPipeBridge;
 }
 
@@ -173,10 +197,12 @@ bool MixerSplitter::releaseSinkAdaptor(std::shared_ptr<ISink> pSink)
     int nCurrentSize = mpSources.size();
     std::erase( mpSources, pSink );
     mpSourcePipes.erase( pSink );
+    mpSourceAudioFormats.erase( pSink );
     result = (mpSources.size() == nCurrentSize);
     removeMapperLocked(pSink);
   }
   mMutexSourceSink.unlock();
+  mbOnChanged = true;
 
   return result;
 }
@@ -230,12 +256,15 @@ bool MixerSplitter::conditionalMap(std::shared_ptr<ISink> srcSink, std::shared_p
     mSourceSinkMapper.push_back( std::make_shared<SourceSinkConditionMapper>(srcSink, dstSink, condition) );
   }
   mMutexSourceSink.unlock();
+  mbOnChanged = true;
   return result;
 }
 
 bool MixerSplitter::map(std::shared_ptr<ISink> srcSink, std::shared_ptr<ISink> dstSink)
 {
-  return conditionalMap( srcSink, dstSink, std::make_shared<MapAnyCondition>() );
+  bool result = conditionalMap( srcSink, dstSink, std::make_shared<MapAnyCondition>() );
+  mbOnChanged = true;
+  return result;
 }
 
 bool MixerSplitter::removeMapperLocked(std::shared_ptr<ISink> srcSink)
@@ -262,6 +291,7 @@ bool MixerSplitter::unmap(std::shared_ptr<ISink> srcSink)
   mMutexSourceSink.lock();
   result = removeMapperLocked( srcSink );
   mMutexSourceSink.unlock();
+  mbOnChanged = true;
   return result;
 }
 

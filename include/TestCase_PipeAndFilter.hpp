@@ -62,6 +62,8 @@ protected:
   void testPerChannelVolumeWithMultiSink(void);
 
   void testEncodedSink(void);
+
+  void testChannelDemuxMux(void);
 };
 
 #endif /* __TESTCASE_PIPEANDFILTER_HPP__ */

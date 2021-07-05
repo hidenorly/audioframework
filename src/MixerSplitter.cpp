@@ -63,6 +63,7 @@ void MixerSplitter::process(void)
       }
 
       for( auto& [pSink, pSources] : mapper ){
+        // TODO: Improve only 1 stream mix(=no mix) case by bypassing PipeMixer (=Direct write to Sink) by wrapper class of InterPipeBridge
         // ensure PipeMixer
         if( !mpMixers.contains(pSink) ){
           mpMixers.insert_or_assign( pSink, std::make_shared<PipeMixer>( pSink->getAudioFormat(), pSink ) );

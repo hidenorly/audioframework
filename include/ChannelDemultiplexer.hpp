@@ -14,11 +14,16 @@
    limitations under the License.
 */
 
-#include <gtest/gtest.h>
-#include "TestCase_Common.hpp"
+#ifndef __CHANNELDEMULTIPLEXER_HPP__
+#define __CHANNELDEMULTIPLEXER_HPP__
 
-int main(int argc, char **argv)
+#include "Buffer.hpp"
+#include <memory>
+
+class ChannelDemuxer
 {
-  ::testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
-}
+public:
+  static std::vector<std::shared_ptr<AudioBuffer>> perChannelDemux(std::shared_ptr<AudioBuffer> pSrcBuffer);
+};
+
+#endif /* __CHANNELDEMULTIPLEXER_HPP__ */

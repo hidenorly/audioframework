@@ -1098,8 +1098,31 @@ TEST_F(TestCase_PipeAndFilter, testEncodedSink)
   pPipe->stop();
 }
 
-int main(int argc, char **argv)
+TEST_F(TestCase_PipeAndFilter, testChannelDemuxMux)
 {
-  ::testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
+  std::shared_ptr<AudioBuffer> pSrcBuf = std::make_shared<AudioBuffer>( AudioFormat(AudioFormat::ENCODING::PCM_16BIT, AudioFormat::SAMPLING_RATE::SAMPLING_RATE_48_KHZ, AudioFormat::CHANNEL::CHANNEL_7_1CH ), 256 );
+  uint8_t* pRawSrcBuffer = pSrcBuf->getRawBufferPointer();
+  for( int i=0; i<pSrcBuf->getRawBuffer().size(); i++ ){
+    *pRawSrcBuffer++ = (i % 256);
+  }
+  Util::dumpBuffer( "source buffer", pSrcBuf.get() );
+  std::vector<std::shared_ptr<AudioBuffer>> pPerChannelBufs = ChannelDemuxer::perChannelDemux(pSrcBuf);
+  int i=0;
+  for( auto& pBuf : pPerChannelBufs ){
+    std::string channel = "Channel:" + std::to_string(i++);
+    Util::dumpBuffer( channel, pBuf.get() );
+  }
+
+  std::shared_ptr<AudioBuffer> pMuxedBuf = ChannelMuxer::perChannelMux(pPerChannelBufs, AudioFormat::CHANNEL::CHANNEL_7_1CH);
+  EXPECT_TRUE( pSrcBuf->getAudioFormat().equal( pMuxedBuf->getAudioFormat() ) );
+  Util::dumpBuffer( "MuxedBuf", pMuxedBuf.get() );
+
+  uint8_t* pRawSrcBuf = pSrcBuf->getRawBufferPointer();
+  uint8_t* pRawDstBuf = pMuxedBuf->getRawBufferPointer();
+  int nSrcRawSize = pSrcBuf->getNumberOfSamples();
+  int nDstRawSize = pMuxedBuf->getNumberOfSamples();
+  EXPECT_EQ( nSrcRawSize, nDstRawSize );
+  for(int i=0; i<nSrcRawSize && i<nDstRawSize; i++){
+    EXPECT_EQ( *pRawSrcBuf++, *pRawDstBuf++ );
+  }
 }

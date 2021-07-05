@@ -54,6 +54,8 @@
 #include "PowerManagerPrimitive.hpp"
 #include "AccousticEchoCancelledSource.hpp"
 #include "ReferenceSoundSinkSource.hpp"
+#include "ChannelDemultiplexer.hpp"
+#include "ChannelMultiplexer.hpp"
 
 #include <iostream>
 #include <filesystem>

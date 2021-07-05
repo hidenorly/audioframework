@@ -58,7 +58,7 @@ The expection is to implement android audio hal, surround amplifier, mediaplayer
       * This enables flexible signal flow.
         * case 1: Mapping specified Pipe to Sink
           * Pipe1 ---> Sink1
-          * Pip22 ---> Sink2
+          * Pipe2 ---> Sink2
         * case 2: Mix pipe outputs and output to specified Sink
           * Pipe1+Pipe2 --> Sink2
         * case 3: depending on the AudioFormat, change the Sink
@@ -237,6 +237,8 @@ $ make -j4; ./bin/afw_test;
   * [done] Per-channel Volume
   * [done] FileStream
   * [done] InterPipeBridge (FIFOed Source and Sink)
+  * [done] Per-channel demuxer (ChannelDemuxer)
+  * [done] Channel muxer (ChannelMuxer)
   * ParameterManager
     * [done] basic set/get & readonly, pub/sub with wild card
     * [done] parameter hierachy support
@@ -307,6 +309,23 @@ $ make -j4; ./bin/afw_test;
 # Build environment setup
 
 ## For MacOSX
+
+```
+$ brew install ccache
+```
+
+* install gtest
+
+```
+$ brew install cmake
+$ git clone https://github.com/google/googletest.git
+$ mkdir build
+$ cd build
+$ cmake
+```
+
+And you should install gtest to the library path.
+
 
 ## For Ubuntu 20.04LTS
 

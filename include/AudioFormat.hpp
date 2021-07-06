@@ -90,6 +90,7 @@ public:
   enum CHANNEL {
     CHANNEL_MONO,
     CHANNEL_STEREO,
+    CHANNEL_2_1CH,
     CHANNEL_4CH,
     CHANNEL_5CH,
     CHANNEL_5_1CH,
@@ -146,6 +147,8 @@ public:
   static ChannelMapper getSameChannelMapper(CHANNEL channel);
   std::string toString(void);
   std::shared_ptr<AudioFormat> getCopiedNewSharedInstance(void);
+
+  static CHANNEL getAudioChannel(int nChannels);
 };
 
 class AudioBase

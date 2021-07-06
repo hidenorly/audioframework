@@ -43,6 +43,10 @@ std::vector<ChannelConverter::ChannelMapList> ChannelConverter::getChannelConver
     CONVERT_CH_TABLE(AudioFormat::CHANNEL::CHANNEL_MONO, AudioFormat::CHANNEL::CHANNEL_STEREO, std::vector<ChannelMapList>{
       {AudioFormat::CH::MONO, AudioFormat::CH::L},
       {AudioFormat::CH::MONO, AudioFormat::CH::R} }),
+    CONVERT_CH_TABLE(AudioFormat::CHANNEL::CHANNEL_MONO, AudioFormat::CHANNEL::CHANNEL_2_1CH, std::vector<ChannelMapList>{
+      {AudioFormat::CH::MONO, AudioFormat::CH::L, },
+      {AudioFormat::CH::MONO, AudioFormat::CH::R},
+      {AudioFormat::CH::MONO, AudioFormat::CH::SW} }),
     CONVERT_CH_TABLE(AudioFormat::CHANNEL::CHANNEL_MONO, AudioFormat::CHANNEL::CHANNEL_4CH, std::vector<ChannelMapList>{
       {AudioFormat::CH::MONO, AudioFormat::CH::L, },
       {AudioFormat::CH::MONO, AudioFormat::CH::R},
@@ -91,6 +95,11 @@ std::vector<ChannelConverter::ChannelMapList> ChannelConverter::getChannelConver
     CONVERT_CH_TABLE(AudioFormat::CHANNEL::CHANNEL_STEREO, AudioFormat::CHANNEL::CHANNEL_MONO, std::vector<ChannelMapList>{
       {AudioFormat::CH::L,  AudioFormat::CH::MONO},
       {AudioFormat::CH::R,  AudioFormat::CH::MONO} }),
+    CONVERT_CH_TABLE(AudioFormat::CHANNEL::CHANNEL_STEREO, AudioFormat::CHANNEL::CHANNEL_2_1CH, std::vector<ChannelMapList>{
+      {AudioFormat::CH::L,  AudioFormat::CH::L},
+      {AudioFormat::CH::R,  AudioFormat::CH::R},
+      {AudioFormat::CH::L,  AudioFormat::CH::SW},
+      {AudioFormat::CH::R,  AudioFormat::CH::SW} }),
     CONVERT_CH_TABLE(AudioFormat::CHANNEL::CHANNEL_STEREO, AudioFormat::CHANNEL::CHANNEL_4CH, std::vector<ChannelMapList>{
       {AudioFormat::CH::L,  AudioFormat::CH::L},
       {AudioFormat::CH::R,  AudioFormat::CH::R},
@@ -154,6 +163,13 @@ std::vector<ChannelConverter::ChannelMapList> ChannelConverter::getChannelConver
       {AudioFormat::CH::SR, AudioFormat::CH::R},
       {AudioFormat::CH::L,  AudioFormat::CH::L},
       {AudioFormat::CH::R,  AudioFormat::CH::R} }),
+    CONVERT_CH_TABLE(AudioFormat::CHANNEL::CHANNEL_4CH, AudioFormat::CHANNEL::CHANNEL_2_1CH, std::vector<ChannelMapList>{
+      {AudioFormat::CH::SL, AudioFormat::CH::L},
+      {AudioFormat::CH::SR, AudioFormat::CH::R},
+      {AudioFormat::CH::L,  AudioFormat::CH::L},
+      {AudioFormat::CH::R,  AudioFormat::CH::R},
+      {AudioFormat::CH::L,  AudioFormat::CH::SW},
+      {AudioFormat::CH::R,  AudioFormat::CH::SW} }),
     CONVERT_CH_TABLE(AudioFormat::CHANNEL::CHANNEL_4CH, AudioFormat::CHANNEL::CHANNEL_5CH, std::vector<ChannelMapList>{
       {AudioFormat::CH::L,  AudioFormat::CH::L},
       {AudioFormat::CH::R,  AudioFormat::CH::R},
@@ -235,6 +251,10 @@ std::vector<ChannelConverter::ChannelMapList> ChannelConverter::getChannelConver
       {AudioFormat::CH::SR, AudioFormat::CH::R},
       {AudioFormat::CH::L,  AudioFormat::CH::L},
       {AudioFormat::CH::R,  AudioFormat::CH::R} }), // Ignore C
+    CONVERT_CH_TABLE(AudioFormat::CHANNEL::CHANNEL_5CH, AudioFormat::CHANNEL::CHANNEL_2_1CH, std::vector<ChannelMapList>{
+      {AudioFormat::CH::L,  AudioFormat::CH::L},
+      {AudioFormat::CH::R,  AudioFormat::CH::R},
+      {AudioFormat::CH::C,  AudioFormat::CH::SW},}),
     CONVERT_CH_TABLE(AudioFormat::CHANNEL::CHANNEL_5CH, AudioFormat::CHANNEL::CHANNEL_4CH, std::vector<ChannelMapList>{
       {AudioFormat::CH::L,  AudioFormat::CH::L},
       {AudioFormat::CH::R,  AudioFormat::CH::R},
@@ -292,6 +312,74 @@ std::vector<ChannelConverter::ChannelMapList> ChannelConverter::getChannelConver
       {AudioFormat::CH::SR, AudioFormat::CH::SBR},
       {AudioFormat::CH::R,  AudioFormat::CH::SBR},}),
 
+    CONVERT_CH_TABLE(AudioFormat::CHANNEL::CHANNEL_5_0_2CH, AudioFormat::CHANNEL::CHANNEL_MONO, std::vector<ChannelMapList>{
+      {AudioFormat::CH::SBL,  AudioFormat::CH::MONO},
+      {AudioFormat::CH::SBR,  AudioFormat::CH::MONO},
+      {AudioFormat::CH::SL,   AudioFormat::CH::MONO},
+      {AudioFormat::CH::SR,   AudioFormat::CH::MONO},
+      {AudioFormat::CH::C,    AudioFormat::CH::MONO},
+      {AudioFormat::CH::L,    AudioFormat::CH::MONO},
+      {AudioFormat::CH::R,    AudioFormat::CH::MONO} }),
+    CONVERT_CH_TABLE(AudioFormat::CHANNEL::CHANNEL_5_0_2CH, AudioFormat::CHANNEL::CHANNEL_STEREO, std::vector<ChannelMapList>{
+      {AudioFormat::CH::SBL,  AudioFormat::CH::L},
+      {AudioFormat::CH::SBR,  AudioFormat::CH::R},
+      {AudioFormat::CH::SL,   AudioFormat::CH::L},
+      {AudioFormat::CH::SR,   AudioFormat::CH::R},
+      {AudioFormat::CH::C,    AudioFormat::CH::L},
+      {AudioFormat::CH::C,    AudioFormat::CH::R},
+      {AudioFormat::CH::L,    AudioFormat::CH::L},
+      {AudioFormat::CH::R,    AudioFormat::CH::R} }),
+    CONVERT_CH_TABLE(AudioFormat::CHANNEL::CHANNEL_5_0_2CH, AudioFormat::CHANNEL::CHANNEL_2_1CH, std::vector<ChannelMapList>{
+      {AudioFormat::CH::SBL,  AudioFormat::CH::L},
+      {AudioFormat::CH::SBR,  AudioFormat::CH::R},
+      {AudioFormat::CH::SL,   AudioFormat::CH::L},
+      {AudioFormat::CH::SR,   AudioFormat::CH::R},
+      {AudioFormat::CH::C,    AudioFormat::CH::L},
+      {AudioFormat::CH::C,    AudioFormat::CH::R},
+      {AudioFormat::CH::L,    AudioFormat::CH::L},
+      {AudioFormat::CH::R,    AudioFormat::CH::R} }),
+    CONVERT_CH_TABLE(AudioFormat::CHANNEL::CHANNEL_5_0_2CH, AudioFormat::CHANNEL::CHANNEL_4CH, std::vector<ChannelMapList>{
+      {AudioFormat::CH::SBL,  AudioFormat::CH::SL},
+      {AudioFormat::CH::SBR,  AudioFormat::CH::SR},
+      {AudioFormat::CH::SL,   AudioFormat::CH::SL},
+      {AudioFormat::CH::SR,   AudioFormat::CH::SR},
+      {AudioFormat::CH::C,    AudioFormat::CH::L},
+      {AudioFormat::CH::C,    AudioFormat::CH::R},
+      {AudioFormat::CH::L,    AudioFormat::CH::L},
+      {AudioFormat::CH::R,    AudioFormat::CH::R} }),
+    CONVERT_CH_TABLE(AudioFormat::CHANNEL::CHANNEL_5_0_2CH, AudioFormat::CHANNEL::CHANNEL_5CH, std::vector<ChannelMapList>{
+      {AudioFormat::CH::SBL,  AudioFormat::CH::SL},
+      {AudioFormat::CH::SBR,  AudioFormat::CH::SR},
+      {AudioFormat::CH::SL,   AudioFormat::CH::SL},
+      {AudioFormat::CH::SR,   AudioFormat::CH::SR},
+      {AudioFormat::CH::C,    AudioFormat::CH::C},
+      {AudioFormat::CH::L,    AudioFormat::CH::L},
+      {AudioFormat::CH::R,    AudioFormat::CH::R} }), // SW ignored
+    CONVERT_CH_TABLE(AudioFormat::CHANNEL::CHANNEL_5_0_2CH, AudioFormat::CHANNEL::CHANNEL_5_1CH, std::vector<ChannelMapList>{
+      {AudioFormat::CH::SBL,  AudioFormat::CH::SL},
+      {AudioFormat::CH::SBR,  AudioFormat::CH::SR},
+      {AudioFormat::CH::SL,   AudioFormat::CH::SL},
+      {AudioFormat::CH::SR,   AudioFormat::CH::SR},
+      {AudioFormat::CH::C,    AudioFormat::CH::C},
+      {AudioFormat::CH::L,    AudioFormat::CH::L},
+      {AudioFormat::CH::R,    AudioFormat::CH::R} }),
+    CONVERT_CH_TABLE(AudioFormat::CHANNEL::CHANNEL_5_0_2CH, AudioFormat::CHANNEL::CHANNEL_5_1_2CH, std::vector<ChannelMapList>{
+      {AudioFormat::CH::L,    AudioFormat::CH::L},
+      {AudioFormat::CH::R,    AudioFormat::CH::R},
+      {AudioFormat::CH::SL,   AudioFormat::CH::SL},
+      {AudioFormat::CH::SR,   AudioFormat::CH::SR},
+      {AudioFormat::CH::C,    AudioFormat::CH::C},
+      {AudioFormat::CH::SBL,  AudioFormat::CH::SBL},
+      {AudioFormat::CH::SBR,  AudioFormat::CH::SBR},}),
+    CONVERT_CH_TABLE(AudioFormat::CHANNEL::CHANNEL_5_0_2CH, AudioFormat::CHANNEL::CHANNEL_7_1CH, std::vector<ChannelMapList>{
+      {AudioFormat::CH::L,    AudioFormat::CH::L},
+      {AudioFormat::CH::R,    AudioFormat::CH::R},
+      {AudioFormat::CH::SL,   AudioFormat::CH::SL},
+      {AudioFormat::CH::SR,   AudioFormat::CH::SR},
+      {AudioFormat::CH::C,    AudioFormat::CH::C},
+      {AudioFormat::CH::SBL,  AudioFormat::CH::SBL},
+      {AudioFormat::CH::SBR,  AudioFormat::CH::SBR},}),
+
     CONVERT_CH_TABLE(AudioFormat::CHANNEL::CHANNEL_5_1_2CH, AudioFormat::CHANNEL::CHANNEL_MONO, std::vector<ChannelMapList>{
       {AudioFormat::CH::SBL,  AudioFormat::CH::MONO},
       {AudioFormat::CH::SBR,  AudioFormat::CH::MONO},
@@ -310,6 +398,16 @@ std::vector<ChannelConverter::ChannelMapList> ChannelConverter::getChannelConver
       {AudioFormat::CH::C,    AudioFormat::CH::R},
       {AudioFormat::CH::SW,   AudioFormat::CH::L},
       {AudioFormat::CH::SW,   AudioFormat::CH::R},
+      {AudioFormat::CH::L,    AudioFormat::CH::L},
+      {AudioFormat::CH::R,    AudioFormat::CH::R} }),
+    CONVERT_CH_TABLE(AudioFormat::CHANNEL::CHANNEL_5_1_2CH, AudioFormat::CHANNEL::CHANNEL_2_1CH, std::vector<ChannelMapList>{
+      {AudioFormat::CH::SBL,  AudioFormat::CH::L},
+      {AudioFormat::CH::SBR,  AudioFormat::CH::R},
+      {AudioFormat::CH::SL,   AudioFormat::CH::L},
+      {AudioFormat::CH::SR,   AudioFormat::CH::R},
+      {AudioFormat::CH::C,    AudioFormat::CH::L},
+      {AudioFormat::CH::C,    AudioFormat::CH::R},
+      {AudioFormat::CH::SW,   AudioFormat::CH::SW},
       {AudioFormat::CH::L,    AudioFormat::CH::L},
       {AudioFormat::CH::R,    AudioFormat::CH::R} }),
     CONVERT_CH_TABLE(AudioFormat::CHANNEL::CHANNEL_5_1_2CH, AudioFormat::CHANNEL::CHANNEL_4CH, std::vector<ChannelMapList>{
@@ -376,6 +474,16 @@ std::vector<ChannelConverter::ChannelMapList> ChannelConverter::getChannelConver
       {AudioFormat::CH::C,    AudioFormat::CH::R},
       {AudioFormat::CH::SW,   AudioFormat::CH::L},
       {AudioFormat::CH::SW,   AudioFormat::CH::R},
+      {AudioFormat::CH::L,    AudioFormat::CH::L},
+      {AudioFormat::CH::R,    AudioFormat::CH::R} }),
+    CONVERT_CH_TABLE(AudioFormat::CHANNEL::CHANNEL_7_1CH, AudioFormat::CHANNEL::CHANNEL_2_1CH, std::vector<ChannelMapList>{
+      {AudioFormat::CH::SBL,  AudioFormat::CH::L},
+      {AudioFormat::CH::SBR,  AudioFormat::CH::R},
+      {AudioFormat::CH::SL,   AudioFormat::CH::L},
+      {AudioFormat::CH::SR,   AudioFormat::CH::R},
+      {AudioFormat::CH::C,    AudioFormat::CH::L},
+      {AudioFormat::CH::C,    AudioFormat::CH::R},
+      {AudioFormat::CH::SW,   AudioFormat::CH::SW},
       {AudioFormat::CH::L,    AudioFormat::CH::L},
       {AudioFormat::CH::R,    AudioFormat::CH::R} }),
     CONVERT_CH_TABLE(AudioFormat::CHANNEL::CHANNEL_7_1CH, AudioFormat::CHANNEL::CHANNEL_4CH, std::vector<ChannelMapList>{

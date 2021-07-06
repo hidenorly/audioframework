@@ -24,6 +24,7 @@ class ChannelMuxer
 {
 public:
   static std::shared_ptr<AudioBuffer> perChannelMux(std::vector<std::shared_ptr<AudioBuffer>> pSrcBufs, AudioFormat::CHANNEL outChannel);
+  static std::shared_ptr<AudioBuffer> perChannelMux(std::vector<std::shared_ptr<AudioBuffer>> pSrcBufs, std::vector<std::vector<AudioFormat::CH>> channels, AudioFormat::CHANNEL outChannel);
 };
 
 #endif /* __CHANNELMULTIPLEXER_HPP__ */

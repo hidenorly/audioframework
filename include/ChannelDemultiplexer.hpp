@@ -24,6 +24,7 @@ class ChannelDemuxer
 {
 public:
   static std::vector<std::shared_ptr<AudioBuffer>> perChannelDemux(std::shared_ptr<AudioBuffer> pSrcBuffer);
+  static std::vector<std::shared_ptr<AudioBuffer>> perChannelDemux(std::shared_ptr<AudioBuffer> pSrcBuffer, std::vector<std::vector<AudioFormat::CH>> channels);
 };
 
 #endif /* __CHANNELDEMULTIPLEXER_HPP__ */

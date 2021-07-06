@@ -64,6 +64,9 @@ int AudioFormat::getNumberOfChannels(AudioFormat::CHANNEL channel)
     case AudioFormat::CHANNEL::CHANNEL_UNKNOWN:
       numOfChannels = 2;
       break;
+    case AudioFormat::CHANNEL::CHANNEL_2_1CH:
+      numOfChannels = 3;
+      break;
     case AudioFormat::CHANNEL::CHANNEL_4CH:
       numOfChannels = 4;
       break;
@@ -401,4 +404,28 @@ std::vector<AudioFormat> AudioBase::audioFormatOpOR(std::vector<AudioFormat>& fo
 std::shared_ptr<AudioFormat> AudioFormat::getCopiedNewSharedInstance(void)
 {
   return std::make_shared<AudioFormat>( getEncoding(), getSamplingRate(), getChannels() );
+}
+
+AudioFormat::CHANNEL AudioFormat::getAudioChannel(int nChannels)
+{
+  switch( nChannels ){
+    case 1:
+      return AudioFormat::CHANNEL::CHANNEL_MONO;
+    case 2:
+      return AudioFormat::CHANNEL::CHANNEL_STEREO;
+    case 3:
+      return AudioFormat::CHANNEL::CHANNEL_2_1CH;
+    case 4:
+      return AudioFormat::CHANNEL::CHANNEL_4CH;
+    case 5:
+      return AudioFormat::CHANNEL::CHANNEL_5CH;
+    case 6:
+      return AudioFormat::CHANNEL::CHANNEL_5_1CH;
+    case 7:
+      return AudioFormat::CHANNEL::CHANNEL_5_0_2CH;
+    case 8:
+      return AudioFormat::CHANNEL::CHANNEL_7_1CH;
+    default:
+      return AudioFormat::CHANNEL::CHANNEL_UNKNOWN;
+  }
 }

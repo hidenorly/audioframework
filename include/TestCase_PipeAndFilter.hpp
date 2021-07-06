@@ -64,6 +64,7 @@ protected:
   void testEncodedSink(void);
 
   void testChannelDemuxMux(void);
+  void testChannelDemuxMux2(void);
 };
 
 #endif /* __TESTCASE_PIPEANDFILTER_HPP__ */

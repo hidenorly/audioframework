@@ -17,6 +17,7 @@
 #include "ChannelDemultiplexer.hpp"
 #include "AudioFormat.hpp"
 #include "Buffer.hpp"
+#include <iostream>
 
 std::vector<std::shared_ptr<AudioBuffer>> ChannelDemuxer::perChannelDemux(std::shared_ptr<AudioBuffer> pSrcBuffer)
 {
@@ -35,7 +36,7 @@ std::vector<std::shared_ptr<AudioBuffer>> ChannelDemuxer::perChannelDemux(std::s
           AudioFormat::CHANNEL::CHANNEL_MONO), nSamples ) );
       pRawOutBufs.push_back( pOutBufs[i]->getRawBufferPointer() );
     }
-    int nSampleBytes = srcFormat.getSampleByte();
+    int nSampleBytes = srcFormat.getSampleByte(); // 1 ch
     uint8_t* pSrcBuf = pSrcBuffer->getRawBufferPointer();
     int pSamplelOffset = 0;
     for( int i=0; i<nSamples; i++ ){
@@ -48,6 +49,47 @@ std::vector<std::shared_ptr<AudioBuffer>> ChannelDemuxer::perChannelDemux(std::s
         }
       }
       pSamplelOffset = pSamplelOffset + nSampleBytes;
+    }
+  }
+  return pOutBufs;
+}
+
+std::vector<std::shared_ptr<AudioBuffer>> ChannelDemuxer::perChannelDemux(std::shared_ptr<AudioBuffer> pSrcBuffer, std::vector<std::vector<AudioFormat::CH>> channels)
+{
+  std::vector<std::shared_ptr<AudioBuffer>> pOutBufs;
+  if( pSrcBuffer ){
+    std::vector<uint8_t*> pRawOutBufs;
+    AudioFormat srcFormat = pSrcBuffer->getAudioFormat();
+    int nSamples = pSrcBuffer->getNumberOfSamples();
+    // ensure requested channels buffer
+    int i=0;
+    for( auto& aChannels : channels ){
+      pOutBufs.push_back( std::make_shared<AudioBuffer>(
+        AudioFormat(
+          srcFormat.getEncoding(),
+          srcFormat.getSamplingRate(),
+          AudioFormat::getAudioChannel( aChannels.size() )
+          ), nSamples ) );
+      pRawOutBufs.push_back( pOutBufs[i++]->getRawBufferPointer() );
+    }
+    int nSampleBytes = srcFormat.getChannelsSampleByte();
+    int nPerChannelBytes = nSampleBytes / srcFormat.getNumberOfChannels();
+    uint8_t* pSrcBufBase = pSrcBuffer->getRawBufferPointer();
+    for( int i=0; i<nSamples; i++ ){
+      int j=0;
+      for( auto& aChannels : channels ){
+        int theNumOfChannels = aChannels.size();
+        int k=0;
+        for( auto& aChannel : aChannels ){
+          uint8_t* pSrcBuf = pSrcBufBase + nSampleBytes * i + srcFormat.getOffSetByteInSample(aChannel);
+          uint8_t* pOutBase = pRawOutBufs[j] + nPerChannelBytes*theNumOfChannels*i + nPerChannelBytes * k;
+          for( int l=0; l<nPerChannelBytes; l++ ){
+            *pOutBase++ = *pSrcBuf++;
+          }
+          k++;
+        }
+        j++;
+      }
     }
   }
   return pOutBufs;

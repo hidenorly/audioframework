@@ -1126,3 +1126,58 @@ TEST_F(TestCase_PipeAndFilter, testChannelDemuxMux)
     EXPECT_EQ( *pRawSrcBuf++, *pRawDstBuf++ );
   }
 }
+
+TEST_F(TestCase_PipeAndFilter, testChannelDemuxMux2)
+{
+  std::shared_ptr<AudioBuffer> pSrcBuf = std::make_shared<AudioBuffer>( AudioFormat(AudioFormat::ENCODING::PCM_16BIT, AudioFormat::SAMPLING_RATE::SAMPLING_RATE_48_KHZ, AudioFormat::CHANNEL::CHANNEL_7_1CH ), 256 );
+  uint8_t* pRawSrcBuffer = pSrcBuf->getRawBufferPointer();
+  for( int i=0; i<pSrcBuf->getRawBuffer().size(); i++ ){
+    *pRawSrcBuffer++ = (i % 256);
+  }
+  Util::dumpBuffer( "source buffer", pSrcBuf.get() );
+
+  std::vector<std::vector<AudioFormat::CH>> channels;
+  {
+    std::vector<AudioFormat::CH> channel;
+    channel.push_back( AudioFormat::CH::L );
+    channel.push_back( AudioFormat::CH::R );
+    channel.push_back( AudioFormat::CH::SL );
+    channel.push_back( AudioFormat::CH::SR );
+    channels.push_back( channel );
+  }
+  {
+    std::vector<AudioFormat::CH> channel;
+    channel.push_back( AudioFormat::CH::C );
+    channels.push_back( channel );
+  }
+  {
+    std::vector<AudioFormat::CH> channel;
+    channel.push_back( AudioFormat::CH::SW );
+    channels.push_back( channel );
+  }
+  {
+    std::vector<AudioFormat::CH> channel;
+    channel.push_back( AudioFormat::CH::SBL );
+    channel.push_back( AudioFormat::CH::SBR );
+    channels.push_back( channel );
+  }
+  std::vector<std::shared_ptr<AudioBuffer>> pPerChannelBufs = ChannelDemuxer::perChannelDemux(pSrcBuf, channels);
+  int i=0;
+  for( auto& pBuf : pPerChannelBufs ){
+    std::string channel = pBuf->getAudioFormat().toString() + " Channel:" + std::to_string(i++);
+    Util::dumpBuffer( channel, pBuf.get() );
+  }
+
+  std::shared_ptr<AudioBuffer> pMuxedBuf = ChannelMuxer::perChannelMux(pPerChannelBufs, channels, AudioFormat::CHANNEL::CHANNEL_7_1CH);
+  EXPECT_TRUE( pSrcBuf->getAudioFormat().equal( pMuxedBuf->getAudioFormat() ) );
+  Util::dumpBuffer( "MuxedBuf", pMuxedBuf.get() );
+
+  uint8_t* pRawSrcBuf = pSrcBuf->getRawBufferPointer();
+  uint8_t* pRawDstBuf = pMuxedBuf->getRawBufferPointer();
+  int nSrcRawSize = pSrcBuf->getNumberOfSamples();
+  int nDstRawSize = pMuxedBuf->getNumberOfSamples();
+  EXPECT_EQ( nSrcRawSize, nDstRawSize );
+  for(int i=0; i<nSrcRawSize && i<nDstRawSize; i++){
+    EXPECT_EQ( *pRawSrcBuf++, *pRawDstBuf++ );
+  }
+}

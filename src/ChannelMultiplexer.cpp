@@ -62,3 +62,49 @@ std::shared_ptr<AudioBuffer> ChannelMuxer::perChannelMux(std::vector<std::shared
   }
   return pOutBuf;
 }
+
+std::shared_ptr<AudioBuffer> ChannelMuxer::perChannelMux(std::vector<std::shared_ptr<AudioBuffer>> pSrcBufs, std::vector<std::vector<AudioFormat::CH>> channels, AudioFormat::CHANNEL outChannel)
+{
+  std::shared_ptr<AudioBuffer> pOutBuf;
+  if( pSrcBufs.size() && pSrcBufs.size() == channels.size() ){
+    AudioFormat srcFormat = pSrcBufs[0]->getAudioFormat();
+    int nSamples = pSrcBufs[0]->getNumberOfSamples();
+
+    bool isSameEncodingSamples = true;
+    for( auto& pBuf : pSrcBufs ){
+      isSameEncodingSamples = isSameEncodingSamples & ( srcFormat.getEncoding() == pBuf->getAudioFormat().getEncoding() ) & ( nSamples == pBuf->getNumberOfSamples() );
+      if( !isSameEncodingSamples ) break;
+    }
+    if( isSameEncodingSamples ){
+      // src buffer pointer
+      std::vector<uint8_t*> pRawSrcBufs;
+      for( int i=0, c=pSrcBufs.size(); i<c; i++ ){
+        pRawSrcBufs.push_back( pSrcBufs[i]->getRawBufferPointer() );
+      }
+
+      // ensure out buffer
+      AudioFormat dstFormat( srcFormat.getEncoding(), srcFormat.getSamplingRate(), outChannel );
+      int nOutSampleBytes = dstFormat.getChannelsSampleByte();
+      pOutBuf = std::make_shared<AudioBuffer>( dstFormat, nSamples );
+      uint8_t* pRawOutBufBase = pOutBuf->getRawBufferPointer();
+
+      for( int i=0; i<nSamples; i++ ){
+        for( int j=0, c=pSrcBufs.size(); j<c; j++ ){
+          AudioFormat theSrcFormat = pSrcBufs[j]->getAudioFormat();
+          int nNumberOfChannels = theSrcFormat.getNumberOfChannels();
+          int theSampleBytes = theSrcFormat.getChannelsSampleByte();
+          int thePerChannelSampleByte = theSrcFormat.getSampleByte();
+          uint8_t* pSrcBuf = pRawSrcBufs[j] + theSampleBytes * i;
+          uint8_t* pRawOutBufOffset = pRawOutBufBase + nOutSampleBytes * i;
+          for( int k=0; k<nNumberOfChannels; k++ ){
+            uint8_t* pRawOutBuf = pRawOutBufOffset + dstFormat.getOffSetByteInSample( channels[j][k] );
+            for( int l=0; l<thePerChannelSampleByte; l++ ){
+              *pRawOutBuf++ = *pSrcBuf++;
+            }
+          }
+        }
+      }
+    }
+  }
+  return pOutBuf;
+}

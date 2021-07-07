@@ -37,122 +37,6 @@ TEST_F(TestCase_Output, testPipeSetupByCondition)
 {
   ParameterManager* pParams = ParameterManager::getManager();
 
-  class TunnelPlaybackContext : public StrategyContext
-  {
-  public:
-    std::shared_ptr<IPipe> pPipe;
-    std::shared_ptr<ISource> pSource;
-    std::shared_ptr<ISink> pSink;
-    std::shared_ptr<IPlayer> pPlayer;
-
-  public:
-    TunnelPlaybackContext():StrategyContext(){};
-    TunnelPlaybackContext(std::shared_ptr<IPipe> pPipe, std::shared_ptr<ISource> pSource, std::shared_ptr<ISink> pSink):StrategyContext(), pPipe(pPipe), pSource(pSource), pSink(pSink){};
-    virtual ~TunnelPlaybackContext(){
-      pPipe.reset();
-      pSource.reset();
-      pSink.reset();
-      pPlayer.reset();
-    };
-  };
-
-  class TunnelPlaybackStrategy : public IStrategy
-  {
-  protected:
-    std::shared_ptr<IMediaCodec> getCodec(AudioFormat format){
-      return IMediaCodec::createByFormat(format, true);
-    }
-    bool shouldHandleFormat(AudioFormat format, std::string encodings)
-    {
-      std::cout << "shouldHandleFormat(" << (int)format.getEncoding() << " , " << encodings << " )" << std::endl;
-      // TODO: should expand not only encodings but also the other conditions such as channels
-      StringTokenizer tok(encodings, ",");
-      AudioFormat::ENCODING theEncoding = format.getEncoding();
-      while( tok.hasNext() ){
-        if( (int)theEncoding == std::stoi(tok.getNext()) ){
-          return true;
-        }
-      }
-      return false;
-    }
-    std::shared_ptr<IFilter> getVirtualizer(AudioFormat format, std::shared_ptr<StrategyContext> context){
-      ParameterManager* pParams = ParameterManager::getManager();
-      if( shouldHandleFormat(format, pParams->getParameter(VirtualizerA::applyConditionKey) ) ){
-        std::cout << "Create instance of Virtualizer A" << std::endl;
-        return std::make_shared<VirtualizerA>();
-      } else if( shouldHandleFormat(format, pParams->getParameter(VirtualizerB::applyConditionKey) ) ){
-        std::cout << "Create instance of Virtualizer B" << std::endl;
-        return std::make_shared<VirtualizerB>();
-      }
-      return nullptr;
-    }
-    std::vector<std::shared_ptr<IFilter>> getFilters(AudioFormat format, std::shared_ptr<StrategyContext> context){
-      std::vector<std::shared_ptr<IFilter>> filters;
-      std::shared_ptr<IFilter> pFilter = getVirtualizer(format, context);
-      if( pFilter ){
-        filters.push_back( pFilter );
-      }
-
-      return filters;
-    }
-  public:
-    TunnelPlaybackStrategy():IStrategy(){};
-    virtual ~TunnelPlaybackStrategy(){};
-    virtual bool canHandle(std::shared_ptr<StrategyContext> context){
-      return true;
-    }
-    virtual bool execute(std::shared_ptr<StrategyContext> pContext){
-      std::shared_ptr<TunnelPlaybackContext> context = std::dynamic_pointer_cast<TunnelPlaybackContext>(pContext);
-      if( context ){
-        ParameterManager* pParams = ParameterManager::getManager();
-        // ensure pipe
-        if( !context->pPipe ){
-          std::cout << "create Pipe instance" << std::endl;
-          context->pPipe = std::make_shared<Pipe>();
-        } else {
-          context->pPipe->stop();
-          context->pPipe->clearFilters();
-        }
-        // setup encoder sink if necessary
-        bool bTranscoder = pParams->getParameterBool("sink.transcoder");
-        if( bTranscoder && context->pSink && !std::dynamic_pointer_cast<EncodedSink>(context->pSink) ){
-          std::cout << "create EncodedSink instance" << std::endl;
-          context->pSink = std::make_shared<EncodedSink>(context->pSink, bTranscoder);
-        }
-        // setup source : player if necessary
-        // should be sink.passthrough = false if SpeakerSink, HeadphoneSink and BluetoothAudioSink
-        if( context->pSource ){
-          AudioFormat srcFormat = context->pSource->getAudioFormat();
-          if( srcFormat.isEncodingCompressed() && !pParams->getParameterBool("sink.passthrough") ){
-            std::cout << "create Player instance" << std::endl;
-            context->pPlayer = std::make_shared<Player>();
-            context->pPipe->attachSource(
-              context->pPlayer->prepare(
-                context->pSource,
-                getCodec( context->pSource->getAudioFormat() )
-              )
-            );
-          }
-          if( srcFormat.isEncodingPcm() || context->pPlayer ){
-            std::cout << "create Filter instance" << std::endl;
-            std::vector<std::shared_ptr<IFilter>> pFilters = getFilters(srcFormat, context);
-            for( auto& aFilter : pFilters ){
-              context->pPipe->addFilterToTail( aFilter );
-            }
-          }
-          context->pPipe->attachSource( context->pSource );
-        }
-
-        // setup sink
-        context->pPipe->attachSink(context->pSink);
-
-        return context->pPipe != nullptr;
-      } else {
-        return false;
-      }
-    }
-  };
-
   VirtualizerA::ensureDefaultAssumption();
   VirtualizerB::ensureDefaultAssumption();
 
@@ -318,4 +202,80 @@ TEST_F(TestCase_Output, testOutputSinkSwitchCompressed)
   pMultiSink->dump();
 
   // TODO : convert the above to Stratgey and add several Strategy to switch sink
+}
+
+TEST_F(TestCase_Output, testPipeSetupAndSinkSwitch)
+{
+  // init
+  ParameterManager* pParams = ParameterManager::getManager();
+
+  VirtualizerA::ensureDefaultAssumption();
+  VirtualizerB::ensureDefaultAssumption();
+
+  // --- setup Sink
+  // Instantiate Sink Manager
+  std::map<std::string, std::shared_ptr<ISink>> sinkManager = SinkFactory::getSinks();
+
+  // ensure SpeakerProtection Filter to SpeakerSink
+  std::shared_ptr<PipedSink> pSpeakerSink = std::dynamic_pointer_cast<PipedSink>( sinkManager["speaker"] );
+  pSpeakerSink->addFilterToTail( std::make_shared<SpeakerProtectionFilter>() );
+  pSpeakerSink->run(); // since this is PipedSink.
+
+  // ensure SpeakerSink and SPDIF sink
+  std::shared_ptr<OutputManager> pPrimarySink = std::make_shared<OutputManager>( sinkManager, "speaker", "spdif" );
+
+  // setup final mixer and splitter
+  std::shared_ptr<MixerSplitter> pMixerSplitter = std::make_shared<MixerSplitter>();
+  pMixerSplitter->addSink( pPrimarySink ); // for Sepeaker+SPDIF, HDMI+SPDIF
+  pMixerSplitter->addSink( pSpeakerSink ); // for pass through's exceptional case such as accessibility
+
+  std::cout << "case 1: Source1(AC3) -> Player(Decoder) --> Pipe(VirtualizerA) --> MixerSplitter --> OutputManager(Primary:Speaker(SPKProtection), Concurrent:SPDIF(transcoder:true))" << std::endl;
+  std::cout << "player, virtualizerA filter, Sink" << std::endl;
+
+  // Set up source
+  std::shared_ptr<CompressedSource> pSource1 = std::make_shared<CompressedSource>();
+  pSource1->setAudioFormat( AudioFormat::ENCODING::COMPRESSED_AC3 );
+
+  // set up pipe with TunnelPlaybackStrategy
+  std::shared_ptr<TunnelPlaybackStrategy> pStrategy1 = std::make_shared<TunnelPlaybackStrategy>();
+  std::shared_ptr<TunnelPlaybackContext> pContext1 = std::make_shared<TunnelPlaybackContext>();
+  std::shared_ptr<ISink> pSinkAdaptor1 = pMixerSplitter->allocateSinkAdaptor( AudioFormat(), pContext1->pPipe ); // but at this time, pPipe should be nullptr. Need to be solved.
+  pContext1->pSource = pSource1;
+  pContext1->pSink = pSinkAdaptor1;
+
+  // set up MixerSplitter
+  // TODO : expand to support this case: if main stream is compressed && the other streams are pcm && sink is hdmi, setup : the main -> hdmi+spdif, the others --> speaker
+  pMixerSplitter->conditionalMap( pSinkAdaptor1, pPrimarySink, std::make_shared<MixerSplitter::MapAnyCompressedCondition>() );
+  pMixerSplitter->conditionalMap( pSinkAdaptor1, pPrimarySink, std::make_shared<MixerSplitter::MapAnyPcmCondition>() );
+
+  pPrimarySink->setAudioFormat(AudioFormat::ENCODING::PCM_16BIT);
+  pParams->setParameterBool("sink.transcoder", false);
+  pParams->setParameterBool("sink.passthrough", false);
+  EXPECT_TRUE( pStrategy1->execute(pContext1) );
+  pContext1->pPipe->dump();
+
+  // run
+  pContext1->pPipe->run();
+  pMixerSplitter->run();
+  std::this_thread::sleep_for(std::chrono::microseconds(1000));
+  pMixerSplitter->stop();
+  pContext1->pPipe->stop();
+  pPrimarySink->dump();
+
+  std::cout << "case 2: Source1(AC3) -> Pipe --> MixerSplitter --> OutputManager(Primary:hdmi, Concurrent:SPDIF(transcoder:true))" << std::endl;
+  std::cout << "no player, no virtualizer filter in pipe" << std::endl;
+  pPrimarySink->setPrimaryOutput("hdmi");
+  pPrimarySink->setAudioFormat(AudioFormat::ENCODING::COMPRESSED_AC3);
+  pParams->setParameterBool("sink.transcoder", true);
+  pParams->setParameterBool("sink.passthrough", true);
+  EXPECT_TRUE( pStrategy1->execute(pContext1) );
+  pContext1->pPipe->dump();
+
+  // run
+  pContext1->pPipe->run();
+  pMixerSplitter->run();
+  std::this_thread::sleep_for(std::chrono::microseconds(1000));
+  pMixerSplitter->stop();
+  pContext1->pPipe->stop();
+  pPrimarySink->dump();
 }

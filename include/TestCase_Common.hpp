@@ -277,6 +277,127 @@ public:
   }
 };
 
+class TunnelPlaybackContext : public StrategyContext
+{
+public:
+  std::shared_ptr<IPipe> pPipe;
+  std::shared_ptr<ISource> pSource;
+  std::shared_ptr<ISink> pSink;
+  std::shared_ptr<IPlayer> pPlayer;
+
+public:
+  TunnelPlaybackContext():StrategyContext(){};
+  TunnelPlaybackContext(std::shared_ptr<IPipe> pPipe, std::shared_ptr<ISource> pSource, std::shared_ptr<ISink> pSink):StrategyContext(), pPipe(pPipe), pSource(pSource), pSink(pSink){};
+  virtual ~TunnelPlaybackContext(){
+    pPipe.reset();
+    pSource.reset();
+    pSink.reset();
+    pPlayer.reset();
+  };
+};
+
+class TunnelPlaybackStrategy : public IStrategy
+{
+protected:
+  std::shared_ptr<IMediaCodec> getCodec(AudioFormat format){
+    return IMediaCodec::createByFormat(format, true);
+  }
+  bool shouldHandleFormat(AudioFormat format, std::string encodings)
+  {
+    std::cout << "shouldHandleFormat(" << (int)format.getEncoding() << " , " << encodings << " )" << std::endl;
+    // TODO: should expand not only encodings but also the other conditions such as channels
+    StringTokenizer tok(encodings, ",");
+    AudioFormat::ENCODING theEncoding = format.getEncoding();
+    while( tok.hasNext() ){
+      if( (int)theEncoding == std::stoi(tok.getNext()) ){
+        return true;
+      }
+    }
+    return false;
+  }
+  std::shared_ptr<IFilter> getVirtualizer(AudioFormat format, std::shared_ptr<StrategyContext> context){
+    ParameterManager* pParams = ParameterManager::getManager();
+    if( shouldHandleFormat(format, pParams->getParameter(VirtualizerA::applyConditionKey) ) ){
+      std::cout << "Create instance of Virtualizer A" << std::endl;
+      return std::make_shared<VirtualizerA>();
+    } else if( shouldHandleFormat(format, pParams->getParameter(VirtualizerB::applyConditionKey) ) ){
+      std::cout << "Create instance of Virtualizer B" << std::endl;
+      return std::make_shared<VirtualizerB>();
+    }
+    return nullptr;
+  }
+  std::vector<std::shared_ptr<IFilter>> getFilters(AudioFormat format, std::shared_ptr<StrategyContext> context){
+    std::vector<std::shared_ptr<IFilter>> filters;
+    std::shared_ptr<IFilter> pFilter = getVirtualizer(format, context);
+    if( pFilter ){
+      filters.push_back( pFilter );
+    }
+
+    return filters;
+  }
+public:
+  TunnelPlaybackStrategy():IStrategy(){};
+  virtual ~TunnelPlaybackStrategy(){};
+  virtual bool canHandle(std::shared_ptr<StrategyContext> context){
+    return true;
+  }
+  virtual bool execute(std::shared_ptr<StrategyContext> pContext){
+    std::shared_ptr<TunnelPlaybackContext> context = std::dynamic_pointer_cast<TunnelPlaybackContext>(pContext);
+    if( context ){
+      ParameterManager* pParams = ParameterManager::getManager();
+      // ensure pipe
+      if( !context->pPipe ){
+        std::cout << "create Pipe instance" << std::endl;
+        context->pPipe = std::make_shared<Pipe>();
+      } else {
+        context->pPipe->stop();
+        context->pPipe->clearFilters();
+        context->pPlayer.reset();
+      }
+      // setup encoder sink if necessary
+      bool bTranscoder = pParams->getParameterBool("sink.transcoder");
+      if( bTranscoder && context->pSink && !std::dynamic_pointer_cast<EncodedSink>(context->pSink) && !std::dynamic_pointer_cast<InterPipeBridge>(context->pSink) ){
+        std::cout << "create EncodedSink instance" << std::endl;
+        context->pSink = std::make_shared<EncodedSink>(context->pSink, bTranscoder);
+      }
+      // setup source : player if necessary
+      // should be sink.passthrough = false if SpeakerSink, HeadphoneSink and BluetoothAudioSink
+      if( context->pSource ){
+        AudioFormat srcFormat = context->pSource->getAudioFormat();
+        // Attach source (=Player or the Source as-is) to the Pipe's Source
+        if( srcFormat.isEncodingCompressed() && !pParams->getParameterBool("sink.passthrough") ){
+          std::cout << "create Player instance" << std::endl;
+          context->pPlayer = std::make_shared<Player>();
+          context->pPipe->attachSource(
+            context->pPlayer->prepare(
+              context->pSource,
+              getCodec( context->pSource->getAudioFormat() )
+            )
+          );
+        } else {
+          context->pPipe->attachSource( context->pSource );
+        }
+        // setup filter if PCM is input to the pipe
+        if( srcFormat.isEncodingPcm() || context->pPlayer ){
+          std::cout << "create Filter instance" << std::endl;
+          std::vector<std::shared_ptr<IFilter>> pFilters = getFilters(srcFormat, context);
+          for( auto& aFilter : pFilters ){
+            context->pPipe->addFilterToTail( aFilter );
+          }
+        }
+      }
+
+      // setup sink
+      context->pPipe->attachSink(context->pSink);
+
+      return context->pPipe != nullptr;
+    } else {
+      return false;
+    }
+  }
+};
+
+
 class OutputManager : public MultipleSink
 {
   std::map<std::string, std::shared_ptr<ISink>> mSinks;
@@ -289,13 +410,18 @@ public:
   };
   virtual ~OutputManager(){};
   void setPrimaryOutput(std::string primaryOutput, std::string concurrentOutput = ""){
-    std::cout << "setPrimaryOutput(" << primaryOutput << ", " << concurrentOutput << ")" << std::endl;
+    if( concurrentOutput == "" ){
+      concurrentOutput = mConcurrentOutput;
+    }
+    std::cout << "setPrimaryOutput(" << primaryOutput << ") , concurrent:(" << concurrentOutput << ")" << std::endl;
+    bool isPrimaryChanged = false;
     if( ( mPrimaryOutput != primaryOutput ) && mSinks.contains(primaryOutput) && mSinks[primaryOutput] ){
       detachSink( mSinks[mPrimaryOutput] );
       attachSink( mSinks[primaryOutput], mSinks[primaryOutput]->getAudioFormat().getSameChannelMapper() );
       mPrimaryOutput = primaryOutput;
+      isPrimaryChanged = true;
     }
-    if( ( concurrentOutput != "" ) && ( mConcurrentOutput != concurrentOutput ) && mSinks.contains(concurrentOutput) && mSinks[concurrentOutput]){
+    if( ( ( mConcurrentOutput != concurrentOutput ) || isPrimaryChanged ) && mSinks.contains(concurrentOutput) && mSinks[concurrentOutput]){
       detachSink( mSinks[mConcurrentOutput] );
       attachSink( mSinks[concurrentOutput], mSinks[concurrentOutput]->getAudioFormat().getSameChannelMapper() );
       mConcurrentOutput = concurrentOutput;

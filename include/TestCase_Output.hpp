@@ -30,6 +30,7 @@ protected:
   void testPipeSetupByCondition(void);
   void testOutputSinkSwitchLpcm(void);
   void testOutputSinkSwitchCompressed(void);
+  void testPipeSetupAndSinkSwitch(void);
 };
 
 #endif /* __TESTCASE_OUTPUT_HPP__ */

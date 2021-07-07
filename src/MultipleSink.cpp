@@ -36,6 +36,7 @@ void MultipleSink::attachSink(std::shared_ptr<ISink> pSink, AudioFormat::Channel
     mSinkMutex.lock();
     mpSinks.push_back( pSink );
     mChannelMaps.insert_or_assign( pSink, map );
+    pSink->setAudioFormat( mFormat );
     mSinkMutex.unlock();
   }
 }
@@ -147,7 +148,13 @@ bool MultipleSink::setAudioFormat(AudioFormat audioFormat, bool bForce)
   bool bResult = isAvailableFormat( audioFormat ) | bForce;
   if( bResult ){
     mFormat = audioFormat;
+    mSinkMutex.lock();
+    for(auto& pSink : mpSinks ){
+      pSink->setAudioFormat( audioFormat );
+    }
+    mSinkMutex.unlock();
   }
+
   return bResult;
 }
 

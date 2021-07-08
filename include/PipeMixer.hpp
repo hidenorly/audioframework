@@ -37,15 +37,16 @@ protected:
   AudioFormat mFormat;
   std::shared_ptr<ISink> mpSink;
 
+protected:
   virtual void process(void);
   virtual void unlockToStop(void);
   std::shared_ptr<ISink> getSinkFromPipe(std::shared_ptr<IPipe> pArgPipe);
   bool isPipeRunningOrNotRegistered(std::shared_ptr<InterPipeBridge> srcSink);
+  virtual void setAudioFormatPrimitive(AudioFormat audioFormat);
 
 public:
   PipeMixer(AudioFormat format = AudioFormat(), std::shared_ptr<ISink> pSink = nullptr );
   virtual ~PipeMixer();
-  virtual bool setAudioFormat(AudioFormat audioFormat);
   virtual AudioFormat getAudioFormat(void);
 
   virtual std::shared_ptr<ISink> attachSink(std::shared_ptr<ISink> pSink);

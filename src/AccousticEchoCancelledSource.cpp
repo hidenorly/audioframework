@@ -81,3 +81,10 @@ void AccousticEchoCancelledSource::adjustDelay(void)
 {
   createDelayFilter();
 }
+
+void AccousticEchoCancelledSource::setAudioFormatPrimitive(AudioFormat audioFormat)
+{
+  if( mpSource ){
+    mpSource->setAudioFormat(audioFormat);
+  }
+}

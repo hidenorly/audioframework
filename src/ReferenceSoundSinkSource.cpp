@@ -72,7 +72,7 @@ void ReferenceSoundSinkSource::clearBuffer(void)
   mFifoBuffer.clearBuffer();
 }
 
-bool ReferenceSoundSinkSource::setAudioFormat(AudioFormat audioFormat)
+void ReferenceSoundSinkSource::setAudioFormatPrimitive(AudioFormat audioFormat)
 {
   bool result = false;
   mMutexSink.lock();
@@ -83,7 +83,6 @@ bool ReferenceSoundSinkSource::setAudioFormat(AudioFormat audioFormat)
   if( result ){
     mFifoBuffer.setAudioFormat( audioFormat ); // clear buffer is done by this call internally
   }
-  return result;
 }
 
 AudioFormat ReferenceSoundSinkSource::getAudioFormat(void)
@@ -92,12 +91,13 @@ AudioFormat ReferenceSoundSinkSource::getAudioFormat(void)
   AudioFormat resultSink = result;
   mMutexSink.lock();
   if( mpSink ){
-    AudioFormat resultSink = mpSink->getAudioFormat();
+    resultSink = mpSink->getAudioFormat();
   }
   mMutexSink.unlock();
 
   if( !resultSink.equal( result ) ){
-    setAudioFormat( resultSink );
+    ISink* pSink = static_cast<ISink*>(this);
+    pSink->AudioBase::setAudioFormat( resultSink );
     result = resultSink;
   }
 

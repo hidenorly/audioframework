@@ -138,24 +138,14 @@ bool MultipleSink::getAudioFormatSupportOrModeEnabled(void)
   return mbSupportedFormatsOpOR;
 }
 
-bool MultipleSink::setAudioFormat(AudioFormat audioFormat)
+void MultipleSink::setAudioFormatPrimitive(AudioFormat audioFormat)
 {
-  return setAudioFormat(audioFormat, false);
-}
-
-bool MultipleSink::setAudioFormat(AudioFormat audioFormat, bool bForce)
-{
-  bool bResult = isAvailableFormat( audioFormat ) | bForce;
-  if( bResult ){
-    mFormat = audioFormat;
-    mSinkMutex.lock();
-    for(auto& pSink : mpSinks ){
-      pSink->setAudioFormat( audioFormat );
-    }
-    mSinkMutex.unlock();
+  mFormat = audioFormat;
+  mSinkMutex.lock();
+  for(auto& pSink : mpSinks ){
+    pSink->setAudioFormat( audioFormat );
   }
-
-  return bResult;
+  mSinkMutex.unlock();
 }
 
 AudioFormat MultipleSink::getAudioFormat(void)

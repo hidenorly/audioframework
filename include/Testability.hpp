@@ -76,6 +76,7 @@ class SinkTestBase : public ISink
 {
 protected:
   std::shared_ptr<ISink> mpSink;
+  virtual void setAudioFormatPrimitive(AudioFormat audioFormat);
 
 public:
   SinkTestBase(std::shared_ptr<ISink> pSink);
@@ -87,7 +88,6 @@ public:
   virtual bool setPresentation(PRESENTATION presentation);
   virtual PRESENTATION getPresentation(void);
 
-  virtual bool setAudioFormat(AudioFormat audioFormat);
   virtual AudioFormat getAudioFormat(void);
 
   virtual float getVolume(void);
@@ -104,22 +104,22 @@ class SinkCapture : public SinkTestBase, public ICapture
 {
 protected:
   virtual void writePrimitive(IAudioBuffer& buf);
+  virtual void setAudioFormatPrimitive(AudioFormat audioFormat);
 
 public:
   SinkCapture(std::shared_ptr<ISink> pSink);
   virtual ~SinkCapture();
-  virtual bool setAudioFormat(AudioFormat audioFormat);
 };
 
 class SinkInjector : public SinkTestBase, public IInjector
 {
 protected:
   virtual void writePrimitive(IAudioBuffer& buf);
+  virtual void setAudioFormatPrimitive(AudioFormat audioFormat);
 
 public:
   SinkInjector(std::shared_ptr<ISink> pSink);
   virtual ~SinkInjector();
-  virtual bool setAudioFormat(AudioFormat audioFormat);
 };
 
 class SourceTestBase : public ISource

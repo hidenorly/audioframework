@@ -31,6 +31,7 @@ protected:
 protected:
   virtual void readPrimitive(IAudioBuffer& buf);
   virtual void writePrimitive(IAudioBuffer& buf);
+  virtual void setAudioFormatPrimitive(AudioFormat format);
 
 public:
   ReferenceSoundSinkSource( std::shared_ptr<ISink> pSink );
@@ -40,7 +41,6 @@ public:
   std::shared_ptr<ISink> detachSink(void);
   void clearBuffer(void);
 
-  virtual bool setAudioFormat(AudioFormat audioFormat);
   virtual AudioFormat getAudioFormat(void);
 
   virtual int stateResourceConsumption(void);

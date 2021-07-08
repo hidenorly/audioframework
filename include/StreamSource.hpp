@@ -30,6 +30,7 @@ protected:
 
 protected:
   virtual void readPrimitive(IAudioBuffer& buf);
+  virtual void setAudioFormatPrimitive(AudioFormat audioFormat);
 
 public:
   StreamSource(AudioFormat format = AudioFormat(), std::shared_ptr<IStream> pStream = nullptr);
@@ -38,7 +39,6 @@ public:
   virtual std::string toString(void){return "StreamSource";};
 
   virtual void parse(ByteBuffer& inStreamBuf, IAudioBuffer& dstAudioBuf);
-  virtual bool setAudioFormat(AudioFormat audioFormat);
   virtual AudioFormat getAudioFormat(void);
 };
 

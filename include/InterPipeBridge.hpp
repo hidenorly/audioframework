@@ -33,6 +33,7 @@ protected:
 protected:
   virtual void readPrimitive(IAudioBuffer& buf);
   virtual void writePrimitive(IAudioBuffer& buf);
+  virtual void setAudioFormatPrimitive(AudioFormat audioFormat);
 
 public:
   InterPipeBridge(AudioFormat format = AudioFormat());
@@ -41,7 +42,6 @@ public:
   virtual void dump(void){};
   virtual std::string toString(void){return "InterPipeBridge";};
 
-  virtual bool setAudioFormat(AudioFormat audioFormat);
   virtual AudioFormat getAudioFormat(void);
 
   virtual void unlock(void){ mFifoBuffer.unlock(); };

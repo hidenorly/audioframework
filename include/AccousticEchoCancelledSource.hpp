@@ -36,6 +36,7 @@ protected:
 protected:
   virtual void readPrimitive(IAudioBuffer& buf);
   void createDelayFilter(void);
+  virtual void setAudioFormatPrimitive(AudioFormat audioFormat);
 
 public:
   AccousticEchoCancelledSource(std::shared_ptr<ISource> pSource, std::shared_ptr<ISource> pReferenceSound = nullptr, bool bDelayOnly = false);

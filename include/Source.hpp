@@ -32,9 +32,11 @@ class ISource : public ISourceSinkCommon
 protected:
   int mLatencyUsec;
   int64_t mSourcePosition;
+  AudioFormat mFormat;
 
 protected:
   virtual void readPrimitive(IAudioBuffer& buf) = 0;
+  virtual void setAudioFormatPrimitive(AudioFormat format){mFormat = format;};
 
 public:
   ISource();
@@ -58,6 +60,7 @@ public:
   Source();
   virtual ~Source();
   virtual std::string toString(void){return "Source";};
+  virtual AudioFormat getAudioFormat(void){return mFormat;};
 };
 
 class SourcePlugIn : public ISource, public IPlugIn

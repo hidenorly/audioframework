@@ -27,6 +27,9 @@
 
 class IFilter : public AudioBase, public IResourceConsumer
 {
+protected:
+  void setAudioFormatPrimitive(AudioFormat format){};
+
 public:
   static inline const int DEFAULT_WINDOW_SIZE_USEC = 5000; // 5msec
 

@@ -143,6 +143,7 @@ public:
   int getOffSetInSample(AudioFormat::CH ch);
   static int getOffSetInSample(AudioFormat::CHANNEL channel, AudioFormat::CH ch);
   bool equal(AudioFormat arg2);
+  bool operator==(AudioFormat arg2){return equal(arg2);}
   ChannelMapper getSameChannelMapper(void);
   static ChannelMapper getSameChannelMapper(CHANNEL channel);
   std::string toString(void);
@@ -154,10 +155,34 @@ public:
 class AudioBase
 {
 public:
+  class AudioFormatListener
+  {
+  public:
+    AudioFormatListener(){};
+    virtual ~AudioFormatListener(){};
+    virtual void onFormatChanged(AudioFormat format){};
+  };
+
+protected:
+  std::vector<std::weak_ptr<AudioFormatListener>> mAudioFormatListerners;
+  AudioFormat mPreviousAudioFormat;
+  void notifyAudioFormatChanged(AudioFormat format);
+  virtual void setAudioFormatPrimitive(AudioFormat format) = 0;
+
+public:
+  AudioBase();
+  virtual ~AudioBase();
+
   virtual std::vector<AudioFormat> getSupportedAudioFormats(void);
   virtual bool isAvailableFormat(AudioFormat format);
+  virtual bool setAudioFormat(AudioFormat format);
+
   virtual std::vector<AudioFormat> audioFormatOpAND(std::vector<AudioFormat>& formats1, std::vector<AudioFormat>& formats2);
   virtual std::vector<AudioFormat> audioFormatOpOR(std::vector<AudioFormat>& formats1, std::vector<AudioFormat>& formats2);
+
+  virtual void registerAudioFormatListener(std::shared_ptr<AudioFormatListener> listener);
+  virtual void unregisterAudioFormatListener(std::shared_ptr<AudioFormatListener> listener);
 };
+
 
 #endif /* __AUDIO_FORMAT_HPP__ */

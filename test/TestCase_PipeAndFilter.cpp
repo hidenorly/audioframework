@@ -1181,3 +1181,25 @@ TEST_F(TestCase_PipeAndFilter, testChannelDemuxMux2)
     EXPECT_EQ( *pRawSrcBuf++, *pRawDstBuf++ );
   }
 }
+
+TEST_F(TestCase_PipeAndFilter, testAudioBaseFormatChanged)
+{
+  class MyAudioFormatListener : public AudioBase::AudioFormatListener
+  {
+  public:
+    AudioFormat mFormat;
+    MyAudioFormatListener(){};
+    virtual ~MyAudioFormatListener(){};
+    virtual void onFormatChanged(AudioFormat format){
+      std::cout << "MyAudioFormatListener::MyAudioFormatListener" << format.toString() << std::endl;
+      mFormat = format;
+    };
+  };
+
+  std::shared_ptr<ISink> pSink = std::make_shared<CompressedSink>();
+  std::shared_ptr<MyAudioFormatListener> pMyListener = std::make_shared<MyAudioFormatListener>();
+  pSink->registerAudioFormatListener( pMyListener );
+
+  EXPECT_TRUE( pSink->setAudioFormat(AudioFormat::ENCODING::COMPRESSED_AAC) );
+  EXPECT_TRUE( pSink->getAudioFormat().equal( pMyListener->mFormat ) );
+}

@@ -160,17 +160,11 @@ void Sink::dump(void)
   Util::dumpBuffer("Dump Sink data", mpBuf);
 }
 
-bool Sink::setAudioFormat(AudioFormat audioFormat)
+void Sink::setAudioFormatPrimitive(AudioFormat audioFormat)
 {
-  bool bSuccess = isAvailableFormat(audioFormat);
-
-  if( bSuccess ) {
-    if( mpBuf ){
-      mpBuf->setAudioFormat( audioFormat );
-    }
+  if( mpBuf ){
+    mpBuf->setAudioFormat( audioFormat );
   }
-
-  return bSuccess;
 }
 
 AudioFormat Sink::getAudioFormat(void)
@@ -213,9 +207,8 @@ void SinkPlugIn::writePrimitive(IAudioBuffer& buf)
 
 }
 
-bool SinkPlugIn::setAudioFormat(AudioFormat audioFormat)
+void SinkPlugIn::setAudioFormatPrimitive(AudioFormat audioFormat)
 {
-  return false;
 }
 
 AudioFormat SinkPlugIn::getAudioFormat(void)

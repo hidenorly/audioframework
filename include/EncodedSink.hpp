@@ -33,6 +33,7 @@ protected:
 
 protected:
   virtual void ensureTranscoder(AudioFormat srcFormat, AudioFormat dstFormat);
+  virtual void setAudioFormatPrimitive(AudioFormat audioFormat);
 
 public:
   EncodedSink(std::shared_ptr<ISink> pSink = nullptr, bool bTranscode = false);
@@ -53,7 +54,6 @@ public:
     return result;
   };
 
-  virtual bool setAudioFormat(AudioFormat audioFormat);
   virtual AudioFormat getAudioFormat(void);
   virtual std::vector<AudioFormat> getSupportedAudioFormats(void);
 

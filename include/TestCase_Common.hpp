@@ -85,10 +85,10 @@ class CompressedSource : public Source
 {
 protected:
   AudioFormat mFormat;
+  virtual void setAudioFormatPrimitive(AudioFormat format){ mFormat=format; };
 public:
   CompressedSource():Source(),mFormat(AudioFormat::ENCODING::COMPRESSED){};
   virtual ~CompressedSource(){};
-  virtual void setAudioFormat(AudioFormat format){ mFormat=format; };
   virtual AudioFormat getAudioFormat(void){ return mFormat; };
   virtual void readPrimitive(IAudioBuffer& buf){
     ByteBuffer esRawBuf( 256, 0 );
@@ -104,6 +104,9 @@ protected:
   std::vector<AudioFormat> mAudioFormats;
   AudioFormat mFormat;
 
+protected:
+  virtual void setAudioFormatPrimitive(AudioFormat format){mFormat=format;};
+
 public:
   CompressedSink(AudioFormat::ENCODING encodingStartPoint = AudioFormat::ENCODING::COMPRESSED):Sink(),mFormat(AudioFormat::ENCODING::ENCODING_DEFAULT){
     for(int anEncoding = encodingStartPoint; anEncoding < AudioFormat::ENCODING::COMPRESSED_UNKNOWN; anEncoding++){
@@ -111,11 +114,6 @@ public:
     }
   };
   virtual ~CompressedSink(){};
-  virtual bool setAudioFormat(AudioFormat format){
-    mFormat=format;
-    Sink::setAudioFormat(format);
-    return true;
-  };
   virtual AudioFormat getAudioFormat(void){ return mFormat; };
   std::vector<AudioFormat> getSupportedAudioFormats(void){ return mAudioFormats; };
   virtual std::string toString(void){return "CompressedSink";};

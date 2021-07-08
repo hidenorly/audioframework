@@ -61,12 +61,10 @@ void StreamSource::readPrimitive(IAudioBuffer& buf)
   }
 }
 
-bool StreamSource::setAudioFormat(AudioFormat audioFormat)
+void StreamSource::setAudioFormatPrimitive(AudioFormat audioFormat)
 {
   mFormat = audioFormat;
   // TODO: Change the parser's format.
-
-  return true;
 }
 
 AudioFormat StreamSource::getAudioFormat(void)

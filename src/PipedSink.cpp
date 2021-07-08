@@ -85,9 +85,8 @@ void PipedSink::dump(void)
   }
 }
 
-bool PipedSink::setAudioFormat(AudioFormat audioFormat)
+void PipedSink::setAudioFormatPrimitive(AudioFormat audioFormat)
 {
-  bool result = false;
   if( mpSink ){
     bool bIsRunning = isRunning();
     if( bIsRunning ){
@@ -97,12 +96,11 @@ bool PipedSink::setAudioFormat(AudioFormat audioFormat)
     if( mpPipe ){
       mpPipe->attachSource( mpInterPipeBridge );
     }
-    result = mpSink->setAudioFormat( audioFormat );
+    mpSink->setAudioFormat( audioFormat );
     if( bIsRunning ){
       run();
     }
   }
-  return result;
 }
 
 AudioFormat PipedSink::getAudioFormat(void)

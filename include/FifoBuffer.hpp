@@ -24,7 +24,7 @@
 #include <atomic>
 #include <condition_variable>
 
-class FifoBufferBase : public IUnlockable
+class FifoBufferBase : public IUnlockable, public AudioBase
 {
 protected:
   AudioFormat mFormat;
@@ -36,14 +36,15 @@ protected:
   std::atomic<bool> mReadBlocked;
   std::atomic<bool> mUnlockReadBlock;
 
+protected:
   FifoBufferBase(AudioFormat format = AudioFormat());
   virtual ~FifoBufferBase();
+  void setAudioFormatPrimitive(AudioFormat format);
 
 public:
   int getBufferedSamples(void);
   void setFifoSizeLimit(int nSampleLimit);
   AudioFormat getAudioFormat(void){ return mFormat; };
-  bool setAudioFormat( AudioFormat audioFormat );
   void clearBuffer(void);
 };
 

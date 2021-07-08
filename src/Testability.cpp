@@ -95,9 +95,11 @@ ISink::PRESENTATION SinkTestBase::getPresentation(void)
   return mpSink ? mpSink->getPresentation() : ISink::getPresentation();
 }
 
-bool SinkTestBase::setAudioFormat(AudioFormat audioFormat)
+void SinkTestBase::setAudioFormatPrimitive(AudioFormat audioFormat)
 {
-  return mpSink ? mpSink->setAudioFormat( audioFormat )  : false;
+  if( mpSink ){
+    mpSink->setAudioFormat( audioFormat );
+  }
 }
 
 AudioFormat SinkTestBase::getAudioFormat(void)
@@ -155,10 +157,12 @@ void SinkCapture::writePrimitive(IAudioBuffer& buf)
   enqueToRefBuf( buf );
 }
 
-bool SinkCapture::setAudioFormat(AudioFormat audioFormat)
+void SinkCapture::setAudioFormatPrimitive(AudioFormat audioFormat)
 {
   setCaptureAudioFormat( audioFormat );
-  return mpSink ? mpSink->setAudioFormat( audioFormat )  : false;
+  if( mpSink ){
+    mpSink->setAudioFormat( audioFormat );
+  }
 }
 
 SinkInjector::SinkInjector(std::shared_ptr<ISink> pSink) : SinkTestBase(pSink), IInjector()
@@ -180,10 +184,12 @@ void SinkInjector::writePrimitive(IAudioBuffer& buf)
   }
 }
 
-bool SinkInjector::setAudioFormat(AudioFormat audioFormat)
+void SinkInjector::setAudioFormatPrimitive(AudioFormat audioFormat)
 {
   setInjectAudioFormat( audioFormat );
-  return mpSink ? mpSink->setAudioFormat( audioFormat )  : false;
+  if( mpSink ){
+    mpSink->setAudioFormat( audioFormat );
+  }
 }
 
 SourceTestBase::SourceTestBase(std::shared_ptr<ISource> pSource) : ISource(), mpSource( pSource )

@@ -41,6 +41,7 @@ protected:
   void ensureDelayFiltersLocked(bool bForceRecreate = false);
   std::vector<float> getPerSinkChannelVolumesLocked(std::shared_ptr<ISink> pSink, Volume::CHANNEL_VOLUME perChannelVolumes);
   virtual int getLatencyUSecLocked(void);
+  virtual void setAudioFormatPrimitive(AudioFormat format);
 
 public:
   MultipleSink(AudioFormat audioFormat = AudioFormat(), bool bSupportedFormatsOpOR = false);
@@ -61,8 +62,6 @@ public:
 
   virtual void setAudioFormatSupportOrModeEnabled(bool bSupportedFormatsOpOR);
   virtual bool getAudioFormatSupportOrModeEnabled(void);
-  virtual bool setAudioFormat(AudioFormat audioFormat);
-  virtual bool setAudioFormat(AudioFormat audioFormat, bool bForce);
   virtual AudioFormat getAudioFormat(void);
   virtual std::vector<AudioFormat> getSupportedAudioFormats(void);
 

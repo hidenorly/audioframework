@@ -115,13 +115,11 @@ void EncodedSink::writePrimitive(IAudioBuffer& buf)
   }
 }
 
-bool EncodedSink::setAudioFormat(AudioFormat audioFormat)
+void EncodedSink::setAudioFormatPrimitive(AudioFormat audioFormat)
 {
-  bool result = false;
   if( mpSink ){
-    result = mpSink->setAudioFormat( audioFormat );
+    mpSink->setAudioFormat( audioFormat );
   }
-  return result;
 }
 
 AudioFormat EncodedSink::getAudioFormat(void)

@@ -30,6 +30,9 @@ protected:
   AudioFormat mFormat;
   std::shared_ptr<IStream> mpStream;
 
+protected:
+  virtual void setAudioFormatPrimitive(AudioFormat audioFormat);
+
 public:
   StreamSink(AudioFormat format, std::shared_ptr<IStream> pStream);
   virtual ~StreamSink();
@@ -41,7 +44,6 @@ public:
   virtual void dump(void){};
   virtual std::string toString(void){return "StreamSink";};
 
-  virtual bool setAudioFormat(AudioFormat audioFormat);
   virtual AudioFormat getAudioFormat(void);
 };
 

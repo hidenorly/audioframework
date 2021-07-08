@@ -61,12 +61,10 @@ void StreamSink::writePrimitive(IAudioBuffer& buf)
   }
 }
 
-bool StreamSink::setAudioFormat(AudioFormat audioFormat)
+void StreamSink::setAudioFormatPrimitive(AudioFormat audioFormat)
 {
   mFormat = audioFormat;
   // TODO: Change the serializer's format.
-
-  return true;
 }
 
 AudioFormat StreamSink::getAudioFormat(void)

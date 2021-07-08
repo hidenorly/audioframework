@@ -29,6 +29,10 @@ bool MixerSplitter::isPipeRunningOrNotRegistered(std::shared_ptr<ISink> srcSink)
   return ( (pPipe && pPipe->isRunning()) || !pPipe );
 }
 
+/*
+  @desc return true if add/removeSink, allocate/releaseSinkAdaptor, map/unmap/conditionalMap, source(=SinkAdaptor)'s format changed.
+  TODO: improve the format change by using AudioFormat's format change listener
+*/
 bool MixerSplitter::isSituationChanged(void)
 {
   bool bIsChanged = mbOnChanged;

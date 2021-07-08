@@ -33,10 +33,9 @@ PipeMixer::~PipeMixer()
   mpPipes.clear();
 }
 
-bool PipeMixer::setAudioFormat(AudioFormat audioFormat)
+void PipeMixer::setAudioFormatPrimitive(AudioFormat audioFormat)
 {
   mFormat = audioFormat;
-  return true;
 }
 
 AudioFormat PipeMixer::getAudioFormat(void)

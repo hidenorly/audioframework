@@ -38,9 +38,9 @@ void InterPipeBridge::writePrimitive(IAudioBuffer& buf)
   mFifoBuffer.write(buf);
 }
 
-bool InterPipeBridge::setAudioFormat(AudioFormat audioFormat)
+void InterPipeBridge::setAudioFormatPrimitive(AudioFormat audioFormat)
 {
-  return mFifoBuffer.setAudioFormat( audioFormat );
+  mFifoBuffer.setAudioFormat( audioFormat );
 }
 
 AudioFormat InterPipeBridge::getAudioFormat(void)

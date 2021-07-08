@@ -15,6 +15,7 @@
 */
 
 #include "AudioFormat.hpp"
+#include <algorithm>
 
 AudioFormat::AudioFormat(AudioFormat::ENCODING encoding, int samplingRate, AudioFormat::CHANNEL channel):mEncoding(encoding),mSamplingRate(samplingRate),mChannel(channel)
 {
@@ -428,4 +429,55 @@ AudioFormat::CHANNEL AudioFormat::getAudioChannel(int nChannels)
     default:
       return AudioFormat::CHANNEL::CHANNEL_UNKNOWN;
   }
+}
+
+
+AudioBase::AudioBase()
+{
+
+}
+
+AudioBase::~AudioBase()
+{
+  mAudioFormatListerners.clear();
+}
+
+void AudioBase::registerAudioFormatListener(std::shared_ptr<AudioBase::AudioFormatListener> listener)
+{
+  std::weak_ptr<AudioBase::AudioFormatListener> theListener(listener);
+  mAudioFormatListerners.push_back( theListener );
+}
+
+void AudioBase::unregisterAudioFormatListener(std::shared_ptr<AudioBase::AudioFormatListener> listener)
+{
+  std::weak_ptr<AudioBase::AudioFormatListener> theListener(listener);
+
+  const auto pos = std::find_if(mAudioFormatListerners.begin(), mAudioFormatListerners.end(), [&theListener](const std::weak_ptr<AudioBase::AudioFormatListener>& aListener) {
+          return aListener.lock() == theListener.lock();
+      });
+
+  if (pos != mAudioFormatListerners.end()){
+    mAudioFormatListerners.erase(pos);
+  }
+}
+
+void AudioBase::notifyAudioFormatChanged(AudioFormat format)
+{
+  for(auto& aListener : mAudioFormatListerners ){
+    std::shared_ptr<AudioBase::AudioFormatListener> theListener = aListener.lock();
+    if( theListener ){
+      theListener->onFormatChanged( format );
+    }
+  }
+}
+
+bool AudioBase::setAudioFormat(AudioFormat format)
+{
+  bool result = isAvailableFormat(format);
+  if( result && !format.equal( mPreviousAudioFormat) ){
+    setAudioFormatPrimitive(format);
+    mPreviousAudioFormat = format;
+    notifyAudioFormatChanged( format );
+  }
+  return result;
 }

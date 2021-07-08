@@ -31,6 +31,7 @@ protected:
   std::shared_ptr<ISink> mpSink;
   std::shared_ptr<IPipe> mpPipe;
   std::shared_ptr<InterPipeBridge> mpInterPipeBridge;
+  virtual void setAudioFormatPrimitive(AudioFormat audioFormat);
 
 public:
   PipedSink( std::shared_ptr<ISink> pSink = nullptr );
@@ -50,7 +51,6 @@ public:
   virtual std::string toString(void){ return std::string("PipedSink(") + (mpSink ? mpSink->toString() : "") + ")"; };
   virtual void dump(void);
 
-  virtual bool setAudioFormat(AudioFormat audioFormat);
   virtual AudioFormat getAudioFormat(void);
 
   virtual int stateResourceConsumption(void);

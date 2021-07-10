@@ -116,3 +116,37 @@ TEST_F(TestCase_Util, testFifoBuffer)
   thx.join();
   EXPECT_TRUE( bResult );
 }
+
+TEST_F(TestCase_Util, testThreadBase)
+{
+  class MyThread : public ThreadBase
+  {
+  public:
+    virtual void process(void)
+    {
+      std::this_thread::sleep_for(std::chrono::microseconds(1000));
+    }
+  };
+
+  class MyRunningStatusListener : public ThreadBase::RunnerListener
+  {
+  public:
+    bool bIsRunning;
+    MyRunningStatusListener():bIsRunning(false){};
+    ~MyRunningStatusListener(){};
+
+    virtual void onRunnerStatusChanged(bool bRunning){
+      bIsRunning = bRunning;
+    };
+  };
+
+  std::shared_ptr<MyThread> pRunner = std::make_shared<MyThread>();
+  std::shared_ptr<MyRunningStatusListener> pListenr = std::make_shared<MyRunningStatusListener>();
+  pRunner->registerRunnerStatusListener( pListenr );
+  EXPECT_FALSE( pListenr->bIsRunning );
+  pRunner->run();
+  std::this_thread::sleep_for(std::chrono::microseconds(1000));
+  EXPECT_TRUE( pListenr->bIsRunning );
+  pRunner->stop();
+  EXPECT_FALSE( pListenr->bIsRunning );
+}

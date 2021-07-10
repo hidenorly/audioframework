@@ -26,7 +26,9 @@ class ThreadBase
 {
 protected:
   std::mutex mMutexThread;
+  std::thread* mpThread;
   std::atomic<bool> mbIsRunning;
+  bool mIsPreviousRunning;
 
 public:
   ThreadBase();
@@ -41,8 +43,21 @@ protected:
   static void _execute(ThreadBase* pThis);
   virtual void unlockToStop(void);
 
+public:
+  class RunnerListener
+  {
+  public:
+    RunnerListener(){};
+    virtual ~RunnerListener(){};
+    virtual void onRunnerStatusChanged(bool bRunning){};
+  };
+
+  void registerRunnerStatusListener(std::shared_ptr<RunnerListener> listener);
+  void unregisterRunnerStatusListener(std::shared_ptr<RunnerListener> listener);
+
 protected:
-  std::thread* mpThread;
+  std::vector<std::weak_ptr<RunnerListener>> mRunnerListerners;
+  void notifyRunnerStatusChanged(void);
 };
 
 #endif /* __THREAD_BASE_HPP__ */

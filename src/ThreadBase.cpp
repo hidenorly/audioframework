@@ -16,7 +16,7 @@
 
 #include "ThreadBase.hpp"
 
-ThreadBase::ThreadBase():mbIsRunning(false), mpThread(nullptr)
+ThreadBase::ThreadBase():mpThread(nullptr), mbIsRunning(false), mIsPreviousRunning(false)
 {
 
 }
@@ -34,6 +34,7 @@ void ThreadBase::run(void)
     mpThread = new std::thread(_execute, this);
   }
   mMutexThread.unlock();
+  notifyRunnerStatusChanged();
 }
 
 void ThreadBase::unlockToStop(void)
@@ -57,6 +58,8 @@ void ThreadBase::stop(void)
     }
   }
   mMutexThread.unlock();
+
+  notifyRunnerStatusChanged();
 }
 
 bool ThreadBase::isRunning(void)
@@ -72,4 +75,37 @@ void ThreadBase::_execute(ThreadBase* pThis)
 {
   pThis->process();
   pThis->mbIsRunning = false;
+}
+
+
+void ThreadBase::notifyRunnerStatusChanged(void)
+{
+  if( mbIsRunning != mIsPreviousRunning ){
+    mIsPreviousRunning = mbIsRunning;
+    for(auto& aListener : mRunnerListerners ){
+      std::shared_ptr<ThreadBase::RunnerListener> theListener = aListener.lock();
+      if( theListener ){
+        theListener->onRunnerStatusChanged( mbIsRunning );
+      }
+    }
+  }
+}
+
+void ThreadBase::registerRunnerStatusListener(std::shared_ptr<ThreadBase::RunnerListener> listener)
+{
+  std::weak_ptr<ThreadBase::RunnerListener> theListener(listener);
+  mRunnerListerners.push_back( theListener );
+}
+
+void ThreadBase::unregisterRunnerStatusListener(std::shared_ptr<ThreadBase::RunnerListener> listener)
+{
+  std::weak_ptr<ThreadBase::RunnerListener> theListener(listener);
+
+  const auto pos = std::find_if(mRunnerListerners.begin(), mRunnerListerners.end(), [&theListener](const std::weak_ptr<ThreadBase::RunnerListener>& aListener) {
+          return aListener.lock() == theListener.lock();
+      });
+
+  if (pos != mRunnerListerners.end()){
+    mRunnerListerners.erase(pos);
+  }
 }

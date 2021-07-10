@@ -30,6 +30,8 @@ protected:
   void testStringTokenizer(void);
 
   void testFifoBuffer(void);
+
+  void testThreadBase(void);
 };
 
 #endif /* __TESTCASE_UTIL_HPP__ */

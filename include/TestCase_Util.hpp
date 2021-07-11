@@ -32,6 +32,8 @@ protected:
   void testFifoBuffer(void);
 
   void testThreadBase(void);
+
+  void testPcmFormatConversion(void);
 };
 
 #endif /* __TESTCASE_UTIL_HPP__ */

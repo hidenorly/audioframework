@@ -150,3 +150,27 @@ TEST_F(TestCase_Util, testThreadBase)
   pRunner->stop();
   EXPECT_FALSE( pListenr->bIsRunning );
 }
+
+TEST_F(TestCase_Util, testPcmFormatConversion)
+{
+  AudioBuffer srcBuf( AudioFormat(AudioFormat::ENCODING::PCM_16BIT), 256 );
+  uint16_t* pRawSrcBuf = reinterpret_cast<uint16_t*>( srcBuf.getRawBufferPointer() );
+  for(int i=0; i<256; i++){
+    *(pRawSrcBuf+i) = i;
+  }
+  // convert 16->32
+  AudioBuffer dstBuf32( AudioFormat(AudioFormat::ENCODING::PCM_32BIT), 256 );
+  EXPECT_TRUE( AudioFormatAdaptor::convert( srcBuf, dstBuf32 ) );
+  uint32_t* pDstBuf32 = reinterpret_cast<uint32_t*>( dstBuf32.getRawBufferPointer() );
+  for(int i=0; i<256; i++){
+    EXPECT_EQ( *(pRawSrcBuf+i), (*(pDstBuf32+i) >> 16) );
+  }
+  // convert 16->8
+  AudioBuffer dstBuf8( AudioFormat(AudioFormat::ENCODING::PCM_8BIT), 256 );
+  EXPECT_TRUE( AudioFormatAdaptor::convert( srcBuf, dstBuf8 ) );
+  uint8_t* pDstBuf8 = reinterpret_cast<uint8_t*>( dstBuf8.getRawBufferPointer() );
+  for(int i=0; i<256; i++){
+    EXPECT_EQ( (*(pRawSrcBuf+i) >> 8), *(pDstBuf8+i) );
+  }
+}
+

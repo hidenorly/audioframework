@@ -24,6 +24,7 @@
 #include "Source.hpp"
 #include "Sink.hpp"
 #include "AudioFormat.hpp"
+#include "AudioFormatAdaptor.hpp"
 #include "FilterExample.hpp"
 #include "FifoBuffer.hpp"
 #include "InterPipeBridge.hpp"

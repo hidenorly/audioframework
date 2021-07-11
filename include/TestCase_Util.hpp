@@ -33,7 +33,8 @@ protected:
 
   void testThreadBase(void);
 
-  void testPcmFormatConversion(void);
+  void testPcmEncodingConversion(void);
+  void testPcmSamplingRateConversion(void);
 };
 
 #endif /* __TESTCASE_UTIL_HPP__ */

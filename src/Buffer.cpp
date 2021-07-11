@@ -161,14 +161,15 @@ void AudioBuffer::resize( int samples, bool bClear )
     ByteBuffer buf( bufSize,0 );
     mBuf = buf;
   } else {
-    if( bufSize > mBuf.size() ){
-      mBuf.reserve( bufSize );
-      ByteBuffer buf( bufSize - mBuf.size(), 0 );
-      std::copy( buf.begin(), buf.end(), std::back_inserter( mBuf ) );
-    } else {
+//    if( bufSize > mBuf.size() ){
+//      mBuf.reserve( bufSize );
+//      ByteBuffer buf( bufSize - mBuf.size(), 0 );
+//      std::copy( buf.begin(), buf.end(), std::back_inserter( mBuf ) );
+//    } else {
       mBuf.resize( bufSize );
-    }
+//    }
   }
+  assert( bufSize == mBuf.size() );
 }
 
 AudioSample AudioBuffer::getSample(int nOffset)

@@ -151,7 +151,7 @@ TEST_F(TestCase_Util, testThreadBase)
   EXPECT_FALSE( pListenr->bIsRunning );
 }
 
-TEST_F(TestCase_Util, testPcmFormatConversion)
+TEST_F(TestCase_Util, testPcmEncodingConversion)
 {
   AudioBuffer srcBuf( AudioFormat(AudioFormat::ENCODING::PCM_16BIT), 256 );
   uint16_t* pRawSrcBuf = reinterpret_cast<uint16_t*>( srcBuf.getRawBufferPointer() );
@@ -172,5 +172,38 @@ TEST_F(TestCase_Util, testPcmFormatConversion)
   for(int i=0; i<256; i++){
     EXPECT_EQ( (*(pRawSrcBuf+i) >> 8), *(pDstBuf8+i) );
   }
+/*
+  // convert 16->24
+  AudioBuffer dstBuf24( AudioFormat(AudioFormat::ENCODING::PCM_24BIT_PACKED), 256 );
+  EXPECT_TRUE( AudioFormatAdaptor::convert( srcBuf, dstBuf24 ) );
+  uint8_t* pDstBuf24 = reinterpret_cast<uint8_t*>( dstBuf24.getRawBufferPointer() );
+  for(int i=0; i<256; i++){
+    uint32_t aSrc = (uint32_t)(((uint16_t)*(pRawSrcBuf+i)) << 8);
+    uint32_t aDst = (((uint32_t)((uint8_t)*(pDstBuf24+i*3+0))) << 0) +
+      (((uint32_t)((uint8_t)*(pDstBuf24+i*3+1))) << 8) +
+      (((uint32_t)((uint8_t)*(pDstBuf24+i*3+2))) << 16);
+    std::cout << std::hex;
+    std::cout << "i:" << std::to_string(i) << " aSrc:" << aSrc << " aDst:" << aDst;
+    std::cout << " rawDst:" << (uint32_t)*(pDstBuf24+i*3) << " " <<  (uint32_t)*(pDstBuf24+i*3+1) << " " <<  (uint32_t)*(pDstBuf24+i*3+2) << std::endl;
+    EXPECT_EQ( (*(pRawSrcBuf+i) >> 8), *(pDstBuf8+i) );
+  }
+*/
 }
 
+TEST_F(TestCase_Util, testPcmSamplingRateConversion)
+{
+  AudioBuffer srcBuf( AudioFormat(AudioFormat::ENCODING::PCM_16BIT, AudioFormat::SAMPLING_RATE::SAMPLING_RATE_48_KHZ), 256 );
+  uint16_t* pRawSrcBuf = reinterpret_cast<uint16_t*>( srcBuf.getRawBufferPointer() );
+  for(int i=0; i<256; i++){
+    *(pRawSrcBuf+i) = i;
+  }
+  // convert 48->44.1 : down size case
+  AudioBuffer dstBuf( AudioFormat(AudioFormat::ENCODING::PCM_16BIT, AudioFormat::SAMPLING_RATE::SAMPLING_RATE_44_1_KHZ), 256 );
+  EXPECT_TRUE( AudioFormatAdaptor::convert( srcBuf, dstBuf ) );
+  EXPECT_EQ( (int)dstBuf.getNumberOfSamples(), (int)((float)srcBuf.getNumberOfSamples()*44.1f/48.0f+0.99f) );
+
+  // convert 48->96 : up size case
+  AudioBuffer dstBuf96( AudioFormat(AudioFormat::ENCODING::PCM_16BIT, AudioFormat::SAMPLING_RATE::SAMPLING_RATE_96_KHZ), 256 );
+  EXPECT_TRUE( AudioFormatAdaptor::convert( srcBuf, dstBuf96 ) );
+  EXPECT_EQ( (int)dstBuf96.getNumberOfSamples(), (int)((float)srcBuf.getNumberOfSamples()*96.0f/48.0f+0.99f) );
+}

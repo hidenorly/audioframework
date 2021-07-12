@@ -153,31 +153,33 @@ TEST_F(TestCase_Util, testThreadBase)
 
 TEST_F(TestCase_Util, testPcmEncodingConversion)
 {
-  AudioBuffer srcBuf( AudioFormat(AudioFormat::ENCODING::PCM_16BIT), 256 );
+  int nSamples = 256;
+
+  AudioBuffer srcBuf( AudioFormat(AudioFormat::ENCODING::PCM_16BIT), nSamples );
   uint16_t* pRawSrcBuf = reinterpret_cast<uint16_t*>( srcBuf.getRawBufferPointer() );
-  for(int i=0; i<256; i++){
+  for(int i=0, c=srcBuf.getNumberOfSamples()*srcBuf.getAudioFormat().getNumberOfChannels(); i<c; i++){
     *(pRawSrcBuf+i) = i;
   }
   // convert 16->32
-  AudioBuffer dstBuf32( AudioFormat(AudioFormat::ENCODING::PCM_32BIT), 256 );
+  AudioBuffer dstBuf32( AudioFormat(AudioFormat::ENCODING::PCM_32BIT), nSamples );
   EXPECT_TRUE( AudioFormatAdaptor::convert( srcBuf, dstBuf32 ) );
   uint32_t* pDstBuf32 = reinterpret_cast<uint32_t*>( dstBuf32.getRawBufferPointer() );
-  for(int i=0; i<256; i++){
+  for(int i=0, c=srcBuf.getNumberOfSamples()*srcBuf.getAudioFormat().getNumberOfChannels(); i<c; i++){
     EXPECT_EQ( *(pRawSrcBuf+i), (*(pDstBuf32+i) >> 16) );
   }
   // convert 16->8
-  AudioBuffer dstBuf8( AudioFormat(AudioFormat::ENCODING::PCM_8BIT), 256 );
+  AudioBuffer dstBuf8( AudioFormat(AudioFormat::ENCODING::PCM_8BIT), nSamples );
   EXPECT_TRUE( AudioFormatAdaptor::convert( srcBuf, dstBuf8 ) );
   uint8_t* pDstBuf8 = reinterpret_cast<uint8_t*>( dstBuf8.getRawBufferPointer() );
-  for(int i=0; i<256; i++){
+  for(int i=0, c=srcBuf.getNumberOfSamples()*srcBuf.getAudioFormat().getNumberOfChannels(); i<c; i++){
     EXPECT_EQ( (*(pRawSrcBuf+i) >> 8), *(pDstBuf8+i) );
   }
 /*
   // convert 16->24
-  AudioBuffer dstBuf24( AudioFormat(AudioFormat::ENCODING::PCM_24BIT_PACKED), 256 );
+  AudioBuffer dstBuf24( AudioFormat(AudioFormat::ENCODING::PCM_24BIT_PACKED), nSamples );
   EXPECT_TRUE( AudioFormatAdaptor::convert( srcBuf, dstBuf24 ) );
   uint8_t* pDstBuf24 = reinterpret_cast<uint8_t*>( dstBuf24.getRawBufferPointer() );
-  for(int i=0; i<256; i++){
+  for(int i=0, c=srcBuf.getNumberOfSamples()*srcBuf.getAudioFormat().getNumberOfChannels(); i<c; i++){
     uint32_t aSrc = (uint32_t)(((uint16_t)*(pRawSrcBuf+i)) << 8);
     uint32_t aDst = (((uint32_t)((uint8_t)*(pDstBuf24+i*3+0))) << 0) +
       (((uint32_t)((uint8_t)*(pDstBuf24+i*3+1))) << 8) +
@@ -192,18 +194,56 @@ TEST_F(TestCase_Util, testPcmEncodingConversion)
 
 TEST_F(TestCase_Util, testPcmSamplingRateConversion)
 {
-  AudioBuffer srcBuf( AudioFormat(AudioFormat::ENCODING::PCM_16BIT, AudioFormat::SAMPLING_RATE::SAMPLING_RATE_48_KHZ), 256 );
+  int nSamples = 256;
+
+  AudioBuffer srcBuf( AudioFormat(AudioFormat::ENCODING::PCM_16BIT, AudioFormat::SAMPLING_RATE::SAMPLING_RATE_48_KHZ), nSamples );
   uint16_t* pRawSrcBuf = reinterpret_cast<uint16_t*>( srcBuf.getRawBufferPointer() );
-  for(int i=0; i<256; i++){
+  for(int i=0, c=srcBuf.getNumberOfSamples()*srcBuf.getAudioFormat().getNumberOfChannels(); i<c; i++){
     *(pRawSrcBuf+i) = i;
   }
   // convert 48->44.1 : down size case
-  AudioBuffer dstBuf( AudioFormat(AudioFormat::ENCODING::PCM_16BIT, AudioFormat::SAMPLING_RATE::SAMPLING_RATE_44_1_KHZ), 256 );
+  AudioBuffer dstBuf( AudioFormat(AudioFormat::ENCODING::PCM_16BIT, AudioFormat::SAMPLING_RATE::SAMPLING_RATE_44_1_KHZ), nSamples );
   EXPECT_TRUE( AudioFormatAdaptor::convert( srcBuf, dstBuf ) );
   EXPECT_EQ( (int)dstBuf.getNumberOfSamples(), (int)((float)srcBuf.getNumberOfSamples()*44.1f/48.0f+0.99f) );
 
   // convert 48->96 : up size case
-  AudioBuffer dstBuf96( AudioFormat(AudioFormat::ENCODING::PCM_16BIT, AudioFormat::SAMPLING_RATE::SAMPLING_RATE_96_KHZ), 256 );
+  AudioBuffer dstBuf96( AudioFormat(AudioFormat::ENCODING::PCM_16BIT, AudioFormat::SAMPLING_RATE::SAMPLING_RATE_96_KHZ), nSamples );
   EXPECT_TRUE( AudioFormatAdaptor::convert( srcBuf, dstBuf96 ) );
   EXPECT_EQ( (int)dstBuf96.getNumberOfSamples(), (int)((float)srcBuf.getNumberOfSamples()*96.0f/48.0f+0.99f) );
+}
+
+TEST_F(TestCase_Util, testPcmChannelConversion)
+{
+  int nSamples = 256;
+  AudioBuffer srcBuf( AudioFormat(AudioFormat::ENCODING::PCM_16BIT, AudioFormat::SAMPLING_RATE::SAMPLING_RATE_48_KHZ, AudioFormat::CHANNEL::CHANNEL_STEREO), nSamples );
+  uint16_t* pRawSrcBuf = reinterpret_cast<uint16_t*>( srcBuf.getRawBufferPointer() );
+  for(int i=0, c=srcBuf.getNumberOfSamples()*srcBuf.getAudioFormat().getNumberOfChannels(); i<c; i++){
+    *(pRawSrcBuf+i) = i;
+  }
+
+  // stereo -> mono : down case
+  AudioBuffer dstBuf( AudioFormat(AudioFormat::ENCODING::PCM_16BIT, AudioFormat::SAMPLING_RATE::SAMPLING_RATE_48_KHZ, AudioFormat::CHANNEL::CHANNEL_MONO), nSamples );
+  EXPECT_TRUE( AudioFormatAdaptor::convert( srcBuf, dstBuf ) );
+  uint16_t* pDstBuf = reinterpret_cast<uint16_t*>( dstBuf.getRawBufferPointer() );
+
+  int nSrcChannels = srcBuf.getAudioFormat().getNumberOfChannels();
+  int nDstChannels = dstBuf.getAudioFormat().getNumberOfChannels();
+#if !defined(USE_TINY_CC_IMPL) || USE_TINY_CC_IMPL
+  for(int i=0, c=srcBuf.getNumberOfSamples(); i<c; i++){
+    EXPECT_EQ( *(pRawSrcBuf+(int)(i*nSrcChannels+1)), *(pDstBuf+(int)(i*nDstChannels)) ); // R is used in the mono as current tentative impl. but the replaced impl. should be Ok not to follow.
+  }
+#endif /* USE_TINY_CC_IMPL */
+
+  // stereo -> 4ch : up case
+  AudioBuffer dstBuf4( AudioFormat(AudioFormat::ENCODING::PCM_16BIT, AudioFormat::SAMPLING_RATE::SAMPLING_RATE_48_KHZ, AudioFormat::CHANNEL::CHANNEL_4CH), nSamples );
+  EXPECT_TRUE( AudioFormatAdaptor::convert( srcBuf, dstBuf4 ) );
+  Util::dumpBuffer(dstBuf4);
+  pDstBuf = reinterpret_cast<uint16_t*>( dstBuf4.getRawBufferPointer() );
+  nSrcChannels = srcBuf.getAudioFormat().getNumberOfChannels();
+  nDstChannels = dstBuf4.getAudioFormat().getNumberOfChannels();
+  for(int i=0, ii=srcBuf.getNumberOfSamples(); i<ii; i++){
+    for(int j=0; j<nSrcChannels; j++){
+      EXPECT_EQ( *(pRawSrcBuf+(int)(i*nSrcChannels+j)), *(pDstBuf+(int)(i*nDstChannels+j)) );
+    }
+  }
 }

@@ -35,6 +35,7 @@ protected:
 
   void testPcmEncodingConversion(void);
   void testPcmSamplingRateConversion(void);
+  void testPcmChannelConversion(void);
 };
 
 #endif /* __TESTCASE_UTIL_HPP__ */

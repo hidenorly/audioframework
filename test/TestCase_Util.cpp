@@ -247,3 +247,52 @@ TEST_F(TestCase_Util, testPcmChannelConversion)
     }
   }
 }
+
+TEST_F(TestCase_Util, testPcmConversionMix)
+{
+  int nSamples = 240;
+  {
+    AudioBuffer srcBuf( AudioFormat(AudioFormat::ENCODING::PCM_16BIT, AudioFormat::SAMPLING_RATE::SAMPLING_RATE_48_KHZ, AudioFormat::CHANNEL::CHANNEL_STEREO), nSamples );
+    uint16_t* pRawSrcBuf = reinterpret_cast<uint16_t*>( srcBuf.getRawBufferPointer() );
+    for(int i=0, c=srcBuf.getNumberOfSamples()*srcBuf.getAudioFormat().getNumberOfChannels(); i<c; i++){
+      *(pRawSrcBuf+i) = i;
+    }
+    int nSrcSize = srcBuf.getRawBuffer().size();
+
+    // down 16->8bit, 48KHz->16KHz
+    AudioBuffer dstBuf1( AudioFormat(AudioFormat::ENCODING::PCM_8BIT, AudioFormat::SAMPLING_RATE::SAMPLING_RATE_16_KHZ, AudioFormat::CHANNEL::CHANNEL_STEREO), nSamples );
+    EXPECT_TRUE( AudioFormatAdaptor::convert( srcBuf, dstBuf1 ) );
+
+    EXPECT_EQ( dstBuf1.getRawBuffer().size(), nSrcSize/(16/8)/(48/16));
+  }
+
+  {
+    AudioBuffer srcBuf( AudioFormat(AudioFormat::ENCODING::PCM_16BIT, AudioFormat::SAMPLING_RATE::SAMPLING_RATE_48_KHZ, AudioFormat::CHANNEL::CHANNEL_STEREO), nSamples );
+    uint16_t* pRawSrcBuf = reinterpret_cast<uint16_t*>( srcBuf.getRawBufferPointer() );
+    for(int i=0, c=srcBuf.getNumberOfSamples()*srcBuf.getAudioFormat().getNumberOfChannels(); i<c; i++){
+      *(pRawSrcBuf+i) = i;
+    }
+    int nSrcSize = srcBuf.getRawBuffer().size();
+
+    // down 16->8bit, down mix (2->1ch)
+    AudioBuffer dstBuf2( AudioFormat(AudioFormat::ENCODING::PCM_8BIT, AudioFormat::SAMPLING_RATE::SAMPLING_RATE_48_KHZ, AudioFormat::CHANNEL::CHANNEL_MONO), nSamples );
+    EXPECT_TRUE( AudioFormatAdaptor::convert( srcBuf, dstBuf2 ) );
+
+    EXPECT_EQ( dstBuf2.getRawBuffer().size(), nSrcSize/(16/8)/(2/1));
+  }
+
+  {
+    AudioBuffer srcBuf( AudioFormat(AudioFormat::ENCODING::PCM_16BIT, AudioFormat::SAMPLING_RATE::SAMPLING_RATE_48_KHZ, AudioFormat::CHANNEL::CHANNEL_STEREO), nSamples );
+    uint16_t* pRawSrcBuf = reinterpret_cast<uint16_t*>( srcBuf.getRawBufferPointer() );
+    for(int i=0, c=srcBuf.getNumberOfSamples()*srcBuf.getAudioFormat().getNumberOfChannels(); i<c; i++){
+      *(pRawSrcBuf+i) = i;
+    }
+    int nSrcSize = srcBuf.getRawBuffer().size();
+
+    // down 48->16KHz, down mix (2->1ch)
+    AudioBuffer dstBuf3( AudioFormat(AudioFormat::ENCODING::PCM_16BIT, AudioFormat::SAMPLING_RATE::SAMPLING_RATE_16_KHZ, AudioFormat::CHANNEL::CHANNEL_MONO), nSamples );
+    EXPECT_TRUE( AudioFormatAdaptor::convert( srcBuf, dstBuf3 ) );
+
+    EXPECT_EQ( dstBuf3.getRawBuffer().size(), nSrcSize/(48/16)/(2/1));
+  }
+}

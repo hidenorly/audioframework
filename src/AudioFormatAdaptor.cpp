@@ -20,6 +20,7 @@
 #include "ChannelConversionPrimitives.hpp"
 #include <cassert>
 #include <algorithm>
+#include <iostream>
 
 bool AudioFormatAdaptor::convert(AudioBuffer& srcBuf, AudioBuffer& dstBuf)
 {
@@ -33,29 +34,31 @@ bool AudioFormatAdaptor::convert(AudioBuffer& srcBuf, AudioBuffer& dstBuf)
   int dstSamplingRate               = dstFormat.getSamplingRate();
   AudioFormat::CHANNEL dstChannel   = dstFormat.getChannels();
 
-  bool bConverted = false;
+  int nConverted = 0;
   if( srcFormat.getEncoding() != dstEncoding ){
+    pDstBuf->setAudioFormat( AudioFormat( dstEncoding, srcFormat.getSamplingRate(), srcFormat.getChannels() ) );
     encodingConversion(*pSrcBuf, *pDstBuf, dstEncoding);
-    bConverted = true;
+    nConverted++;
   }
   if( srcFormat.getSamplingRate() != dstSamplingRate ){
-    if( bConverted ){
+    if( nConverted % 2 == 1 ){
       std::swap<AudioBuffer*>(pSrcBuf, pDstBuf);
     }
+    pDstBuf->setAudioFormat( AudioFormat( dstEncoding, dstSamplingRate, srcFormat.getChannels() ) );
     samplingRateConversion(*pSrcBuf, *pDstBuf, dstSamplingRate);
-    if( bConverted ){
-      std::swap<AudioBuffer*>(pSrcBuf, pDstBuf);
-    }
-    bConverted = true;
+    nConverted++;
   }
   if( srcFormat.getChannels() != dstChannel ){
-    if( bConverted ){
+    if( nConverted % 2 == 1 ){
       std::swap<AudioBuffer*>(pSrcBuf, pDstBuf);
     }
+    pDstBuf->setAudioFormat( AudioFormat( dstEncoding, dstSamplingRate, dstChannel ) );
     channelConversion(*pSrcBuf, *pDstBuf, dstChannel);
-    if( bConverted ){
-      std::swap<AudioBuffer*>(pSrcBuf, pDstBuf);
-    }
+    nConverted++;
+  }
+  if( nConverted % 2 == 0 ){
+    dstBuf.setAudioFormat( pDstBuf->getAudioFormat() );
+    dstBuf.setRawBuffer( pDstBuf->getRawBuffer() );
   }
 
   return dstBuf.getAudioFormat().equal( dstFormat );

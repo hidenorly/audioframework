@@ -56,10 +56,10 @@ bool AudioFormatAdaptor::convert(AudioBuffer& srcBuf, AudioBuffer& dstBuf)
     channelConversion(*pSrcBuf, *pDstBuf, dstChannel);
     nConverted++;
   }
-  if( nConverted % 2 == 0 ){
+//  if( nConverted % 2 == 0 ){
     dstBuf.setAudioFormat( pDstBuf->getAudioFormat() );
     dstBuf.setRawBuffer( pDstBuf->getRawBuffer() );
-  }
+//  }
 
   return dstBuf.getAudioFormat().equal( dstFormat );
 }

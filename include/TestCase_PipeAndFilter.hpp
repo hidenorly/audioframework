@@ -67,6 +67,9 @@ protected:
   void testChannelDemuxMux2(void);
 
   void testAudioBaseFormatChanged(void);
+
+  void testFilterExample16(void);
+  void testFilterExample32(void);
 };
 
 #endif /* __TESTCASE_PIPEANDFILTER_HPP__ */

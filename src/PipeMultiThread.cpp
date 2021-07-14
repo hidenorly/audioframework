@@ -303,7 +303,7 @@ void PipeMultiThread::clearFilters(void)
   mInterPipeBridges.clear();
 }
 
-AudioFormat PipeMultiThread::getFilterAudioFormat(void)
+AudioFormat PipeMultiThread::getFilterAudioFormat(AudioFormat theUsingFormat)
 {
   throw std::runtime_error( "PipeMultiThread::getFilterAudioFormat() is unsupported" );
   return AudioFormat();

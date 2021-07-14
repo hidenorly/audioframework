@@ -47,7 +47,7 @@ public:
 
   virtual void dump(void) = 0;
   virtual void clearFilters(void) = 0;
-  virtual AudioFormat getFilterAudioFormat(void) = 0;
+  virtual AudioFormat getFilterAudioFormat(AudioFormat theUsingFormat = AudioFormat()) = 0;
   virtual int getWindowSizeUsec(void) = 0;
   virtual int getLatencyUSec(void) = 0;
 };
@@ -79,7 +79,7 @@ public:
 
   virtual void dump(void);
   virtual void clearFilters(void);
-  virtual AudioFormat getFilterAudioFormat(void);
+  virtual AudioFormat getFilterAudioFormat(AudioFormat theUsingFormat = AudioFormat());
   virtual int getWindowSizeUsec(void);
   virtual int getLatencyUSec(void);
   virtual int stateResourceConsumption(void);

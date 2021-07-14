@@ -67,18 +67,36 @@ class TestSink : public Sink
 {
   int mTestLatency;
 public:
-  TestSink(int latencyUsec): Sink(), mTestLatency(latencyUsec){};
+  TestSink(int latencyUsec=0): Sink(), mTestLatency(latencyUsec){};
   virtual ~TestSink(){};
   virtual int getLatencyUSec(void){ return mTestLatency; };
+  virtual std::vector<AudioFormat> getSupportedAudioFormats(void){
+    std::vector<AudioFormat> formats;
+    formats.push_back( AudioFormat(AudioFormat::ENCODING::PCM_8BIT) );
+    formats.push_back( AudioFormat(AudioFormat::ENCODING::PCM_16BIT) );
+    formats.push_back( AudioFormat(AudioFormat::ENCODING::PCM_24BIT_PACKED) );
+    formats.push_back( AudioFormat(AudioFormat::ENCODING::PCM_32BIT) );
+    formats.push_back( AudioFormat(AudioFormat::ENCODING::PCM_FLOAT) );
+    return formats;
+  }
 };
 
 class TestSource : public Source
 {
   int mTestLatency;
 public:
-  TestSource(int latencyUsec): Source(), mTestLatency(latencyUsec){};
+  TestSource(int latencyUsec=0): Source(), mTestLatency(latencyUsec){};
   virtual ~TestSource(){};
   virtual int getLatencyUSec(void){ return mTestLatency; };
+  virtual std::vector<AudioFormat> getSupportedAudioFormats(void){
+    std::vector<AudioFormat> formats;
+    formats.push_back( AudioFormat(AudioFormat::ENCODING::PCM_8BIT) );
+    formats.push_back( AudioFormat(AudioFormat::ENCODING::PCM_16BIT) );
+    formats.push_back( AudioFormat(AudioFormat::ENCODING::PCM_24BIT_PACKED) );
+    formats.push_back( AudioFormat(AudioFormat::ENCODING::PCM_32BIT) );
+    formats.push_back( AudioFormat(AudioFormat::ENCODING::PCM_FLOAT) );
+    return formats;
+  }
 };
 
 
@@ -426,6 +444,87 @@ public:
       mConcurrentOutput = concurrentOutput;
     }
   };
+};
+
+
+class FilterReverb : public Filter
+{
+protected:
+  int mWindowSize;
+  int mCallbackId;
+  float mDelay;
+  float mPower;
+  AudioBuffer mLastBuf;
+
+public:
+  FilterReverb(int windowSize = DEFAULT_WINDOW_SIZE_USEC) : mWindowSize(windowSize), mDelay(0.0f), mPower(0.5f){
+    ParameterManager* pParams = ParameterManager::getManager();
+
+    ParameterManager::CALLBACK callback = [&](std::string key, std::string value){
+      if( key == "filter.exampleReverb.delay" ){
+        std::cout << "[FilterReverb] delay parameter is set to " << value << std::endl;
+        mDelay = std::stof( value );
+      } else if( key == "filter.exampleReverb.power" ){
+        std::cout << "[FilterReverb] power parameter is set to " << value << std::endl;
+        mPower = std::stof( value );
+      }
+    };
+    mCallbackId = pParams->registerCallback("filter.exampleReverb.*", callback);
+  };
+  virtual ~FilterReverb(){
+    ParameterManager* pParams = ParameterManager::getManager();
+    pParams->unregisterCallback(mCallbackId);
+    mCallbackId = 0;
+  };
+  virtual std::vector<AudioFormat> getSupportedAudioFormats(void){
+    std::vector<AudioFormat> formats;
+    formats.push_back( AudioFormat(AudioFormat::ENCODING::PCM_8BIT) );
+    formats.push_back( AudioFormat(AudioFormat::ENCODING::PCM_16BIT) );
+    formats.push_back( AudioFormat(AudioFormat::ENCODING::PCM_24BIT_PACKED) );
+    formats.push_back( AudioFormat(AudioFormat::ENCODING::PCM_32BIT) );
+    formats.push_back( AudioFormat(AudioFormat::ENCODING::PCM_FLOAT) );
+    return formats;
+  }
+
+  virtual void process16(AudioBuffer& inBuf, AudioBuffer& outBuf){
+    int16_t* pRawInBuf = reinterpret_cast<int16_t*>( inBuf.getRawBufferPointer() );
+    int16_t* pRawInPrevBuf = reinterpret_cast<int16_t*>( mLastBuf.getRawBufferPointer() );
+    int16_t* pRawOutBuf = reinterpret_cast<int16_t*>( outBuf.getRawBufferPointer() );
+    int nSamples = inBuf.getNumberOfSamples();
+    int nChannels = inBuf.getAudioFormat().getNumberOfChannels();
+    int nDelaySamples = (float)mDelay * 1000000.0f / (float)inBuf.getAudioFormat().getSamplingRate();
+    for(int i=0; i<nChannels; i++ ){
+      for(int j=0; j<nSamples; j++ ){
+        int32_t tmp = *(pRawInBuf + nChannels * j + i);
+        for(int k=0; k<nDelaySamples; k++){
+          float ratio = (float)(nDelaySamples - k)/(float)(nDelaySamples) * mPower;
+          if( j<nDelaySamples ){
+            tmp += (int32_t)( (float)(*(pRawInPrevBuf + nChannels * ( nSamples + j - k ) + i ) * ratio ) );
+          } else {
+            tmp += (int32_t)( (float)(*(pRawInBuf + nChannels * ( j - k ) + i ) * ratio ) );
+          }
+        }
+        *(pRawOutBuf + nChannels * j + i) = (int16_t)(std::max<int32_t>(INT16_MIN, std::min<int32_t>(tmp, INT16_MAX)));
+      }
+    }
+  }
+
+  virtual void process(AudioBuffer& inBuf, AudioBuffer& outBuf){
+    if( inBuf.getAudioFormat().getEncoding() == AudioFormat::ENCODING::PCM_16BIT ){
+      // invoke optimimul impl. directly
+      mLastBuf = inBuf;
+      process16(inBuf, outBuf);
+    } else {
+      AudioBuffer tmpInBuf(AudioFormat(AudioFormat::ENCODING::PCM_16BIT), inBuf.getNumberOfSamples() );
+      AudioBuffer tmpOutBuf(AudioFormat(AudioFormat::ENCODING::PCM_16BIT), inBuf.getNumberOfSamples() );
+      AudioFormatAdaptor::convert(inBuf, tmpInBuf);
+      mLastBuf = tmpInBuf;
+      process16(tmpInBuf, tmpOutBuf);
+      AudioFormatAdaptor::convert(tmpOutBuf, outBuf);
+    }
+  };
+  virtual int getRequiredWindowSizeUsec(void){ return mWindowSize; };
+  virtual std::string toString(void){ return "FilterReverb"; };
 };
 
 #endif /* __TESTCASE_COMMON_HPP__ */

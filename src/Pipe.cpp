@@ -158,7 +158,7 @@ void Pipe::process(void)
     if( mpSource->getAudioFormat().isEncodingPcm() && mpSink->getAudioFormat().isEncodingPcm() ){
       // TODO: Should check not only filter format but also source/sink formats.
       float windowSizeUsec = getCommonWindowSizeUsec();
-      AudioFormat usingAudioFormat = getFilterAudioFormat();
+      AudioFormat usingAudioFormat = getFilterAudioFormat( mpSink->getAudioFormat() );
       float usingSamplingRate = usingAudioFormat.getSamplingRate();
       float perSampleDurationUsec = 1000000.0f / usingSamplingRate;
       int samples = windowSizeUsec / perSampleDurationUsec;
@@ -204,10 +204,9 @@ void Pipe::process(void)
   }
 }
 
-AudioFormat Pipe::getFilterAudioFormat(void)
+AudioFormat Pipe::getFilterAudioFormat(AudioFormat theUsingFormat)
 {
   // TODO : Prepare different format choice example. Note that this is override-able.
-  AudioFormat theUsingFormat; // default AudioFormat is set
 
   bool bPossibleToUseTheFormat = true;
   mMutexFilters.lock();

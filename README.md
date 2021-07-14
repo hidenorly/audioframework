@@ -193,7 +193,7 @@ $ make -j4; ./bin/afw_test;
   * [done] Support -j option
   * [] Filter, Source, Sink development kit
 * Filter example
-  * [] Add reverb with ParameterManager
+  * [done] Add reverb with ParameterManager (FilterReverb in TestCase_Common)
   * [] Add volume filter with ParameterManager
   * [] Add delay filter with ParameterManager
     * [done] Add simple delay filter

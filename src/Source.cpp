@@ -77,14 +77,13 @@ Source::~Source()
 
 void Source::readPrimitive(IAudioBuffer& buf)
 {
-  ByteBuffer rawBuffer = buf.getRawBuffer();
-  ByteBuffer bufZero(rawBuffer.size(), 0);
-  uint8_t* ptr = bufZero.data();
-  for(int i=0; i<bufZero.size(); i++){
-    *ptr++ = i % 256;
+  int nSize = buf.getRawBuffer().size();
+  ByteBuffer bufZero(nSize, 0);
+  int16_t* ptr = reinterpret_cast<int16_t*>(bufZero.data());
+  for(int i=0, c=bufZero.size()/2; i<c; i++){
+    *ptr++ = i % 32768;
   }
-  rawBuffer = bufZero;
-  buf.setRawBuffer( rawBuffer );
+  buf.setRawBuffer( bufZero );
 }
 
 

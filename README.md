@@ -228,7 +228,7 @@ $ make -j4; ./bin/afw_test;
   * [done] Accoustic Echo Cancelled Source
     * [done] Delay Adjustment between Source and Reference Sound Sink
     * [done] Add tiny AEC filter & implement in the AEC-ed Source
-  * [] Add SourceExample : Sin curve source
+  * [done] Add SourceExample : Sin curve source
 * Util
   * [done] PCM encoding converter
   * [done] Sampling rate converter

@@ -1245,3 +1245,24 @@ TEST_F(TestCase_PipeAndFilter, testFilterExample32)
   pPipe->stop();
   pPipe->detachSink()->dump();
 }
+
+TEST_F(TestCase_PipeAndFilter, testSinSource)
+{
+  std::shared_ptr<IPipe> pPipe = std::make_shared<Pipe>();
+  std::shared_ptr<ISource> pSource = std::make_shared<SinSource>();
+  std::shared_ptr<ISink> pSink = std::make_shared<TestSink>();
+  pSource->setAudioFormat( AudioFormat(AudioFormat::ENCODING::PCM_8BIT) );
+  pSink->setAudioFormat( AudioFormat(AudioFormat::ENCODING::PCM_8BIT) );
+  pPipe->attachSource( pSource );
+  pPipe->attachSink( pSink );
+  pPipe->addFilterToTail( std::make_shared<FilterReverb>() );
+
+  ParameterManager* pParams = ParameterManager::getManager();
+  pParams->setParameterFloat("filter.exampleReverb.delay", 0.0f);
+  pParams->setParameterFloat("filter.exampleReverb.power", 0.0f);
+
+  pPipe->run();
+  std::this_thread::sleep_for(std::chrono::microseconds(1000));
+  pPipe->stop();
+  pPipe->detachSink()->dump();
+}

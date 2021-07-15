@@ -70,6 +70,8 @@ protected:
 
   void testFilterExample16(void);
   void testFilterExample32(void);
+
+  void testSinSource(void);
 };
 
 #endif /* __TESTCASE_PIPEANDFILTER_HPP__ */

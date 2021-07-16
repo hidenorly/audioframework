@@ -335,6 +335,41 @@ public:
   virtual std::string toString(void){ return "BluetoothAudioSink";};
 };
 
+class HQSpeakerSink : public SpeakerSink
+{
+protected:
+    std::vector<AudioFormat> mSupportedFormats;
+    AudioFormat mOutputFormat;
+public:
+  HQSpeakerSink(bool bFloat = false, AudioFormat outputFormat = AudioFormat(AudioFormat::ENCODING::PCM_32BIT)):SpeakerSink(), mOutputFormat(outputFormat){
+    if( bFloat ){
+      mSupportedFormats.push_back( AudioFormat(AudioFormat::ENCODING::PCM_FLOAT) );
+    } else {
+      mSupportedFormats.push_back( AudioFormat(AudioFormat::ENCODING::PCM_32BIT) );
+    }
+  };
+  virtual ~HQSpeakerSink(){};
+  virtual std::string toString(void){ return "HQSpeakerSink";};
+  virtual std::vector<AudioFormat> getSupportedAudioFormats(void){
+    return mSupportedFormats;
+  }
+protected:
+  virtual void writePrimitive(IAudioBuffer& buf){
+    AudioBuffer* pSrcBuf = dynamic_cast<AudioBuffer*>(&buf);
+    if( pSrcBuf ){
+      if( !pSrcBuf->getAudioFormat().equal(mOutputFormat) ){
+        delete mpBuf;
+        mpBuf = new AudioBuffer( mOutputFormat, 0 );
+      }
+      AudioBuffer outBuf( mOutputFormat, pSrcBuf->getNumberOfSamples() );
+      AudioFormatAdaptor::convert( *pSrcBuf, outBuf );
+      Sink::writePrimitive( outBuf );
+    } else {
+      SpeakerSink::writePrimitive( buf );
+    }
+  }
+};
+
 class SinkFactory
 {
 public:

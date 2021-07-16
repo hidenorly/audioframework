@@ -31,6 +31,7 @@ protected:
   void testOutputSinkSwitchLpcm(void);
   void testOutputSinkSwitchCompressed(void);
   void testPipeSetupAndSinkSwitch(void);
+  void testHqSpeakerSink(void);
 };
 
 #endif /* __TESTCASE_OUTPUT_HPP__ */

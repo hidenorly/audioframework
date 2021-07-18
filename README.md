@@ -129,7 +129,31 @@ The expection is to implement android audio hal, surround amplifier, mediaplayer
  * Test case framework is gtest.
     * TestCase_Common
       * Define the common classes for testcases
-    * TestCase_PipeAndFilter
+        * Source
+          * class TestSource : public Source
+          * class SinSource : public TestSource
+          * class CompressedSource : public Source
+        * Sink
+          * class TestSink : public Sink
+          * class CompressedSink : public Sink
+          * class HdmiAudioSink : public CompressedSink
+          * class SpdifSink : public CompressedSink
+          * class LPcmSink : public Sink
+          * class SpeakerSink : public LPcmSink
+          * class HeadphoneSink : public LPcmSink
+          * class BluetoothAudioSink : public LPcmSink
+          * class HQSpeakerSink : public SpeakerSink
+          * class SinkFactory
+          * class OutputManager : public MultipleSink
+        * ExampleFilters for test cases
+          * class VirtualizerA : public Filter
+          * class VirtualizerB : public Filter
+          * class VirtualizerC : public Filter
+          * class FilterReverb : public Filter    * TestCase_PipeAndFilter
+          * class SpeakerProtectionFilter : public Filter
+        * Strategy
+          * class TunnelPlaybackContext : public StrategyContext
+          * class TunnelPlaybackStrategy : public IStrategy
       * Basic Pipe, Source, Sink setup.
       * Basic PipeMultiThread, Source, Sink.
       * MultiSink

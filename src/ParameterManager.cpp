@@ -97,6 +97,16 @@ void ParameterManager::setParameters(std::vector<ParameterManager::Param>& param
   }
 }
 
+void ParameterManager::setParameterRule(std::string key, ParamRule rule)
+{
+  mParamRules.insert_or_assign( key, rule );
+}
+
+ParameterManager::ParamRule ParameterManager::getParameterRule(std::string key)
+{
+  return mParamRules.contains( key ) ? mParamRules[key] : ParameterManager::ParamRule(ParamType::TYPE_STRING);
+}
+
 std::string ParameterManager::getParameter(std::string key, std::string defaultValue)
 {
   return mParams.contains( key ) ? mParams[key] : defaultValue;

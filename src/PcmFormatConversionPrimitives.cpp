@@ -15,6 +15,10 @@
 */
 
 #include "PcmFormatConversionPrimitives.hpp"
+#include <algorithm>
+#include <cstdint>
+#include <functional>
+#include <iostream>
 
 // from Pcm8
 void PcmFormatConvert::convertPcm8ToPcm16(uint8_t* pSrc, uint16_t* pDst, int nSamples)
@@ -180,6 +184,7 @@ void PcmFormatConvert::convertFloatToPcm24(float* pSrc, uint8_t* pDst, int nSamp
 void PcmFormatConvert::convertFloatToPcm32(float* pSrc, uint32_t* pDst, int nSamples)
 {
   for(int i=0; i<nSamples; i++){
-    *pDst++ = (uint32_t)( ((*pSrc++)+1.0f) * (1<<31) - 1 );
+//    *pDst++ = (uint32_t)( ((*pSrc++)+1.0f) * (1<<31) - 1 );
+    *pDst++ = (uint32_t)(int32_t)( std::max<float>((float)INT32_MIN, std::min<float>( (float)((*pSrc++) * INT32_MAX), (float)INT32_MAX ) ) );
   }
 }

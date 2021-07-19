@@ -34,8 +34,36 @@ public:
   public:
     std::string key;
     std::string value;
-
     Param(std::string key, std::string value):key(key),value(value){};
+  };
+
+  enum ParamType
+  {
+    TYPE_INT,
+    TYPE_FLOAT,
+    TYPE_BOOL,
+    TYPE_STRING,
+  };
+
+  enum ParamRange
+  {
+    RANGE_ANY,
+    RANGED,
+    RANGE_ENUM,
+  };
+
+  class ParamRule
+  {
+  public:
+    ParamType type;
+    ParamRange range;
+    float rangeMin;
+    float rangeMax;
+    std::vector<std::string> enumVals;
+    ParamRule(): type(ParamType::TYPE_STRING), range(ParamRange::RANGE_ANY), rangeMin(0.0f), rangeMax(0.0f){};
+    ParamRule(ParamType type): type(type), range(ParamRange::RANGE_ANY), rangeMin(0.0f), rangeMax(0.0f){};
+    ParamRule(ParamType type, float rangeMin, float rangeMax): type(type), range(ParamRange::RANGED), rangeMin(rangeMin), rangeMax(rangeMax){};
+    ParamRule(ParamType type, std::vector<std::string> enumVals): type(type), range(ParamRange::RANGE_ENUM), enumVals(enumVals){};
   };
 
 protected:
@@ -52,6 +80,9 @@ public:
   void setParameterFloat(std::string key, float value);
   void setParameterBool(std::string key, bool value);
   void setParameters(std::vector<ParameterManager::Param>& params);
+
+  void setParameterRule(std::string key, ParamRule rule);
+  ParamRule getParameterRule(std::string key);
 
   std::string getParameter(std::string key, std::string defaultValue = "");
   int getParameterInt(std::string key, int defaultValue = 0);
@@ -83,6 +114,7 @@ protected:
   std::map<std::string, std::vector<LISTENER>> mListeners;
   std::map<std::string, std::vector<LISTENER>> mWildCardListeners;
   std::map<int, std::string> mListenerIdReverse;
+  std::map<std::string, ParamRule> mParamRules;
 
   void removeListenerWithListenerId(std::vector<LISTENER>& listeners, int listenerId);
   std::string getKeyFromListernerId(int listenerId);

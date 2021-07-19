@@ -149,11 +149,12 @@ The expection is to implement android audio hal, surround amplifier, mediaplayer
           * class VirtualizerA : public Filter
           * class VirtualizerB : public Filter
           * class VirtualizerC : public Filter
-          * class FilterReverb : public Filter    * TestCase_PipeAndFilter
+          * class FilterReverb : public Filter
           * class SpeakerProtectionFilter : public Filter
         * Strategy
           * class TunnelPlaybackContext : public StrategyContext
           * class TunnelPlaybackStrategy : public IStrategy
+    * TestCase_PipeAndFilter
       * Basic Pipe, Source, Sink setup.
       * Basic PipeMultiThread, Source, Sink.
       * MultiSink

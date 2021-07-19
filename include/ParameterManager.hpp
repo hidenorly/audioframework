@@ -119,6 +119,7 @@ protected:
   void removeListenerWithListenerId(std::vector<LISTENER>& listeners, int listenerId);
   std::string getKeyFromListernerId(int listenerId);
   void executeNotify(std::string key, std::string value, std::vector<LISTENER> listeners);
+  bool filterValueWithRule(std::string key, std::string& value);
 };
 
 #endif /* __PARAMETER_MANAGER_HPP__ */

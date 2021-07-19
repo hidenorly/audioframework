@@ -127,6 +127,57 @@ TEST_F(TestCase_System, testParameterManager)
   }
 }
 
+TEST_F(TestCase_System, testParameterManagerRule)
+{
+  ParameterManager* pParams = ParameterManager::getManager();
+  pParams->resetAllOfParams();
+
+  // int, range
+  pParams->setParameterRule( "paramA",
+    ParameterManager::ParamRule(
+      ParameterManager::ParamType::TYPE_INT,
+      -12, 12) );
+
+  // out of range
+  pParams->setParameterInt("paramA", -13);
+  EXPECT_EQ( pParams->getParameterInt("paramA", 0), -12 );
+
+  // in range
+  pParams->setParameterInt("paramA", -10);
+  EXPECT_EQ( pParams->getParameterInt("paramA", 0), -10 );
+
+  // out of range
+  pParams->setParameterInt("paramA", 13);
+  EXPECT_EQ( pParams->getParameterInt("paramA", 0), 12 );
+
+  // enum
+  pParams->setParameterRule( "paramB",
+    ParameterManager::ParamRule(
+      ParameterManager::ParamType::TYPE_INT,
+      {"0", "50", "100"}) );
+
+  // ng case : enum
+  pParams->setParameterInt("paramB", -13);
+  EXPECT_EQ( pParams->getParameterInt("paramB", 0), 0 );
+
+  // ok case : enum
+  pParams->setParameterInt("paramB", 50);
+  EXPECT_EQ( pParams->getParameterInt("paramB", 0), 50 );
+
+  // enum
+  pParams->setParameterRule( "paramC",
+    ParameterManager::ParamRule(
+      ParameterManager::ParamType::TYPE_STRING,
+      {"LOW", "MID", "HIGH"}) );
+
+  // ng case : enum
+  pParams->setParameterInt("paramC", -13);
+  EXPECT_EQ( pParams->getParameter("paramC", "LOW"), "LOW" );
+
+  // ok case : enum
+  pParams->setParameter("paramC", "HIGH");
+  EXPECT_EQ( pParams->getParameter("paramC", "LOW"), "HIGH" );
+}
 
 TEST_F(TestCase_System, testPlugInManager)
 {

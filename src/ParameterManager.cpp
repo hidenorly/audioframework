@@ -53,24 +53,26 @@ void ParameterManager::setParameter(std::string key, std::string value)
   key = trimParamString(key);
   value = trimParamString(value);
 
-  if( mParams.contains( key ) ){
-    // check ro.* (=read only)
-    if( 0 == key.find( "ro." ) ) return;
+  if( filterValueWithRule( key, value ) ){
+    if( mParams.contains( key ) ){
+      // check ro.* (=read only)
+      if( 0 == key.find( "ro." ) ) return;
 
-    bChanged = ( mParams[ key ] != value );
-  }
+      bChanged = ( mParams[ key ] != value );
+    }
 
-  mParams.insert_or_assign( key, value );
+    mParams.insert_or_assign( key, value );
 
-  if( bChanged ) {
-    for( auto& [aKey, listeners] : mWildCardListeners ){
-      if( key.starts_with( aKey ) ){
+    if( bChanged ) {
+      for( auto& [aKey, listeners] : mWildCardListeners ){
+        if( key.starts_with( aKey ) ){
+          executeNotify( key, value, listeners );
+        }
+      }
+      if( mListeners.contains( key ) ){
+        auto listeners = mListeners[ key ];
         executeNotify( key, value, listeners );
       }
-    }
-    if( mListeners.contains( key ) ){
-      auto listeners = mListeners[ key ];
-      executeNotify( key, value, listeners );
     }
   }
 }
@@ -105,6 +107,60 @@ void ParameterManager::setParameterRule(std::string key, ParamRule rule)
 ParameterManager::ParamRule ParameterManager::getParameterRule(std::string key)
 {
   return mParamRules.contains( key ) ? mParamRules[key] : ParameterManager::ParamRule(ParamType::TYPE_STRING);
+}
+
+bool ParameterManager::filterValueWithRule(std::string key, std::string& value)
+{
+  bool result = true;
+  if( mParamRules.contains( key ) ){
+    ParameterManager::ParamRule rule = mParamRules[ key ];
+    switch( rule.range )
+    {
+      case ParameterManager::ParamRange::RANGE_ANY:
+        break;
+      case ParameterManager::ParamRange::RANGED:
+        switch( rule.type ){
+          case ParameterManager::ParamType::TYPE_INT:
+            try {
+              int val = std::stoi( value );
+              val = std::max<int>( std::min<int>(val, (int)rule.rangeMax), (int)rule.rangeMin );
+              value = std::to_string( val );
+            } catch (const std::invalid_argument& e) {
+            } catch (const std::out_of_range& e) {
+            }
+            break;
+          case ParameterManager::ParamType::TYPE_FLOAT:
+            try {
+              float val = std::stof( value );
+              val = std::max<float>( std::min<float>(val, rule.rangeMax), rule.rangeMin );
+              value = std::to_string( val );
+            } catch (const std::invalid_argument& e) {
+            } catch (const std::out_of_range& e) {
+            }
+            break;
+          case ParameterManager::ParamType::TYPE_BOOL:
+            {
+              bool val = ( value == "true" ) ? true : false;
+              value = val ? "true" : "false";
+            }
+            break;
+          case ParameterManager::ParamType::TYPE_STRING:
+            break;
+        };
+        break;
+      case ParameterManager::ParamRange::RANGE_ENUM:
+        {
+          bool bFound = false;
+          for( auto& aVal : rule.enumVals ){
+            bFound = ( aVal == value );
+            if( bFound ) break;
+          }
+          result = bFound;
+        }
+        break;
+    };
+  }
+  return result;  
 }
 
 std::string ParameterManager::getParameter(std::string key, std::string defaultValue)

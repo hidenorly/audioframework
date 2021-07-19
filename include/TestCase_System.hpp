@@ -28,6 +28,7 @@ protected:
   virtual void TearDown();
 
   void testParameterManager(void);
+  void testParameterManagerRule(void);
 
   void testPlugInManager(void);
   void testFilterPlugInManager(void);

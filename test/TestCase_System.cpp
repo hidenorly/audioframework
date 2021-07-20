@@ -132,7 +132,7 @@ TEST_F(TestCase_System, testParameterManagerRule)
   ParameterManager* pParams = ParameterManager::getManager();
   pParams->resetAllOfParams();
 
-  // int, range
+  // --- int, range
   pParams->setParameterRule( "paramA",
     ParameterManager::ParamRule(
       ParameterManager::ParamType::TYPE_INT,
@@ -150,7 +150,47 @@ TEST_F(TestCase_System, testParameterManagerRule)
   pParams->setParameterInt("paramA", 13);
   EXPECT_EQ( pParams->getParameterInt("paramA", 0), 12 );
 
-  // enum
+  // rule
+  ParameterManager::ParamRule ruleA = pParams->getParameterRule("paramA");
+  EXPECT_EQ( ruleA.type, ParameterManager::ParamType::TYPE_INT );
+  EXPECT_EQ( ruleA.range, ParameterManager::ParamRange::RANGED );
+  EXPECT_EQ( (int)ruleA.rangeMin, -12 );
+  EXPECT_EQ( (int)ruleA.rangeMax, 12 );
+
+  // --- float, range
+  pParams->setParameterRule( "paramF",
+    ParameterManager::ParamRule(
+      ParameterManager::ParamType::TYPE_FLOAT,
+      0.0f, 100.0f) );
+
+  // out of range and get with different type
+  pParams->setParameterInt("paramF", -1.0f);
+  EXPECT_EQ( pParams->getParameterInt("paramF", 0), 0 );
+
+  // in range and get with defined type
+  pParams->setParameterFloat("paramF", 10.0f);
+  EXPECT_EQ( pParams->getParameterFloat("paramF", 0.0f), 10.0f );
+
+  // set in range with different type and get with defined type
+  pParams->setParameterInt("paramF", 20);
+  EXPECT_EQ( pParams->getParameterFloat("paramF", 0.0f), 20.0f );
+
+  // out of range
+  pParams->setParameterFloat("paramF", 120.0f);
+  EXPECT_EQ( pParams->getParameterInt("paramF", 0), 100.0f );
+
+  // illegal type
+  pParams->setParameter("paramF", "120.0f");
+  EXPECT_EQ( pParams->getParameterInt("paramF", 0), 100.0f );
+
+  // rule
+  ParameterManager::ParamRule ruleF = pParams->getParameterRule("paramF");
+  EXPECT_EQ( ruleF.type, ParameterManager::ParamType::TYPE_FLOAT );
+  EXPECT_EQ( ruleF.range, ParameterManager::ParamRange::RANGED );
+  EXPECT_EQ( ruleF.rangeMin, 0.0f );
+  EXPECT_EQ( ruleF.rangeMax, 100.0f );
+
+  // --- enum int
   pParams->setParameterRule( "paramB",
     ParameterManager::ParamRule(
       ParameterManager::ParamType::TYPE_INT,
@@ -164,7 +204,13 @@ TEST_F(TestCase_System, testParameterManagerRule)
   pParams->setParameterInt("paramB", 50);
   EXPECT_EQ( pParams->getParameterInt("paramB", 0), 50 );
 
-  // enum
+  // rule
+  ParameterManager::ParamRule ruleB = pParams->getParameterRule("paramB");
+  EXPECT_EQ( ruleB.type, ParameterManager::ParamType::TYPE_INT );
+  EXPECT_EQ( ruleB.range, ParameterManager::ParamRange::RANGE_ENUM );
+  EXPECT_EQ( ruleB.enumVals, std::vector<std::string>({"0", "50", "100"}));
+
+  // enum string
   pParams->setParameterRule( "paramC",
     ParameterManager::ParamRule(
       ParameterManager::ParamType::TYPE_STRING,
@@ -177,6 +223,12 @@ TEST_F(TestCase_System, testParameterManagerRule)
   // ok case : enum
   pParams->setParameter("paramC", "HIGH");
   EXPECT_EQ( pParams->getParameter("paramC", "LOW"), "HIGH" );
+
+  // rule
+  ParameterManager::ParamRule ruleC = pParams->getParameterRule("paramC");
+  EXPECT_EQ( ruleC.type, ParameterManager::ParamType::TYPE_STRING );
+  EXPECT_EQ( ruleC.range, ParameterManager::ParamRange::RANGE_ENUM );
+  EXPECT_EQ( ruleC.enumVals, std::vector<std::string>({"LOW", "MID", "HIGH"}));
 }
 
 TEST_F(TestCase_System, testPlugInManager)

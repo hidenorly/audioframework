@@ -138,13 +138,12 @@ int64_t ISink::getSinkPts(void)
 
 Sink::Sink():ISink()
 {
-  mpBuf = new AudioBuffer();
+  mpBuf = std::make_shared<AudioBuffer>();
 }
 
 Sink::~Sink()
 {
-  delete mpBuf;
-  mpBuf = nullptr;
+  mpBuf.reset();
 }
 
 

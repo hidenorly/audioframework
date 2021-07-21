@@ -20,12 +20,15 @@
 #include <iostream>
 #include <string>
 #include "Buffer.hpp"
+#include <memory>
 
 class Util
 {
 public:
+  static void dumpBuffer(std::shared_ptr<IAudioBuffer> pBuf);
   static void dumpBuffer(IAudioBuffer* pBuf);
   static void dumpBuffer(IAudioBuffer& buf);
+  static void dumpBuffer(std::string message, std::shared_ptr<IAudioBuffer> buf);
   static void dumpBuffer(std::string message, IAudioBuffer* buf);
   static void dumpBuffer(std::string message, IAudioBuffer& buf);
 };

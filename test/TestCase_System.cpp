@@ -537,7 +537,7 @@ TEST_F(TestCase_System, testResourceManager_Pipe)
   IResourceManager* pResourceManager = CpuResourceManager::getInstance();
   EXPECT_NE( pResourceManager, nullptr);
 
-  IPipe* pPipe = new Pipe();
+  std::shared_ptr<IPipe> pPipe = std::make_shared<Pipe>();
   pPipe->addFilterToTail( std::make_shared<DummyFilter>() );
 
   bool bSuccessAcquiredResource = pResourceManager->acquire(pPipe);
@@ -576,9 +576,8 @@ TEST_F(TestCase_System, testResourceManager_Pipe)
   }
 
   pPipe->clearFilters();
-  delete pPipe;
 
-  pPipe = new PipeMultiThread();
+  pPipe = std::make_shared<PipeMultiThread>();
   pPipe->addFilterToTail( std::make_shared<DummyFilter>() );
 
   bSuccessAcquiredResource = pResourceManager->acquire(pPipe);
@@ -617,7 +616,7 @@ TEST_F(TestCase_System, testResourceManager_Pipe)
   }
 
   pPipe->clearFilters();
-  delete pPipe;
+  pPipe.reset();
 
   CpuResourceManager::admin_terminate();
   pResourceManager = nullptr;

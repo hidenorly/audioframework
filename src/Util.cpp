@@ -42,6 +42,12 @@ void Util::dumpBuffer(IAudioBuffer* pBuf)
   }
 }
 
+void Util::dumpBuffer(std::shared_ptr<IAudioBuffer> pBuf)
+{
+  dumpBuffer( pBuf.get() );
+}
+
+
 void Util::dumpBuffer(IAudioBuffer& buf)
 {
   dumpBuffer(&buf);
@@ -56,4 +62,9 @@ void Util::dumpBuffer(std::string message, IAudioBuffer* buf)
 void Util::dumpBuffer(std::string message, IAudioBuffer& buf)
 {
   dumpBuffer(message, &buf);
+}
+
+void Util::dumpBuffer(std::string message, std::shared_ptr<IAudioBuffer> buf)
+{
+  dumpBuffer(message, buf.get());
 }

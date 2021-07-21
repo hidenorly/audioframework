@@ -21,7 +21,7 @@
 PipedSource::PipedSource() : ISource(), mpSource(nullptr)
 {
   mpInterPipeBridge = std::make_shared<InterPipeBridge>();
-  mpPipe = new PipeMultiThread();
+  mpPipe = std::make_shared<PipeMultiThread>();
   mpPipe->attachSink ( mpInterPipeBridge );
 }
 
@@ -29,7 +29,7 @@ PipedSource::~PipedSource()
 {
   stop();
   clearFilters();
-  delete mpPipe; mpPipe = nullptr;
+  mpPipe.reset();
   mpInterPipeBridge = nullptr;
 }
 

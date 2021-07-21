@@ -21,6 +21,7 @@
 #include "AudioFormat.hpp"
 #include "FifoBuffer.hpp"
 #include <map>
+#include <memory>
 
 
 class DelayFilter : public Filter
@@ -28,7 +29,7 @@ class DelayFilter : public Filter
 protected:
   int mWindowSize;
   AudioFormat mAudioFormat;
-  FifoBuffer* mpDelayBuf;
+  std::shared_ptr<FifoBuffer> mpDelayBuf;
 
   static const int DEFAULT_PROCESSING_TIME_USEC = 100; // 0.1msec
 
@@ -49,7 +50,7 @@ public:
 
 protected:
   ChannelDelay mChannelDelay;
-  std::map<AudioFormat::CH, FifoBuffer*> mDelayBuf;
+  std::map<AudioFormat::CH, std::shared_ptr<FifoBuffer>> mDelayBuf;
 
 public:
   PerChannelDelayFilter(AudioFormat audioFormat, ChannelDelay channelDelay);

@@ -44,10 +44,10 @@ DelayFilter::DelayFilter(AudioFormat audioFormat, int delayUsec) : mAudioFormat(
     AudioBuffer delayZeroData(audioFormat, nDelaySamples);
     ByteBuffer zeroData( audioFormat.getChannelsSampleByte() * nDelaySamples, 0);
     delayZeroData.setRawBuffer( zeroData );
-    mpDelayBuf = new FifoBuffer( audioFormat );
+    mpDelayBuf = std::make_shared<FifoBuffer>( audioFormat );
     mpDelayBuf->write(delayZeroData);
   } else {
-    mpDelayBuf = nullptr;
+    mpDelayBuf.reset();
   }
 }
 
@@ -55,7 +55,7 @@ DelayFilter::~DelayFilter()
 {
   if( mpDelayBuf ){
     mpDelayBuf->unlock();
-    delete mpDelayBuf; mpDelayBuf = nullptr;
+    mpDelayBuf.reset();
   }
 }
 
@@ -89,7 +89,7 @@ PerChannelDelayFilter::PerChannelDelayFilter(AudioFormat audioFormat, ChannelDel
 
   for(auto& [ch, delayUsec] : channelDelay){
     // create per-channel fifo buffer
-    FifoBuffer* pFifoBuffer = new FifoBuffer( chFormat );
+    std::shared_ptr<FifoBuffer> pFifoBuffer = std::make_shared<FifoBuffer>( chFormat );
     mDelayBuf[ch] = pFifoBuffer;
 
     // enqueue delay zero data to fifo buffer
@@ -107,7 +107,7 @@ PerChannelDelayFilter::~PerChannelDelayFilter()
     pFifoBuf->unlock();
   }
   for(auto& [ch, pFifoBuf] : mDelayBuf){
-    delete pFifoBuf;
+    pFifoBuf.reset();
   }
   mDelayBuf.clear();
 }
@@ -119,9 +119,9 @@ void PerChannelDelayFilter::process(AudioBuffer& srcBuf, AudioBuffer& dstBuf)
     // create temporary buffer
     AudioFormat tmpFormat( mAudioFormat.getEncoding(), mAudioFormat.getSamplingRate(), AudioFormat::CHANNEL::CHANNEL_MONO );
     int nSrcSamples = srcBuf.getNumberOfSamples();
-    std::map<AudioFormat::CH, AudioBuffer*> tmpBuffers;
+    std::map<AudioFormat::CH, std::shared_ptr<AudioBuffer>> tmpBuffers;
     for(auto& [ch, delayUsec] : mChannelDelay){
-     tmpBuffers[ch] = new AudioBuffer( tmpFormat, nSrcSamples );
+     tmpBuffers[ch] = std::make_shared<AudioBuffer>( tmpFormat, nSrcSamples );
     }
 
     // read per-channel data
@@ -137,8 +137,7 @@ void PerChannelDelayFilter::process(AudioBuffer& srcBuf, AudioBuffer& dstBuf)
     // enqueue to per-channel fifo buffer
     for(auto& [ch, pFifoBuf] : mDelayBuf){
       pFifoBuf->write( *tmpBuffers[ch] );
-      delete tmpBuffers[ch];
-      tmpBuffers[ch] = new AudioBuffer( tmpFormat, nSrcSamples);
+      tmpBuffers[ch] = std::make_shared<AudioBuffer>( tmpFormat, nSrcSamples);
       pFifoBuf->read( *tmpBuffers[ch] );
     }
 
@@ -153,7 +152,7 @@ void PerChannelDelayFilter::process(AudioBuffer& srcBuf, AudioBuffer& dstBuf)
     }
 
     for(auto& [ch, delayUsec] : mChannelDelay){
-      delete tmpBuffers[ch];
+      tmpBuffers[ch].reset();
     }
     tmpBuffers.clear();
   }

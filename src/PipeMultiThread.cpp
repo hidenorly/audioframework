@@ -32,26 +32,26 @@ PipeMultiThread::~PipeMultiThread()
   clearFilters();
 }
 
-IPipe* PipeMultiThread::getHeadPipe(bool bCreateInstance)
+std::shared_ptr<IPipe> PipeMultiThread::getHeadPipe(bool bCreateInstance)
 {
   if( bCreateInstance && mPipes.empty() ){
-    mPipes.insert( mPipes.begin(), new Pipe() );
+    mPipes.insert( mPipes.begin(), std::make_shared<Pipe>() );
   }
   return mPipes.empty() ? nullptr : mPipes.front();
 }
 
-IPipe* PipeMultiThread::getTailPipe(bool bCreateInstance)
+std::shared_ptr<IPipe> PipeMultiThread::getTailPipe(bool bCreateInstance)
 {
   if( bCreateInstance && mPipes.empty() ){
-    mPipes.push_back( new Pipe() );
+    mPipes.push_back( std::make_shared<Pipe>() );
   }
   return mPipes.empty() ? nullptr : mPipes.back();
 }
 
-void PipeMultiThread::createAndConnectPipesToHead(IPipe* pCurrentPipe)
+void PipeMultiThread::createAndConnectPipesToHead(std::shared_ptr<IPipe> pCurrentPipe)
 {
   if( pCurrentPipe && !mPipes.empty() ){
-    IPipe* pNewPipe = new Pipe();
+    std::shared_ptr<IPipe> pNewPipe = std::make_shared<Pipe>();
     AudioFormat theUsingFormat = pCurrentPipe->getFilterAudioFormat();
 
     std::shared_ptr<InterPipeBridge> pInterBridge = std::make_shared<InterPipeBridge>( theUsingFormat );
@@ -64,10 +64,10 @@ void PipeMultiThread::createAndConnectPipesToHead(IPipe* pCurrentPipe)
   }
 }
 
-void PipeMultiThread::createAndConnectPipesToTail(IPipe* pCurrentPipe)
+void PipeMultiThread::createAndConnectPipesToTail(std::shared_ptr<IPipe> pCurrentPipe)
 {
   if( pCurrentPipe && !mPipes.empty() ){
-    IPipe* pNewPipe = new Pipe();
+    std::shared_ptr<IPipe> pNewPipe = std::make_shared<Pipe>();
     AudioFormat theUsingFormat = pCurrentPipe->getFilterAudioFormat();
 
     std::shared_ptr<InterPipeBridge> pInterBridge = std::make_shared<InterPipeBridge>(theUsingFormat);
@@ -84,7 +84,7 @@ void PipeMultiThread::addFilterToHead(std::shared_ptr<IFilter> pFilter)
 {
   if( pFilter ){
     mMutexFilters.lock();
-    IPipe* pPipe = getHeadPipe();
+    std::shared_ptr<IPipe> pPipe = getHeadPipe();
     if( pPipe ){
       int theFilterWindowSize = pFilter->getRequiredWindowSizeUsec();
       int thePipeWindowSize = pPipe->getWindowSizeUsec();
@@ -103,7 +103,7 @@ void PipeMultiThread::addFilterToTail(std::shared_ptr<IFilter> pFilter)
 {
   if( pFilter ){
     mMutexFilters.lock();
-    IPipe* pPipe = getTailPipe();
+    std::shared_ptr<IPipe> pPipe = getTailPipe();
     if( pPipe ){
       int theFilterWindowSize = pFilter->getRequiredWindowSizeUsec();
       int thePipeWindowSize = pPipe->getWindowSizeUsec();
@@ -118,9 +118,9 @@ void PipeMultiThread::addFilterToTail(std::shared_ptr<IFilter> pFilter)
   }
 }
 
-IPipe* PipeMultiThread::findPipe(std::shared_ptr<IFilter> pFilter)
+std::shared_ptr<IPipe> PipeMultiThread::findPipe(std::shared_ptr<IFilter> pFilter)
 {
-  IPipe* result = nullptr;
+  std::shared_ptr<IPipe> result = nullptr;
 
   if( pFilter ){
     for( auto& aPipe : mPipes ){
@@ -156,7 +156,7 @@ bool PipeMultiThread::addFilterAfterFilter(std::shared_ptr<IFilter> pFilter, std
 
   if( pFilter && pPosition ){
     mMutexFilters.lock();
-    IPipe* pPipe = findPipe( pFilter );
+    std::shared_ptr<IPipe> pPipe = findPipe( pFilter );
     if( pPipe ){
       int theFilterWindowSize = pFilter->getRequiredWindowSizeUsec();
       int thePipeWindowSize = pPipe->getWindowSizeUsec();
@@ -194,7 +194,7 @@ std::shared_ptr<ISink> PipeMultiThread::attachSink(std::shared_ptr<ISink> pSink)
   std::shared_ptr<ISink> pResult = mpSink;
   mpSink = pSink;
 
-  IPipe* pPipe = getTailPipe();
+  std::shared_ptr<IPipe> pPipe = getTailPipe();
   if( pPipe ){
     std::shared_ptr<ISink> pSinkFromPipe = pPipe->attachSink( pSink );
     mSinkAttached = true;
@@ -209,7 +209,7 @@ std::shared_ptr<ISink> PipeMultiThread::detachSink(void)
   std::shared_ptr<ISink> pResult = mpSink;
   mpSink = nullptr;
 
-  IPipe* pPipe = getTailPipe();
+  std::shared_ptr<IPipe> pPipe = getTailPipe();
   if( pPipe ){
     std::shared_ptr<ISink> pSinkFromPipe = pPipe->detachSink();
     mSourceAttached = false;
@@ -224,7 +224,7 @@ std::shared_ptr<ISource> PipeMultiThread::attachSource(std::shared_ptr<ISource> 
   std::shared_ptr<ISource> pResult = mpSource;
   mpSource = pSource;
 
-  IPipe* pPipe = getHeadPipe();
+  std::shared_ptr<IPipe> pPipe = getHeadPipe();
   if( pPipe ){
     std::shared_ptr<ISource> pSourceFromPipe = pPipe->attachSource( pSource );
     mSourceAttached = true;
@@ -239,7 +239,7 @@ std::shared_ptr<ISource> PipeMultiThread::detachSource(void)
   std::shared_ptr<ISource> pResult = mpSource;
   mpSource = nullptr;
 
-  IPipe* pPipe = getHeadPipe();
+  std::shared_ptr<IPipe> pPipe = getHeadPipe();
   if( pPipe ){
     std::shared_ptr<ISource> pSourceFromPipe = pPipe->detachSource();
     mSourceAttached = false;
@@ -295,10 +295,6 @@ void PipeMultiThread::dump(void)
 
 void PipeMultiThread::clearFilters(void)
 {
-  for( auto& pPipe : mPipes ){
-    pPipe->clearFilters();
-    delete pPipe;
-  }
   mPipes.clear();
   mInterPipeBridges.clear();
 }
@@ -326,14 +322,14 @@ int PipeMultiThread::getWindowSizeUsec(void)
 void PipeMultiThread::ensureSourceSink(void)
 {
   if( !mSourceAttached && mpSource ){
-    IPipe* pHeadPipe = getHeadPipe();
+    std::shared_ptr<IPipe> pHeadPipe = getHeadPipe();
     if( pHeadPipe ){
       pHeadPipe->attachSource( mpSource );
       mSourceAttached = true;
     }
   }
   if( !mSinkAttached && mpSink ){
-    IPipe* pTailPipe = getTailPipe();
+    std::shared_ptr<IPipe> pTailPipe = getTailPipe();
     if( pTailPipe ){
       pTailPipe->attachSink( mpSink );
       mSinkAttached = true;

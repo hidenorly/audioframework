@@ -23,12 +23,13 @@
 #include "AudioFormat.hpp"
 #include "Pipe.hpp"
 #include <string>
+#include <memory>
 
 class PipedSource : public ISource
 {
 protected:
   std::shared_ptr<ISource> mpSource;
-  IPipe* mpPipe;
+  std::shared_ptr<IPipe> mpPipe;
   std::shared_ptr<InterPipeBridge> mpInterPipeBridge;
 
 public:

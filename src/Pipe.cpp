@@ -163,9 +163,9 @@ void Pipe::process(void)
       float perSampleDurationUsec = 1000000.0f / usingSamplingRate;
       int samples = windowSizeUsec / perSampleDurationUsec;
 
-      AudioBuffer* pInBuf = new AudioBuffer( usingAudioFormat, samples );
-      AudioBuffer* pOutBuf= new AudioBuffer( usingAudioFormat, samples );
-      AudioBuffer* pSinkOut = pInBuf;
+      std::shared_ptr<AudioBuffer> pInBuf = std::make_shared<AudioBuffer>( usingAudioFormat, samples );
+      std::shared_ptr<AudioBuffer> pOutBuf= std::make_shared<AudioBuffer>( usingAudioFormat, samples );
+      std::shared_ptr<AudioBuffer> pSinkOut = pInBuf;
 
       int nFilterSize = mFilters.size();
       while( mbIsRunning && ( nFilterSize == mFilters.size() && (mpSource->getAudioFormat().isEncodingPcm() && mpSink->getAudioFormat().isEncodingPcm())) ) {
@@ -188,8 +188,9 @@ void Pipe::process(void)
         mMutexSink.unlock();
       }
 
-      delete pInBuf;  pInBuf = nullptr;
-      delete pOutBuf; pOutBuf = nullptr;
+      pInBuf.reset();
+      pOutBuf.reset();
+      pSinkOut.reset();
     } else {
       while( mbIsRunning && (mpSource->getAudioFormat().isEncodingCompressed() && mpSink->getAudioFormat().isEncodingCompressed()) ) {
         CompressAudioBuffer buf;

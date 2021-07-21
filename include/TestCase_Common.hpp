@@ -358,8 +358,8 @@ protected:
     AudioBuffer* pSrcBuf = dynamic_cast<AudioBuffer*>(&buf);
     if( pSrcBuf ){
       if( !pSrcBuf->getAudioFormat().equal(mOutputFormat) ){
-        delete mpBuf;
-        mpBuf = new AudioBuffer( mOutputFormat, 0 );
+        mpBuf.reset();
+        mpBuf = std::make_shared<AudioBuffer>( mOutputFormat, 0 );
       }
       AudioBuffer outBuf( mOutputFormat, pSrcBuf->getNumberOfSamples() );
       AudioFormatAdaptor::convert( *pSrcBuf, outBuf );

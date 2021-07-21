@@ -26,19 +26,17 @@ AccousticEchoCancelledSource::AccousticEchoCancelledSource(std::shared_ptr<ISour
 
   createDelayFilter();
   if( !bDelayOnly ){
-    mpAecFilter = new AccousticEchoCancelFilter();
+    mpAecFilter = std::make_unique<AccousticEchoCancelFilter>();
   }
 }
 
 AccousticEchoCancelledSource::~AccousticEchoCancelledSource()
 {
   if( mpDelay ){
-    delete mpDelay;
-    mpDelay = nullptr;
+    mpDelay.reset();
   }
   if( mpAecFilter ){
-    delete mpAecFilter;
-    mpAecFilter = nullptr;
+    mpAecFilter.reset();
   }
 }
 
@@ -49,10 +47,7 @@ void AccousticEchoCancelledSource::createDelayFilter()
     if( mDelayUsec != latencyUsec ){
       mDelayUsec = latencyUsec;
       mMutexDelay.lock();
-      if( mpDelay ){
-        delete mpDelay; mpDelay = nullptr;
-      }
-      mpDelay = new DelayFilter( mpSource->getAudioFormat(), latencyUsec );
+      mpDelay = std::make_unique<DelayFilter>( mpSource->getAudioFormat(), latencyUsec );
       mMutexDelay.unlock();
     }
   }

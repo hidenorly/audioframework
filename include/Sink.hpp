@@ -88,7 +88,7 @@ public:
 class Sink : public ISink
 {
 protected:
-  IAudioBuffer* mpBuf;
+  std::shared_ptr<IAudioBuffer> mpBuf;
 
 protected:
   void setAudioFormatPrimitive(AudioFormat format);

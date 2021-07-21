@@ -28,8 +28,8 @@ class AccousticEchoCancelledSource : public ISource
 protected:
   std::shared_ptr<ISource> mpSource;
   std::shared_ptr<ISource> mpReferenceSource;
-  DelayFilter* mpDelay;
-  AccousticEchoCancelFilter* mpAecFilter;
+  std::unique_ptr<DelayFilter> mpDelay;
+  std::unique_ptr<AccousticEchoCancelFilter> mpAecFilter;
   int mDelayUsec;
   std::mutex mMutexDelay;
 

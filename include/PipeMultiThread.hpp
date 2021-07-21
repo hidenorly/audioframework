@@ -20,6 +20,7 @@
 #include "Pipe.hpp"
 #include "InterPipeBridge.hpp"
 #include <vector>
+#include <memory>
 
 class PipeMultiThread : public IPipe
 {
@@ -51,18 +52,18 @@ public:
   virtual int stateResourceConsumption(void);
 
 protected:
-  IPipe* getHeadPipe(bool bCreateInstance = false);
-  IPipe* getTailPipe(bool bCreateInstance = false);
-  IPipe* findPipe(std::shared_ptr<IFilter> pFilter);
-  std::vector<IPipe*> mPipes;
+  std::shared_ptr<IPipe> getHeadPipe(bool bCreateInstance = false);
+  std::shared_ptr<IPipe> getTailPipe(bool bCreateInstance = false);
+  std::shared_ptr<IPipe> findPipe(std::shared_ptr<IFilter> pFilter);
+  std::vector<std::shared_ptr<IPipe>> mPipes;
   std::vector<std::shared_ptr<InterPipeBridge>> mInterPipeBridges;
   std::shared_ptr<ISink> mpSink;
   std::shared_ptr<ISource> mpSource;
   bool mSinkAttached;
   bool mSourceAttached;
 
-  void createAndConnectPipesToTail(IPipe* pCurrentPipe);
-  void createAndConnectPipesToHead(IPipe* pCurrentPipe);
+  void createAndConnectPipesToTail(std::shared_ptr<IPipe> pCurrentPipe);
+  void createAndConnectPipesToHead(std::shared_ptr<IPipe> pCurrentPipe);
   void ensureSourceSink(void);
 
   std::mutex mMutexThreads;

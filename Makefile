@@ -16,6 +16,7 @@ LDFLAGS=-pthread
 SRC_DIR ?= ./src
 INC_DIR=./include
 TEST_DIR=./test
+FDK_DIR=./fdk
 LIB_DIR=./lib
 BIN_DIR=./bin
 OBJ_DIR=./out
@@ -26,11 +27,13 @@ INCS = $(wildcard $(INC_DIR)/*.hpp)
 AFW_SRCS = $(wildcard $(SRC_DIR)/*.cpp)
 TEST_SRCS = $(wildcard $(TEST_DIR)/*.cpp)
 INTEG_SRCS = $(AFW_SRCS) $(TEST_SRCS)
+FDK_SRCS = $(wildcard $(FDK_DIR)/*.cpp)
 
 # --- the object files config --------------
 AFW_OBJS = $(addprefix $(OBJ_DIR)/, $(notdir $(AFW_SRCS:.cpp=.o)))
 TEST_OBJS = $(addprefix $(OBJ_DIR)/, $(notdir $(TEST_SRCS:.cpp=.o)))
 INTEG_OBJS = $(addprefix $(OBJ_DIR)/, $(notdir $(INTEG_SRCS:.cpp=.o)))
+FDK_OBJS = $(addprefix $(OBJ_DIR)/, $(notdir $(FDK_SRCS:.cpp=.o)))
 
 # --- build gtest (integrated) --------
 INTEG_TARGET = $(BIN_DIR)/afw_test
@@ -107,6 +110,28 @@ $(TEST_TARGET): $(TEST_OBJS)
 	$(CXX) $(LDFLAGS) $(TEST_LDLIBS) $(TEST_OBJS) $(TEST_LIBS) -o $@ -lgtest_main -lgtest
 
 
+# --- Build for FDK w/libafw.a ------------
+FDK_TARGET = $(BIN_DIR)/fdk_exec
+FDK_LDLIBS = $(LDLIBS) -L$(LIB_DIR)
+FDK_LIBS = $(AFW_TARGET)
+FDK_DEPS = $(FDK_OBJS:.o=.d)
+
+fdk: $(FDK_TARGET)
+.PHONY: fdk
+
+$(FDK_TARGET): $(FDK_OBJS)
+	@[ -d $(BIN_DIR) ] || mkdir -p $(BIN_DIR)
+	$(CXX) $(LDFLAGS) $(FDK_LDLIBS) $(FDK_OBJS) $(FDK_LIBS) -o $@
+
+$(FDK_OBJS): $(FDK_SRCS)
+	@if [ ! -d $(OBJ_DIR) ]; \
+		then echo "mkdir -p $(OBJ_DIR)"; mkdir -p $(OBJ_DIR); \
+		fi
+	$(CXX) $(CXXFLAGS) -I $(INC_DIR) -c fdk/$(notdir $(@:.o=.cpp)) -o $@
+
+-include $(FDK_DEPS)
+
+
 # --- clean up ------------------------
 clean:
-	rm -f $(TARGET) $(TEST_TARGET) $(INTEG_TARGET) $(OBJS) $(TEST_OBJS) $(INTEG_OBJS) $(INTEG_DEPS)
+	rm -f $(TARGET) $(TEST_TARGET) $(INTEG_TARGET) $(OBJS) $(TEST_OBJS) $(INTEG_OBJS) $(INTEG_DEPS) $(FDK_OBJS) $(FDK_DEPS)

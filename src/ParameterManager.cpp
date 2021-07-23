@@ -16,6 +16,7 @@
 
 #include "ParameterManager.hpp"
 #include "StringTokenizer.hpp"
+#include "StringUtil.hpp"
 #include <map>
 #include <vector>
 #include <string>
@@ -50,8 +51,8 @@ void ParameterManager::setParameter(std::string key, std::string value)
 {
   bool bChanged = true;
 
-  key = trimParamString(key);
-  value = trimParamString(value);
+  key = StringUtil::trim(key);
+  value = StringUtil::trim(value);
 
   if( filterValueWithRule( key, value ) ){
     if( mParams.contains( key ) ){
@@ -316,24 +317,6 @@ bool ParameterManager::storeToStream(IStream* pStream)
   return result;
 }
 
-std::string ParameterManager::trimParamString(std::string value)
-{
-  const static std::string trimString = " \r\n\"";
-
-  int nPos = value.find_last_not_of( trimString );
-  if( nPos != std::string::npos ){
-    value = value.substr( 0, nPos+1 );
-  }
-
-  nPos = value.find_first_not_of( trimString );
-  if( nPos != std::string::npos ){
-    value = value.substr( nPos );
-  }
-
-  return value;
-}
-
-
 bool ParameterManager::restoreFromStream(IStream* pStream, bool bOverride)
 {
   bool result = false;
@@ -345,8 +328,8 @@ bool ParameterManager::restoreFromStream(IStream* pStream, bool bOverride)
         StringTokenizer tok( aLine, "\":\"");
         if( tok.hasNext() ){
           result = true;
-          std::string key = trimParamString( tok.getNext() );
-          std::string value = trimParamString( tok.getNext() );
+          std::string key = StringUtil::trim( tok.getNext() );
+          std::string value = StringUtil::trim( tok.getNext() );
           if( bOverride || !mParams.contains( key ) ){
             setParameter( key, value );
           }

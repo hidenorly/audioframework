@@ -51,8 +51,10 @@ IPlugInManager::~IPlugInManager()
 
 }
 
-void IPlugInManager::initialize(void)
+bool IPlugInManager::loadPlugIn(std::string path)
 {
+  bool result = false;
+
 #if __linux__
   const static std::string fileExt = ".so";
 #elif __APPLE__
@@ -60,35 +62,46 @@ void IPlugInManager::initialize(void)
 #else
   const static std::string fileExt = ".so";
 #endif
-  if( std::filesystem::exists( mPlugInPath ) ){
-    for( auto& aPlugInPath : std::filesystem::directory_iterator( mPlugInPath ) ) {
-      std::string path = aPlugInPath.path();
-      if( path.ends_with( fileExt ) ){
-        std::cout << "found:" << path << std::endl;
-        void* pNativeLibraryHandle = dlopen( path.c_str(), RTLD_LAZY|RTLD_LOCAL );
-        if( pNativeLibraryHandle ){
-          bool bLoadSuccess = false;
-          typedef void* (*GetPlugInInstance(void));
-          GetPlugInInstance* pGetPlugInInstance = reinterpret_cast<GetPlugInInstance*>( dlsym(pNativeLibraryHandle, "getPlugInInstance") );
-          if( pGetPlugInInstance ){
-            std::shared_ptr<IPlugIn> pPlugIn( reinterpret_cast<IPlugIn*>(*pGetPlugInInstance()) );
-            if( pPlugIn ){
-              registerPlugIn(pPlugIn);
-              pPlugIn->mLibraryNativeHandle = pNativeLibraryHandle;
-              bLoadSuccess = true;
-            } else {
-              std::cout << path << ": unabled to get plugin instance" << std::endl;
-            }
-          } else {
-            std::cout << path << ": unabled to get plugin func by dlsym" << std::endl;
-          }
-          if( !bLoadSuccess ){
-            dlclose( pNativeLibraryHandle );
-          }
+
+  if( path.ends_with( fileExt ) ){
+    std::cout << "found:" << path << std::endl;
+    void* pNativeLibraryHandle = dlopen( path.c_str(), RTLD_LAZY|RTLD_LOCAL );
+    if( pNativeLibraryHandle ){
+      bool bLoadSuccess = false;
+      typedef void* (*GetPlugInInstance(void));
+      GetPlugInInstance* pGetPlugInInstance = reinterpret_cast<GetPlugInInstance*>( dlsym(pNativeLibraryHandle, "getPlugInInstance") );
+      if( pGetPlugInInstance ){
+        std::shared_ptr<IPlugIn> pPlugIn( reinterpret_cast<IPlugIn*>(*pGetPlugInInstance()) );
+        if( pPlugIn ){
+          registerPlugIn(pPlugIn);
+          pPlugIn->mLibraryNativeHandle = pNativeLibraryHandle;
+          bLoadSuccess = true;
         } else {
-            std::cout << path << ": unabled to open" << std::endl;
+          std::cout << path << ": unabled to get plugin instance" << std::endl;
         }
+      } else {
+        std::cout << path << ": unabled to get plugin func by dlsym" << std::endl;
       }
+      if( !bLoadSuccess ){
+        dlclose( pNativeLibraryHandle );
+      }
+    } else {
+        std::cout << path << ": unabled to open" << std::endl;
+    }
+  }
+
+  return result;
+}
+
+void IPlugInManager::initialize(void)
+{
+  if( std::filesystem::exists( mPlugInPath ) ){
+    if( std::filesystem::is_directory(mPlugInPath) ){
+      for( auto& aPlugInPath : std::filesystem::directory_iterator( mPlugInPath ) ) {
+        loadPlugIn( aPlugInPath.path() );
+      }
+    } else {
+      loadPlugIn( mPlugInPath );
     }
   }
 }

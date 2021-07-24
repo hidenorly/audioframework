@@ -70,6 +70,8 @@ protected:
   std::map<std::string, std::shared_ptr<IPlugIn>> mPlugIns;
   std::string mPlugInPath;
 
+  bool loadPlugIn(std::string path);
+
 public:
   IPlugInManager(std::string path = ".");
   virtual ~IPlugInManager();

@@ -228,6 +228,20 @@ std::string AudioFormat::getEncodingString(AudioFormat::ENCODING encoding)
   return result;
 }
 
+AudioFormat::ENCODING AudioFormat::getEncodingFromString(std::string encoding)
+{
+  if( encoding == "PCM_16BIT" ) return AudioFormat::ENCODING::PCM_16BIT;
+  if( encoding == "PCM_FLOAT" ) return AudioFormat::ENCODING::PCM_FLOAT;
+  if( encoding == "PCM_32BIT" ) return AudioFormat::ENCODING::PCM_32BIT;
+  if( encoding == "PCM_8BIT" ) return AudioFormat::ENCODING::PCM_8BIT;
+  if( encoding == "PCM_24BIT" ) return AudioFormat::ENCODING::PCM_24BIT_PACKED;
+  if( encoding.starts_with("COMPRESSED_") ){
+    int nCompressedEncoding = std::stoi( encoding.substr(11, encoding.size()) );
+    return (AudioFormat::ENCODING)(AudioFormat::ENCODING::COMPRESSED + nCompressedEncoding);
+  }
+  return AudioFormat::ENCODING::PCM_UNKNOWN;
+}
+
 std::string AudioFormat::getEncodingString(void)
 {
   return getEncodingString( mEncoding );
@@ -236,6 +250,21 @@ std::string AudioFormat::getEncodingString(void)
 AudioFormat::CHANNEL AudioFormat::getChannels(void)
 {
   return mChannel;
+}
+
+AudioFormat::CHANNEL AudioFormat::getChannelsFromString(std::string channels)
+{
+  if( channels == "1" || channels == "mono" ) return AudioFormat::CHANNEL::CHANNEL_MONO;
+  if( channels == "2" || channels == "streo" ) return AudioFormat::CHANNEL::CHANNEL_STEREO;
+  if( channels == "2.1" ) return AudioFormat::CHANNEL::CHANNEL_2_1CH;
+  if( channels == "4" ) return AudioFormat::CHANNEL::CHANNEL_4CH;
+  if( channels == "5" ) return AudioFormat::CHANNEL::CHANNEL_5CH;
+  if( channels == "5.1" ) return AudioFormat::CHANNEL::CHANNEL_5_1CH;
+  if( channels == "5.0.2" ) return AudioFormat::CHANNEL::CHANNEL_5_0_2CH;
+  if( channels == "5.1.2" ) return AudioFormat::CHANNEL::CHANNEL_5_1_2CH;
+  if( channels == "7.1" ) return AudioFormat::CHANNEL::CHANNEL_7_1CH;
+
+  return AudioFormat::CHANNEL::CHANNEL_UNKNOWN;
 }
 
 int AudioFormat::getSampleByte(void)

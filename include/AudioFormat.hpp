@@ -129,10 +129,12 @@ public:
   bool isEncodingCompressed(void);
   static bool isEncodingCompressed(ENCODING encoding);
   static std::string getEncodingString(ENCODING encoding);
+  static ENCODING getEncodingFromString(std::string encoding);
   int getNumberOfChannels(void);
   static int getNumberOfChannels(CHANNEL channel);
   std::string getEncodingString(void);
   CHANNEL getChannels(void);
+  static CHANNEL getChannelsFromString(std::string channels);
   int getSampleByte(void);
   static int getSampleByte(ENCODING encoding);
   int getChannelsSampleByte(void);

@@ -16,12 +16,6 @@
 
 #include <iostream>
 #include <string>
-#include "Util.hpp"
-#include "Filter.hpp"
-#include "Pipe.hpp"
-#include "Stream.hpp"
-#include "StreamSource.hpp"
-#include "StreamSink.hpp"
 
 class OptParse
 {

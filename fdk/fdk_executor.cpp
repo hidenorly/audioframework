@@ -24,6 +24,7 @@
 #include "StreamSink.hpp"
 #include "PcmSourceSink.hpp"
 #include "OptParse.hpp"
+#include <filesystem>
 
 AudioFormat getAudioFormatFromOpts( std::string encoding, std::string samplingRate, std::string channels )
 {
@@ -43,7 +44,7 @@ int main(int argc, char **argv)
   options.push_back( OptParse::OptParseItem("-c", "--channel", true, "2", "Set channel 2, 2.1, 4, 4.1, 5, 5.1, 5.1.2, 7.1"));
   options.push_back( OptParse::OptParseItem("-f", "--filter", true, "", "Specify filter.so (dylib)"));
   options.push_back( OptParse::OptParseItem("-i", "--input", true, "input.pcm", "Specify input(source) file"));
-  options.push_back( OptParse::OptParseItem("-o", "--output", true, "output.pcm", "Specify output(sink) file"));
+  options.push_back( OptParse::OptParseItem("-o", "--output", true, "", "Specify output(sink) file"));
 
   OptParse optParser( argc, argv, options );
 
@@ -62,12 +63,26 @@ int main(int argc, char **argv)
   AudioFormat format = getAudioFormatFromOpts( optParser.values["-e"], optParser.values["-r"], optParser.values["-c"] );
   std::cout << "Specified audio format : " << format.toString() << std::endl;
 
-  std::shared_ptr<ISource> pSource = std::make_shared<PcmSource>();
+  std::shared_ptr<ISource> pSource;
+  if( !std::filesystem::exists( optParser.values["-i"] ) ){
+    pSource = std::make_shared<PcmSource>();
+  } else {
+    std::shared_ptr<FileStream> pStream = std::make_shared<FileStream>(optParser.values["-i"]);
+    pSource = std::make_shared<StreamSource>(format, pStream);
+  }
   pSource->setAudioFormat( format );
+  std::cout << pSource->toString() << std::endl;
   pPipe->attachSource( pSource );
 
-  std::shared_ptr<ISink> pSink = std::make_shared<PcmSink>();
+  std::shared_ptr<ISink> pSink;
+  if( optParser.values["-o"].empty() ){
+    pSink = std::make_shared<PcmSink>();
+  } else {
+    std::shared_ptr<FileStream> pStream = std::make_shared<FileStream>(optParser.values["-o"]);
+    pSink = std::make_shared<StreamSink>(format, pStream);
+  }
   pSink->setAudioFormat( format );
+  std::cout << pSink->toString() << std::endl;
   pPipe->attachSink( pSink );
 
   pPipe->run();

@@ -17,6 +17,7 @@ SRC_DIR ?= ./src
 INC_DIR=./include
 TEST_DIR=./test
 FDK_DIR=./fdk
+FEX_DIR=./filter_example
 LIB_DIR=./lib
 BIN_DIR=./bin
 OBJ_DIR=./out
@@ -28,12 +29,14 @@ AFW_SRCS = $(wildcard $(SRC_DIR)/*.cpp)
 TEST_SRCS = $(wildcard $(TEST_DIR)/*.cpp)
 INTEG_SRCS = $(AFW_SRCS) $(TEST_SRCS)
 FDK_SRCS = $(wildcard $(FDK_DIR)/*.cpp)
+FEX_SRCS = $(wildcard $(FEX_DIR)/*.cpp)
 
 # --- the object files config --------------
 AFW_OBJS = $(addprefix $(OBJ_DIR)/, $(notdir $(AFW_SRCS:.cpp=.o)))
 TEST_OBJS = $(addprefix $(OBJ_DIR)/, $(notdir $(TEST_SRCS:.cpp=.o)))
 INTEG_OBJS = $(addprefix $(OBJ_DIR)/, $(notdir $(INTEG_SRCS:.cpp=.o)))
 FDK_OBJS = $(addprefix $(OBJ_DIR)/, $(notdir $(FDK_SRCS:.cpp=.o)))
+FEX_OBJS = $(addprefix $(OBJ_DIR)/, $(notdir $(FEX_SRCS:.cpp=.o)))
 
 # --- build gtest (integrated) --------
 INTEG_TARGET = $(BIN_DIR)/afw_test
@@ -113,7 +116,8 @@ $(TEST_TARGET): $(TEST_OBJS)
 # --- Build for FDK w/libafw.a ------------
 FDK_TARGET = $(BIN_DIR)/fdk_exec
 FDK_LDLIBS = $(LDLIBS) -L$(LIB_DIR)
-FDK_LIBS = $(AFW_TARGET)
+FDK_LIBS = $(AFW_SO_TARGET)
+#FDK_LIBS = $(AFW_TARGET)
 FDK_DEPS = $(FDK_OBJS:.o=.d)
 
 fdk: $(FDK_TARGET)
@@ -132,6 +136,31 @@ $(FDK_OBJS): $(FDK_SRCS)
 -include $(FDK_DEPS)
 
 
+# --- Build for filter example(shared) ------------
+UNAME := $(shell uname -s)
+ifeq ($(UNAME),Linux)
+	FEX_SO_TARGET = $(LIB_DIR)/libfilter_example.so
+	SHARED_CXXFLAGS= -fPIC -shared
+endif
+ifeq ($(UNAME),Darwin)
+	FEX_SO_TARGET = $(LIB_DIR)/libfilter_example.dylib
+	SHARED_CXXFLAGS= -flat_namespace -dynamiclib
+endif
+
+filterexample: $(FEX_SO_TARGET)
+.PHONY: filterexample
+
+$(FEX_SO_TARGET): $(FEX_OBJS)
+	$(CXX) $(LDFLAGS) $(FEX_OBJS) $(SHARED_CXXFLAGS) -o $@ $(LDLIBS) $(AFW_SO_TARGET)
+	#$(CXX) $(LDFLAGS) $(FEX_OBJS) $(SHARED_CXXFLAGS) -o $@ $(LDLIBS) $(AFW_TARGET)
+
+$(FEX_OBJS): $(FEX_SRCS)
+	@if [ ! -d $(OBJ_DIR) ]; \
+		then echo "mkdir -p $(OBJ_DIR)"; mkdir -p $(OBJ_DIR); \
+		fi
+	$(CXX) $(CXXFLAGS) -I $(INC_DIR) -c filter_example/$(notdir $(@:.o=.cpp)) -o $@
+
+
 # --- clean up ------------------------
 clean:
-	rm -f $(TARGET) $(TEST_TARGET) $(INTEG_TARGET) $(OBJS) $(TEST_OBJS) $(INTEG_OBJS) $(INTEG_DEPS) $(FDK_OBJS) $(FDK_DEPS)
+	rm -f $(TARGET) $(TEST_TARGET) $(INTEG_TARGET) $(OBJS) $(TEST_OBJS) $(INTEG_OBJS) $(INTEG_DEPS) $(FDK_OBJS) $(FDK_DEPS) $(FEX_OBJS)

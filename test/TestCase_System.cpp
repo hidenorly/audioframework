@@ -248,7 +248,7 @@ TEST_F(TestCase_System, testPlugInManager)
 
 TEST_F(TestCase_System, testFilterPlugInManager)
 {
-  FilterManager::setPlugInPath("lib/");
+  FilterManager::setPlugInPath("lib/filter-plugin");
   FilterManager* pManager = FilterManager::getInstance();
   pManager->initialize();
 
@@ -266,7 +266,7 @@ TEST_F(TestCase_System, testFilterPlugInManager)
 
 TEST_F(TestCase_System, testSourcePlugInManager)
 {
-  SourceManager::setPlugInPath("lib/");
+  SourceManager::setPlugInPath("lib/source-plugin");
   SourceManager* pManager = SourceManager::getInstance();
   pManager->initialize();
 
@@ -284,7 +284,7 @@ TEST_F(TestCase_System, testSourcePlugInManager)
 
 TEST_F(TestCase_System, testSinkPlugInManager)
 {
-  SinkManager::setPlugInPath("lib/");
+  SinkManager::setPlugInPath("lib/sink-plugin");
   SinkManager* pManager = SinkManager::getInstance();
   pManager->initialize();
 

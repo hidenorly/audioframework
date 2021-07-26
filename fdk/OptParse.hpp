@@ -90,7 +90,7 @@ public:
     exit(0);
   };
 
-  OptParse(int argc, char **argv, std::vector<OptParseItem> options){
+  OptParse(int argc, char **argv, std::vector<OptParseItem> options, std::string description = ""){
     for(int i=1; i<argc; i++){
       args.push_back( std::string(argv[i]) );
     }
@@ -99,6 +99,9 @@ public:
     }
     parseOpts( options );
     if( values.contains("-h") ){
+      if( !description.empty() ){
+        std::cout << description << std::endl;
+      }
       printHelp(options);
     }
   }

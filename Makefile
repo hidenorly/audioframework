@@ -19,6 +19,7 @@ TEST_DIR=./test
 FDK_DIR=./fdk
 FEX_DIR=./filter_example
 LIB_DIR=./lib
+LIB_FILTER_DIR=$(LIB_DIR)/filter-plugin
 BIN_DIR=./bin
 OBJ_DIR=./out
 
@@ -76,6 +77,9 @@ afw: $(AFW_TARGET)
 CXXFLAGS+= -fPIC #-flto=full
 
 $(AFW_TARGET): $(AFW_OBJS)
+	@if [ ! -d $(LIB_DIR) ]; \
+		then echo "mkdir -p $(LIB_DIR)"; mkdir -p $(LIB_DIR); \
+		fi
 	@[ -d $(LIB_DIR) ] || mkdir -p $(LIB_DIR)
 	ar rs $(AFW_TARGET) $(AFW_OBJS)
 	ranlib -c $(AFW_TARGET)
@@ -98,6 +102,9 @@ afwshared: $(AFW_SO_TARGET)
 .PHONY: afwshared
 
 $(AFW_SO_TARGET): $(AFW_OBJS)
+	@if [ ! -d $(LIB_DIR) ]; \
+		then echo "mkdir -p $(LIB_DIR)"; mkdir -p $(LIB_DIR); \
+		fi
 	$(CXX) $(LDFLAGS) $(AFW_OBJS) $(SHARED_CXXFLAGS) -o $@ $(LDLIBS)
 
 # --- Build for test cases w/libafw.a ---
@@ -109,6 +116,18 @@ test: $(TEST_TARGET)
 .PHONY: test
 
 $(TEST_TARGET): $(TEST_OBJS)
+	@[ -d $(BIN_DIR) ] || mkdir -p $(BIN_DIR)
+	$(CXX) $(LDFLAGS) $(TEST_LDLIBS) $(TEST_OBJS) $(TEST_LIBS) -o $@ -lgtest_main -lgtest
+
+# --- Build for test cases w/libafw.a ---
+TEST_SHARED_TARGET = $(BIN_DIR)/test_with_afwlib_so
+TEST_LDLIBS = $(LDLIBS) -L$(LIB_DIR)
+TEST_LIBS = $(AFW_SO_TARGET)
+
+testshared: $(TEST_SHARED_TARGET)
+.PHONY: testshared
+
+$(TEST_SHARED_TARGET): $(TEST_OBJS)
 	@[ -d $(BIN_DIR) ] || mkdir -p $(BIN_DIR)
 	$(CXX) $(LDFLAGS) $(TEST_LDLIBS) $(TEST_OBJS) $(TEST_LIBS) -o $@ -lgtest_main -lgtest
 
@@ -139,11 +158,11 @@ $(FDK_OBJS): $(FDK_SRCS)
 # --- Build for filter example(shared) ------------
 UNAME := $(shell uname -s)
 ifeq ($(UNAME),Linux)
-	FEX_SO_TARGET = $(LIB_DIR)/libfilter_example.so
+	FEX_SO_TARGET = $(LIB_FILTER_DIR)/libfilter_example.so
 	SHARED_CXXFLAGS= -fPIC -shared
 endif
 ifeq ($(UNAME),Darwin)
-	FEX_SO_TARGET = $(LIB_DIR)/libfilter_example.dylib
+	FEX_SO_TARGET = $(LIB_FILTER_DIR)/libfilter_example.dylib
 	SHARED_CXXFLAGS= -flat_namespace -dynamiclib
 endif
 
@@ -151,8 +170,13 @@ filterexample: $(FEX_SO_TARGET)
 .PHONY: filterexample
 
 $(FEX_SO_TARGET): $(FEX_OBJS)
+	@if [ ! -d $(LIB_DIR) ]; \
+		then echo "mkdir -p $(LIB_DIR)"; mkdir -p $(LIB_DIR); \
+		fi
+	@if [ ! -d $(LIB_FILTER_DIR) ]; \
+		then echo "mkdir -p $(LIB_FILTER_DIR)"; mkdir -p $(LIB_FILTER_DIR); \
+		fi
 	$(CXX) $(LDFLAGS) $(FEX_OBJS) $(SHARED_CXXFLAGS) -o $@ $(LDLIBS) $(AFW_SO_TARGET)
-	#$(CXX) $(LDFLAGS) $(FEX_OBJS) $(SHARED_CXXFLAGS) -o $@ $(LDLIBS) $(AFW_TARGET)
 
 $(FEX_OBJS): $(FEX_SRCS)
 	@if [ ! -d $(OBJ_DIR) ]; \

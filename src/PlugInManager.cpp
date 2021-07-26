@@ -71,10 +71,10 @@ bool IPlugInManager::loadPlugIn(std::string path)
       typedef void* (*GetPlugInInstance(void));
       GetPlugInInstance* pGetPlugInInstance = reinterpret_cast<GetPlugInInstance*>( dlsym(pNativeLibraryHandle, "getPlugInInstance") );
       if( pGetPlugInInstance ){
-        std::shared_ptr<IPlugIn> pPlugIn( reinterpret_cast<IPlugIn*>(*pGetPlugInInstance()) );
+        std::shared_ptr<IPlugIn> pPlugIn( reinterpret_cast<IPlugIn*>(pGetPlugInInstance()) );
         if( pPlugIn ){
           registerPlugIn(pPlugIn);
-          pPlugIn->mLibraryNativeHandle = pNativeLibraryHandle;
+          pPlugIn->load(pNativeLibraryHandle);
           bLoadSuccess = true;
         } else {
           std::cout << path << ": unabled to get plugin instance" << std::endl;
@@ -108,7 +108,11 @@ void IPlugInManager::initialize(void)
 
 void IPlugInManager::terminate(void)
 {
+  std::vector<std::string> plugInIds;
   for(auto& [plugInId, pPlugIn] : mPlugIns){
+    plugInIds.push_back( plugInId );
+  }
+  for(auto& plugInId : plugInIds){
     unregisterPlugIn( plugInId );
   }
   mPlugIns.clear();
@@ -158,7 +162,10 @@ void IPlugInManager::unregisterPlugIn(std::string plugInId)
       pPlugIn->unload();
       void* pHandle = pPlugIn->mLibraryNativeHandle ? pPlugIn->mLibraryNativeHandle : nullptr;
       pPlugIn->mLibraryNativeHandle = nullptr;
-      dlclose( pHandle );
+      if( 1 == pPlugIn.use_count() ){
+        pPlugIn.reset();
+        dlclose( pHandle );
+      }
     }
   }
 }

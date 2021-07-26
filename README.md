@@ -194,16 +194,19 @@ under developing. It's in quite early stage.
 # Build
 
 ```
-$ make -j4; ./bin/afw_test;
+$ make -j 4; ./bin/afw_test;
 
 ```
 
 | make target | description |
 | :--- | :--- |
-|  ```make``` | build test case executable |
-| ```make afw``` | build ```libafw.a``` for static link library |
-| ```make test``` | build test case executable with ```libafw.a``` |
-| ```make testshared``` | build ```libafw.so``` or ```libafw.dylib``` |
+| ```make``` | build test case executable (```bin/afwtest```) |
+| ```make afw``` | build ```lib/libafw.a``` for static link library |
+| ```make afwshared``` | build ```lib/libafw.so``` (or ```.dylib```) for dynamic link library |
+| ```make test``` | build test case executable (```bin/test_with_afwlib```) with ```libafw.a``` |
+| ```make testshared``` | build (```bin/test_with_afwlib_so```) |
+| ```make fdk``` | build (```bin/fdk_exec```) with ```lib/libafw.so``` |
+| ```make filterexample``` | build (```lib/filter-plugin/libfilter_example.dylib```) with ```lib/libafw.so``` |
 
 
 # External Dependencies
@@ -217,6 +220,13 @@ $ make -j4; ./bin/afw_test;
   * [done] Separate test and afw in Makefile
   * [done] Support -j option
   * [] Filter, Source, Sink development kit
+    * [done] filter development kit (fdk/)
+    * [done] filter example (filter_example/)
+    ```
+    $ make afwshared fdk filterexample -j 4
+    $ bin/fdk_exec -f lib/filter-plugin -p "filter.exampleReverb.power=1;filter.exampleReverb.delay=5"
+    ```
+
 * Filter example
   * [done] Add reverb with ParameterManager (FilterReverb in TestCase_Common)
   * [] Add volume filter with ParameterManager

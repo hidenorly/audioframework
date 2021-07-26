@@ -22,8 +22,8 @@
 #include <iostream>
 #include <algorithm>
 
-class FilterReverb;
-class FilterReverb : public FilterPlugIn
+class FilterExampleReverb;
+class FilterExampleReverb : public FilterPlugIn
 {
 protected:
   int mWindowSize;
@@ -33,21 +33,21 @@ protected:
   AudioBuffer mLastBuf;
 
 public:
-  FilterReverb(int windowSize = DEFAULT_WINDOW_SIZE_USEC) : mWindowSize(windowSize), mDelay(0.0f), mPower(0.5f){
+  FilterExampleReverb(int windowSize = DEFAULT_WINDOW_SIZE_USEC) : mWindowSize(windowSize), mDelay(0.0f), mPower(0.5f){
     ParameterManager* pParams = ParameterManager::getManager();
 
     ParameterManager::CALLBACK callback = [&](std::string key, std::string value){
       if( key == "filter.exampleReverb.delay" ){
-        std::cout << "[FilterReverb] delay parameter is set to " << value << std::endl;
+        std::cout << "[FilterExampleReverb] delay parameter is set to " << value << std::endl;
         mDelay = std::stof( value );
       } else if( key == "filter.exampleReverb.power" ){
-        std::cout << "[FilterReverb] power parameter is set to " << value << std::endl;
+        std::cout << "[FilterExampleReverb] power parameter is set to " << value << std::endl;
         mPower = std::stof( value );
       }
     };
     mCallbackId = pParams->registerCallback("filter.exampleReverb.*", callback);
   };
-  virtual ~FilterReverb(){
+  virtual ~FilterExampleReverb(){
     ParameterManager* pParams = ParameterManager::getManager();
     pParams->unregisterCallback(mCallbackId);
     mCallbackId = 0;
@@ -100,7 +100,7 @@ public:
     }
   };
   virtual int getRequiredWindowSizeUsec(void){ return mWindowSize; };
-  virtual std::string toString(void){ return "FilterReverb"; };
+  virtual std::string toString(void){ return "FilterExampleReverb"; };
 
 
   /* @desc initialize at loading the filter plug-in shared object such as .so */
@@ -108,21 +108,18 @@ public:
     std::cout << "onLoad" << std::endl;
   }
   /* @desc uninitialize at unloading the filter plug-in shared object such as .so */
-  virtual void onUnload(void)
-  {
+  virtual void onUnload(void){
     std::cout << "onUnload" << std::endl;
   }
   /* @desc report your filter plug-in's unique id
      @return unique plug-in id. may use uuid. */
-  virtual std::string getId(void)
-  {
-    return std::string("FilterReverb");
+  virtual std::string getId(void){
+    return std::string("FilterExampleReverb");
   }
   /* @desc this is expected to use by strategy
      @return new YourFilter()'s result */
-  virtual std::shared_ptr<IPlugIn> newInstance(void)
-  {
-    return std::make_shared<FilterReverb>();
+  virtual std::shared_ptr<IPlugIn> newInstance(void){
+    return std::make_shared<FilterExampleReverb>();
   }
 };
 
@@ -131,9 +128,7 @@ extern "C"
 {
 void* getPlugInInstance(void)
 {
-  std::cout << "getPlugInInstance" << std::endl;
-  FilterReverb* pFilter = new FilterReverb();
-  std::cout << "getPlugInInstance: new FilterReverb()" << std::endl;
-  return reinterpret_cast<void*>(pFilter);
+  FilterExampleReverb* pFilter = new FilterExampleReverb();
+  return reinterpret_cast<void*>(dynamic_cast<IPlugIn*>(pFilter));
 }
 };

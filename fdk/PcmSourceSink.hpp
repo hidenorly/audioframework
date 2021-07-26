@@ -19,6 +19,7 @@
 
 #include "Source.hpp"
 #include "Sink.hpp"
+#include <cmath>
 
 class PcmSource : public Source
 {
@@ -30,13 +31,54 @@ protected:
   };
 
   virtual void readPrimitive(IAudioBuffer& buf){
+    ByteBuffer esRawBuf( buf.getRawBuffer().size(), 0 );
     AudioBuffer* pBuf = dynamic_cast<AudioBuffer*>(&buf);
+    static const float pi = 3.141592653589793f;
     if( pBuf ){
-      pBuf->setAudioFormat( mFormat );
-      ByteBuffer rawBuf( pBuf->getRawBuffer().size(), 0 );
-      buf.setRawBuffer( rawBuf );
-      buf.setAudioFormat( mFormat );
+      AudioFormat format = pBuf->getAudioFormat();
+      int nChannels = format.getNumberOfChannels();
+      int nSamples = pBuf->getNumberOfSamples();
+
+      int8_t* pVal8 = reinterpret_cast<int8_t*>(esRawBuf.data());
+      int16_t* pVal16 = reinterpret_cast<int16_t*>(pVal8);
+      int32_t* pVal32 = reinterpret_cast<int32_t*>(pVal8);
+      float* pValFloat = reinterpret_cast<float*>(pVal8);
+
+      for(int n = 0; n < nSamples; n++ ){
+        float val = std::sin( 2 * pi * n / nSamples );
+        int offset = n * nChannels;
+        for( int c = 0; c < nChannels; c++ ){
+          switch( format.getEncoding() ){
+            case AudioFormat::ENCODING::PCM_8BIT:
+              * (pVal8+offset+c) = (int8_t)( (float)INT8_MAX * val );
+              break;
+            case AudioFormat::ENCODING::PCM_16BIT:
+              * (pVal16+offset+c) = (int8_t)( (float)INT16_MAX * val );
+              break;
+            case AudioFormat::ENCODING::PCM_32BIT:
+              * (pVal32+offset+c) = (int32_t)( (float)INT32_MAX * val );
+              break;
+            case AudioFormat::ENCODING::PCM_24BIT_PACKED:
+              {
+                int32_t tmp = (int32_t)( (float)INT32_MAX * val );
+                *(pVal8+offset+c+0) = (uint8_t)((tmp & 0x0000FF00) >> 8);
+                *(pVal8+offset+c+1) = (uint8_t)((tmp & 0x00FF0000) >> 16);
+                *(pVal8+offset+c+2) = (uint8_t)((tmp & 0xFF000000) >> 24);
+              }
+              break;
+            case AudioFormat::ENCODING::PCM_FLOAT:
+              *(pValFloat+offset+c) = val;
+              break;
+            case AudioFormat::ENCODING::PCM_UNKNOWN:
+            default:
+              offset = 0;
+              break;
+          }
+        }
+      }
     }
+    buf.setRawBuffer( esRawBuf );
+    buf.setAudioFormat( mFormat );
   }
 
 public:

@@ -203,11 +203,18 @@ $ make -j 4; ./bin/afw_test;
 | ```make``` | build test case executable (```bin/afwtest```) |
 | ```make afw``` | build ```lib/libafw.a``` for static link library |
 | ```make afwshared``` | build ```lib/libafw.so``` (or ```.dylib```) for dynamic link library |
-| ```make test``` | build test case executable (```bin/test_with_afwlib```) with ```libafw.a``` |
-| ```make testshared``` | build (```bin/test_with_afwlib_so```) |
-| ```make fdk``` | build (```bin/fdk_exec```) with ```lib/libafw.so``` |
-| ```make filterexample``` | build (```lib/filter-plugin/libfilter_example.dylib```) with ```lib/libafw.so``` |
+| ```make test``` | build test case executable (```bin/test_with_afwlib```) (```libafw.a``` required) |
+| ```make testshared``` | build (```bin/test_with_afwlib_so```) (```lib/libafw.so(.dylib)``` required) |
+| ```make fdk``` | build (```bin/fdk_exec```) (```lib/libafw.so(.dylib)``` required) |
+| ```make filterexample``` | build (```lib/filter-plugin/libfilter_example.so(.dylib)```) (```lib/libafw.so(.dylib)``` required) |
 
+* If you want to use dynamic library based development, the following is expected make and execution sequence.
+```
+$ make afwshared -j 4
+$ make fdk filterexample testshared -j 4
+$ ./bin/test_with_afwlib_so
+$ ./bin/fdk_exec -f lib/filter-plugin/libfilter_example.so
+```
 
 # External Dependencies
 

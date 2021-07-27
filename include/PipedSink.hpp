@@ -46,12 +46,13 @@ public:
   virtual void stop(void);
   virtual bool isRunning(void);
   virtual void clearFilters(void);
-
   virtual void writePrimitive(IAudioBuffer& buf);
+
   virtual std::string toString(void){ return std::string("PipedSink(") + (mpSink ? mpSink->toString() : "") + ")"; };
   virtual void dump(void);
 
   virtual AudioFormat getAudioFormat(void);
+  virtual std::vector<AudioFormat> getSupportedAudioFormats(void);
 
   virtual int stateResourceConsumption(void);
 };

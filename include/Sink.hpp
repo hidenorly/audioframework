@@ -92,11 +92,11 @@ protected:
 
 protected:
   void setAudioFormatPrimitive(AudioFormat format);
+  virtual void writePrimitive(IAudioBuffer& buf);
 
 public:
   Sink();
   virtual ~Sink();
-  virtual void writePrimitive(IAudioBuffer& buf);
   virtual std::string toString(void){ return "Sink"; };
   virtual void dump(void);
   virtual AudioFormat getAudioFormat(void);
@@ -106,6 +106,7 @@ class SinkPlugIn : public ISink, public IPlugIn
 {
 protected:
   virtual void setAudioFormatPrimitive(AudioFormat audioFormat);
+  virtual void writePrimitive(IAudioBuffer& buf);
 
 public:
   SinkPlugIn();
@@ -116,7 +117,6 @@ public:
   virtual std::string getId(void);
   virtual std::shared_ptr<IPlugIn> newInstance(void);
 
-  virtual void writePrimitive(IAudioBuffer& buf);
   virtual AudioFormat getAudioFormat(void);
   virtual void dump(void);
 };

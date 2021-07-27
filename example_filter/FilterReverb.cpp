@@ -31,6 +31,7 @@ protected:
   float mDelay;
   float mPower;
   AudioBuffer mLastBuf;
+  std::vector<AudioFormat> mSupportedFormats;
 
 public:
   FilterExampleReverb(int windowSize = DEFAULT_WINDOW_SIZE_USEC) : mWindowSize(windowSize), mDelay(0.0f), mPower(0.5f){
@@ -46,21 +47,20 @@ public:
       }
     };
     mCallbackId = pParams->registerCallback("filter.exampleReverb.*", callback);
+
+    for(int anEncoding = AudioFormat::ENCODING::PCM_8BIT; anEncoding < AudioFormat::ENCODING::COMPRESSED_UNKNOWN; anEncoding++){
+      for( int aChannel = AudioFormat::CHANNEL::CHANNEL_MONO; aChannel < AudioFormat::CHANNEL::CHANNEL_UNKNOWN; aChannel++){
+        mSupportedFormats.push_back( AudioFormat((AudioFormat::ENCODING)anEncoding, 48000, (AudioFormat::CHANNEL)aChannel) );
+        mSupportedFormats.push_back( AudioFormat((AudioFormat::ENCODING)anEncoding, 96000, (AudioFormat::CHANNEL)aChannel) );
+      }
+    }
   };
   virtual ~FilterExampleReverb(){
     ParameterManager* pParams = ParameterManager::getManager();
     pParams->unregisterCallback(mCallbackId);
     mCallbackId = 0;
   };
-  virtual std::vector<AudioFormat> getSupportedAudioFormats(void){
-    std::vector<AudioFormat> formats;
-    formats.push_back( AudioFormat(AudioFormat::ENCODING::PCM_8BIT) );
-    formats.push_back( AudioFormat(AudioFormat::ENCODING::PCM_16BIT) );
-    formats.push_back( AudioFormat(AudioFormat::ENCODING::PCM_24BIT_PACKED) );
-    formats.push_back( AudioFormat(AudioFormat::ENCODING::PCM_32BIT) );
-    formats.push_back( AudioFormat(AudioFormat::ENCODING::PCM_FLOAT) );
-    return formats;
-  }
+  virtual std::vector<AudioFormat> getSupportedAudioFormats(void){ return mSupportedFormats; }
 
   virtual void process16(AudioBuffer& inBuf, AudioBuffer& outBuf){
     int16_t* pRawInBuf = reinterpret_cast<int16_t*>( inBuf.getRawBufferPointer() );

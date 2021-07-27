@@ -46,18 +46,21 @@ int main(int argc, char **argv)
   options.push_back( OptParse::OptParseItem("-c", "--channel", true, "2", "Set channel 2, 2.1, 4, 4.1, 5, 5.1, 5.1.2, 7.1"));
   options.push_back( OptParse::OptParseItem("-f", "--filter", true, "", "Specify filter.so (dylib)"));
   options.push_back( OptParse::OptParseItem("-p", "--parameters", true, "", "Specify parameters (filter.paramA=0.2;filter.paramB=true)"));
-  options.push_back( OptParse::OptParseItem("-i", "--input", true, "input.pcm", "Specify input(source) file"));
+  options.push_back( OptParse::OptParseItem("-i", "--input", true, "", "Specify input(source) file"));
   options.push_back( OptParse::OptParseItem("-o", "--output", true, "", "Specify output(sink) file (prioritized than -s)"));
   options.push_back( OptParse::OptParseItem("-s", "--sink", true, "", "Specify sink.so (dylib"));
+  options.push_back( OptParse::OptParseItem("-u", "--source", true, "", "Specify source.so (dylib"));
 
   std::filesystem::path fdkPath = argv[0];
   OptParse optParser( argc, argv, options, std::string("Filter executor e.g. ")+std::string(fdkPath.filename())+std::string(" -f lib/filter-plugin/libfilter_example.so") );
 
+  SourceManager* pSourceManager = nullptr;
   SinkManager* pSinkManager = nullptr;
   FilterManager* pFilterManager = nullptr;
 
   std::shared_ptr<IPipe> pPipe = std::make_shared<Pipe>();
 
+  // set up filter
   if( !optParser.values["-f"].empty() ){
     FilterManager::setPlugInPath(optParser.values["-f"]);
     pFilterManager = FilterManager::getInstance();
@@ -71,19 +74,37 @@ int main(int argc, char **argv)
     }
   }
 
+  // set up audio format
   AudioFormat format = getAudioFormatFromOpts( optParser.values["-e"], optParser.values["-r"], optParser.values["-c"] );
   std::cout << "Specified audio format : " << format.toString() << std::endl;
 
+  // set up source
   std::shared_ptr<ISource> pSource;
-  if( !std::filesystem::exists( optParser.values["-i"] ) ){
-    pSource = std::make_shared<PcmSource>();
-  } else {
+  if( std::filesystem::exists( optParser.values["-i"] ) ){
     std::shared_ptr<FileStream> pStream = std::make_shared<FileStream>(optParser.values["-i"]);
     pSource = std::make_shared<StreamSource>(format, pStream);
+  } else {
+    if( !optParser.values["-u"].empty() ){
+      SourceManager::setPlugInPath(optParser.values["-u"]);
+      pSourceManager = SourceManager::getInstance();
+      pSourceManager->initialize();
+
+      std::vector<std::string> plugInIds = pSourceManager->getPlugInIds();
+      for(auto& aPlugInId : plugInIds){
+        pSource = std::dynamic_pointer_cast<ISource>( pSourceManager->getPlugIn( aPlugInId ) );
+        if( pSource ){
+          break;
+        }
+      }
+    }
+    if( !pSource ){
+      pSource = std::make_shared<PcmSource>();
+    }
   }
   pSource->setAudioFormat( format );
   pPipe->attachSource( pSource );
 
+  // set up sink
   std::shared_ptr<ISink> pSink;
   if( !optParser.values["-o"].empty() ){
     std::shared_ptr<FileStream> pStream = std::make_shared<FileStream>(optParser.values["-o"]);
@@ -109,6 +130,7 @@ int main(int argc, char **argv)
   pSink->setAudioFormat( format );
   pPipe->attachSink( pSink );
 
+  // set up parameter
   ParameterManager* pParams = ParameterManager::getManager();
   if( !optParser.values["-p"].ends_with(";") ){
     optParser.values["-p"] = optParser.values["-p"] + ";";
@@ -121,19 +143,24 @@ int main(int argc, char **argv)
     }
   }
 
+  // dump the setup-ed pipe, source, filter, sink
   pPipe->dump();
 
+  // execute the pipe
   pPipe->run();
   std::this_thread::sleep_for(std::chrono::microseconds(1000));
   pPipe->stop();
 
+  // dump the pipe execution result
   pSink->dump();
 
+  // finalize
   pPipe->clearFilters(); // IMPORTANT: Before FilterManager's terminate(), all of references are needed to clear.
   pPipe.reset();
 
   if( pFilterManager ) pFilterManager->terminate();
   if( pSinkManager ) pSinkManager->terminate();
+  if( pSourceManager ) pSourceManager->terminate();
 
   return 0;
 }

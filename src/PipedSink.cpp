@@ -111,6 +111,15 @@ AudioFormat PipedSink::getAudioFormat(void)
   return AudioFormat();
 }
 
+std::vector<AudioFormat> PipedSink::getSupportedAudioFormats(void)
+{
+  if( mpSink ){
+    return mpSink->getSupportedAudioFormats();
+  }
+  return std::vector<AudioFormat>();
+}
+
+
 void PipedSink::addFilterToHead(std::shared_ptr<IFilter> pFilter)
 {
   if( mpPipe ){

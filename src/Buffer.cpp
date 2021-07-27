@@ -14,8 +14,10 @@
    limitations under the License.
 */
 
-#include <cstring>
 #include "Buffer.hpp"
+#include <cstring>
+#include <cassert>
+
 
 AudioSample::AudioSample(AudioFormat format, ByteBuffer buf) : mFormat(format), mBuf(buf)
 {

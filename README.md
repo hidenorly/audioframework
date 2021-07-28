@@ -204,12 +204,12 @@ $ make -j 4; ./bin/afw_test;
 | ```make afw``` | build ```lib/libafw.a``` for static link library |
 | ```make afwshared``` | build ```lib/libafw.so``` (or ```.dylib```) for dynamic link library |
 | ```make test``` | build test case executable (```bin/test_with_afwlib```) (```libafw.a``` required) |
-| ```make testshared``` | build (```bin/test_with_afwlib_so```) (```lib/libafw.so(.dylib)``` required) |
-| ```make fdk``` | build (```bin/fdk_exec```) (```lib/libafw.so(.dylib)``` required) |
-| ```make filterexample``` | build (```lib/filter-plugin/libfilter_example.so(.dylib)```) (```lib/libafw.so(.dylib)``` required) |
-| ```make sourceexample``` | build (```lib/source-plugin/libfilter_example.so(.dylib)```) (```lib/libafw.so(.dylib)``` required) |
-| ```make sinkexample``` | build (```lib/sink-plugin/libfilter_example.so(.dylib)```) (```lib/libafw.so(.dylib)``` required) |
-| ```make codecexample``` | build (```lib/codec-plugin/libfilter_example.so(.dylib)```) (```lib/libafw.so(.dylib)``` required) |
+| ```make testshared``` | build ```bin/test_with_afwlib_so``` (```lib/libafw.so(.dylib)``` required) |
+| ```make fdk``` | build ```bin/fdk_exec``` (```lib/libafw.so(.dylib)``` required) |
+| ```make filterexample``` | build ```lib/filter-plugin/libfilter_example.so(.dylib)``` (```lib/libafw.so(.dylib)``` required) |
+| ```make sourceexample``` | build ```lib/source-plugin/libfilter_example.so(.dylib)``` (```lib/libafw.so(.dylib)``` required) |
+| ```make sinkexample``` | build ```lib/sink-plugin/libfilter_example.so(.dylib)``` (```lib/libafw.so(.dylib)``` required) |
+| ```make codecexample``` | build ```lib/codec-plugin/libfilter_example.so(.dylib)``` (```lib/libafw.so(.dylib)``` required) |
 
 * If you want to use dynamic library based development, the following is expected make and execution sequence.
 ```

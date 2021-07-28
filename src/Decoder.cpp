@@ -64,6 +64,11 @@ void IDecoder::process(void)
   CompressAudioBuffer esBuf( format, getEsChunkSize() );
 
   AudioBuffer outBuf;
+  for( auto& pInterPipe : mpInterPipeBridges ){
+    outBuf.setAudioFormat( pInterPipe->getAudioFormat() );
+    break;
+  }
+
   while( mbIsRunning && mpSource && !mpInterPipeBridges.empty() ){
     mpSource->read( esBuf );
     doProcess( esBuf, outBuf );

@@ -300,6 +300,24 @@ TEST_F(TestCase_System, testSinkPlugInManager)
   pManager->terminate();
 }
 
+TEST_F(TestCase_System, testCodecPlugInManager)
+{
+  MediaCodecManager::setPlugInPath("lib/codec-plugin");
+  MediaCodecManager* pManager = MediaCodecManager::getInstance();
+  pManager->initialize();
+
+  std::vector<std::string> plugInIds = pManager->getPlugInIds();
+  for(auto& aPlugInId : plugInIds){
+    EXPECT_TRUE( pManager->hasPlugIn( aPlugInId ) );
+    EXPECT_NE( nullptr, pManager->getPlugIn( aPlugInId ) );
+    std::shared_ptr<IMediaCodec> pSink = MediaCodecManager::newInstanceById( aPlugInId );
+    EXPECT_NE( nullptr, pSink );
+  }
+  EXPECT_FALSE( MediaCodecManager::newInstanceById( "hogehogehoge" ) );
+
+  pManager->terminate();
+}
+
 TEST_F(TestCase_System, testResourceManager)
 {
   CpuResourceManager::admin_setResource(1000);

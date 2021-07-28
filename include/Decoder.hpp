@@ -23,8 +23,6 @@
 #include "Source.hpp"
 #include <memory>
 
-class IDecoder;
-
 class IDecoder : public IMediaCodec
 {
 protected:

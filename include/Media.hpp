@@ -24,6 +24,7 @@
 #include "InterPipeBridge.hpp"
 #include "ThreadBase.hpp"
 #include "ResourceManager.hpp"
+#include "PlugInManager.hpp"
 
 class MediaParam
 {
@@ -46,7 +47,7 @@ public:
 
 class IMediaCodec;
 
-class IMediaCodec : public ThreadBase, public IResourceConsumer
+class IMediaCodec : public ThreadBase, public IResourceConsumer, public IPlugIn
 {
 protected:
   std::vector<std::shared_ptr<InterPipeBridge>> mpInterPipeBridges;
@@ -66,6 +67,13 @@ public:
   virtual AudioFormat getFormat(void) = 0;
 
   static std::shared_ptr<IMediaCodec> createByFormat(AudioFormat format, bool bDecoder = true);
+
+  virtual void onLoad(void){};
+  virtual void onUnload(void){};
+  virtual std::string getId(void){ return "IMediaCodec"; };
+  virtual std::shared_ptr<IPlugIn> newInstance(void){ return nullptr; };
 };
+
+typedef TPlugInManager<IMediaCodec> MediaCodecManager;
 
 #endif /* __MEDIA_HPP__ */

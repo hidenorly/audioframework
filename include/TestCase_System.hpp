@@ -34,6 +34,7 @@ protected:
   void testFilterPlugInManager(void);
   void testSourcePlugInManager(void);
   void testSinkPlugInManager(void);
+  void testCodecPlugInManager(void);
 
   void testResourceManager(void);
   void testResourceManager_ResourceConsumer(void);

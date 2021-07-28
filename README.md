@@ -207,6 +207,9 @@ $ make -j 4; ./bin/afw_test;
 | ```make testshared``` | build (```bin/test_with_afwlib_so```) (```lib/libafw.so(.dylib)``` required) |
 | ```make fdk``` | build (```bin/fdk_exec```) (```lib/libafw.so(.dylib)``` required) |
 | ```make filterexample``` | build (```lib/filter-plugin/libfilter_example.so(.dylib)```) (```lib/libafw.so(.dylib)``` required) |
+| ```make sourceexample``` | build (```lib/source-plugin/libfilter_example.so(.dylib)```) (```lib/libafw.so(.dylib)``` required) |
+| ```make sinkexample``` | build (```lib/sink-plugin/libfilter_example.so(.dylib)```) (```lib/libafw.so(.dylib)``` required) |
+| ```make codecexample``` | build (```lib/codec-plugin/libfilter_example.so(.dylib)```) (```lib/libafw.so(.dylib)``` required) |
 
 * If you want to use dynamic library based development, the following is expected make and execution sequence.
 ```
@@ -226,13 +229,33 @@ $ ./bin/fdk_exec -f lib/filter-plugin/libfilter_example.so
 * Build
   * [done] Separate test and afw in Makefile
   * [done] Support -j option
-  * [] Filter, Source, Sink development kit
+  * [done] Filter, Source, Sink, Codec development kit
     * [done] filter development kit (fdk/)
-    * [done] filter example (filter_example/)
     ```
-    $ make afwshared fdk filterexample -j 4
+    $ make afwshared -j4 # this required once
+    $ make fdk -j 4  # this required once
+    ```
+    * [done] filter example (example_filter/)
+    ```
+    $ make filterexample -j 4
     $ bin/fdk_exec -f lib/filter-plugin -p "filter.exampleReverb.power=1;filter.exampleReverb.delay=5"
     ```
+    * [done] source example (example_source/)
+    ```
+    $ make sourceexample -j 4
+    $ bin/fdk_exec -u lib/source-plugin
+    ```
+    * [done] sink example (example_source/)
+    ```
+    $ make sinkexample -j 4
+    $ bin/fdk_exec -s lib/sink-plugin
+    ```
+    * [done] codec example (example_codec/) (decoder)
+    ```
+    $ make codecexample -j 4
+    $ bin/fdk_exec -d lib/codec-plugin -i esdata
+    ```
+    Note that specifying -i is required to test decoder plug-in since decoder require CompressedBuffer, not AudioBuffer(=PCM buffer) instance.
 
 * Filter example
   * [done] Add reverb with ParameterManager (FilterReverb in TestCase_Common)

@@ -20,10 +20,12 @@ FDK_DIR=./fdk
 EXF_DIR=./example_filter
 EXI_DIR=./example_source
 EXO_DIR=./example_sink
+EXC_DIR=./example_codec
 LIB_DIR=./lib
 LIB_FILTER_DIR=$(LIB_DIR)/filter-plugin
 LIB_SOURCE_DIR=$(LIB_DIR)/source-plugin
 LIB_SINK_DIR=$(LIB_DIR)/sink-plugin
+LIB_CODEC_DIR=$(LIB_DIR)/codec-plugin
 BIN_DIR=./bin
 OBJ_DIR=./out
 
@@ -37,6 +39,7 @@ FDK_SRCS = $(wildcard $(FDK_DIR)/*.cpp)
 FEX_SRCS = $(wildcard $(EXF_DIR)/*.cpp)
 EXI_SRCS = $(wildcard $(EXI_DIR)/*.cpp)
 EXO_SRCS = $(wildcard $(EXO_DIR)/*.cpp)
+EXC_SRCS = $(wildcard $(EXC_DIR)/*.cpp)
 
 # --- the object files config --------------
 AFW_OBJS = $(addprefix $(OBJ_DIR)/, $(notdir $(AFW_SRCS:.cpp=.o)))
@@ -46,6 +49,7 @@ FDK_OBJS = $(addprefix $(OBJ_DIR)/, $(notdir $(FDK_SRCS:.cpp=.o)))
 FEX_OBJS = $(addprefix $(OBJ_DIR)/, $(notdir $(FEX_SRCS:.cpp=.o)))
 EXI_OBJS = $(addprefix $(OBJ_DIR)/, $(notdir $(EXI_SRCS:.cpp=.o)))
 EXO_OBJS = $(addprefix $(OBJ_DIR)/, $(notdir $(EXO_SRCS:.cpp=.o)))
+EXC_OBJS = $(addprefix $(OBJ_DIR)/, $(notdir $(EXC_SRCS:.cpp=.o)))
 
 # --- build gtest (integrated) --------
 INTEG_TARGET = $(BIN_DIR)/afw_test
@@ -235,6 +239,31 @@ $(EXO_OBJS): $(EXO_SRCS)
 
 -include $(EXO_DEPS)
 
+# --- Build for codec example(shared) ------------
+UNAME := $(shell uname -s)
+ifeq ($(UNAME),Linux)
+	EXC_SO_TARGET = $(LIB_CODEC_DIR)/libcodec_example.so
+	SHARED_CXXFLAGS= -fPIC -shared
+endif
+ifeq ($(UNAME),Darwin)
+	EXC_SO_TARGET = $(LIB_CODEC_DIR)/libcodec_example.dylib
+	SHARED_CXXFLAGS= -flat_namespace -dynamiclib
+endif
+EXC_DEPS = $(EXC_OBJS:.o=.d)
+
+codecexample: $(EXC_SO_TARGET)
+.PHONY: codecexample
+
+$(EXC_SO_TARGET): $(EXC_OBJS)
+	@[ -d $(LIB_DIR) ] || mkdir -p $(LIB_DIR)
+	@[ -d $(LIB_CODEC_DIR) ] || mkdir -p $(LIB_CODEC_DIR)
+	$(CXX) $(LDFLAGS) $(EXC_OBJS) $(SHARED_CXXFLAGS) -o $@ $(LDLIBS) $(AFW_SO_TARGET)
+
+$(EXC_OBJS): $(EXC_SRCS)
+	@[ -d $(OBJ_DIR) ] || mkdir -p $(OBJ_DIR)
+	$(CXX) $(CXXFLAGS) -I $(INC_DIR) -c $(EXC_DIR)/$(notdir $(@:.o=.cpp)) -o $@
+
+-include $(EXC_DEPS)
 
 # --- clean up ------------------------
 clean:

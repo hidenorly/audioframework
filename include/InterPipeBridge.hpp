@@ -38,6 +38,7 @@ protected:
 public:
   InterPipeBridge(AudioFormat format = AudioFormat());
   virtual ~InterPipeBridge(){ mFifoBuffer.unlock(); };
+  virtual bool isAvailableFormat(AudioFormat format){ return true; };
 
   virtual void dump(void){};
   virtual std::string toString(void){return "InterPipeBridge";};

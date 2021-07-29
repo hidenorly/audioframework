@@ -185,6 +185,6 @@ void PcmFormatConvert::convertFloatToPcm32(float* pSrc, uint32_t* pDst, int nSam
 {
   for(int i=0; i<nSamples; i++){
 //    *pDst++ = (uint32_t)( ((*pSrc++)+1.0f) * (1<<31) - 1 );
-    *pDst++ = (uint32_t)(int32_t)( std::max<float>((float)INT32_MIN, std::min<float>( (float)((*pSrc++) * INT32_MAX), (float)INT32_MAX ) ) );
+    *pDst++ = (uint32_t)(int32_t)( std::max<float>((float)INT32_MIN, std::min<float>( (float)((*pSrc++) * (float)INT32_MAX), (float)INT32_MAX ) ) );
   }
 }

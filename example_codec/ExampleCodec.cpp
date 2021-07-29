@@ -41,6 +41,7 @@ public:
     outBuf.setRawBuffer(inBuf.getRawBuffer());
   }
   virtual AudioFormat getFormat(void){ return mFormat; };
+  virtual bool canHandle(AudioFormat format){ return true; }; // since this is null decoder. actual codec shouldn't override this and should report correct supported format in getFormat()
 
   virtual std::string toString(void){ return "CodecExampleNullDecoder"; };
 

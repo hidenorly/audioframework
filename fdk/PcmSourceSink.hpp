@@ -92,6 +92,8 @@ public:
     return true;
   };
 
+  virtual bool isAvailableFormat(AudioFormat format){ return format.isEncodingPcm(); };
+
   virtual std::vector<AudioFormat> getSupportedAudioFormats(void){
     std::vector<AudioFormat> formats;
     formats.push_back(mFormat);
@@ -121,6 +123,8 @@ public:
     setAudioFormatPrimitive(format);
     return true;
   };
+
+  virtual bool isAvailableFormat(AudioFormat format){ return format.isEncodingPcm(); };
 
   virtual AudioFormat getAudioFormat(void){ return mFormat; };
 

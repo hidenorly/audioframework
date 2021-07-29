@@ -285,6 +285,7 @@ $ ./bin/fdk_exec -f lib/filter-plugin/libfilter_example.so
       * [done] encoder only case
       * [done] decoder+encoder only case
       * [done] PCM format conversion case
+  * [] Add SinkExample actually playback on PC
 * Source
   * [done] StreamSource : input from the stream
   * [done] Add get latency
@@ -294,6 +295,7 @@ $ ./bin/fdk_exec -f lib/filter-plugin/libfilter_example.so
     * [done] Delay Adjustment between Source and Reference Sound Sink
     * [done] Add tiny AEC filter & implement in the AEC-ed Source
   * [done] Add SourceExample : Sin curve source
+  * [] Add SourceExample actually capture on PC
 * Util
   * [done] PCM encoding converter
   * [done] Sampling rate converter
@@ -312,11 +314,13 @@ $ ./bin/fdk_exec -f lib/filter-plugin/libfilter_example.so
   * Plug-in
     * [done] Plug-in manager
     * [done] Filter Plug-in manager
-      * Create example filter plug-in
+      * [done] Create example filter plug-in
     * [done]Sink Plug-in manager
     * [done]Source Plug-in manager
-    * Strategy Plug-in manager
-    * Util impl. plug-in : SRC, Encoding, Channel, Mixer, Volume
+    * [done]Codec Plug-in manager
+      * [] create codec by audioformat for plug-in
+    * []Strategy Plug-in manager
+    * []Util impl. plug-in : SRC, Encoding, Channel, Mixer, Volume
 * ResourceManager
   * [done] CPU resource manager
     * [done] ResourceConsumer with ResourceManager

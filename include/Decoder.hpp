@@ -38,7 +38,11 @@ public:
   virtual std::shared_ptr<ISource> allocateSourceAdaptor(void);
   virtual void releaseSourceAdaptor(std::shared_ptr<ISource> pSource);
 
-  static std::shared_ptr<IMediaCodec> createByFormat(AudioFormat format, bool bDecoder = true);
+  virtual bool isDecoder(void){ return true; };
+
+  static std::shared_ptr<IMediaCodec> createByFormat(AudioFormat format, bool bDecoder = true){
+    return IMediaCodec::createByFormat(format, bDecoder);
+  }
 };
 
 class NullDecoder : public IDecoder

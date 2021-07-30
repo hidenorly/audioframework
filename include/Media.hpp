@@ -65,6 +65,8 @@ public:
   virtual int getEsChunkSize(void) = 0;
   virtual void doProcess(IAudioBuffer& inBuf, IAudioBuffer& outBuf) = 0;
   virtual AudioFormat getFormat(void) = 0;
+  virtual bool canHandle(AudioFormat format){ return format.equal( getFormat() ); };
+  virtual bool isDecoder(void) = 0;
 
   static std::shared_ptr<IMediaCodec> createByFormat(AudioFormat format, bool bDecoder = true);
 

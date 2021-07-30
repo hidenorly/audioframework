@@ -54,5 +54,21 @@ int64_t IMediaCodec::getPosition(void)
 
 std::shared_ptr<IMediaCodec> IMediaCodec::createByFormat(AudioFormat format, bool bDecoder)
 {
-  return bDecoder ? IDecoder::createByFormat(format) : IEncoder::createByFormat(format);
+  std::shared_ptr<IMediaCodec> result;
+
+  MediaCodecManager* pManager = MediaCodecManager::getInstance();
+  std::vector<std::string> plugInIds = pManager->getPlugInIds();
+  for(auto& aPlugInId : plugInIds){
+    std::shared_ptr<IMediaCodec> pCodec = std::dynamic_pointer_cast<IMediaCodec>( pManager->getPlugIn( aPlugInId ) );
+    if( pCodec && ( pCodec->isDecoder() == bDecoder ) && pCodec->canHandle( format ) ){
+      result = std::dynamic_pointer_cast<IMediaCodec>( pCodec->newInstance() );
+      break;
+    }
+  }
+
+  if( !result ){
+    result = bDecoder ? std::dynamic_pointer_cast<IMediaCodec>( std::make_shared<NullDecoder>() ) : std::dynamic_pointer_cast<IMediaCodec>( std::make_shared<NullEncoder>() );
+  }
+
+  return result;
 }

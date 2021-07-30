@@ -40,8 +40,11 @@ public:
   virtual std::shared_ptr<ISink> detachSink(void);
 
   virtual int getRequiredSamples(void) = 0;
+  virtual bool isDecoder(void){ return false; };
 
-  static std::shared_ptr<IMediaCodec> createByFormat(AudioFormat format, bool bDecoder = false);
+  static std::shared_ptr<IMediaCodec> createByFormat(AudioFormat format, bool bDecoder = false){
+    return IMediaCodec::createByFormat(format, bDecoder);
+  }
 };
 
 class NullEncoder : public IEncoder

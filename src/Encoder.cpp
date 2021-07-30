@@ -80,13 +80,6 @@ void IEncoder::process(void)
   }
 }
 
-std::shared_ptr<IMediaCodec> IEncoder::createByFormat(AudioFormat format, bool bDecoder)
-{
-  // TODO get instance from EncoderManager with the format
-  return std::make_shared<NullEncoder>(format);
-}
-
-
 NullEncoder::NullEncoder(AudioFormat format):IEncoder(),mFormat(format)
 {
 

@@ -40,6 +40,7 @@ public:
   virtual std::string toString(void){ return "ExampleSpeakerSink";};
   virtual std::vector<AudioFormat> getSupportedAudioFormats(void){ return mSupportedFormats; }
   virtual AudioFormat getAudioFormat(void){ return mpBuf->getAudioFormat(); };
+  virtual bool isAvailableFormat(AudioFormat format){ return format.isEncodingPcm(); };
 
 protected:
   virtual void setAudioFormatPrimitive(AudioFormat format){

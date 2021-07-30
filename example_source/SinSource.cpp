@@ -36,6 +36,7 @@ public:
   };
   virtual ~SourceExampleSin(){};
   virtual std::vector<AudioFormat> getSupportedAudioFormats(void){ return mSupportedFormats; };
+  virtual bool isAvailableFormat(AudioFormat format){ return format.isEncodingPcm(); };
 
 protected:
   virtual void readPrimitive(IAudioBuffer& buf){

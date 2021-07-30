@@ -61,6 +61,7 @@ public:
     mCallbackId = 0;
   };
   virtual std::vector<AudioFormat> getSupportedAudioFormats(void){ return mSupportedFormats; }
+  virtual bool isAvailableFormat(AudioFormat format){ return format.isEncodingPcm(); };
 
   virtual void process16(AudioBuffer& inBuf, AudioBuffer& outBuf){
     int16_t* pRawInBuf = reinterpret_cast<int16_t*>( inBuf.getRawBufferPointer() );

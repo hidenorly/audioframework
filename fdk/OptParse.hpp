@@ -16,6 +16,8 @@
 
 #include <iostream>
 #include <string>
+#include <algorithm>
+#include "StringUtil.hpp"
 
 class OptParse
 {
@@ -82,10 +84,18 @@ protected:
     return bFound;
   }
 
+
 public:
   virtual void printHelp(std::vector<OptParseItem>& options){
+    int nOptionMax = 0;
+    int nFullOptionMax = 0;
+
     for( auto& anOption : options ){
-      std::cout << "\t" << anOption.option << "\t" << anOption.fullOption << "\t: " << anOption.description << std::endl;
+      nOptionMax = std::max( nOptionMax, (int)anOption.option.size() );
+      nFullOptionMax = std::max( nFullOptionMax, (int)anOption.fullOption.size() );
+    }
+    for( auto& anOption : options ){
+      std::cout << "  " << StringUtil::ljust(anOption.option, nOptionMax) << "\t" << StringUtil::ljust(anOption.fullOption, nFullOptionMax) << " : " << anOption.description << std::endl;
     }
     exit(0);
   };

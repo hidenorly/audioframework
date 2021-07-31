@@ -70,9 +70,9 @@ int main(int argc, char **argv)
   options.push_back( OptParse::OptParseItem("-p", "--parameters", true, "", "Specify parameters (filter.paramA=0.2;filter.paramB=true)"));
   options.push_back( OptParse::OptParseItem("-i", "--input", true, "", "Specify input(source) file"));
   options.push_back( OptParse::OptParseItem("-o", "--output", true, "", "Specify output(sink) file (prioritized than -s)"));
-  options.push_back( OptParse::OptParseItem("-s", "--sink", true, "", "Specify sink.so (dylib"));
-  options.push_back( OptParse::OptParseItem("-u", "--source", true, "", "Specify source.so (dylib"));
-  options.push_back( OptParse::OptParseItem("-d", "--decoder", true, "", "Specify decoder.so (dylib"));
+  options.push_back( OptParse::OptParseItem("-s", "--sink", true, "", "Specify sink.so (dylib)"));
+  options.push_back( OptParse::OptParseItem("-u", "--source", true, "", "Specify source.so (dylib)"));
+  options.push_back( OptParse::OptParseItem("-d", "--decoder", true, "", "Specify decoder and input format, e.g. decoder.so,COMPRESSED_0"));
 
   std::filesystem::path fdkPath = argv[0];
   OptParse optParser( argc, argv, options, std::string("Filter executor e.g. ")+std::string(fdkPath.filename())+std::string(" -f lib/filter-plugin/libfilter_example.so") );
@@ -136,8 +136,23 @@ int main(int argc, char **argv)
 
   // setup decoder & source (remaining)
   if( !optParser.values["-d"].empty() ){
+    StringTokenizer tok( optParser.values["-d"], "," );
+    std::string plugInPath;
+    if( tok.hasNext() ){
+      plugInPath = StringUtil::trim( tok.getNext() );
+    } else {
+      plugInPath = optParser.values["-d"];
+    }
+    std::shared_ptr<AudioFormat> pDecoderSourceFormat;
+    if( tok.hasNext() ){
+      pDecoderSourceFormat = std::make_shared<AudioFormat>( AudioFormat::getEncodingFromString( tok.getNext() ));
+    }
+    if( !pDecoderSourceFormat ){
+      std::make_shared<AudioFormat>( AudioFormat::ENCODING::COMPRESSED );
+    }
+    pSource->setAudioFormat( *pDecoderSourceFormat );
     std::shared_ptr<IDecoder> pDecoder;
-    MediaCodecManager::setPlugInPath(optParser.values["-d"]);
+    MediaCodecManager::setPlugInPath(plugInPath);
     pCodecManager = MediaCodecManager::getInstance();
     pCodecManager->initialize();
     std::vector<std::string> plugInIds = pCodecManager->getPlugInIds();
@@ -166,6 +181,14 @@ int main(int argc, char **argv)
         }
       };
     };
+    if( pSource == nullptr ){
+      std::cout << "Unexpected error. pSource == nullptr" << std::endl;
+      exit(-1);
+    }
+    std::cout << "Decoder source format: " << pDecoderSourceFormat->toString() << std::endl;
+    if( !pDecoder->canHandle( *pDecoderSourceFormat ) ){
+      std::cout << "Warning: " << pDecoder->toString() << ": canHandle() returns false" << std::endl;
+    }
     pDecoder->attachSource( pSource );
     std::cout << "Source for decoder:" << pSource->toString() << std::endl;
     std::shared_ptr<ISource> pSourceAdaptor = pDecoder->allocateSourceAdaptor();
@@ -199,6 +222,10 @@ int main(int argc, char **argv)
     if( !pSink ){
       pSink = std::make_shared<PcmSink>();
     }
+  }
+  if( pSink == nullptr ){
+    std::cout << "Unexpected error. pSink == nullptr" << std::endl;
+    exit(-1);
   }
   pSink->setAudioFormat( format );
   pPipe->attachSink( pSink );

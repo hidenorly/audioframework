@@ -46,7 +46,9 @@ void FifoBufferBase::setAudioFormatPrimitive( AudioFormat audioFormat )
     int nChannelSampleByte = mFormat.getChannelsSampleByte();
     int nSamples = nChannelSampleByte ? mFifoSizeLimit / nChannelSampleByte : mFifoSizeLimit;
     mFormat = audioFormat;
-    setFifoSizeLimit( nSamples );
+    if( mFifoSizeLimit ){
+      setFifoSizeLimit( nSamples );
+    }
     mBuf.clear();
   }
 }

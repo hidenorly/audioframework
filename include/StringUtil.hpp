@@ -38,6 +38,15 @@ public:
 
     return value;
   }
+
+  static std::string ljust(std::string str, int nLength)
+  {
+    std::string result = str;
+    for(int i=0, c=nLength-str.size(); i<c; i++){
+      result += " ";
+    }
+    return result;
+  }
 };
 
 

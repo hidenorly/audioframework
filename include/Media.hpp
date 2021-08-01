@@ -73,6 +73,7 @@ public:
   virtual void onLoad(void){};
   virtual void onUnload(void){};
   virtual std::string getId(void){ return "IMediaCodec"; };
+  virtual std::string toString(void){ return getId(); };
   virtual std::shared_ptr<IPlugIn> newInstance(void){ return nullptr; };
 };
 

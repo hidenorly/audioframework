@@ -71,6 +71,7 @@ protected:
   std::string mPlugInPath;
 
   bool loadPlugIn(std::string path);
+  virtual void _setPlugInPath(std::string path){ mPlugInPath = path; };
 
 public:
   IPlugInManager(std::string path = ".");
@@ -88,6 +89,9 @@ public:
   // for PlugIn implementor APIs
   virtual std::string registerPlugIn(std::shared_ptr<IPlugIn> pPlugIn);
   virtual void unregisterPlugIn(std::string plugInId);
+
+  // for debug
+  virtual void dump(void);
 };
 
 template <class IFCLASS> class TPlugInManager : public IPlugInManager
@@ -108,6 +112,9 @@ public:
 
   static void setPlugInPath(std::string path){
     mPlugInPath = path;
+    if( mpManager ){
+      mpManager->_setPlugInPath( path );
+    }
   }
 
   static TPlugInManager* getInstance(void){

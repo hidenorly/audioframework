@@ -17,6 +17,7 @@
 #include "Media.hpp"
 #include "Decoder.hpp"
 #include "Encoder.hpp"
+#include <iostream>
 
 IMediaCodec::IMediaCodec() : ThreadBase(), IResourceConsumer()
 {
@@ -67,6 +68,7 @@ std::shared_ptr<IMediaCodec> IMediaCodec::createByFormat(AudioFormat format, boo
   }
 
   if( !result ){
+    std::cout << "Not found specified format handle-able codec in the plug-in." << std::endl;
     result = bDecoder ? std::dynamic_pointer_cast<IMediaCodec>( std::make_shared<NullDecoder>() ) : std::dynamic_pointer_cast<IMediaCodec>( std::make_shared<NullEncoder>() );
   }
 

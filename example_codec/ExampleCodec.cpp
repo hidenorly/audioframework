@@ -41,10 +41,9 @@ public:
     outBuf.setRawBuffer(inBuf.getRawBuffer());
   }
   virtual AudioFormat getFormat(void){ return mFormat; };
-  virtual bool canHandle(AudioFormat format){ return true; }; // since this is null decoder. actual codec shouldn't override this and should report correct supported format in getFormat()
+  virtual bool canHandle(AudioFormat format){ return format.isEncodingCompressed(); }; // since this is null decoder. actual codec shouldn't override this and should report correct supported format in getFormat()
 
   virtual std::string toString(void){ return "CodecExampleNullDecoder"; };
-
 
   /* @desc initialize at loading the filter plug-in shared object such as .so */
   virtual void onLoad(void){

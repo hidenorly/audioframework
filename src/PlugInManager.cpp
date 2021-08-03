@@ -169,3 +169,12 @@ void IPlugInManager::unregisterPlugIn(std::string plugInId)
     }
   }
 }
+
+// for debug
+void IPlugInManager::dump(void)
+{
+  std::cout << "plug-in path: " << mPlugInPath << std::endl;
+  for(auto& [plugInId, pPlugIn] : mPlugIns ){
+    std::cout << "plug-in [" << plugInId << "]=" << (long)pPlugIn.get() << std::endl;
+  }
+}

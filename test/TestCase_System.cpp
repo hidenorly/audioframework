@@ -241,6 +241,8 @@ TEST_F(TestCase_System, testPlugInManager)
     EXPECT_TRUE( pPlugInManager->hasPlugIn( aPlugInId ) );
     EXPECT_NE( nullptr, pPlugInManager->getPlugIn( aPlugInId ) );
   }
+  pPlugInManager->dump();
+
   EXPECT_FALSE( pPlugInManager->hasPlugIn( "hogehogehoge" ) );
 
   pPlugInManager->terminate();
@@ -259,6 +261,8 @@ TEST_F(TestCase_System, testFilterPlugInManager)
     std::shared_ptr<IFilter> pFilter = FilterManager::newInstanceById( aPlugInId );
     EXPECT_NE( nullptr, pFilter );
   }
+  pManager->dump();
+
   EXPECT_FALSE( FilterManager::newInstanceById( "hogehogehoge" ) );
 
   pManager->terminate();
@@ -277,6 +281,8 @@ TEST_F(TestCase_System, testSourcePlugInManager)
     std::shared_ptr<ISource> pSource = SourceManager::newInstanceById( aPlugInId );
     EXPECT_NE( nullptr, pSource );
   }
+  pManager->dump();
+
   EXPECT_FALSE( SourceManager::newInstanceById( "hogehogehoge" ) );
 
   pManager->terminate();
@@ -295,6 +301,8 @@ TEST_F(TestCase_System, testSinkPlugInManager)
     std::shared_ptr<ISink> pSink = SinkManager::newInstanceById( aPlugInId );
     EXPECT_NE( nullptr, pSink );
   }
+  pManager->dump();
+
   EXPECT_FALSE( SinkManager::newInstanceById( "hogehogehoge" ) );
 
   pManager->terminate();
@@ -302,7 +310,8 @@ TEST_F(TestCase_System, testSinkPlugInManager)
 
 TEST_F(TestCase_System, testCodecPlugInManager)
 {
-  MediaCodecManager::setPlugInPath("lib/codec-plugin");
+  std::string codecPath = "lib/codec-plugin";
+  MediaCodecManager::setPlugInPath(codecPath);
   MediaCodecManager* pManager = MediaCodecManager::getInstance();
   pManager->initialize();
 
@@ -310,10 +319,30 @@ TEST_F(TestCase_System, testCodecPlugInManager)
   for(auto& aPlugInId : plugInIds){
     EXPECT_TRUE( pManager->hasPlugIn( aPlugInId ) );
     EXPECT_NE( nullptr, pManager->getPlugIn( aPlugInId ) );
-    std::shared_ptr<IMediaCodec> pSink = MediaCodecManager::newInstanceById( aPlugInId );
-    EXPECT_NE( nullptr, pSink );
+    std::shared_ptr<IMediaCodec> pCodec = MediaCodecManager::newInstanceById( aPlugInId );
+    EXPECT_NE( nullptr, pCodec );
   }
   EXPECT_FALSE( MediaCodecManager::newInstanceById( "hogehogehoge" ) );
+
+  pManager->dump();
+
+#if __linux__
+  std::string exampleCodecPath = codecPath + "/libcodec_example.so";
+/* end of __linux */
+#elif __APPLE__
+  std::string exampleCodecPath = codecPath + "/libcodec_example.dylib";
+#else
+// for the others
+  std::string exampleCodecPath = codecPath;
+#endif
+  if( std::filesystem::exists(exampleCodecPath) ){
+    std::shared_ptr<IMediaCodec> pCodec = IMediaCodec::createByFormat( AudioFormat(AudioFormat::ENCODING::COMPRESSED) );
+    EXPECT_NE( pCodec, nullptr );
+    if( pCodec ){
+      EXPECT_EQ( pCodec->getId(), "CodecExampleNullDecoder" );
+      EXPECT_EQ( pCodec->toString(), "CodecExampleNullDecoder" );
+    }
+  }
 
   pManager->terminate();
 }

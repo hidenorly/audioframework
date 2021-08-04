@@ -3,10 +3,12 @@ UNAME := $(shell uname -s)
 ifeq ($(UNAME),Linux)
 	CXX=ccache clang++
 	LDLIBS=-ldl
+	SHARED_CXXFLAGS= -fPIC -shared
 endif
 ifeq ($(UNAME),Darwin)
 	CXX=ccache clang++
 	LDLIBS=-stdlib=libc++
+	SHARED_CXXFLAGS= -flat_namespace -dynamiclib
 endif
 
 CXXFLAGS=-std=c++2a -MMD -MP -Wall
@@ -100,11 +102,9 @@ $(AFW_TARGET): $(AFW_OBJS)
 UNAME := $(shell uname -s)
 ifeq ($(UNAME),Linux)
 	AFW_SO_TARGET = $(LIB_DIR)/libafw.so
-	SHARED_CXXFLAGS= -fPIC -shared
 endif
 ifeq ($(UNAME),Darwin)
 	AFW_SO_TARGET = $(LIB_DIR)/libafw.dylib
-	SHARED_CXXFLAGS= -flat_namespace -dynamiclib
 endif
 
 afwshared: $(AFW_SO_TARGET)
@@ -164,11 +164,9 @@ $(FDK_OBJS): $(FDK_SRCS)
 UNAME := $(shell uname -s)
 ifeq ($(UNAME),Linux)
 	FEX_SO_TARGET = $(LIB_FILTER_DIR)/libfilter_example.so
-	SHARED_CXXFLAGS= -fPIC -shared
 endif
 ifeq ($(UNAME),Darwin)
 	FEX_SO_TARGET = $(LIB_FILTER_DIR)/libfilter_example.dylib
-	SHARED_CXXFLAGS= -flat_namespace -dynamiclib
 endif
 FDK_DEPS = $(FEX_OBJS:.o=.d)
 
@@ -191,11 +189,9 @@ $(FEX_OBJS): $(FEX_SRCS)
 UNAME := $(shell uname -s)
 ifeq ($(UNAME),Linux)
 	EXI_SO_TARGET = $(LIB_SOURCE_DIR)/libsource_example.so
-	SHARED_CXXFLAGS= -fPIC -shared
 endif
 ifeq ($(UNAME),Darwin)
 	EXI_SO_TARGET = $(LIB_SOURCE_DIR)/libsource_example.dylib
-	SHARED_CXXFLAGS= -flat_namespace -dynamiclib
 endif
 EXI_DEPS = $(EXI_OBJS:.o=.d)
 
@@ -217,11 +213,9 @@ $(EXI_OBJS): $(EXI_SRCS)
 UNAME := $(shell uname -s)
 ifeq ($(UNAME),Linux)
 	EXO_SO_TARGET = $(LIB_SINK_DIR)/libsink_example.so
-	SHARED_CXXFLAGS= -fPIC -shared
 endif
 ifeq ($(UNAME),Darwin)
 	EXO_SO_TARGET = $(LIB_SINK_DIR)/libsink_example.dylib
-	SHARED_CXXFLAGS= -flat_namespace -dynamiclib
 endif
 EXO_DEPS = $(EXO_OBJS:.o=.d)
 
@@ -243,11 +237,9 @@ $(EXO_OBJS): $(EXO_SRCS)
 UNAME := $(shell uname -s)
 ifeq ($(UNAME),Linux)
 	EXC_SO_TARGET = $(LIB_CODEC_DIR)/libcodec_example.so
-	SHARED_CXXFLAGS= -fPIC -shared
 endif
 ifeq ($(UNAME),Darwin)
 	EXC_SO_TARGET = $(LIB_CODEC_DIR)/libcodec_example.dylib
-	SHARED_CXXFLAGS= -flat_namespace -dynamiclib
 endif
 EXC_DEPS = $(EXC_OBJS:.o=.d)
 
@@ -264,6 +256,9 @@ $(EXC_OBJS): $(EXC_SRCS)
 	$(CXX) $(CXXFLAGS) -I $(INC_DIR) -c $(EXC_DIR)/$(notdir $(@:.o=.cpp)) -o $@
 
 -include $(EXC_DEPS)
+
+.PHONY: all
+all: $(AFW_TARGET) $(AFW_SO_TARGET) $(TEST_TARGET) $(TEST_SHARED_TARGET) $(INTEG_TARGET) $(FDK_TARGET) $(FEX_SO_TARGET) $(EXI_SO_TARGET) $(EXO_SO_TARGET) $(EXC_SO_TARGET)
 
 # --- clean up ------------------------
 clean:

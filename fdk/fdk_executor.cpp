@@ -73,6 +73,7 @@ int main(int argc, char **argv)
   options.push_back( OptParse::OptParseItem("-s", "--sink", true, "", "Specify sink.so (dylib)"));
   options.push_back( OptParse::OptParseItem("-u", "--source", true, "", "Specify source.so (dylib)"));
   options.push_back( OptParse::OptParseItem("-d", "--decoder", true, "", "Specify decoder and input format, e.g. decoder.so,COMPRESSED_0"));
+  options.push_back( OptParse::OptParseItem("-t", "--threadduration", true, "1000", "Specify execution time (usec), e.g. 1000"));
 
   std::filesystem::path fdkPath = argv[0];
   OptParse optParser( argc, argv, options, std::string("Filter executor e.g. ")+std::string(fdkPath.filename())+std::string(" -f lib/filter-plugin/libfilter_example.so") );
@@ -248,7 +249,8 @@ int main(int argc, char **argv)
 
   // execute the pipe
   pPipe->run();
-  std::this_thread::sleep_for(std::chrono::microseconds(1000));
+  int nExecLatency = std::stoi( optParser.values["-t"] );
+  std::this_thread::sleep_for(std::chrono::microseconds(nExecLatency));
   pPipe->stop();
 
   // dump the pipe execution result

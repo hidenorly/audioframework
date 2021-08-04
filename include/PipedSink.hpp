@@ -53,6 +53,7 @@ public:
 
   virtual AudioFormat getAudioFormat(void);
   virtual std::vector<AudioFormat> getSupportedAudioFormats(void);
+  virtual bool isAvailableFormat(AudioFormat format);
 
   virtual int stateResourceConsumption(void);
 };

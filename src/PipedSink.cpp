@@ -119,6 +119,14 @@ std::vector<AudioFormat> PipedSink::getSupportedAudioFormats(void)
   return std::vector<AudioFormat>();
 }
 
+bool PipedSink::isAvailableFormat(AudioFormat format)
+{
+  bool result = false;
+  if( mpSink ){
+    result = mpSink->isAvailableFormat(format);
+  }
+  return result;
+};
 
 void PipedSink::addFilterToHead(std::shared_ptr<IFilter> pFilter)
 {

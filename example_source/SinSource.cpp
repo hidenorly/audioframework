@@ -93,21 +93,21 @@ protected:
 public:
   virtual std::string toString(void){ return "SourceExampleSin"; };
 
-  /* @desc initialize at loading the filter plug-in shared object such as .so */
+  /* @desc initialize at loading the source plug-in shared object such as .so */
   virtual void onLoad(void){
     std::cout << "onLoad" << std::endl;
   }
-  /* @desc uninitialize at unloading the filter plug-in shared object such as .so */
+  /* @desc uninitialize at unloading the source plug-in shared object such as .so */
   virtual void onUnload(void){
     std::cout << "onUnload" << std::endl;
   }
-  /* @desc report your filter plug-in's unique id
+  /* @desc report the source plug-in's unique id
      @return unique plug-in id. may use uuid. */
   virtual std::string getId(void){
     return std::string("SourceExampleSin");
   }
   /* @desc this is expected to use by strategy
-     @return new YourFilter()'s result */
+     @return new instance of this class's result */
   virtual std::shared_ptr<IPlugIn> newInstance(void){
     return std::make_shared<SourceExampleSin>();
   }

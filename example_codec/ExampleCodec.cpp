@@ -45,21 +45,21 @@ public:
 
   virtual std::string toString(void){ return "CodecExampleNullDecoder"; };
 
-  /* @desc initialize at loading the filter plug-in shared object such as .so */
+  /* @desc initialize at loading the codec plug-in shared object such as .so */
   virtual void onLoad(void){
     std::cout << "onLoad" << std::endl;
   }
-  /* @desc uninitialize at unloading the filter plug-in shared object such as .so */
+  /* @desc uninitialize at unloading the codec plug-in shared object such as .so */
   virtual void onUnload(void){
     std::cout << "onUnload" << std::endl;
   }
-  /* @desc report your filter plug-in's unique id
+  /* @desc report the codec plug-in's unique id
      @return unique plug-in id. may use uuid. */
   virtual std::string getId(void){
     return std::string("CodecExampleNullDecoder");
   }
   /* @desc this is expected to use by strategy
-     @return new YourFilter()'s result */
+     @return new instance of this class result */
   virtual std::shared_ptr<IPlugIn> newInstance(void){
     return std::make_shared<CodecExampleNullDecoder>();
   }

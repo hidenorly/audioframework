@@ -73,6 +73,7 @@ int main(int argc, char **argv)
   options.push_back( OptParse::OptParseItem("-s", "--sink", true, "", "Specify sink.so (dylib)"));
   options.push_back( OptParse::OptParseItem("-u", "--source", true, "", "Specify source.so (dylib)"));
   options.push_back( OptParse::OptParseItem("-d", "--decoder", true, "", "Specify decoder and input format, e.g. decoder.so,COMPRESSED_0"));
+  options.push_back( OptParse::OptParseItem("-m", "--decoderparam", true, "", "Specify parameters (decoder.paramA=0.2;decoder.paramB=true)"));
   options.push_back( OptParse::OptParseItem("-t", "--threadduration", true, "1000", "Specify execution time (usec), e.g. 1000"));
 
   std::filesystem::path fdkPath = argv[0];
@@ -139,17 +140,17 @@ int main(int argc, char **argv)
   if( !optParser.values["-d"].empty() ){
     StringTokenizer tok( optParser.values["-d"], "," );
     std::string plugInPath;
+    std::shared_ptr<AudioFormat> pDecoderSourceFormat;
     if( tok.hasNext() ){
       plugInPath = StringUtil::trim( tok.getNext() );
+      if( tok.hasNext() ){
+        pDecoderSourceFormat = std::make_shared<AudioFormat>( AudioFormat::getEncodingFromString( tok.getNext() ));
+      }
     } else {
       plugInPath = optParser.values["-d"];
     }
-    std::shared_ptr<AudioFormat> pDecoderSourceFormat;
-    if( tok.hasNext() ){
-      pDecoderSourceFormat = std::make_shared<AudioFormat>( AudioFormat::getEncodingFromString( tok.getNext() ));
-    }
     if( !pDecoderSourceFormat ){
-      std::make_shared<AudioFormat>( AudioFormat::ENCODING::COMPRESSED );
+      pDecoderSourceFormat = std::make_shared<AudioFormat>( AudioFormat::ENCODING::COMPRESSED );
     }
     pSource->setAudioFormat( *pDecoderSourceFormat );
     std::shared_ptr<IDecoder> pDecoder;
@@ -162,6 +163,10 @@ int main(int argc, char **argv)
       if( pDecoder ){
         break;
       }
+    }
+    if( !pDecoder ){
+      std::cout << "No valid decoder found" << std::endl;
+      exit(-1);
     }
     class PipeRunnerListener : public ThreadBase::RunnerListener
     {
@@ -197,6 +202,18 @@ int main(int argc, char **argv)
     pPipe->attachSource( pSourceAdaptor );
     pPipeRunnerListener = std::make_shared<PipeRunnerListener>( pDecoder );
     pPipe->registerRunnerStatusListener( pPipeRunnerListener );
+
+    // setup codec parameter
+    StringTokenizer token( optParser.values["-m"], ";" );
+    while( token.hasNext() ){
+      StringTokenizer aParam( token.getNext(), "=" );
+      while( aParam.hasNext() ){
+        std::string key = aParam.getNext();
+        if( aParam.hasNext() ){
+          pDecoder->configure( MediaParam( key, aParam.getNext() ) );
+        }
+      }
+    }
   } else {
     pPipe->attachSource( pSource );
   }
@@ -233,9 +250,6 @@ int main(int argc, char **argv)
 
   // setup parameter
   ParameterManager* pParams = ParameterManager::getManager();
-  if( !optParser.values["-p"].ends_with(";") ){
-    optParser.values["-p"] = optParser.values["-p"] + ";";
-  }
   StringTokenizer token( optParser.values["-p"], ";" );
   while( token.hasNext() ){
     StringTokenizer aParam( token.getNext(), "=" );

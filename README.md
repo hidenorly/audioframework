@@ -253,7 +253,8 @@ $ ./bin/fdk_exec -f lib/filter-plugin/libfilter_example.so
     * [done] codec example (example_codec/) (decoder)
     ```
     $ make codecexample -j 4
-    $ bin/fdk_exec -d lib/codec-plugin -i esdata
+    $ bin/fdk_exec -d lib/codec-plugin -i esdata.dat
+    $ bin/fdk_exec -d lib/codec-plugin/libcodec_example.dylib,COMPRESSED_0 -i esdata.dat
     ```
     Note that specifying -i is required to test decoder plug-in since decoder require CompressedBuffer, not AudioBuffer(=PCM buffer) instance.
 

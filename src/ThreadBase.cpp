@@ -44,9 +44,9 @@ void ThreadBase::unlockToStop(void)
 
 void ThreadBase::stop(void)
 {
-  mMutexThread.lock();
   if( mbIsRunning ){
     mbIsRunning = false;
+    mMutexThread.lock();
     while( mpThread ){
       unlockToStop();
       std::this_thread::sleep_for(std::chrono::microseconds(100));
@@ -55,10 +55,9 @@ void ThreadBase::stop(void)
         delete mpThread;
         mpThread = nullptr;
       }
+    mMutexThread.unlock();
     }
   }
-  mMutexThread.unlock();
-
   notifyRunnerStatusChanged();
 }
 

@@ -72,6 +72,8 @@ protected:
   void testFilterExample32(void);
 
   void testSinSource(void);
+
+  void testPipePerformace(void);
 };
 
 #endif /* __TESTCASE_PIPEANDFILTER_HPP__ */

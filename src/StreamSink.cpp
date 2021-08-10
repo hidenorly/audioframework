@@ -54,7 +54,7 @@ void StreamSink::writePrimitive(IAudioBuffer& buf)
       *pBuf = dstAudioBuffer;
     }
  
-    ByteBuffer outStreamBuf( buf.getRawBuffer().size() );
+    ByteBuffer outStreamBuf( buf.getRawBufferSize() );
     serialize( buf, outStreamBuf );
 
     mpStream->write( outStreamBuf );

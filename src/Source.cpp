@@ -36,15 +36,15 @@ void ISource::read(IAudioBuffer& buf)
     if( nSamples ){
       mLatencyUsec = 1000000 * nSamples / format.getSamplingRate();
     }
-    mSourcePosition += (mLatencyUsec ? mLatencyUsec : buf.getRawBuffer().size());
+    mSourcePosition += (mLatencyUsec ? mLatencyUsec : buf.getRawBufferSize());
   } else {
-    mSourcePosition += buf.getRawBuffer().size();
+    mSourcePosition += buf.getRawBufferSize();
   }
   if( !getMuteEnabled() ){
     readPrimitive(buf);
   } else if ( getUseZeroEnabledInMute() ) {
     // mute enabled && use zero enabled
-    ByteBuffer rawZeroBuffer( buf.getRawBuffer().size(), 0 );
+    ByteBuffer rawZeroBuffer( buf.getRawBufferSize(), 0 );
     buf.setRawBuffer( rawZeroBuffer );
   }
 }
@@ -77,7 +77,7 @@ Source::~Source()
 
 void Source::readPrimitive(IAudioBuffer& buf)
 {
-  int nSize = buf.getRawBuffer().size();
+  int nSize = buf.getRawBufferSize();
   ByteBuffer bufZero(nSize, 0);
   int16_t* ptr = reinterpret_cast<int16_t*>(bufZero.data());
   for(int i=0, c=bufZero.size()/2; i<c; i++){

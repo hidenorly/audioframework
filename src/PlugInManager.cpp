@@ -86,7 +86,7 @@ bool IPlugInManager::loadPlugIn(std::string path)
         dlclose( pNativeLibraryHandle );
       }
     } else {
-        std::cout << path << ": unabled to open" << std::endl;
+      std::cout << path << ": unabled to open" << std::endl;
     }
   }
 

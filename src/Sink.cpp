@@ -100,10 +100,10 @@ void ISink::write(IAudioBuffer& buf)
     if( nSamples ){
       mLatencyUsec = 1000000 * nSamples / format.getSamplingRate();
     }
-    mSinkPosition += (mLatencyUsec ? mLatencyUsec : buf.getRawBuffer().size());
+    mSinkPosition += (mLatencyUsec ? mLatencyUsec : buf.getRawBufferSize());
   } else {
     // CompressedAudioBuffer instance
-    mSinkPosition += buf.getRawBuffer().size();
+    mSinkPosition += buf.getRawBufferSize();
   }
   if( !getMuteEnabled() ){
     if( (!mIsPerChannelVolume && (100.0f == mVolume)) || (mIsPerChannelVolume && !Volume::isVolumeRequired(mPerChannelVolumes) ) || !pBuf ){
@@ -120,7 +120,7 @@ void ISink::write(IAudioBuffer& buf)
   } else if ( getUseZeroEnabledInMute() ) {
     // mute enabled && zero out enabled
     AudioBuffer zeroBuffer( format, nSamples );
-    ByteBuffer rawZeroBuffer( zeroBuffer.getRawBuffer().size(), 0 );
+    ByteBuffer rawZeroBuffer( zeroBuffer.getRawBufferSize(), 0 );
     zeroBuffer.setRawBuffer( rawZeroBuffer );
     writePrimitive( zeroBuffer );
   }

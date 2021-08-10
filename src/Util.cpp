@@ -29,7 +29,7 @@ void Util::dumpBuffer(IAudioBuffer* pBuf)
         std::endl;
       } else {
       std::cout << " format:" << format.getEncodingString() <<
-        " data size:" << (int)pBuf->getRawBuffer().size() <<
+        " data size:" << (int)pBuf->getRawBufferSize() <<
         std::endl;
       }
 

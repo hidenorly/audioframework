@@ -1266,3 +1266,99 @@ TEST_F(TestCase_PipeAndFilter, testSinSource)
   pPipe->stop();
   pPipe->detachSink()->dump();
 }
+
+TEST_F(TestCase_PipeAndFilter, testPipePerformace)
+{
+  class IPerformanceMeasurement
+  {
+  protected:
+    long mPerfCount;
+    std::chrono::high_resolution_clock::time_point mStartTime;
+  public:
+    virtual void reset(void){
+      mPerfCount = 0;
+      mStartTime = std::chrono::high_resolution_clock::now();
+    }
+    IPerformanceMeasurement(){
+      reset();
+    };
+    virtual ~IPerformanceMeasurement(){};
+    virtual void update(long count){
+      mPerfCount = count;
+    }
+    virtual void updateAdd(long count){
+      mPerfCount += count;
+    }
+    virtual std::chrono::nanoseconds getElapsedTime(void){
+       return std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now() - mStartTime);
+    }
+    virtual long getCount(void){
+      return mPerfCount;
+    }
+    virtual double getCountPerTime(void){
+      return (double)mPerfCount * 1000000000 / (double)getElapsedTime().count();
+    }
+  };
+
+  class PerfSource : public Source, public IPerformanceMeasurement
+  {
+  protected:
+    virtual void readPrimitive(IAudioBuffer& buf){
+      int nSize = buf.getRawBuffer().size();
+      ByteBuffer zeroBuf( nSize, 0 );
+      buf.setRawBuffer( zeroBuf );
+      updateAdd( nSize );
+    }
+  public:
+    PerfSource():Source(), IPerformanceMeasurement(){};
+    virtual ~PerfSource(){};
+  };
+
+  class PerfSink : public Sink, public IPerformanceMeasurement
+  {
+  protected:
+    virtual void writePrimitive(IAudioBuffer& buf){
+      int nSize = buf.getRawBuffer().size();
+      updateAdd( nSize );
+    }
+  public:
+    PerfSink():Sink(), IPerformanceMeasurement(){};
+    virtual ~PerfSink(){};
+  };
+
+  class WindowSizeFilter : public Filter
+  {
+  protected:
+    int mWindowSize;
+  public:
+    WindowSizeFilter():Filter(), mWindowSize(5000){};
+    virtual ~WindowSizeFilter(){};
+    virtual int getRequiredWindowSizeUsec(void){ return mWindowSize; };
+    virtual void setWindowSizeUsec(int uSec){ mWindowSize = uSec; };
+  };
+
+  std::shared_ptr<IPipe> pPipe = std::make_shared<Pipe>();
+  std::shared_ptr<PerfSource> pSource = std::make_shared<PerfSource>();
+  std::shared_ptr<PerfSink> pSink = std::make_shared<PerfSink>();
+  std::shared_ptr<WindowSizeFilter> pFilter = std::make_shared<WindowSizeFilter>();
+
+  pPipe->attachSource( pSource );
+  pPipe->attachSink( pSink );
+  pPipe->addFilterToTail( pFilter );
+
+  std::vector<int> testWindowSizes = {5000, 10000};
+  for(auto& aWindowSize : testWindowSizes){
+    pFilter->setWindowSizeUsec( aWindowSize );
+    std::cout << std::endl << "test window size : " << aWindowSize << " pipe's report:" << pPipe->getWindowSizeUsec() << std::endl;
+    pSource->reset();
+    pSink->reset();
+    pPipe->run();
+    std::this_thread::sleep_for(std::chrono::microseconds(1000000)); // run 1 sec!
+    pPipe->stop();
+    double sourcePerf = pSource->getCountPerTime();
+    double sinkPerf = pSink->getCountPerTime();
+    std::cout << "source performance : " << sourcePerf/1000000 << "Mbytes/second" << std::endl;
+    std::cout << "sink   performance : " << sinkPerf/1000000   << "Mbytes/second" << std::endl;
+  }
+}
+

@@ -61,6 +61,12 @@ uint8_t* AudioSample::getRawBufferPointer()
   return mBuf.data();
 }
 
+int AudioSample::getRawBufferSize()
+{
+  return mBuf.size();
+}
+
+
 IAudioBuffer::~IAudioBuffer()
 {
 
@@ -74,6 +80,11 @@ uint8_t* IAudioBuffer::getRawBufferPointer(void)
 ByteBuffer& IAudioBuffer::getRawBuffer(void)
 {
   return mBuf;
+}
+
+int IAudioBuffer::getRawBufferSize()
+{
+  return mBuf.size();
 }
 
 void IAudioBuffer::setRawBuffer(ByteBuffer& buf)

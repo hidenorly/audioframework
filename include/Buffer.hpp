@@ -57,6 +57,10 @@ public:
   /* @desc get one sample data pointer which includes all of channel data
      @return the raw bufer pointer. Note that the user must access as the AudioFormat such as encoding, channel but this is just 1 sample. */
   uint8_t* getRawBufferPointer();
+
+  /* @desc get raw buffer bytes
+     @return number of buffer of current raw buffer */
+  int getRawBufferSize();
 };
 
 /*
@@ -77,6 +81,10 @@ public:
   /* @desc get audio buffer which includes all of channel data
      @return the ByteBuffer as REFERENCE. To avoid any change for this IAudioBuffer instance, IAudioBuffer tmp; tmp=this->getRawBuffer(); Do IAudioBuffer copiedBuffer = tmp; */
   virtual ByteBuffer& getRawBuffer(void);
+
+  /* @desc get raw buffer bytes
+     @return number of buffer of current raw buffer */
+  int getRawBufferSize();
 
   /* @desc replace internal raw audio buffer
      @arg ByteBuffer instance. You must use the same AudioFormat's ByteBuffer. */

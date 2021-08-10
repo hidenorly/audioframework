@@ -75,8 +75,8 @@ bool AudioFormatAdaptor::encodingConversion(AudioBuffer& srcBuf, AudioBuffer& ds
 
   uint8_t* srcRawBuf = srcBuf.getRawBufferPointer();
   uint8_t* dstRawBuf = dstBuf.getRawBufferPointer();
-  int nSrcSamples = srcBuf.getRawBuffer().size() / nSrcSampleByte;
-  int nDstSamples = dstBuf.getRawBuffer().size() / nDstSampleByte;
+  int nSrcSamples = srcBuf.getRawBufferSize() / nSrcSampleByte;
+  int nDstSamples = dstBuf.getRawBufferSize() / nDstSampleByte;
 
   assert(nSrcSamples == nDstSamples);
 

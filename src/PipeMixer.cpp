@@ -91,7 +91,7 @@ void PipeMixer::process(void)
             }
           }
           if( bZeroData ) {
-            ByteBuffer zeroBuffer( buffers[i]->getRawBuffer().size(), 0 );
+            ByteBuffer zeroBuffer( buffers[i]->getRawBufferSize(), 0 );
             buffers[i]->setRawBuffer(zeroBuffer);
           }
         }

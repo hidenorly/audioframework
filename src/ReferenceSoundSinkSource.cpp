@@ -32,7 +32,7 @@ void ReferenceSoundSinkSource::readPrimitive(IAudioBuffer& buf)
   if( mpSink ){
     InterPipeBridge::readPrimitive( buf );
   } else {
-    ByteBuffer zeroBuf( buf.getRawBuffer().size(), 0 );
+    ByteBuffer zeroBuf( buf.getRawBufferSize(), 0 );
     buf.setRawBuffer( zeroBuf );
   }
 }

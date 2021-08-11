@@ -33,8 +33,7 @@ bool FifoBufferReadReference::readReference(IAudioBuffer& audioBuf)
   bool bResult = audioBuf.getAudioFormat().equal( mFormat );
 
   if( bResult ){
-    ByteBuffer readBuffer = audioBuf.getRawBuffer();
-    int size = readBuffer.size();
+    int size = audioBuf.getRawBufferSize();
     size = size ? size : ( mBuf.size() ? (mBuf.size() / 3) : 256 );
 
     std::atomic<bool> bReceived = false;
@@ -42,7 +41,7 @@ bool FifoBufferReadReference::readReference(IAudioBuffer& audioBuf)
       if( mBuf.size() >= size ){
         mBufMutex.lock();
         {
-          readBuffer = ByteBuffer( mBuf.begin(), mBuf.begin()+size );
+          ByteBuffer readBuffer = ByteBuffer( mBuf.begin(), mBuf.begin()+size );
           audioBuf.setRawBuffer( readBuffer );
           bReceived = true;
           if( mBuf.size() > size ){
@@ -71,7 +70,7 @@ bool FifoBufferReadReference::write(IAudioBuffer& audioBuf)
   bool bResult = audioBuf.getAudioFormat().equal( mFormat );
 
   if(  bResult ){
-    ByteBuffer extBuf = audioBuf.getRawBuffer();
+    ByteBuffer& extBuf = audioBuf.getRawBuffer();
     int nSizeExtBuf = extBuf.size();
     std::atomic<bool> bSent = false;
     while( !bSent ){
@@ -86,10 +85,16 @@ bool FifoBufferReadReference::write(IAudioBuffer& audioBuf)
       } else {
         mBufMutex.lock();
         {
+#if __USE_RESERVE__
           int newSize = nSizeExtBuf + mBuf.size();
           mBuf.reserve( newSize );
-
+#endif // __USE_RESERVE__
+#if __USE_COPY_WITH_BACKINSERTER__
           std::copy( extBuf.begin(), extBuf.end(), std::back_inserter( mBuf ) );
+#endif // __USE_COPY_WITH_BACKINSERTER__
+#if __USE_INSERT__
+          mBuf.insert( mBuf.end(), extBuf.begin(), extBuf.end() );
+#endif // __USE_INSERT__
           bSent = true;
         }
         mBufMutex.unlock();

@@ -37,9 +37,14 @@ void StreamSink::close(void)
 
 void StreamSink::serialize(IAudioBuffer& srcAudioBuf, ByteBuffer& outStreamBuf)
 {
-  ByteBuffer rawSrcBuffer = srcAudioBuf.getRawBuffer();
+  ByteBuffer& rawSrcBuffer = srcAudioBuf.getRawBuffer();
   // TODO: serialize to the expected format
+#if __USE_COPY_WITH_BACKINSERTER__
   std::copy(rawSrcBuffer.begin(), rawSrcBuffer.end(), outStreamBuf.begin());
+#endif // __USE_COPY_WITH_BACKINSERTER__
+#if __USE_INSERT__
+  outStreamBuf.insert( outStreamBuf.begin(), rawSrcBuffer.begin(), rawSrcBuffer.end() );
+#endif // __USE_INSERT__
 }
 
 

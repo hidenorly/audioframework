@@ -105,12 +105,18 @@ bool IAudioBuffer::isSameAudioFormat(IAudioBuffer& buf)
 void IAudioBuffer::append(IAudioBuffer& buf)
 {
   if( isSameAudioFormat( buf )){
-    ByteBuffer extBuf = buf.getRawBuffer();
+    ByteBuffer& extBuf = buf.getRawBuffer();
 
+#if __USE_RESERVE__
     int newSize = extBuf.size() + mBuf.size();
     mBuf.reserve( newSize );
-
+#endif // __USE_RESERVE__
+#if __USE_COPY_WITH_BACKINSERTER__
     std::copy( extBuf.begin(), extBuf.end(), std::back_inserter( mBuf ) );
+#endif // __USE_COPY_WITH_BACKINSERTER__
+#if __USE_INSERT__
+    mBuf.insert( mBuf.begin(), extBuf.begin(), extBuf.end() );
+#endif // __USE_INSERT__
   }
 }
 
@@ -269,10 +275,16 @@ void CompressAudioBuffer::setAudioFormat( AudioFormat format )
 
 void CompressAudioBuffer::append(IAudioBuffer& buf)
 {
-  ByteBuffer extBuf = buf.getRawBuffer();
+  ByteBuffer& extBuf = buf.getRawBuffer();
 
-  int newSize = extBuf.size() + mBuf.size();
-  mBuf.reserve( newSize );
-
-  std::copy( extBuf.begin(), extBuf.end(), std::back_inserter( mBuf ) );
+#if __USE_RESERVE__
+    int newSize = extBuf.size() + mBuf.size();
+    mBuf.reserve( newSize );
+#endif // __USE_RESERVE__
+#if __USE_COPY_WITH_BACKINSERTER__
+    std::copy( extBuf.begin(), extBuf.end(), std::back_inserter( mBuf ) );
+#endif // __USE_COPY_WITH_BACKINSERTER__
+#if __USE_INSERT__
+    mBuf.insert( mBuf.begin(), extBuf.begin(), extBuf.end() );
+#endif // __USE_INSERT__
 }

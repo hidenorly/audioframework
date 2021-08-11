@@ -21,6 +21,10 @@
 #include "AudioFormat.hpp"
 #include <map>
 
+#define __USE_RESERVE__ 1
+#define __USE_COPY_WITH_BACKINSERTER__ 1
+#define __USE_INSERT__ 0
+
 /*
   @desc ByteBuffer. Note that this is based on std::vector therefore vector related methods are available such as data(), size(), [] oprators.
 */

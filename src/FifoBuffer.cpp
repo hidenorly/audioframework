@@ -17,6 +17,7 @@
 #include "FifoBuffer.hpp"
 #include <iterator>
 #include <thread>
+#include <cassert>
 
 FifoBufferBase::FifoBufferBase(AudioFormat format):mFormat(format), mFifoSizeLimit(0), mReadBlocked(false), mUnlockReadBlock(false)
 {

@@ -17,6 +17,7 @@
 #include "FifoBufferReadReference.hpp"
 #include <iterator>
 #include <thread>
+#include <cassert>
 
 FifoBufferReadReference::FifoBufferReadReference(AudioFormat format) : FifoBufferBase(format)
 {

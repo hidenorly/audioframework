@@ -21,9 +21,13 @@
 #include <string>
 #include "Buffer.hpp"
 #include <memory>
+#include <mutex>
 
 class Util
 {
+protected:
+  static inline std::mutex mPrintMutex;
+
 public:
   static void dumpBuffer(std::shared_ptr<IAudioBuffer> pBuf);
   static void dumpBuffer(IAudioBuffer* pBuf);

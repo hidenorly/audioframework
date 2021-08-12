@@ -15,6 +15,16 @@
 */
 
 #include "ThreadBase.hpp"
+#include <iostream>
+
+#ifndef ENABLE_PTHREAD_CANCEL
+#define ENABLE_PTHREAD_CANCEL 1
+#endif /* ENABLE_PTHREAD_CANCEL */
+
+#if ENABLE_PTHREAD_CANCEL
+#include <pthread.h>
+#include <future>
+#endif /* ENABLE_PTHREAD_CANCEL */
 
 ThreadBase::ThreadBase():mpThread(nullptr), mbIsRunning(false), mIsPreviousRunning(false)
 {
@@ -28,6 +38,9 @@ ThreadBase::~ThreadBase()
 
 void ThreadBase::run(void)
 {
+  if( !mbIsRunning && mpThread ){
+    stop();
+  }
   mMutexThread.lock();
   if( !mbIsRunning && !mpThread ){
     mbIsRunning = true;
@@ -44,16 +57,30 @@ void ThreadBase::unlockToStop(void)
 
 void ThreadBase::stop(void)
 {
-  if( mbIsRunning ){
+  if( mpThread ){
     mbIsRunning = false;
     mMutexThread.lock();
     while( mpThread ){
       unlockToStop();
       std::this_thread::sleep_for(std::chrono::microseconds(100));
       if( mpThread->joinable() ){
+#if ENABLE_PTHREAD_CANCEL
+        auto stopper = std::async( std::launch::async, &std::thread::join, mpThread );
+        bool bJoined = true;
+        if( std::future_status::timeout == stopper.wait_for( std::chrono::microseconds(1000000) ) ){
+          pthread_cancel(mpThread->native_handle());
+          std::cout << "ThreadBase::stop():" << mpThread->get_id() << ":join() timed out. try to stop with pthread_cancel" << std::endl;
+          bJoined = false;
+        }
+        if( bJoined ){
+          delete mpThread;
+          mpThread = nullptr;
+        }
+#else
         mpThread->join();
         delete mpThread;
         mpThread = nullptr;
+#endif /* ENABLE_PTHREAD_CANCEL */
       }
     mMutexThread.unlock();
     }

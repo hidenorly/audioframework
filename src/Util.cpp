@@ -19,6 +19,7 @@
 void Util::dumpBuffer(IAudioBuffer* pBuf)
 {
   if(pBuf){
+    std::lock_guard<std::mutex> lock(Util::mPrintMutex);
     AudioFormat format = pBuf->getAudioFormat();
     AudioBuffer* pAudioBuf = dynamic_cast<AudioBuffer*>(pBuf);
     if( pAudioBuf ){

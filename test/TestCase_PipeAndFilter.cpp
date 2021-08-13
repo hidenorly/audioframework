@@ -1267,39 +1267,8 @@ TEST_F(TestCase_PipeAndFilter, testSinSource)
   pPipe->detachSink()->dump();
 }
 
-TEST_F(TestCase_PipeAndFilter, testPipePerformace)
+TEST_F(TestCase_PipeAndFilter, testPipeThroughputPerformace)
 {
-  class IPerformanceMeasurement
-  {
-  protected:
-    long mPerfCount;
-    std::chrono::high_resolution_clock::time_point mStartTime;
-  public:
-    virtual void reset(void){
-      mPerfCount = 0;
-      mStartTime = std::chrono::high_resolution_clock::now();
-    }
-    IPerformanceMeasurement(){
-      reset();
-    };
-    virtual ~IPerformanceMeasurement(){};
-    virtual void update(long count){
-      mPerfCount = count;
-    }
-    virtual void updateAdd(long count){
-      mPerfCount += count;
-    }
-    virtual std::chrono::nanoseconds getElapsedTime(void){
-       return std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now() - mStartTime);
-    }
-    virtual long getCount(void){
-      return mPerfCount;
-    }
-    virtual double getCountPerTime(void){
-      return (double)mPerfCount * 1000000000 / (double)getElapsedTime().count();
-    }
-  };
-
   class PerfSource : public Source, public IPerformanceMeasurement
   {
   protected:
@@ -1326,21 +1295,10 @@ TEST_F(TestCase_PipeAndFilter, testPipePerformace)
     virtual ~PerfSink(){};
   };
 
-  class WindowSizeFilter : public Filter
-  {
-  protected:
-    int mWindowSize;
-  public:
-    WindowSizeFilter():Filter(), mWindowSize(5000){};
-    virtual ~WindowSizeFilter(){};
-    virtual int getRequiredWindowSizeUsec(void){ return mWindowSize; };
-    virtual void setWindowSizeUsec(int uSec){ mWindowSize = uSec; };
-  };
-
   std::shared_ptr<IPipe> pPipe = std::make_shared<Pipe>();
   std::shared_ptr<PerfSource> pSource = std::make_shared<PerfSource>();
   std::shared_ptr<PerfSink> pSink = std::make_shared<PerfSink>();
-  std::shared_ptr<WindowSizeFilter> pFilter = std::make_shared<WindowSizeFilter>();
+  std::shared_ptr<WindowSizeVariableFilter> pFilter = std::make_shared<WindowSizeVariableFilter>();
 
   pPipe->attachSource( pSource );
   pPipe->attachSink( pSink );
@@ -1362,3 +1320,86 @@ TEST_F(TestCase_PipeAndFilter, testPipePerformace)
   }
 }
 
+class LatencyPerfSource : public Source, public IPerformanceMeasurement
+{
+protected:
+  bool mbFirstTime;
+  virtual void readPrimitive(IAudioBuffer& buf){
+    int nSize = buf.getRawBuffer().size();
+    ByteBuffer zeroBuf( nSize, 0 );
+    buf.setRawBuffer( zeroBuf );
+    if( !mbFirstTime ){
+      update( nSize );
+      mbFirstTime = true;
+    }
+  }
+public:
+  LatencyPerfSource():Source(), IPerformanceMeasurement(), mbFirstTime(false){};
+  virtual ~LatencyPerfSource(){};
+};
+
+class LatencyPerfSink : public Sink, public IPerformanceMeasurement
+{
+protected:
+  bool mbFirstTime;
+  virtual void writePrimitive(IAudioBuffer& buf){
+    int nSize = buf.getRawBuffer().size();
+    if( !mbFirstTime ){
+      update( nSize );
+      mbFirstTime = true;
+    }
+  }
+public:
+  LatencyPerfSink():Sink(), IPerformanceMeasurement(), mbFirstTime(false){};
+  virtual ~LatencyPerfSink(){};
+};
+
+TEST_F(TestCase_PipeAndFilter, testPipeLatencyPerformace)
+{
+  std::shared_ptr<IPipe> pPipe = std::make_shared<Pipe>();
+  std::shared_ptr<LatencyPerfSource> pSource = std::make_shared<LatencyPerfSource>();
+  std::shared_ptr<LatencyPerfSink> pSink = std::make_shared<LatencyPerfSink>();
+  std::shared_ptr<WindowSizeVariableFilter> pFilter1 = std::make_shared<WindowSizeVariableFilter>();
+  std::shared_ptr<WindowSizeVariableFilter> pFilter2 = std::make_shared<WindowSizeVariableFilter>();
+  pFilter1->setWindowSizeUsec( 5000 );
+  pFilter2->setWindowSizeUsec( 10000 );
+
+  pPipe->attachSource( pSource );
+  pPipe->attachSink( pSink );
+  pPipe->addFilterToTail( pFilter1 );
+  pPipe->addFilterToTail( pFilter2 );
+
+  std::cout << std::endl << "pipe's report:" << pPipe->getWindowSizeUsec() << std::endl;
+  pSource->reset();
+  pSink->reset();
+  pPipe->run();
+  std::this_thread::sleep_for(std::chrono::microseconds(100000)); // run 100msec
+  pPipe->stop();
+  double latency = (double)(std::chrono::duration_cast<std::chrono::nanoseconds>(pSink->getLastTime() - pSource->getLastTime()).count());
+  std::cout << "latency from Source to Sink : " << latency/1000   << "usec" << std::endl;
+}
+
+TEST_F(TestCase_PipeAndFilter, testPipeMtLatencyPerformace)
+{
+  std::shared_ptr<IPipe> pPipe = std::make_shared<PipeMultiThread>();
+  std::shared_ptr<LatencyPerfSource> pSource = std::make_shared<LatencyPerfSource>();
+  std::shared_ptr<LatencyPerfSink> pSink = std::make_shared<LatencyPerfSink>();
+  std::shared_ptr<WindowSizeVariableFilter> pFilter1 = std::make_shared<WindowSizeVariableFilter>();
+  std::shared_ptr<WindowSizeVariableFilter> pFilter2 = std::make_shared<WindowSizeVariableFilter>();
+  pFilter1->setWindowSizeUsec( 5000 );
+  pFilter2->setWindowSizeUsec( 10000 );
+
+  pPipe->attachSource( pSource );
+  pPipe->attachSink( pSink );
+  pPipe->addFilterToTail( pFilter1 );
+  pPipe->addFilterToTail( pFilter2 );
+
+  std::cout << std::endl << "pipe's report:" << pPipe->getWindowSizeUsec() << std::endl;
+  pSource->reset();
+  pSink->reset();
+  pPipe->run();
+  std::this_thread::sleep_for(std::chrono::microseconds(100000)); // run 100msec
+  pPipe->stop();
+  double latency = (double)(std::chrono::duration_cast<std::chrono::nanoseconds>(pSink->getLastTime() - pSource->getLastTime()).count());
+  std::cout << "latency from Source to Sink : " << latency/1000   << "usec" << std::endl;
+}

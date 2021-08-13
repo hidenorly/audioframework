@@ -619,4 +619,56 @@ public:
   virtual std::string toString(void){ return "FilterReverb"; };
 };
 
+class IPerformanceMeasurement
+{
+protected:
+  long mPerfCount;
+  std::chrono::high_resolution_clock::time_point mStartTime;
+  std::chrono::high_resolution_clock::time_point mLastTime;
+public:
+  virtual void reset(void){
+    mPerfCount = 0;
+    mStartTime = std::chrono::high_resolution_clock::now();
+    mLastTime = mStartTime;
+  }
+  IPerformanceMeasurement(){
+    reset();
+  };
+  virtual ~IPerformanceMeasurement(){};
+  virtual void update(long count){
+    mPerfCount = count;
+    mLastTime = std::chrono::high_resolution_clock::now();
+  }
+  virtual void updateAdd(long count){
+    mPerfCount += count;
+    mLastTime = std::chrono::high_resolution_clock::now();
+  }
+  virtual std::chrono::nanoseconds getElapsedTime(void){
+     return std::chrono::duration_cast<std::chrono::nanoseconds>(mLastTime - mStartTime);
+  }
+  virtual std::chrono::high_resolution_clock::time_point getStartTime(void){
+     return mStartTime;
+  }
+  virtual std::chrono::high_resolution_clock::time_point getLastTime(void){
+     return mLastTime;
+  }
+  virtual long getCount(void){
+    return mPerfCount;
+  }
+  virtual double getCountPerTime(void){
+    return (double)mPerfCount * 1000000000 / (double)getElapsedTime().count();
+  }
+};
+
+class WindowSizeVariableFilter : public Filter
+{
+protected:
+  int mWindowSize;
+public:
+  WindowSizeVariableFilter():Filter(), mWindowSize(5000){};
+  virtual ~WindowSizeVariableFilter(){};
+  virtual int getRequiredWindowSizeUsec(void){ return mWindowSize; };
+  virtual void setWindowSizeUsec(int uSec){ mWindowSize = uSec; };
+};
+
 #endif /* __TESTCASE_COMMON_HPP__ */

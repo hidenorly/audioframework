@@ -20,6 +20,7 @@
 #include "Buffer.hpp"
 #include <string>
 #include <fstream>
+#include <memory>
 
 /* stream I/O interface class */
 class IStream
@@ -36,7 +37,7 @@ public:
 
   /* @desc read data from stream
      @return pointer of ByteBuffer. You should delete it */
-  virtual ByteBuffer* read(void){ return nullptr; };
+  virtual std::shared_ptr<ByteBuffer> read(void){ return nullptr; };
 
   /* @desc write data to stream
      @arg buf: will be written to the stream
@@ -72,7 +73,7 @@ public:
 
   virtual bool isEndOfStream(void);
   virtual int read(ByteBuffer& buf);
-  virtual ByteBuffer* read(void);
+  virtual std::shared_ptr<ByteBuffer> read(void);
   virtual void write(ByteBuffer& buf);
   virtual bool writeLine(std::string& line);
   virtual bool readLine(std::string& line);

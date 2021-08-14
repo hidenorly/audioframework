@@ -19,14 +19,13 @@
 
 ICapture::ICapture(AudioFormat format)
 {
-  mpRefBuf = new FifoBufferReadReference( format );
+  mpRefBuf = std::make_shared<FifoBufferReadReference>( format );
 }
 
 ICapture::~ICapture()
 {
   unlock();
-  delete mpRefBuf;
-  mpRefBuf = nullptr;
+  mpRefBuf.reset();
 }
 
 void ICapture::enqueToRefBuf(IAudioBuffer& buf)
@@ -245,13 +244,13 @@ void FilterCapture::process(AudioBuffer& inBuf, AudioBuffer& outBuf)
 
 IInjector::IInjector( AudioFormat format ) : mInjectorEnabled(false)
 {
-  mpInjectorBuf = new FifoBuffer( format );
+  mpInjectorBuf = std::make_shared<FifoBuffer>( format );
 }
 
 IInjector::~IInjector()
 {
   unlock();
-  delete mpInjectorBuf; mpInjectorBuf = nullptr;
+  mpInjectorBuf.reset();
 }
 
 void IInjector::dequeFromInjectBuf(IAudioBuffer& buf)

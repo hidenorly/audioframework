@@ -38,7 +38,7 @@ public:
 class ICapture : public IUnlockable
 {
 protected:
-  FifoBufferReadReference* mpRefBuf;
+  std::shared_ptr<FifoBufferReadReference> mpRefBuf;
   void enqueToRefBuf(IAudioBuffer& buf);
   void setCaptureBufferSize(int nSamples);
 public:
@@ -53,7 +53,7 @@ public:
 class IInjector : public IUnlockable
 {
 protected:
-  FifoBuffer* mpInjectorBuf;
+  std::shared_ptr<FifoBuffer> mpInjectorBuf;
   bool mInjectorEnabled;
 
 protected:

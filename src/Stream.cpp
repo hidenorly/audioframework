@@ -60,12 +60,12 @@ int FileStream::read(ByteBuffer& buf)
   return nSize;
 }
 
-ByteBuffer* FileStream::read(void)
+std::shared_ptr<ByteBuffer> FileStream::read(void)
 {
-  ByteBuffer* buf = nullptr;
+  std::shared_ptr<ByteBuffer> buf;
 
   if( mOpened ){
-    buf = new ByteBuffer();
+    buf = std::make_shared<ByteBuffer>();
     read(*buf);
   }
 

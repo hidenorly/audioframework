@@ -251,100 +251,112 @@ TEST_F(TestCase_System, testPlugInManager)
 TEST_F(TestCase_System, testFilterPlugInManager)
 {
   FilterManager::setPlugInPath("lib/filter-plugin");
-  FilterManager* pManager = FilterManager::getInstance();
-  pManager->initialize();
+  std::weak_ptr<FilterManager> pWeakManager = FilterManager::getInstance();
+  std::shared_ptr<FilterManager> pManager = pWeakManager.lock();
+  if( pManager ){
+    pManager->initialize();
 
-  std::vector<std::string> plugInIds = pManager->getPlugInIds();
-  for(auto& aPlugInId : plugInIds){
-    EXPECT_TRUE( pManager->hasPlugIn( aPlugInId ) );
-    EXPECT_NE( nullptr, pManager->getPlugIn( aPlugInId ) );
-    std::shared_ptr<IFilter> pFilter = FilterManager::newInstanceById( aPlugInId );
-    EXPECT_NE( nullptr, pFilter );
+    std::vector<std::string> plugInIds = pManager->getPlugInIds();
+    for(auto& aPlugInId : plugInIds){
+      EXPECT_TRUE( pManager->hasPlugIn( aPlugInId ) );
+      EXPECT_NE( nullptr, pManager->getPlugIn( aPlugInId ) );
+      std::shared_ptr<IFilter> pFilter = FilterManager::newInstanceById( aPlugInId );
+      EXPECT_NE( nullptr, pFilter );
+    }
+    pManager->dump();
+
+    EXPECT_FALSE( FilterManager::newInstanceById( "hogehogehoge" ) );
+
+    pManager->terminate();
   }
-  pManager->dump();
-
-  EXPECT_FALSE( FilterManager::newInstanceById( "hogehogehoge" ) );
-
-  pManager->terminate();
 }
 
 TEST_F(TestCase_System, testSourcePlugInManager)
 {
   SourceManager::setPlugInPath("lib/source-plugin");
-  SourceManager* pManager = SourceManager::getInstance();
-  pManager->initialize();
+  std::weak_ptr<SourceManager> pWeakManager = SourceManager::getInstance();
+  std::shared_ptr<SourceManager> pManager = pWeakManager.lock();
+  if( pManager ){
+    pManager->initialize();
 
-  std::vector<std::string> plugInIds = pManager->getPlugInIds();
-  for(auto& aPlugInId : plugInIds){
-    EXPECT_TRUE( pManager->hasPlugIn( aPlugInId ) );
-    EXPECT_NE( nullptr, pManager->getPlugIn( aPlugInId ) );
-    std::shared_ptr<ISource> pSource = SourceManager::newInstanceById( aPlugInId );
-    EXPECT_NE( nullptr, pSource );
+    std::vector<std::string> plugInIds = pManager->getPlugInIds();
+    for(auto& aPlugInId : plugInIds){
+      EXPECT_TRUE( pManager->hasPlugIn( aPlugInId ) );
+      EXPECT_NE( nullptr, pManager->getPlugIn( aPlugInId ) );
+      std::shared_ptr<ISource> pSource = SourceManager::newInstanceById( aPlugInId );
+      EXPECT_NE( nullptr, pSource );
+    }
+    pManager->dump();
+
+    EXPECT_FALSE( SourceManager::newInstanceById( "hogehogehoge" ) );
+
+    pManager->terminate();
   }
-  pManager->dump();
-
-  EXPECT_FALSE( SourceManager::newInstanceById( "hogehogehoge" ) );
-
-  pManager->terminate();
 }
 
 TEST_F(TestCase_System, testSinkPlugInManager)
 {
   SinkManager::setPlugInPath("lib/sink-plugin");
-  SinkManager* pManager = SinkManager::getInstance();
-  pManager->initialize();
+  std::weak_ptr<SinkManager> pWeakManager = SinkManager::getInstance();
+  std::shared_ptr<SinkManager> pManager = pWeakManager.lock();
+  if( pManager ){
+    pManager->initialize();
 
-  std::vector<std::string> plugInIds = pManager->getPlugInIds();
-  for(auto& aPlugInId : plugInIds){
-    EXPECT_TRUE( pManager->hasPlugIn( aPlugInId ) );
-    EXPECT_NE( nullptr, pManager->getPlugIn( aPlugInId ) );
-    std::shared_ptr<ISink> pSink = SinkManager::newInstanceById( aPlugInId );
-    EXPECT_NE( nullptr, pSink );
+    std::vector<std::string> plugInIds = pManager->getPlugInIds();
+    for(auto& aPlugInId : plugInIds){
+      EXPECT_TRUE( pManager->hasPlugIn( aPlugInId ) );
+      EXPECT_NE( nullptr, pManager->getPlugIn( aPlugInId ) );
+      std::shared_ptr<ISink> pSink = SinkManager::newInstanceById( aPlugInId );
+      EXPECT_NE( nullptr, pSink );
+    }
+    pManager->dump();
+
+    EXPECT_FALSE( SinkManager::newInstanceById( "hogehogehoge" ) );
+
+    pManager->terminate();
   }
-  pManager->dump();
-
-  EXPECT_FALSE( SinkManager::newInstanceById( "hogehogehoge" ) );
-
-  pManager->terminate();
 }
 
 TEST_F(TestCase_System, testCodecPlugInManager)
 {
   std::string codecPath = "lib/codec-plugin";
   MediaCodecManager::setPlugInPath(codecPath);
-  MediaCodecManager* pManager = MediaCodecManager::getInstance();
-  pManager->initialize();
+  std::weak_ptr<MediaCodecManager> pWeakManager = MediaCodecManager::getInstance();
+  std::shared_ptr<MediaCodecManager> pManager = pWeakManager.lock();
+  if( pManager ){
+    pManager->initialize();
 
-  std::vector<std::string> plugInIds = pManager->getPlugInIds();
-  for(auto& aPlugInId : plugInIds){
-    EXPECT_TRUE( pManager->hasPlugIn( aPlugInId ) );
-    EXPECT_NE( nullptr, pManager->getPlugIn( aPlugInId ) );
-    std::shared_ptr<IMediaCodec> pCodec = MediaCodecManager::newInstanceById( aPlugInId );
-    EXPECT_NE( nullptr, pCodec );
-  }
-  EXPECT_FALSE( MediaCodecManager::newInstanceById( "hogehogehoge" ) );
+    std::vector<std::string> plugInIds = pManager->getPlugInIds();
+    for(auto& aPlugInId : plugInIds){
+      EXPECT_TRUE( pManager->hasPlugIn( aPlugInId ) );
+      EXPECT_NE( nullptr, pManager->getPlugIn( aPlugInId ) );
+      std::shared_ptr<IMediaCodec> pCodec = MediaCodecManager::newInstanceById( aPlugInId );
+      EXPECT_NE( nullptr, pCodec );
+    }
+    EXPECT_FALSE( MediaCodecManager::newInstanceById( "hogehogehoge" ) );
 
-  pManager->dump();
+    pManager->dump();
 
 #if __linux__
-  std::string exampleCodecPath = codecPath + "/libcodec_example.so";
+    std::string exampleCodecPath = codecPath + "/libcodec_example.so";
 /* end of __linux */
 #elif __APPLE__
-  std::string exampleCodecPath = codecPath + "/libcodec_example.dylib";
+    std::string exampleCodecPath = codecPath + "/libcodec_example.dylib";
 #else
-// for the others
-  std::string exampleCodecPath = codecPath;
+    // for the others
+    std::string exampleCodecPath = codecPath;
 #endif
-  if( std::filesystem::exists(exampleCodecPath) ){
-    std::shared_ptr<IMediaCodec> pCodec = IMediaCodec::createByFormat( AudioFormat(AudioFormat::ENCODING::COMPRESSED) );
-    EXPECT_NE( pCodec, nullptr );
-    if( pCodec ){
-      EXPECT_EQ( pCodec->getId(), "CodecExampleNullDecoder" );
-      EXPECT_EQ( pCodec->toString(), "CodecExampleNullDecoder" );
+    if( std::filesystem::exists(exampleCodecPath) ){
+      std::shared_ptr<IMediaCodec> pCodec = IMediaCodec::createByFormat( AudioFormat(AudioFormat::ENCODING::COMPRESSED) );
+      EXPECT_NE( pCodec, nullptr );
+      if( pCodec ){
+        EXPECT_EQ( pCodec->getId(), "CodecExampleNullDecoder" );
+        EXPECT_EQ( pCodec->toString(), "CodecExampleNullDecoder" );
+      }
     }
-  }
 
-  pManager->terminate();
+    pManager->terminate();
+  }
 }
 
 TEST_F(TestCase_System, testResourceManager)
@@ -811,42 +823,47 @@ TEST_F(TestCase_System, testStrategy)
 
 TEST_F(TestCase_System, testStreamManager)
 {
-  StreamManager* pManager = StreamManager::getInstance();
+  std::weak_ptr<StreamManager> pWeakManager = StreamManager::getInstance();
+  std::shared_ptr<StreamManager> pManager = pWeakManager.lock();
 
-  std::shared_ptr<StrategyContext> pContext = std::make_shared<StrategyContext>();
-  std::shared_ptr<IPipe> pPipe = std::make_shared<Pipe>();
+  if( pManager ){
+    std::shared_ptr<StrategyContext> pContext = std::make_shared<StrategyContext>();
+    std::shared_ptr<IPipe> pPipe = std::make_shared<Pipe>();
 
-  pManager->add( pContext, pPipe );
-  std::shared_ptr<StreamInfo> pStreamInfo = pManager->get( pContext );
+    pManager->add( pContext, pPipe );
+    std::shared_ptr<StreamInfo> pStreamInfo = pManager->get( pContext );
 
-  EXPECT_EQ( pStreamInfo->pipe, pPipe );
-  EXPECT_EQ( pStreamInfo->context, pContext );
+    EXPECT_EQ( pStreamInfo->pipe, pPipe );
+    EXPECT_EQ( pStreamInfo->context, pContext );
 
-  int id = pStreamInfo->id;
+    int id = pStreamInfo->id;
 
-  pStreamInfo.reset();
-  pStreamInfo = pManager->get( pPipe );
-  EXPECT_EQ( pStreamInfo->pipe, pPipe );
-  EXPECT_EQ( pStreamInfo->context, pContext );
+    pStreamInfo.reset();
+    pStreamInfo = pManager->get( pPipe );
+    EXPECT_EQ( pStreamInfo->pipe, pPipe );
+    EXPECT_EQ( pStreamInfo->context, pContext );
 
-  pStreamInfo.reset();
-  pStreamInfo = pManager->get( id );
-  EXPECT_EQ( pStreamInfo->pipe, pPipe );
-  EXPECT_EQ( pStreamInfo->context, pContext );
+    pStreamInfo.reset();
+    pStreamInfo = pManager->get( id );
+    EXPECT_EQ( pStreamInfo->pipe, pPipe );
+    EXPECT_EQ( pStreamInfo->context, pContext );
 
-  EXPECT_EQ( pPipe, pManager->getPipe( id ) );
-  EXPECT_EQ( pPipe, pManager->getPipe( pContext ) );
+    EXPECT_EQ( pPipe, pManager->getPipe( id ) );
+    EXPECT_EQ( pPipe, pManager->getPipe( pContext ) );
 
-  EXPECT_EQ( id, pManager->getId( pPipe ) );
-  EXPECT_EQ( id, pManager->getId( pContext ) );
+    EXPECT_EQ( id, pManager->getId( pPipe ) );
+    EXPECT_EQ( id, pManager->getId( pContext ) );
 
-  EXPECT_EQ( pContext, pManager->getContext( id ) );
-  EXPECT_EQ( pContext, pManager->getContext( pPipe ) );
+    EXPECT_EQ( pContext, pManager->getContext( id ) );
+    EXPECT_EQ( pContext, pManager->getContext( pPipe ) );
 
-  EXPECT_TRUE( pManager->remove( pStreamInfo ) );
-  pStreamInfo.reset();
-  pStreamInfo = pManager->get( pPipe );
-  EXPECT_EQ( pStreamInfo, nullptr );
+    EXPECT_TRUE( pManager->remove( pStreamInfo ) );
+    pStreamInfo.reset();
+    pStreamInfo = pManager->get( pPipe );
+    EXPECT_EQ( pStreamInfo, nullptr );
+  }
+
+  StreamManager::terminate();
 }
 
 
@@ -870,3 +887,36 @@ TEST_F(TestCase_System, testPowerManager)
   pManager->unregisterCallback( callbackId );
 }
 
+#include "Singleton.hpp"
+
+TEST_F(TestCase_System, testSingleton)
+{
+  class SingletonTest : public SingletonBase<SingletonTest>
+  {
+  public:
+    bool isWorking(void){ return true; };
+  };
+
+  std::cout << SingletonTest::getReferenceCount() << std::endl;
+  EXPECT_EQ( SingletonTest::getReferenceCount(), 0 );
+  std::weak_ptr<SingletonTest> pWeakInstance = SingletonTest::getInstance();
+  EXPECT_EQ( SingletonTest::getReferenceCount(), 1 );
+  EXPECT_EQ( pWeakInstance.expired(), false );
+  if( !pWeakInstance.expired() ){
+    std::cout << SingletonTest::getReferenceCount() << std::endl;
+    std::shared_ptr<SingletonTest> pSharedInstance = pWeakInstance.lock();
+    EXPECT_EQ( SingletonTest::getReferenceCount(), 2 );
+    std::cout << SingletonTest::getReferenceCount() << std::endl;
+    EXPECT_NE( pSharedInstance, nullptr );
+    if( pSharedInstance ){
+      EXPECT_TRUE( pSharedInstance->isWorking() );
+    }
+    pSharedInstance.reset();
+    std::cout << SingletonTest::getReferenceCount() << std::endl;
+  EXPECT_EQ( SingletonTest::getReferenceCount(), 1 );
+  }
+  SingletonTest::close();
+  std::cout << SingletonTest::getReferenceCount() << std::endl;
+  EXPECT_EQ( SingletonTest::getReferenceCount(), 0 );
+  EXPECT_EQ( pWeakInstance.expired(), true );
+}

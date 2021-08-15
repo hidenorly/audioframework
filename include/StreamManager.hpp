@@ -24,6 +24,7 @@
 #include "Sink.hpp"
 #include "Source.hpp"
 #include "Strategy.hpp"
+#include "Singleton.hpp"
 
 
 class StreamInfo
@@ -38,19 +39,15 @@ public:
 
 class StreamManager;
 
-class StreamManager
+class StreamManager : public SingletonBase<StreamManager>
 {
 protected:
   std::vector<std::shared_ptr<StreamInfo>> mStreamInfos;
   int mId;
-  static inline StreamManager* mpManager = nullptr;
-
-  StreamManager();
-  virtual ~StreamManager();
+  virtual void onInstantiate(void){ mId = 0; };
+  virtual void onFinalize(void){ clear(); };
 
 public:
-  static StreamManager* getInstance(void);
-
   std::shared_ptr<StreamInfo> get(int id);
   std::shared_ptr<StreamInfo> get(std::shared_ptr<IPipe> pPipe);
   std::shared_ptr<StreamInfo> get(std::shared_ptr<StrategyContext> pContext);

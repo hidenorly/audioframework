@@ -96,18 +96,18 @@ public:
 
 template <class IFCLASS> class TPlugInManager : public IPlugInManager
 {
-  static inline TPlugInManager* mpManager;
+  static inline std::shared_ptr<TPlugInManager> mpManager;
   static inline std::string mPlugInPath;
 
 protected:
-  TPlugInManager(): IPlugInManager( mPlugInPath ){ mpManager = this; };
-  virtual ~TPlugInManager(){};
+  TPlugInManager(): IPlugInManager( mPlugInPath ){};
 
 public:
+  virtual ~TPlugInManager(){};
+
   virtual void terminate(void){
     IPlugInManager::terminate();
-    mpManager = nullptr;
-    delete this;
+    mpManager.reset();
   }
 
   static void setPlugInPath(std::string path){
@@ -117,9 +117,9 @@ public:
     }
   }
 
-  static TPlugInManager* getInstance(void){
+  static std::weak_ptr<TPlugInManager> getInstance(void){
     if( !mpManager ){
-      mpManager = new TPlugInManager<IFCLASS>();
+      mpManager = std::shared_ptr<TPlugInManager>(new TPlugInManager());
     }
     return mpManager;
   }

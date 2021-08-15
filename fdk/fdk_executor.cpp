@@ -79,10 +79,10 @@ int main(int argc, char **argv)
   std::filesystem::path fdkPath = argv[0];
   OptParse optParser( argc, argv, options, std::string("Filter executor e.g. ")+std::string(fdkPath.filename())+std::string(" -f lib/filter-plugin/libfilter_example.so") );
 
-  SourceManager* pSourceManager = nullptr;
-  SinkManager* pSinkManager = nullptr;
-  FilterManager* pFilterManager = nullptr;
-  MediaCodecManager* pCodecManager = nullptr;
+  std::shared_ptr<SourceManager> pSourceManager;
+  std::shared_ptr<SinkManager> pSinkManager;
+  std::shared_ptr<FilterManager> pFilterManager;
+  std::shared_ptr<MediaCodecManager> pCodecManager;
   std::shared_ptr<ThreadBase::RunnerListener> pPipeRunnerListener;
 
   std::shared_ptr<IPipe> pPipe = std::make_shared<Pipe>();
@@ -91,7 +91,7 @@ int main(int argc, char **argv)
   std::shared_ptr<IFilter> pFilter;
   if( !optParser.values["-f"].empty() ){
     FilterManager::setPlugInPath(optParser.values["-f"]);
-    pFilterManager = FilterManager::getInstance();
+    pFilterManager = FilterManager::getInstance().lock();
     pFilterManager->initialize();
 
     std::vector<std::string> plugInIds = pFilterManager->getPlugInIds();
@@ -119,7 +119,7 @@ int main(int argc, char **argv)
   } else {
     if( !optParser.values["-u"].empty() ){
       SourceManager::setPlugInPath(optParser.values["-u"]);
-      pSourceManager = SourceManager::getInstance();
+      pSourceManager = SourceManager::getInstance().lock();
       pSourceManager->initialize();
 
       std::vector<std::string> plugInIds = pSourceManager->getPlugInIds();
@@ -155,7 +155,7 @@ int main(int argc, char **argv)
     pSource->setAudioFormat( *pDecoderSourceFormat );
     std::shared_ptr<IDecoder> pDecoder;
     MediaCodecManager::setPlugInPath(plugInPath);
-    pCodecManager = MediaCodecManager::getInstance();
+    pCodecManager = MediaCodecManager::getInstance().lock();
     pCodecManager->initialize();
     std::vector<std::string> plugInIds = pCodecManager->getPlugInIds();
     for(auto& aPlugInId : plugInIds){
@@ -226,7 +226,7 @@ int main(int argc, char **argv)
   } else {
     if( !optParser.values["-s"].empty() ){
       SinkManager::setPlugInPath(optParser.values["-s"]);
-      pSinkManager = SinkManager::getInstance();
+      pSinkManager = SinkManager::getInstance().lock();
       pSinkManager->initialize();
 
       std::vector<std::string> plugInIds = pSinkManager->getPlugInIds();

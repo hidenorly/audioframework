@@ -57,13 +57,16 @@ std::shared_ptr<IMediaCodec> IMediaCodec::createByFormat(AudioFormat format, boo
 {
   std::shared_ptr<IMediaCodec> result;
 
-  MediaCodecManager* pManager = MediaCodecManager::getInstance();
-  std::vector<std::string> plugInIds = pManager->getPlugInIds();
-  for(auto& aPlugInId : plugInIds){
-    std::shared_ptr<IMediaCodec> pCodec = std::dynamic_pointer_cast<IMediaCodec>( pManager->getPlugIn( aPlugInId ) );
-    if( pCodec && ( pCodec->isDecoder() == bDecoder ) && pCodec->canHandle( format ) ){
-      result = std::dynamic_pointer_cast<IMediaCodec>( pCodec->newInstance() );
-      break;
+  std::weak_ptr<MediaCodecManager> pWeakManager = MediaCodecManager::getInstance();
+  std::shared_ptr<MediaCodecManager> pManager = pWeakManager.lock();
+  if( pManager ){
+    std::vector<std::string> plugInIds = pManager->getPlugInIds();
+    for(auto& aPlugInId : plugInIds){
+      std::shared_ptr<IMediaCodec> pCodec = std::dynamic_pointer_cast<IMediaCodec>( pManager->getPlugIn( aPlugInId ) );
+      if( pCodec && ( pCodec->isDecoder() == bDecoder ) && pCodec->canHandle( format ) ){
+        result = std::dynamic_pointer_cast<IMediaCodec>( pCodec->newInstance() );
+        break;
+      }
     }
   }
 

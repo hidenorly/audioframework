@@ -17,24 +17,6 @@
 #include "StreamManager.hpp"
 
 
-StreamManager::StreamManager() : mId(0)
-{
-
-}
-
-StreamManager::~StreamManager()
-{
-  clear();
-}
-
-StreamManager* StreamManager::getInstance(void)
-{
-  if( !mpManager ){
-    mpManager = new StreamManager();
-  }
-  return mpManager;
-}
-
 std::shared_ptr<StreamInfo> StreamManager::get(int id)
 {
   std::shared_ptr<StreamInfo> pStreamInfo = nullptr;

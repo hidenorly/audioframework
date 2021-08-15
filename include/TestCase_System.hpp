@@ -48,6 +48,8 @@ protected:
   void testStreamManager(void);
 
   void testPowerManager(void);
+
+  void testSingleton(void);
 };
 
 #endif /* __TESTCASE_SYSTEM_HPP__ */

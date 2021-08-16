@@ -17,6 +17,7 @@
 #ifndef __POWER_MANAGER_HPP__
 #define __POWER_MANAGER_HPP__
 
+#include "Singleton.hpp"
 #include "Testability.hpp"
 #include <vector>
 #include <functional>
@@ -39,9 +40,15 @@ public:
   POWERSTATE getPowerState(void);
   std::string getPowerStateString(POWERSTATE powerState);
   typedef std::function<void(IPowerManager::POWERSTATE powerState)> CALLBACK;
+  class PowerChangeListener
+  {
+  public:
+    virtual void onPowerStateChanged(IPowerManager::POWERSTATE powerState) = 0;
+  };
 
 protected:
   std::vector<CALLBACK> mCallbacks;
+  std::vector<std::weak_ptr<PowerChangeListener>> mListeners;
   POWERSTATE mPowerState;
   void notifyStateChanged(POWERSTATE powerState);
 
@@ -49,9 +56,8 @@ public:
   virtual ~IPowerManager();
   virtual int registerCallback(CALLBACK callback);
   virtual void unregisterCallback(int callbackId);
-#if __AFW_TEST__
-  virtual ITestable* getTestShim(void);
-#endif /* __AFW_TEST__ */
+  virtual void registerListener(std::weak_ptr<PowerChangeListener> listener);
+  virtual bool unregisterListener(std::weak_ptr<PowerChangeListener> listener);
 };
 
 class IPowerManagerAdmin
@@ -62,20 +68,19 @@ public:
 
 class PowerManagerPrimitive;
 
-class PowerManager : public IPowerManager, public IPowerManagerAdmin
+class PowerManager : public IPowerManager, public IPowerManagerAdmin, public SingletonBase<PowerManager>
 {
 protected:
-  static inline IPowerManager* mPowerManager = nullptr;
-  static inline PowerManagerPrimitive* mPowerManagerPrimitive = nullptr;
+  static inline std::shared_ptr<PowerManagerPrimitive> mPowerManagerPrimitive;
 
-  PowerManager();
-  virtual ~PowerManager();
+  virtual void onInstantiate(void);
+  virtual void onFinalize(void);
 
 public:
-  static IPowerManager* getManager(void);
+  static std::weak_ptr<IPowerManager> getManager(void){ return getInstance(); }
   virtual void setPowerState(IPowerManager::POWERSTATE powerState);
 #if __AFW_TEST__
-  virtual ITestable* getTestShim(void);
+  virtual std::weak_ptr<ITestable> getTestShim(void);
 #endif /* __AFW_TEST__ */
 };
 

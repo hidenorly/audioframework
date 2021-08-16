@@ -39,7 +39,7 @@ protected:
 public:
 #if __AFW_TEST__
   virtual void setPowerState(IPowerManager::POWERSTATE powerState);
-  virtual ITestable* getTestShim(void);
+  virtual std::weak_ptr<ITestable> getTestShim(void);
 #endif /* __AFW_TEST__ */
 };
 

@@ -869,22 +869,37 @@ TEST_F(TestCase_System, testStreamManager)
 
 TEST_F(TestCase_System, testPowerManager)
 {
-  IPowerManager* pManager = PowerManager::getManager();
+  std::shared_ptr<IPowerManager> pManager = PowerManager::getManager().lock();
+  if( pManager ){
+    IPowerManager::CALLBACK callback = [&](IPowerManager::POWERSTATE powerState){
+      std::cout << "power state change(callback): " << pManager->getPowerStateString( powerState ) << std::endl;
+    };
+    int callbackId = pManager->registerCallback( callback );
 
-  IPowerManager::CALLBACK callback = [&](IPowerManager::POWERSTATE powerState){
-    std::cout << "power state change: " << pManager->getPowerStateString( powerState ) << std::endl;
-  };
-  int callbackId = pManager->registerCallback( callback );
+    class MyListener : public IPowerManager::PowerChangeListener
+    {
+    public:
+      MyListener(){};
+      virtual ~MyListener(){};
+      virtual void onPowerStateChanged(IPowerManager::POWERSTATE powerState){
+        std::shared_ptr<IPowerManager> pManager = PowerManager::getManager().lock();
+        std::cout << "power state change(listener): " << pManager->getPowerStateString( powerState ) << std::endl;
+      }
+    };
+    std::shared_ptr<MyListener> pListener = std::make_shared<MyListener>();
+    pManager->registerListener( pListener );
 
-  PowerManagerPrimitive* pTestShim = dynamic_cast<PowerManagerPrimitive*>( pManager->getTestShim() );
-  if( pTestShim ){
-    pTestShim->setPowerState( IPowerManager::POWERSTATE::ACTIVE );
-    pTestShim->setPowerState( IPowerManager::POWERSTATE::IDLE );
-    pTestShim->setPowerState( IPowerManager::POWERSTATE::SUSPEND );
-    pTestShim->setPowerState( IPowerManager::POWERSTATE::OFF );
+    std::shared_ptr<PowerManagerPrimitive> pTestShim = std::dynamic_pointer_cast<PowerManagerPrimitive>( pManager->getTestShim().lock() );
+    if( pTestShim ){
+      pTestShim->setPowerState( IPowerManager::POWERSTATE::ACTIVE );
+      pTestShim->setPowerState( IPowerManager::POWERSTATE::IDLE );
+      pTestShim->setPowerState( IPowerManager::POWERSTATE::SUSPEND );
+      pTestShim->setPowerState( IPowerManager::POWERSTATE::OFF );
+    }
+
+    pManager->unregisterCallback( callbackId );
+    EXPECT_TRUE( pManager->unregisterListener( pListener ) );
   }
-
-  pManager->unregisterCallback( callbackId );
 }
 
 #include "Singleton.hpp"

@@ -27,15 +27,15 @@
 // for test environement
 void PowerManagerPrimitive::setPowerState(IPowerManager::POWERSTATE powerState )
 {
-  IPowerManagerAdmin* pManager = dynamic_cast<IPowerManagerAdmin*>( PowerManager::getManager() );
+  std::shared_ptr<IPowerManagerAdmin> pManager = std::dynamic_pointer_cast<IPowerManagerAdmin>( PowerManager::getManager().lock() );
   if( pManager ){
     pManager->setPowerState( powerState );
   }
 }
 
-ITestable* PowerManagerPrimitive::getTestShim(void)
+std::weak_ptr<ITestable> PowerManagerPrimitive::getTestShim(void)
 {
- return this; 
+  return std::shared_ptr<ITestable>(nullptr); // this primitive doesn't need to return the testshim since the caller already knows this
 }
 #endif /* __AFW_TEST__ */
 

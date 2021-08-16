@@ -32,7 +32,7 @@
 class ITestable
 {
 public:
-  virtual ITestable* getTestShim(void) = 0;
+  virtual std::weak_ptr<ITestable> getTestShim(void) = 0;
 };
 
 class ICapture : public IUnlockable

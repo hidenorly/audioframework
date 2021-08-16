@@ -64,42 +64,53 @@ void IPowerManager::unregisterCallback(int callbackId)
   }
 }
 
+void IPowerManager::registerListener(std::weak_ptr<IPowerManager::PowerChangeListener> listener)
+{
+  mListeners.push_back( listener );
+}
+
+bool IPowerManager::unregisterListener(std::weak_ptr<IPowerManager::PowerChangeListener> theListener)
+{
+  bool result = false;
+
+  const auto pos = std::find_if(mListeners.begin(), mListeners.end(), [&theListener](const std::weak_ptr<IPowerManager::PowerChangeListener>& aListener) {
+    return aListener.lock() == theListener.lock();
+  });
+
+  if( pos != mListeners.end() ){
+    mListeners.erase(pos);
+    result = true;
+  }
+
+  return result;
+}
+
 void IPowerManager::notifyStateChanged(POWERSTATE powerState)
 {
   for(auto& aCallback : mCallbacks ){
     aCallback( powerState );
   }
+
+ for(auto& aListener : mListeners ){
+    std::shared_ptr<IPowerManager::PowerChangeListener> theListener = aListener.lock();
+    if( theListener ){
+      theListener->onPowerStateChanged( powerState );
+    }
+  }
 }
 
-#if __AFW_TEST__
-ITestable* IPowerManager::getTestShim(void)
+void PowerManager::onInstantiate(void)
 {
-  return this;
-}
-#endif /* __AFW_TEST__ */
-
-
-PowerManager::PowerManager():IPowerManager(), IPowerManagerAdmin()
-{
-  mPowerManagerPrimitive = new PowerManagerPrimitive();
+  mPowerManagerPrimitive = std::make_shared<PowerManagerPrimitive>();
   mPowerManagerPrimitive->initialize();
 }
 
-PowerManager::~PowerManager()
+void PowerManager::onFinalize(void)
 {
   if( mPowerManagerPrimitive ){
     mPowerManagerPrimitive->terminate();
-    delete mPowerManagerPrimitive; mPowerManagerPrimitive = nullptr;
+    mPowerManagerPrimitive.reset();
   }
-}
-
-IPowerManager* PowerManager::getManager(void)
-{
-  if( !mPowerManager ) {
-    mPowerManager = new PowerManager();
-  }
-
-  return mPowerManager;
 }
 
 void PowerManager::setPowerState(IPowerManager::POWERSTATE powerState)
@@ -109,7 +120,7 @@ void PowerManager::setPowerState(IPowerManager::POWERSTATE powerState)
 }
 
 #if __AFW_TEST__
-ITestable* PowerManager::getTestShim(void)
+std::weak_ptr<ITestable> PowerManager::getTestShim(void)
 {
   return mPowerManagerPrimitive;
 }

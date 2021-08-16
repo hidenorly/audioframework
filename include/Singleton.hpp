@@ -28,8 +28,8 @@ protected:
   SingletonBase(void) {};
   virtual ~SingletonBase(void)  = default;
 
-  virtual void onInstantiate(void) {};
-  virtual void onFinalize(void) {};
+  virtual void onInstantiate(void){};
+  virtual void onFinalize(void){};
 
 public:
   SingletonBase(const SingletonBase&)  = delete;

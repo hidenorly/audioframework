@@ -212,7 +212,7 @@ public:
     for(auto& anEncoding : encodings ){
       applyCondition = applyCondition + std::to_string((int)anEncoding) + ",";
     }
-    ParameterManager* pParams = ParameterManager::getManager();
+    std::shared_ptr<ParameterManager> pParams = ParameterManager::getManager().lock();
     pParams->setParameter(applyConditionKey, applyCondition);
   };
   VirtualizerA():Filter(){
@@ -241,7 +241,7 @@ public:
     for(auto& anEncoding : encodings ){
       applyCondition = applyCondition + std::to_string((int)anEncoding) + ",";
     }
-    ParameterManager* pParams = ParameterManager::getManager();
+    std::shared_ptr<ParameterManager> pParams = ParameterManager::getManager().lock();
     pParams->setParameter(applyConditionKey, applyCondition);
   };
   VirtualizerB():Filter(){
@@ -262,7 +262,7 @@ class VirtualizerC : public Filter
 public:
   static inline std::string applyConditionKey = "virtualizer.virtualizerC.applyCondition";
   static void ensureDefaultAssumption(void){
-    ParameterManager* pParams = ParameterManager::getManager();
+    std::shared_ptr<ParameterManager> pParams = ParameterManager::getManager().lock();
     pParams->setParameter(applyConditionKey, "*");
   };
   VirtualizerC():Filter(){
@@ -425,7 +425,7 @@ protected:
     return false;
   }
   std::shared_ptr<IFilter> getVirtualizer(AudioFormat format, std::shared_ptr<StrategyContext> context){
-    ParameterManager* pParams = ParameterManager::getManager();
+    std::shared_ptr<ParameterManager> pParams = ParameterManager::getManager().lock();
     if( shouldHandleFormat(format, pParams->getParameter(VirtualizerA::applyConditionKey) ) ){
       std::cout << "Create instance of Virtualizer A" << std::endl;
       return std::make_shared<VirtualizerA>();
@@ -453,7 +453,7 @@ public:
   virtual bool execute(std::shared_ptr<StrategyContext> pContext){
     std::shared_ptr<TunnelPlaybackContext> context = std::dynamic_pointer_cast<TunnelPlaybackContext>(pContext);
     if( context ){
-      ParameterManager* pParams = ParameterManager::getManager();
+      std::shared_ptr<ParameterManager> pParams = ParameterManager::getManager().lock();
       // ensure pipe
       if( !context->pPipe ){
         std::cout << "create Pipe instance" << std::endl;
@@ -550,7 +550,7 @@ protected:
 
 public:
   FilterReverb(int windowSize = DEFAULT_WINDOW_SIZE_USEC) : mWindowSize(windowSize), mDelay(0.0f), mPower(0.5f){
-    ParameterManager* pParams = ParameterManager::getManager();
+    std::shared_ptr<ParameterManager> pParams = ParameterManager::getManager().lock();
 
     ParameterManager::CALLBACK callback = [&](std::string key, std::string value){
       if( key == "filter.exampleReverb.delay" ){
@@ -564,7 +564,7 @@ public:
     mCallbackId = pParams->registerCallback("filter.exampleReverb.*", callback);
   };
   virtual ~FilterReverb(){
-    ParameterManager* pParams = ParameterManager::getManager();
+    std::shared_ptr<ParameterManager> pParams = ParameterManager::getManager().lock();
     pParams->unregisterCallback(mCallbackId);
     mCallbackId = 0;
   };

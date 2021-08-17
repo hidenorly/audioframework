@@ -37,11 +37,8 @@ protected:
   void testCodecPlugInManager(void);
 
   void testResourceManager(void);
-  void testResourceManager_ResourceConsumer(void);
   void testResourceManager_ResourceConsumer_SharedPtr(void);
-  void testResourceManager_Filter(void);
   void testResourceManager_Filter_SharedPtr(void);
-  void testResourceManager_Pipe(void);
   void testResourceManager_Pipe_SharedPtr(void);
 
   void testStrategy(void);

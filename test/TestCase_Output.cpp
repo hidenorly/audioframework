@@ -35,7 +35,7 @@ void TestCase_Output::TearDown()
 
 TEST_F(TestCase_Output, testPipeSetupByCondition)
 {
-  ParameterManager* pParams = ParameterManager::getManager();
+  std::shared_ptr<ParameterManager> pParams = ParameterManager::getManager().lock();
 
   VirtualizerA::ensureDefaultAssumption();
   VirtualizerB::ensureDefaultAssumption();
@@ -207,7 +207,7 @@ TEST_F(TestCase_Output, testOutputSinkSwitchCompressed)
 TEST_F(TestCase_Output, testPipeSetupAndSinkSwitch)
 {
   // init
-  ParameterManager* pParams = ParameterManager::getManager();
+  std::shared_ptr<ParameterManager> pParams = ParameterManager::getManager().lock();
 
   VirtualizerA::ensureDefaultAssumption();
   VirtualizerB::ensureDefaultAssumption();
@@ -292,7 +292,7 @@ TEST_F(TestCase_Output, testHqSpeakerSink)
   pPipe->attachSink( pSink );
   pPipe->addFilterToTail( std::make_shared<FilterReverb>() );
 
-  ParameterManager* pParams = ParameterManager::getManager();
+  std::shared_ptr<ParameterManager> pParams = ParameterManager::getManager().lock();
   pParams->setParameterFloat("filter.exampleReverb.delay", 0.0f);
   pParams->setParameterFloat("filter.exampleReverb.power", 0.0f);
 

@@ -41,7 +41,7 @@ int CpuResource::convertFromConsumptionResourceToProcessingTime(int consumptionR
   return (int)( 1000000.0f * (float)consumptionResource / (float)getComputingResource() );
 }
 
-void IResourceConsumer::storeResourceConsumptionId(int resourceId, IResourceManager* pResourceManager)
+void IResourceConsumer::storeResourceConsumptionId(int resourceId, std::weak_ptr<IResourceManager> pResourceManager)
 {
   mResourceConsumptionId = resourceId;
   mpResourceManager = pResourceManager;
@@ -56,8 +56,9 @@ int IResourceConsumer::restoreResourceConsumptionId(void)
 
 IResourceConsumer::~IResourceConsumer()
 {
-  if( mpResourceManager && (-1 != mResourceConsumptionId) ){
-    mpResourceManager->release( *this );
+  std::shared_ptr<IResourceManager> pResourceManager = mpResourceManager.lock();
+  if( pResourceManager && (-1 != mResourceConsumptionId) ){
+    pResourceManager->release( this );
   }
 }
 
@@ -68,7 +69,7 @@ bool IResourceConsumer::isResourceConsumed(void)
 
 void IResourceConsumer::clearResourceManager(void)
 {
-  mpResourceManager = nullptr;
+  mpResourceManager.reset();
 }
 
 
@@ -80,7 +81,10 @@ IResourceManager::IResourceManager(int resource) : mResource(resource), mResourc
 IResourceManager::~IResourceManager()
 {
   for( auto& aConsumer : mResourceConsumers ){
-    aConsumer->clearResourceManager();
+    auto&& pConsumer = aConsumer.lock();
+    if( pConsumer ){
+      pConsumer->clearResourceManager();
+    }
   }
 }
 
@@ -118,42 +122,38 @@ bool IResourceManager::release(int nId)
   return result;
 }
 
-bool IResourceManager::acquire(IResourceConsumer& consumer)
+bool IResourceManager::acquire(std::weak_ptr<IResourceConsumer> consumer)
 {
-  if( !consumer.isResourceConsumed() ){
-    int nResourceConsumptionId = acquire( consumer.stateResourceConsumption() ) ;
-    consumer.storeResourceConsumptionId( nResourceConsumptionId, this );
-    mResourceConsumers.push_back( &consumer );
+  std::shared_ptr<IResourceConsumer> pConsumer = consumer.lock();
+  if( pConsumer && !pConsumer->isResourceConsumed() ){
+    int nResourceConsumptionId = acquire( pConsumer->stateResourceConsumption() ) ;
+    pConsumer->storeResourceConsumptionId( nResourceConsumptionId, mpInstance );
+    mResourceConsumers.push_back( consumer );
     return (  nResourceConsumptionId != -1 );
   } else {
     return false;
   }
 }
 
-bool IResourceManager::release(IResourceConsumer& consumer)
+bool IResourceManager::release(std::weak_ptr<IResourceConsumer> consumer)
 {
-  std::erase( mResourceConsumers, &consumer );
-  return release( consumer.restoreResourceConsumptionId() );
-}
-
-bool IResourceManager::acquire(IResourceConsumer* consumer)
-{
-  return consumer ? acquire(*consumer) : false;
-}
-
-bool IResourceManager::acquire(std::shared_ptr<IResourceConsumer> consumer)
-{
-  return consumer ? acquire(*consumer) : false;
+  std::shared_ptr<IResourceConsumer> pConsumer = consumer.lock();
+  return release( pConsumer.get() );
 }
 
 bool IResourceManager::release(IResourceConsumer* consumer)
 {
-  return consumer ? release(*consumer) : false;
-}
+  if( consumer ){
+    const auto pos = std::find_if(mResourceConsumers.begin(), mResourceConsumers.end(), [&consumer](const std::weak_ptr<IResourceConsumer>& aConsumer) {
+            return aConsumer.lock().get() == consumer;
+        });
 
-bool IResourceManager::release(std::shared_ptr<IResourceConsumer> consumer)
-{
-  return consumer ? release(*consumer) : false;
+    if (pos != mResourceConsumers.end()){
+      mResourceConsumers.erase(pos);
+    }
+    return release( consumer->restoreResourceConsumptionId() );
+  }
+  return false;
 }
 
 CpuResourceManager::CpuResourceManager(int resource):IResourceManager(resource)
@@ -165,7 +165,7 @@ CpuResourceManager::~CpuResourceManager()
 {
 }
 
-IResourceManager* CpuResourceManager::getInstance(void)
+std::weak_ptr<IResourceManager> CpuResourceManager::getInstance(void)
 {
   return mpInstance;
 };
@@ -174,14 +174,12 @@ IResourceManager* CpuResourceManager::getInstance(void)
 void CpuResourceManager::admin_setResource(int resource)
 {
   if( mpInstance ){
-    delete mpInstance;
-    mpInstance = nullptr;
+    mpInstance.reset();
   }
-  mpInstance = new CpuResourceManager( resource );
+  mpInstance = std::shared_ptr<CpuResourceManager>( new CpuResourceManager( resource ) );
 }
 
 void CpuResourceManager::admin_terminate(void)
 {
-  delete mpInstance;
-  mpInstance = nullptr;
+  mpInstance.reset();
 }

@@ -35,7 +35,7 @@ void TestCase_System::TearDown()
 
 TEST_F(TestCase_System, testParameterManager)
 {
-  ParameterManager* pParams = ParameterManager::getManager();
+  std::shared_ptr<ParameterManager> pParams = ParameterManager::getManager().lock();
 
   ParameterManager::CALLBACK callbackW = [](std::string key, std::string value){
     std::cout << "callback(param*)): [" << key << "] = " << value << std::endl;
@@ -129,7 +129,7 @@ TEST_F(TestCase_System, testParameterManager)
 
 TEST_F(TestCase_System, testParameterManagerRule)
 {
-  ParameterManager* pParams = ParameterManager::getManager();
+  std::shared_ptr<ParameterManager> pParams = ParameterManager::getManager().lock();
   pParams->resetAllOfParams();
 
   // --- int, range
@@ -362,7 +362,7 @@ TEST_F(TestCase_System, testCodecPlugInManager)
 TEST_F(TestCase_System, testResourceManager)
 {
   CpuResourceManager::admin_setResource(1000);
-  IResourceManager* pResourceManager = CpuResourceManager::getInstance();
+  std::shared_ptr<IResourceManager> pResourceManager = CpuResourceManager::getInstance().lock();
   EXPECT_NE( pResourceManager, nullptr);
 
   int nResourceId1 = pResourceManager->acquire(500);
@@ -390,54 +390,6 @@ TEST_F(TestCase_System, testResourceManager)
   pResourceManager = nullptr;
 }
 
-TEST_F(TestCase_System, testResourceManager_ResourceConsumer)
-{
-  class DummyConsumer:public IResourceConsumer
-  {
-  public:
-    DummyConsumer(){};
-    virtual ~DummyConsumer(){};
-    virtual int stateResourceConsumption(void){ return 300; };
-  };
-
-  CpuResourceManager::admin_setResource(1000);
-  IResourceManager* pResourceManager = CpuResourceManager::getInstance();
-  EXPECT_NE( pResourceManager, nullptr);
-
-  DummyConsumer* consumer1 = new DummyConsumer();
-  EXPECT_TRUE( pResourceManager->acquire(consumer1) );
-  EXPECT_FALSE( pResourceManager->acquire(consumer1) );
-
-  DummyConsumer* consumer2 = new DummyConsumer();
-  EXPECT_TRUE( pResourceManager->acquire(consumer2) );
-
-  DummyConsumer* consumer3 = new DummyConsumer();
-  EXPECT_TRUE( pResourceManager->acquire(consumer3) );
-
-  DummyConsumer* consumer4 = new DummyConsumer();
-  EXPECT_FALSE( pResourceManager->acquire(consumer4) );
-
-  EXPECT_TRUE( pResourceManager->release(consumer3) );
-  EXPECT_FALSE( pResourceManager->release(consumer3) );
-  EXPECT_TRUE( pResourceManager->acquire(consumer4) );
-
-  delete consumer4; consumer4=nullptr;
-
-  DummyConsumer* consumer5 = new DummyConsumer();
-  EXPECT_TRUE( pResourceManager->acquire(consumer5) );
-  EXPECT_FALSE( pResourceManager->release(consumer4) );
-  EXPECT_FALSE( pResourceManager->release(consumer3) );
-
-  delete consumer1; consumer1=nullptr;
-  delete consumer2; consumer2=nullptr;
-
-  CpuResourceManager::admin_terminate();
-  pResourceManager = nullptr;
-
-  delete consumer3; consumer3=nullptr;
-  delete consumer5; consumer5=nullptr;
-}
-
 TEST_F(TestCase_System, testResourceManager_ResourceConsumer_SharedPtr)
 {
   class DummyConsumer:public IResourceConsumer
@@ -449,7 +401,7 @@ TEST_F(TestCase_System, testResourceManager_ResourceConsumer_SharedPtr)
   };
 
   CpuResourceManager::admin_setResource(1000);
-  IResourceManager* pResourceManager = CpuResourceManager::getInstance();
+  std::shared_ptr<IResourceManager> pResourceManager = CpuResourceManager::getInstance().lock();
   EXPECT_NE( pResourceManager, nullptr);
 
   std::shared_ptr<DummyConsumer> consumer1 = std::make_shared<DummyConsumer>();
@@ -481,56 +433,6 @@ TEST_F(TestCase_System, testResourceManager_ResourceConsumer_SharedPtr)
 
   CpuResourceManager::admin_terminate();
   pResourceManager = nullptr;
-}
-
-TEST_F(TestCase_System, testResourceManager_Filter)
-{
-  class DummyConsumer:public Filter
-  {
-  public:
-    DummyConsumer():Filter(){};
-    virtual ~DummyConsumer(){};
-    virtual int stateResourceConsumption(void){
-      return (int)((float)CpuResource::getComputingResource()/3.333f);
-    };
-  };
-
-  CpuResourceManager::admin_setResource( CpuResource::getComputingResource() );
-  IResourceManager* pResourceManager = CpuResourceManager::getInstance();
-  EXPECT_NE( pResourceManager, nullptr);
-
-  DummyConsumer* consumer1 = new DummyConsumer();
-  EXPECT_TRUE( pResourceManager->acquire(consumer1) );
-  EXPECT_FALSE( pResourceManager->acquire(consumer1) );
-
-  DummyConsumer* consumer2 = new DummyConsumer();
-  EXPECT_TRUE( pResourceManager->acquire(consumer2) );
-
-  DummyConsumer* consumer3 = new DummyConsumer();
-  EXPECT_TRUE( pResourceManager->acquire(consumer3) );
-
-  DummyConsumer* consumer4 = new DummyConsumer();
-  EXPECT_FALSE( pResourceManager->acquire(consumer4) );
-
-  EXPECT_TRUE( pResourceManager->release(consumer3) );
-  EXPECT_FALSE( pResourceManager->release(consumer3) );
-  EXPECT_TRUE( pResourceManager->acquire(consumer4) );
-
-  delete consumer4; consumer4=nullptr;
-
-  DummyConsumer* consumer5 = new DummyConsumer();
-  EXPECT_TRUE( pResourceManager->acquire(consumer5) );
-  EXPECT_FALSE( pResourceManager->release(consumer4) );
-  EXPECT_FALSE( pResourceManager->release(consumer3) );
-
-  delete consumer1; consumer1=nullptr;
-  delete consumer2; consumer2=nullptr;
-
-  CpuResourceManager::admin_terminate();
-  pResourceManager = nullptr;
-
-  delete consumer3; consumer3=nullptr;
-  delete consumer5; consumer5=nullptr;
 }
 
 TEST_F(TestCase_System, testResourceManager_Filter_SharedPtr)
@@ -546,7 +448,7 @@ TEST_F(TestCase_System, testResourceManager_Filter_SharedPtr)
   };
 
   CpuResourceManager::admin_setResource( CpuResource::getComputingResource() );
-  IResourceManager* pResourceManager = CpuResourceManager::getInstance();
+  std::shared_ptr<IResourceManager> pResourceManager = CpuResourceManager::getInstance().lock();
   EXPECT_NE( pResourceManager, nullptr);
 
   std::shared_ptr<DummyConsumer> consumer1 = std::make_shared<DummyConsumer>();
@@ -580,106 +482,6 @@ TEST_F(TestCase_System, testResourceManager_Filter_SharedPtr)
   pResourceManager = nullptr;
 }
 
-TEST_F(TestCase_System, testResourceManager_Pipe)
-{
-  class DummyFilter:public Filter
-  {
-  public:
-    DummyFilter():Filter(){};
-    virtual ~DummyFilter(){};
-    virtual int stateResourceConsumption(void){
-      return (int)((float)CpuResource::getComputingResource()/3.333f);
-    };
-  };
-
-  CpuResourceManager::admin_setResource( CpuResource::getComputingResource() );
-  IResourceManager* pResourceManager = CpuResourceManager::getInstance();
-  EXPECT_NE( pResourceManager, nullptr);
-
-  std::shared_ptr<IPipe> pPipe = std::make_shared<Pipe>();
-  pPipe->addFilterToTail( std::make_shared<DummyFilter>() );
-
-  bool bSuccessAcquiredResource = pResourceManager->acquire(pPipe);
-  EXPECT_TRUE( bSuccessAcquiredResource );
-  if( bSuccessAcquiredResource ){
-    pPipe->run();
-    pPipe->stop();
-    EXPECT_TRUE( pResourceManager->release(pPipe) );
-  }
-
-  pPipe->addFilterToTail( std::make_shared<DummyFilter>() );
-  bSuccessAcquiredResource = pResourceManager->acquire(pPipe);
-  EXPECT_TRUE( bSuccessAcquiredResource );
-  if( bSuccessAcquiredResource ){
-    pPipe->run();
-    pPipe->stop();
-    EXPECT_TRUE( pResourceManager->release(pPipe) );
-  }
-
-  pPipe->addFilterToTail( std::make_shared<DummyFilter>() );
-  bSuccessAcquiredResource = pResourceManager->acquire(pPipe);
-  EXPECT_TRUE( bSuccessAcquiredResource );
-  if( bSuccessAcquiredResource ){
-    pPipe->run();
-    pPipe->stop();
-    EXPECT_TRUE( pResourceManager->release(pPipe) );
-  }
-
-  pPipe->addFilterToTail( std::make_shared<DummyFilter>() );
-  bSuccessAcquiredResource = pResourceManager->acquire(pPipe);
-  EXPECT_FALSE( bSuccessAcquiredResource );
-  if( bSuccessAcquiredResource ){
-    pPipe->run();
-    pPipe->stop();
-    EXPECT_TRUE( pResourceManager->release(pPipe) );
-  }
-
-  pPipe->clearFilters();
-
-  pPipe = std::make_shared<PipeMultiThread>();
-  pPipe->addFilterToTail( std::make_shared<DummyFilter>() );
-
-  bSuccessAcquiredResource = pResourceManager->acquire(pPipe);
-  EXPECT_TRUE( bSuccessAcquiredResource );
-  if( bSuccessAcquiredResource ){
-    pPipe->run();
-    pPipe->stop();
-    EXPECT_TRUE( pResourceManager->release(pPipe) );
-  }
-
-  pPipe->addFilterToTail( std::make_shared<DummyFilter>() );
-  bSuccessAcquiredResource = pResourceManager->acquire(pPipe);
-  EXPECT_TRUE( bSuccessAcquiredResource );
-  if( bSuccessAcquiredResource ){
-    pPipe->run();
-    pPipe->stop();
-    EXPECT_TRUE( pResourceManager->release(pPipe) );
-  }
-
-  pPipe->addFilterToTail( std::make_shared<DummyFilter>() );
-  bSuccessAcquiredResource = pResourceManager->acquire(pPipe);
-  EXPECT_TRUE( bSuccessAcquiredResource );
-  if( bSuccessAcquiredResource ){
-    pPipe->run();
-    pPipe->stop();
-    EXPECT_TRUE( pResourceManager->release(pPipe) );
-  }
-
-  pPipe->addFilterToTail( std::make_shared<DummyFilter>() );
-  bSuccessAcquiredResource = pResourceManager->acquire(pPipe);
-  EXPECT_FALSE( bSuccessAcquiredResource );
-  if( bSuccessAcquiredResource ){
-    pPipe->run();
-    pPipe->stop();
-    EXPECT_TRUE( pResourceManager->release(pPipe) );
-  }
-
-  pPipe->clearFilters();
-  pPipe.reset();
-
-  CpuResourceManager::admin_terminate();
-  pResourceManager = nullptr;
-}
 
 TEST_F(TestCase_System, testResourceManager_Pipe_SharedPtr)
 {
@@ -694,7 +496,7 @@ TEST_F(TestCase_System, testResourceManager_Pipe_SharedPtr)
   };
 
   CpuResourceManager::admin_setResource( CpuResource::getComputingResource() );
-  IResourceManager* pResourceManager = CpuResourceManager::getInstance();
+  std::shared_ptr<IResourceManager> pResourceManager = CpuResourceManager::getInstance().lock();
   EXPECT_NE( pResourceManager, nullptr);
 
   std::shared_ptr<IPipe> pPipe = std::make_shared<Pipe>();

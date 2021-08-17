@@ -35,7 +35,7 @@ protected:
 
 public:
   FilterExampleReverb(int windowSize = DEFAULT_WINDOW_SIZE_USEC) : mWindowSize(windowSize), mDelay(0.0f), mPower(0.5f){
-    ParameterManager* pParams = ParameterManager::getManager();
+    std::shared_ptr<ParameterManager> pParams = ParameterManager::getManager().lock();
 
     ParameterManager::CALLBACK callback = [&](std::string key, std::string value){
       if( key == "filter.exampleReverb.delay" ){
@@ -56,7 +56,7 @@ public:
     }
   };
   virtual ~FilterExampleReverb(){
-    ParameterManager* pParams = ParameterManager::getManager();
+    std::shared_ptr<ParameterManager> pParams = ParameterManager::getManager().lock();
     pParams->unregisterCallback(mCallbackId);
     mCallbackId = 0;
   };

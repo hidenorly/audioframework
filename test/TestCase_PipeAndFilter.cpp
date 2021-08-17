@@ -1215,7 +1215,7 @@ TEST_F(TestCase_PipeAndFilter, testFilterExample16)
   pPipe->attachSink( pSink );
   pPipe->addFilterToTail( std::make_shared<FilterReverb>() );
 
-  ParameterManager* pParams = ParameterManager::getManager();
+  std::shared_ptr<ParameterManager> pParams = ParameterManager::getManager().lock();
   pParams->setParameterFloat("filter.exampleReverb.delay", 0.5f);
   pParams->setParameterFloat("filter.exampleReverb.power", 0.01f);
 
@@ -1236,7 +1236,7 @@ TEST_F(TestCase_PipeAndFilter, testFilterExample32)
   pPipe->attachSink( pSink );
   pPipe->addFilterToTail( std::make_shared<FilterReverb>() );
 
-  ParameterManager* pParams = ParameterManager::getManager();
+  std::shared_ptr<ParameterManager> pParams = ParameterManager::getManager().lock();
   pParams->setParameterFloat("filter.exampleReverb.delay", 0.5f);
   pParams->setParameterFloat("filter.exampleReverb.power", 0.01f);
 
@@ -1257,7 +1257,7 @@ TEST_F(TestCase_PipeAndFilter, testSinSource)
   pPipe->attachSink( pSink );
   pPipe->addFilterToTail( std::make_shared<FilterReverb>() );
 
-  ParameterManager* pParams = ParameterManager::getManager();
+  std::shared_ptr<ParameterManager> pParams = ParameterManager::getManager().lock();
   pParams->setParameterFloat("filter.exampleReverb.delay", 0.0f);
   pParams->setParameterFloat("filter.exampleReverb.power", 0.0f);
 

@@ -67,14 +67,14 @@ public:
   };
 
 protected:
-  static ParameterManager mParamManager;
+  static inline std::shared_ptr<ParameterManager> mParamManager;
   ParameterManager();
-  virtual ~ParameterManager();
   std::string trimParamString(std::string value);
 
 public:
+  virtual ~ParameterManager();
   // for all of ParameterManager users
-  static ParameterManager* getManager(void);
+  static std::weak_ptr<ParameterManager> getManager(void);
   void setParameter(std::string key, std::string value);
   void setParameterInt(std::string key, int value);
   void setParameterFloat(std::string key, float value);

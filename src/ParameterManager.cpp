@@ -22,11 +22,12 @@
 #include <string>
 
 
-ParameterManager ParameterManager::mParamManager;
-
-ParameterManager* ParameterManager::getManager(void)
+std::weak_ptr<ParameterManager> ParameterManager::getManager(void)
 {
-  return &mParamManager;
+  if( !mParamManager ){
+    mParamManager = std::shared_ptr<ParameterManager>( new ParameterManager() );
+  }
+  return mParamManager;
 }
 
 

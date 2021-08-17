@@ -249,7 +249,7 @@ int main(int argc, char **argv)
   pPipe->attachSink( pSink );
 
   // setup parameter
-  ParameterManager* pParams = ParameterManager::getManager();
+  std::shared_ptr<ParameterManager> pParams = ParameterManager::getManager().lock();
   StringTokenizer token( optParser.values["-p"], ";" );
   while( token.hasNext() ){
     StringTokenizer aParam( token.getNext(), "=" );

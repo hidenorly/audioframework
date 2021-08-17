@@ -42,15 +42,16 @@ class IResourceManager
 {
 protected:
   std::map<int, int> mResources;
-  std::vector<IResourceConsumer*> mResourceConsumers;
+  std::vector<std::weak_ptr<IResourceConsumer>> mResourceConsumers;
   std::mutex mMutexResource;
   int mResource;
   int mResourceCurrent;
   int mId;
+  static inline std::shared_ptr<IResourceManager> mpInstance;
   IResourceManager(int resource);
-  virtual ~IResourceManager();
 
 public:
+  virtual ~IResourceManager();
   /* @desc acquire computing resource
      @return acquired resource id : -1 means fail. */
   virtual int acquire(int requiredResource);
@@ -61,15 +62,12 @@ public:
   /* @desc acquire computing resource
      @arg IResourceConsumer which is implemented by ISink, ISource, IFilter instance
      @return true: success to acquire, false: fail to acquire */
-  virtual bool acquire(IResourceConsumer& consumer);
-  virtual bool acquire(IResourceConsumer* consumer);
-  virtual bool acquire(std::shared_ptr<IResourceConsumer> consumer);
+  virtual bool acquire(std::weak_ptr<IResourceConsumer> consumer);
   /* @desc release acquired resource
      @arg IResourceConsumer which is implemented by ISink, ISource, IFilter instance
      @return true: success to release, false: fail to release */
-  virtual bool release(IResourceConsumer& consumer);
+  virtual bool release(std::weak_ptr<IResourceConsumer> consumer);
   virtual bool release(IResourceConsumer* consumer);
-  virtual bool release(std::shared_ptr<IResourceConsumer> consumer);
 };
 
 class CpuResourceManager;
@@ -79,12 +77,11 @@ class CpuResourceManager : public IResourceManager
 protected:
   // Computing power as per-second (DMIPS)
   CpuResourceManager(int resource);
-  virtual ~CpuResourceManager();
-  static inline CpuResourceManager* mpInstance = nullptr;
 public:
+  virtual ~CpuResourceManager();
   /* @desc get CPU Resource Manager
      @return instance of CpuResourceManager */
-  static IResourceManager* getInstance(void);
+  static std::weak_ptr<IResourceManager> getInstance(void);
 
   /* @desc set CPU Resource Manager's resource
      @arg specify the resource value (DMIPS*1000) */
@@ -97,22 +94,22 @@ public:
 class IResourceConsumer
 {
 protected:
-  IResourceManager* mpResourceManager;
+  std::weak_ptr<IResourceManager> mpResourceManager;
   int mResourceConsumptionId;
 
-  IResourceConsumer():mpResourceManager(nullptr), mResourceConsumptionId(-1){};
-  virtual ~IResourceConsumer();
+  IResourceConsumer():mResourceConsumptionId(-1){};
 
 protected:
   friend IResourceManager;
 
   // state required computing power as per-second (DMIPS*1000) (in case of CpuResource)
-  void storeResourceConsumptionId(int resourceId, IResourceManager* pResourceManager = nullptr);
+  void storeResourceConsumptionId(int resourceId, std::weak_ptr<IResourceManager> pResourceManager);
   int restoreResourceConsumptionId(void);
   bool isResourceConsumed(void);
   void clearResourceManager(void);
 
 public:
+  virtual ~IResourceConsumer();
   /* this should be implemented in the delived class to report consuming resource for IResourceManager delived class such as CpuResourceManager */
   virtual int stateResourceConsumption(void) = 0;
 };

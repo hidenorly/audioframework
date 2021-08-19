@@ -571,7 +571,30 @@ TEST_F(TestCase_PipeAndFilter, testMixerSplitter)
   EXPECT_FALSE(pMixerSplitter->isRunning());
 
   pMixerSplitter->dump();
+}
 
+TEST_F(TestCase_PipeAndFilter, testPatchPanel)
+{
+  std::vector<std::shared_ptr<ISource>> pSources;
+    pSources.push_back( std::make_shared<Source>() );
+  std::vector<std::shared_ptr<ISink>> pSinks;
+    pSinks.push_back( std::make_shared<Sink>() );
+
+  std::cout << "createPatch" << std::endl;
+  std::shared_ptr<PatchPanel> pPatchPanel = PatchPanel::createPatch(pSources, pSinks);
+
+  std::cout << "get mixer splitter" << std::endl;
+  std::shared_ptr<MixerSplitter> pMixerSplitter = pPatchPanel->getMixerSplitter();
+  std::cout << "dump the mixer splitter" << std::endl;
+  pMixerSplitter->dump();
+  std::cout << "run the mixer splitter" << std::endl;
+  pMixerSplitter->run();
+  std::this_thread::sleep_for(std::chrono::microseconds(1000));
+  std::cout << "stop the mixer splitter" << std::endl;
+  pMixerSplitter->stop();
+  std::cout << "dump the mixer splitter" << std::endl;
+  pMixerSplitter->dump();
+  std::cout << "finalize..." << std::endl;
 }
 
 TEST_F(TestCase_PipeAndFilter, testPipedSink)

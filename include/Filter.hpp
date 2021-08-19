@@ -89,4 +89,28 @@ public:
 
 typedef TPlugInManager<FilterPlugIn> FilterManager;
 
+class PassThroughFilter : public Filter
+{
+protected:
+  std::vector<AudioFormat> mSupportedFormats;
+public:
+  PassThroughFilter(){
+    for(int anEncoding = AudioFormat::ENCODING::PCM_8BIT; anEncoding < AudioFormat::ENCODING::COMPRESSED_UNKNOWN; anEncoding++){
+      for( int aChannel = AudioFormat::CHANNEL::CHANNEL_MONO; aChannel < AudioFormat::CHANNEL::CHANNEL_UNKNOWN; aChannel++){
+        mSupportedFormats.push_back( AudioFormat((AudioFormat::ENCODING)anEncoding, 16000, (AudioFormat::CHANNEL)aChannel) );
+        mSupportedFormats.push_back( AudioFormat((AudioFormat::ENCODING)anEncoding, 22050, (AudioFormat::CHANNEL)aChannel) );
+        mSupportedFormats.push_back( AudioFormat((AudioFormat::ENCODING)anEncoding, 24000, (AudioFormat::CHANNEL)aChannel) );
+        mSupportedFormats.push_back( AudioFormat((AudioFormat::ENCODING)anEncoding, 44100, (AudioFormat::CHANNEL)aChannel) );
+        mSupportedFormats.push_back( AudioFormat((AudioFormat::ENCODING)anEncoding, 48000, (AudioFormat::CHANNEL)aChannel) );
+        mSupportedFormats.push_back( AudioFormat((AudioFormat::ENCODING)anEncoding, 96000, (AudioFormat::CHANNEL)aChannel) );
+      }
+    }
+  };
+  virtual ~PassThroughFilter(){};
+  virtual bool isAvailableFormat(AudioFormat format){ return true; };
+  virtual std::vector<AudioFormat> getSupportedAudioFormats(void){ return mSupportedFormats; };
+  virtual void process(AudioBuffer& inBuf, AudioBuffer& outBuf){ outBuf.setRawBuffer(inBuf.getRawBuffer()); };
+  virtual std::string toString(void){ return "PassThroughFilter"; };
+};
+
 #endif /* __FILTER_HPP__ */

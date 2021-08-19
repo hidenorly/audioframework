@@ -44,6 +44,7 @@ protected:
   void testPipedSource(void);
   void testPipeMixer(void);
   void testMixerSplitter(void);
+  void testPatchPanel(void);
 
   void testDecoder(void);
   void testPlayer(void);

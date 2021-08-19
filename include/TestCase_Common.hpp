@@ -35,6 +35,7 @@
 #include "StreamSource.hpp"
 #include "PipeMixer.hpp"
 #include "MixerSplitter.hpp"
+#include "PatchPanel.hpp"
 #include "PipedSink.hpp"
 #include "PipedSource.hpp"
 #include "Media.hpp"

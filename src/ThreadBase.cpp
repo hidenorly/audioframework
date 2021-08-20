@@ -126,9 +126,13 @@ void ThreadBase::registerRunnerStatusListener(std::shared_ptr<ThreadBase::Runner
 void ThreadBase::unregisterRunnerStatusListener(std::shared_ptr<ThreadBase::RunnerListener> listener)
 {
   std::weak_ptr<ThreadBase::RunnerListener> theListener(listener);
+  unregisterRunnerStatusListener(theListener.lock().get());
+}
 
+void ThreadBase::unregisterRunnerStatusListener(ThreadBase::RunnerListener* theListener)
+{
   const auto pos = std::find_if(mRunnerListerners.begin(), mRunnerListerners.end(), [&theListener](const std::weak_ptr<ThreadBase::RunnerListener>& aListener) {
-          return aListener.lock() == theListener.lock();
+          return aListener.lock().get() == theListener;
       });
 
   if (pos != mRunnerListerners.end()){

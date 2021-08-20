@@ -25,9 +25,14 @@ PatchPanel::PatchPanel()
 PatchPanel::~PatchPanel()
 {
   if( mMixerSplitter ) {
-    mMixerSplitter->stop();
+    mMixerSplitter->stop(); // pipes should be stopped by onRunnerStatusChanged.
+    mMixerSplitter->unregisterRunnerStatusListener(this);
   }
-  mPipes.clear(); // these pipes should be stopped by onRunnerStatusChanged.
+  // just in case
+  for( auto& [aSource, aPipe] : mPipes ){
+    aPipe->stop();
+  }
+  mPipes.clear(); 
   mMixerSplitter.reset();
 }
 
@@ -41,7 +46,6 @@ void PatchPanel::onRunnerStatusChanged(bool bRunning)
     }
   }
 }
-
 
 std::shared_ptr<MixerSplitter> PatchPanel::getMixerSplitter(void)
 {
@@ -62,13 +66,71 @@ std::shared_ptr<PatchPanel> PatchPanel::createPatch(std::vector<std::shared_ptr<
 {
   std::shared_ptr<PatchPanel> pPatchPanel = std::shared_ptr<PatchPanel>( new PatchPanel() );
   std::shared_ptr<MixerSplitter> pMixerSplitter = pPatchPanel->getMixerSplitter();
+  pPatchPanel->updatePatch( pSources, pSinks );
+  pMixerSplitter->registerRunnerStatusListener( pPatchPanel );
+  return pPatchPanel;
+}
 
-  for( auto& pSink : pSinks ){
+void PatchPanel::getDeltaSink(std::vector<std::shared_ptr<ISink>> pCurrent, std::vector<std::shared_ptr<ISink>> pNext, std::vector<std::shared_ptr<ISink>>& pOutAdded, std::vector<std::shared_ptr<ISink>>& pOutRemoved)
+{
+  pOutAdded = pNext;
+  for( auto& pSink : pCurrent ){
+    std::erase( pOutAdded, pSink );
+  }
+  pOutRemoved = pCurrent;
+  for( auto& pSink : pNext ){
+    std::erase( pOutRemoved, pSink );
+  }
+}
+
+void PatchPanel::getDeltaSource(std::vector<std::shared_ptr<ISink>> pCurrent, std::vector<std::shared_ptr<ISource>> pNext, std::vector<std::shared_ptr<ISource>>& pOutAdded, std::vector<std::shared_ptr<ISink>>& pOutRemoved)
+{
+  pOutAdded = pNext;
+  for( auto& pSink : pCurrent ){
+    for( auto& [aSource, aPipe] : mPipes ){
+      if( aPipe && pSink == aPipe->getSinkRef() ){
+        std::erase( pOutAdded, aSource );
+      }
+    }
+  }
+  pOutRemoved = pCurrent;
+  for( auto& pSource : pNext ){
+    if( mPipes.contains( pSource ) ){
+      auto& pPipe = mPipes[ pSource ];
+      if( pPipe ){
+        std::erase( pOutRemoved, pPipe->getSinkRef() );
+      }
+    }
+  }
+}
+
+void PatchPanel::updatePatch(std::vector<std::shared_ptr<ISource>> pSources, std::vector<std::shared_ptr<ISink>> pSinks)
+{
+  std::shared_ptr<MixerSplitter> pMixerSplitter = getMixerSplitter();
+
+  std::vector<std::shared_ptr<ISink>> pCurrentSinks = pMixerSplitter->getAllOfSinks();
+  std::vector<std::shared_ptr<ISink>> pAddedSinks;
+  std::vector<std::shared_ptr<ISink>> pRemovedSinks;
+  getDeltaSink( pCurrentSinks, pSinks, pAddedSinks, pRemovedSinks );
+
+  for( auto& pSink : pAddedSinks ){
     pMixerSplitter->addSink( pSink );
+  }
+  for( auto& pSink : pRemovedSinks ){
+    pMixerSplitter->removeSink( pSink );
+  }
+
+  std::vector<std::shared_ptr<ISink>> pCurrentSinkAdaptors = pMixerSplitter->getAllOfSinkAdaptors();
+  std::vector<std::shared_ptr<ISource>> pAddedSource;
+  std::vector<std::shared_ptr<ISink>> pRemovedSinkAdaptors;
+  getDeltaSource( pCurrentSinks, pSources, pAddedSource, pRemovedSinkAdaptors );
+
+  for( auto& pSinkAdaptor : pRemovedSinkAdaptors ){
+    pMixerSplitter->releaseSinkAdaptor( pSinkAdaptor );
   }
 
   std::vector<std::shared_ptr<ISink>> pSinkAdaptors;
-  for( auto& pSource : pSources ){
+  for( auto& pSource : pAddedSource ){
     std::shared_ptr<IPipe> pPipe = std::make_shared<Pipe>();
     pPipe->attachSource( pSource );
     pPipe->addFilterToTail( std::make_shared<PassThroughFilter>() );
@@ -76,7 +138,7 @@ std::shared_ptr<PatchPanel> PatchPanel::createPatch(std::vector<std::shared_ptr<
     std::shared_ptr<ISink> pSinkAdaptor = pMixerSplitter->allocateSinkAdaptor( audioFormat, pPipe );
     pSinkAdaptors.push_back( pSinkAdaptor );
     pPipe->attachSink( pSinkAdaptor );
-    pPatchPanel->addSourcePipe( pSource, pPipe );
+    addSourcePipe( pSource, pPipe );
   }
 
   // TODO: Use MultiSink to improve the efficiency
@@ -85,8 +147,4 @@ std::shared_ptr<PatchPanel> PatchPanel::createPatch(std::vector<std::shared_ptr<
       pMixerSplitter->map( pSource, pSink );
     }
   }
-
-  pMixerSplitter->registerRunnerStatusListener( pPatchPanel );
-
-  return pPatchPanel;
 }

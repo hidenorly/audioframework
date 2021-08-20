@@ -113,6 +113,11 @@ std::shared_ptr<ISink> Pipe::detachSink(void)
   return pPrevISink;
 }
 
+std::shared_ptr<ISink> Pipe::getSinkRef(void)
+{
+  return mpSink;
+}
+
 std::shared_ptr<ISource> Pipe::attachSource(std::shared_ptr<ISource> pISource)
 {
   std::shared_ptr<ISource> pPrevISource = mpSource;
@@ -128,6 +133,11 @@ std::shared_ptr<ISource> Pipe::detachSource(void)
   mpSource = nullptr;
 
   return pPrevISource;
+}
+
+std::shared_ptr<ISource> Pipe::getSourceRef(void)
+{
+  return mpSource;
 }
 
 void Pipe::dump(void)

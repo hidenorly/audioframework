@@ -219,6 +219,19 @@ std::shared_ptr<ISink> PipeMultiThread::detachSink(void)
   return pResult;
 }
 
+std::shared_ptr<ISink> PipeMultiThread::getSinkRef(void)
+{
+  std::shared_ptr<ISink> pResult = mpSink;
+
+  std::shared_ptr<IPipe> pPipe = getTailPipe();
+  if( pPipe ){
+    std::shared_ptr<ISink> pSinkFromPipe = pPipe->getSinkRef();
+    pResult = pSinkFromPipe ? pSinkFromPipe : pResult;
+  }
+
+  return pResult;
+}
+
 std::shared_ptr<ISource> PipeMultiThread::attachSource(std::shared_ptr<ISource> pSource)
 {
   std::shared_ptr<ISource> pResult = mpSource;
@@ -243,6 +256,19 @@ std::shared_ptr<ISource> PipeMultiThread::detachSource(void)
   if( pPipe ){
     std::shared_ptr<ISource> pSourceFromPipe = pPipe->detachSource();
     mSourceAttached = false;
+    pResult = pSourceFromPipe ? pSourceFromPipe : pResult;
+  }
+
+  return pResult;
+}
+
+std::shared_ptr<ISource> PipeMultiThread::getSourceRef(void)
+{
+  std::shared_ptr<ISource> pResult = mpSource;
+
+  std::shared_ptr<IPipe> pPipe = getHeadPipe();
+  if( pPipe ){
+    std::shared_ptr<ISource> pSourceFromPipe = pPipe->getSourceRef();
     pResult = pSourceFromPipe ? pSourceFromPipe : pResult;
   }
 

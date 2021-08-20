@@ -36,8 +36,10 @@ public:
 
   virtual std::shared_ptr<ISink> attachSink(std::shared_ptr<ISink> pSink);
   virtual std::shared_ptr<ISink> detachSink(void);
+  virtual std::shared_ptr<ISink> getSinkRef(void);
   virtual std::shared_ptr<ISource> attachSource(std::shared_ptr<ISource> pSource);
   virtual std::shared_ptr<ISource> detachSource(void);
+  virtual std::shared_ptr<ISource> getSourceRef(void);
 
   virtual void run(void);
   virtual void stop(void);

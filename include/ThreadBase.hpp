@@ -54,6 +54,7 @@ public:
 
   void registerRunnerStatusListener(std::shared_ptr<RunnerListener> listener);
   void unregisterRunnerStatusListener(std::shared_ptr<RunnerListener> listener);
+  void unregisterRunnerStatusListener(RunnerListener* listener);
 
 protected:
   std::vector<std::weak_ptr<RunnerListener>> mRunnerListerners;

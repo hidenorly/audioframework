@@ -32,6 +32,8 @@ protected:
   std::map<std::shared_ptr<ISource>, std::shared_ptr<IPipe>> mPipes;
 
   void addSourcePipe(std::shared_ptr<ISource> pSource, std::shared_ptr<IPipe> pPipe);
+  void getDeltaSink(std::vector<std::shared_ptr<ISink>> pCurrent, std::vector<std::shared_ptr<ISink>> pNext, std::vector<std::shared_ptr<ISink>>& pOutAdded, std::vector<std::shared_ptr<ISink>>& pOutRemoved);
+  void getDeltaSource(std::vector<std::shared_ptr<ISink>> pCurrent, std::vector<std::shared_ptr<ISource>> pNext, std::vector<std::shared_ptr<ISource>>& pOutAdded, std::vector<std::shared_ptr<ISink>>& pOutRemoved);
 
   virtual void onRunnerStatusChanged(bool bRunning);
   PatchPanel();
@@ -41,6 +43,7 @@ public:
   std::shared_ptr<MixerSplitter> getMixerSplitter(void);
 
   static std::shared_ptr<PatchPanel> createPatch(std::vector<std::shared_ptr<ISource>> pSources, std::vector<std::shared_ptr<ISink>> pSinks);
+  void updatePatch(std::vector<std::shared_ptr<ISource>> pSources, std::vector<std::shared_ptr<ISink>> pSinks);
 };
 
 #endif /* __PATCH_PANEL_HPP__ */

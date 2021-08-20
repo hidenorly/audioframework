@@ -42,8 +42,10 @@ public:
 
   virtual std::shared_ptr<ISink> attachSink(std::shared_ptr<ISink> pSink) = 0;
   virtual std::shared_ptr<ISink> detachSink(void) = 0;
+  virtual std::shared_ptr<ISink> getSinkRef(void) = 0;
   virtual std::shared_ptr<ISource> attachSource(std::shared_ptr<ISource> pSource) = 0;
   virtual std::shared_ptr<ISource> detachSource(void) = 0;
+  virtual std::shared_ptr<ISource> getSourceRef(void) = 0;
 
   virtual void dump(void) = 0;
   virtual void clearFilters(void) = 0;
@@ -74,8 +76,10 @@ public:
 
   virtual std::shared_ptr<ISink> attachSink(std::shared_ptr<ISink> pSink);
   virtual std::shared_ptr<ISink> detachSink(void);
+  virtual std::shared_ptr<ISink> getSinkRef(void);
   virtual std::shared_ptr<ISource> attachSource(std::shared_ptr<ISource> pSource);
   virtual std::shared_ptr<ISource> detachSource(void);
+  virtual std::shared_ptr<ISource> getSourceRef(void);
 
   virtual void dump(void);
   virtual void clearFilters(void);

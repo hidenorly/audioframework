@@ -1381,9 +1381,10 @@ class LatencyPerfSource : public Source, public IPerformanceMeasurement
 {
 protected:
   bool mbFirstTime;
+  uint8_t mValue;
   virtual void readPrimitive(IAudioBuffer& buf){
     int nSize = buf.getRawBuffer().size();
-    ByteBuffer zeroBuf( nSize, 0 );
+    ByteBuffer zeroBuf( nSize, mValue );
     buf.setRawBuffer( zeroBuf );
     if( !mbFirstTime ){
       update( nSize );
@@ -1391,7 +1392,7 @@ protected:
     }
   }
 public:
-  LatencyPerfSource():Source(), IPerformanceMeasurement(), mbFirstTime(false){};
+  LatencyPerfSource(uint8_t value = 0):Source(), IPerformanceMeasurement(), mbFirstTime(false), mValue(value){};
   virtual ~LatencyPerfSource(){};
 };
 
@@ -1399,15 +1400,26 @@ class LatencyPerfSink : public Sink, public IPerformanceMeasurement
 {
 protected:
   bool mbFirstTime;
+  uint8_t mValue;
   virtual void writePrimitive(IAudioBuffer& buf){
-    int nSize = buf.getRawBuffer().size();
+    ByteBuffer rawBuffer = buf.getRawBuffer();
+    int nSize = buf.getRawBufferSize();
     if( !mbFirstTime ){
-      update( nSize );
+      if( mValue == 0 ){
+        update( nSize );
+      } else {
+        for(int i=0; i<nSize; i++){
+          if( rawBuffer[i] == mValue ){
+            update( nSize );
+            break;
+          }
+        }
+      }
       mbFirstTime = true;
     }
   }
 public:
-  LatencyPerfSink():Sink(), IPerformanceMeasurement(), mbFirstTime(false){};
+  LatencyPerfSink(uint8_t value = 0):Sink(), IPerformanceMeasurement(), mbFirstTime(false), mValue(value){};
   virtual ~LatencyPerfSink(){};
 };
 
@@ -1460,3 +1472,41 @@ TEST_F(TestCase_PipeAndFilter, testPipeMtLatencyPerformace)
   double latency = (double)(std::chrono::duration_cast<std::chrono::nanoseconds>(pSink->getLastTime() - pSource->getLastTime()).count());
   std::cout << "latency from Source to Sink : " << latency/1000   << "usec" << std::endl;
 }
+
+
+TEST_F(TestCase_PipeAndFilter, testPipeLatencyPerformace2)
+{
+  std::shared_ptr<IPipe> pPipe = std::make_shared<Pipe>();
+  std::shared_ptr<LatencyPerfSource> pSource = std::make_shared<LatencyPerfSource>((uint8_t)0x7F);
+  std::shared_ptr<LatencyPerfSink> pSink = std::make_shared<LatencyPerfSink>((uint8_t)0x7F);
+  std::shared_ptr<WindowSizeVariableFilter> pFilter1 = std::make_shared<WindowSizeVariableFilter>();
+  std::shared_ptr<WindowSizeVariableFilter> pFilter2 = std::make_shared<WindowSizeVariableFilter>();
+  pFilter1->setWindowSizeUsec( 5000 );
+  pFilter2->setWindowSizeUsec( 10000 );
+
+  pPipe->attachSource( pSource );
+  pPipe->attachSink( pSink );
+  pPipe->addFilterToTail( pFilter1 );
+  pPipe->addFilterToTail( pFilter2 );
+
+  std::cout << std::endl << "pipe's report:" << pPipe->getWindowSizeUsec() << std::endl;
+  pSource->reset();
+  pSink->reset();
+
+  std::chrono::high_resolution_clock::time_point timeOfRun = std::chrono::high_resolution_clock::now();
+  pPipe->run();
+  std::this_thread::sleep_for(std::chrono::microseconds(100000)); // run 100msec
+  std::chrono::high_resolution_clock::time_point timeOfStop1 = std::chrono::high_resolution_clock::now();
+  pPipe->stop();
+  std::chrono::high_resolution_clock::time_point timeOfStop2 = std::chrono::high_resolution_clock::now();
+
+  double latency = (double)(std::chrono::duration_cast<std::chrono::nanoseconds>(pSink->getLastTime() - pSource->getLastTime()).count());
+  std::cout << "latency from Source to Sink : " << latency/1000   << "usec" << std::endl;
+
+  latency = (double)(std::chrono::duration_cast<std::chrono::nanoseconds>(pSink->getLastTime() - timeOfRun).count());
+  std::cout << "latency from start to Sink  : " << latency/1000   << "usec" << std::endl;
+
+  latency = (double)(std::chrono::duration_cast<std::chrono::nanoseconds>(timeOfStop2 - timeOfStop1).count());
+  std::cout << "stop latency                : " << latency/1000   << "usec" << std::endl;
+}
+

@@ -60,6 +60,25 @@ bool MultipleSink::detachSink(std::shared_ptr<ISink> pSink)
   return result;
 }
 
+std::vector<std::shared_ptr<ISink>> MultipleSink::getAllOfSinks()
+{
+  return mpSinks;
+}
+
+bool MultipleSink::hasRegisteredSink(std::shared_ptr<ISink> pSink)
+{
+  return mChannelMaps.contains( pSink );
+}
+
+AudioFormat::ChannelMapper MultipleSink::getChannelMapperBySink(std::shared_ptr<ISink> pSink)
+{
+  if( mChannelMaps.contains( pSink ) ){
+    return mChannelMaps[ pSink ];
+  }
+  return AudioFormat::ChannelMapper();
+}
+
+
 void MultipleSink::clearSinks(void)
 {
   mSinkMutex.lock();

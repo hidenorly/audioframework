@@ -24,14 +24,17 @@
 #include <map>
 #include <vector>
 #include "Pipe.hpp"
+#include "MultipleSink.hpp"
 
 class PatchPanel : public ThreadBase::RunnerListener
 {
 protected:
   std::shared_ptr<MixerSplitter> mMixerSplitter;
   std::map<std::shared_ptr<ISource>, std::shared_ptr<IPipe>> mPipes;
+  std::shared_ptr<MultipleSink> mMultiSink;
 
   void addSourcePipe(std::shared_ptr<ISource> pSource, std::shared_ptr<IPipe> pPipe);
+
   void getDeltaSink(std::vector<std::shared_ptr<ISink>> pCurrent, std::vector<std::shared_ptr<ISink>> pNext, std::vector<std::shared_ptr<ISink>>& pOutAdded, std::vector<std::shared_ptr<ISink>>& pOutRemoved);
   void getDeltaSource(std::vector<std::shared_ptr<ISink>> pCurrent, std::vector<std::shared_ptr<ISource>> pNext, std::vector<std::shared_ptr<ISource>>& pOutAdded, std::vector<std::shared_ptr<ISink>>& pOutRemoved);
 

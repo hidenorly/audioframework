@@ -66,6 +66,7 @@ std::shared_ptr<PatchPanel> PatchPanel::createPatch(std::vector<std::shared_ptr<
 {
   std::shared_ptr<PatchPanel> pPatchPanel = std::shared_ptr<PatchPanel>( new PatchPanel() );
   std::shared_ptr<MixerSplitter> pMixerSplitter = pPatchPanel->getMixerSplitter();
+
   pPatchPanel->updatePatch( pSources, pSinks );
   pMixerSplitter->registerRunnerStatusListener( pPatchPanel );
   return pPatchPanel;
@@ -108,18 +109,46 @@ void PatchPanel::updatePatch(std::vector<std::shared_ptr<ISource>> pSources, std
 {
   std::shared_ptr<MixerSplitter> pMixerSplitter = getMixerSplitter();
 
+  // create multi sink or single sink
+  std::shared_ptr<ISink> pDstSink;;
+  if( pSinks.size() > 1 ){
+    if( !mMultiSink ){
+      mMultiSink = std::make_shared<MultipleSink>();
+    }
+
+    std::vector<std::shared_ptr<ISink>> pCurrentSinks = mMultiSink->getAllOfSinks();
+    std::vector<std::shared_ptr<ISink>> pAddedSinks;
+    std::vector<std::shared_ptr<ISink>> pRemovedSinks;
+    getDeltaSink( pCurrentSinks, pSinks, pAddedSinks, pRemovedSinks );
+
+    for( auto& pSink : pAddedSinks ){
+      AudioFormat::ChannelMapper chMap = pSink->getAudioFormat().getSameChannelMapper();
+      mMultiSink->attachSink( pSink, chMap );
+    }
+    for( auto& pSink : pRemovedSinks ){
+      mMultiSink->detachSink( pSink );
+    }
+    pDstSink = mMultiSink;
+  } else {
+    if( pSinks.size() == 1 ){
+      pDstSink = pSinks[0];
+    }
+  }
+
+  // update the sink from current registered sink to the actual sink (pDstSink)
   std::vector<std::shared_ptr<ISink>> pCurrentSinks = pMixerSplitter->getAllOfSinks();
   std::vector<std::shared_ptr<ISink>> pAddedSinks;
   std::vector<std::shared_ptr<ISink>> pRemovedSinks;
-  getDeltaSink( pCurrentSinks, pSinks, pAddedSinks, pRemovedSinks );
+  getDeltaSink( pCurrentSinks, std::vector<std::shared_ptr<ISink>>({pDstSink}), pAddedSinks, pRemovedSinks );
 
-  for( auto& pSink : pAddedSinks ){
-    pMixerSplitter->addSink( pSink );
-  }
   for( auto& pSink : pRemovedSinks ){
-    pMixerSplitter->removeSink( pSink );
+    pMixerSplitter->detachSink( pSink );
+  }
+  for( auto& pSink : pAddedSinks ){
+    pMixerSplitter->attachSink( pSink );
   }
 
+  // update sink adaptor which is corresponding to source and the pipe
   std::vector<std::shared_ptr<ISink>> pCurrentSinkAdaptors = pMixerSplitter->getAllOfSinkAdaptors();
   std::vector<std::shared_ptr<ISource>> pAddedSource;
   std::vector<std::shared_ptr<ISink>> pRemovedSinkAdaptors;
@@ -141,10 +170,7 @@ void PatchPanel::updatePatch(std::vector<std::shared_ptr<ISource>> pSources, std
     addSourcePipe( pSource, pPipe );
   }
 
-  // TODO: Use MultiSink to improve the efficiency
-  for( auto& pSink : pSinks ){
-    for( auto& pSource : pSinkAdaptors ){
-      pMixerSplitter->map( pSource, pSink );
-    }
+  for( auto& pSource : pSinkAdaptors ){
+    pMixerSplitter->map( pSource, pDstSink );
   }
 }

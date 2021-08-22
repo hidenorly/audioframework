@@ -479,8 +479,8 @@ TEST_F(TestCase_PipeAndFilter, testMixerSplitter)
   std::shared_ptr<ISink> pSink1 = std::make_shared<LPcmSink>();
   std::shared_ptr<ISink> pSink2 = std::make_shared<CompressedSink>();
   pSink2->setAudioFormat( AudioFormat(AudioFormat::ENCODING::PCM_16BIT));
-  pMixerSplitter->addSink( pSink1 );
-  pMixerSplitter->addSink( pSink2 );
+  pMixerSplitter->attachSink( pSink1 );
+  pMixerSplitter->attachSink( pSink2 );
 
   std::shared_ptr<IPipe> pStream1 = std::make_shared<Pipe>();
   std::shared_ptr<ISource> pSource1 = std::make_shared<Source>();
@@ -581,80 +581,53 @@ TEST_F(TestCase_PipeAndFilter, testPatchPanel)
   std::vector<std::shared_ptr<ISink>> pSinks;
     pSinks.push_back( std::make_shared<Sink>() );
 
-  std::cout << "createPatch" << std::endl;
   std::shared_ptr<PatchPanel> pPatchPanel = PatchPanel::createPatch( pSources, pSinks );
 
-  std::cout << "get mixer splitter" << std::endl;
   std::shared_ptr<MixerSplitter> pMixerSplitter = pPatchPanel->getMixerSplitter();
-  std::cout << "dump the mixer splitter" << std::endl;
-  pMixerSplitter->dump();
-  std::cout << "run the mixer splitter" << std::endl;
   pMixerSplitter->run();
   std::this_thread::sleep_for(std::chrono::microseconds(1000));
-  std::cout << "stop the mixer splitter" << std::endl;
   pMixerSplitter->stop();
-  std::cout << "dump the mixer splitter" << std::endl;
   pMixerSplitter->dump();
-  std::cout << "finalize..." << std::endl;
 
   std::cout << "--- case 2: Source1,2-Sink 2:1" << std::endl;
   pSources.push_back( std::make_shared<Source>() );
   pPatchPanel->updatePatch( pSources, pSinks );
 
-  std::cout << "dump the mixer splitter" << std::endl;
-  pMixerSplitter->dump();
-  std::cout << "run the mixer splitter" << std::endl;
   pMixerSplitter->run();
   std::this_thread::sleep_for(std::chrono::microseconds(1000));
-  std::cout << "stop the mixer splitter" << std::endl;
   pMixerSplitter->stop();
-  std::cout << "dump the mixer splitter" << std::endl;
   pMixerSplitter->dump();
-  std::cout << "finalize..." << std::endl;
 
   std::cout << "--- case 3: Source1,2-Sink1,2 2:2" << std::endl;
   pSinks.push_back( std::make_shared<Sink>() );
   pPatchPanel->updatePatch( pSources, pSinks );
 
-  std::cout << "dump the mixer splitter" << std::endl;
-  pMixerSplitter->dump();
-  std::cout << "run the mixer splitter" << std::endl;
   pMixerSplitter->run();
   std::this_thread::sleep_for(std::chrono::microseconds(1000));
-  std::cout << "stop the mixer splitter" << std::endl;
   pMixerSplitter->stop();
-  std::cout << "dump the mixer splitter" << std::endl;
   pMixerSplitter->dump();
-  std::cout << "finalize..." << std::endl;
 
   std::cout << "--- case 3: Source1,2-Sink1 2:1" << std::endl;
   pSinks.resize(1);
   pPatchPanel->updatePatch( pSources, pSinks );
 
-  std::cout << "dump the mixer splitter" << std::endl;
-  pMixerSplitter->dump();
-  std::cout << "run the mixer splitter" << std::endl;
   pMixerSplitter->run();
   std::this_thread::sleep_for(std::chrono::microseconds(1000));
-  std::cout << "stop the mixer splitter" << std::endl;
   pMixerSplitter->stop();
-  std::cout << "dump the mixer splitter" << std::endl;
   pMixerSplitter->dump();
-  std::cout << "finalize..." << std::endl;
 
   std::cout << "--- case 4: Source1-Sink1 1:1" << std::endl;
   pSources.resize(1);
   pPatchPanel->updatePatch( pSources, pSinks );
 
-  std::cout << "dump the mixer splitter" << std::endl;
-  pMixerSplitter->dump();
-  std::cout << "run the mixer splitter" << std::endl;
   pMixerSplitter->run();
   std::this_thread::sleep_for(std::chrono::microseconds(1000));
-  std::cout << "stop the mixer splitter" << std::endl;
   pMixerSplitter->stop();
-  std::cout << "dump the mixer splitter" << std::endl;
   pMixerSplitter->dump();
+
+  std::cout << std::endl;
+  pMixerSplitter.reset();
+  pPatchPanel.reset();
   std::cout << "finalize..." << std::endl;
 }
 

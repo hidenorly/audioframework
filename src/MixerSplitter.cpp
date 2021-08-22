@@ -134,7 +134,7 @@ std::vector<std::shared_ptr<ISink>> MixerSplitter::getAllOfSinks(void)
   return mpSinks;
 }
 
-void MixerSplitter::addSink(std::shared_ptr<ISink> pSink)
+void MixerSplitter::attachSink(std::shared_ptr<ISink> pSink)
 {
   mMutexSourceSink.lock();
   mpSinks.push_back( pSink );
@@ -142,7 +142,7 @@ void MixerSplitter::addSink(std::shared_ptr<ISink> pSink)
   mbOnChanged = true;
 }
 
-bool MixerSplitter::removeSink(std::shared_ptr<ISink> pSink)
+bool MixerSplitter::detachSink(std::shared_ptr<ISink> pSink)
 {
   bool result = false;
   mMutexSourceSink.lock();

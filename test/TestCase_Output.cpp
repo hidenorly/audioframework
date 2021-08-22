@@ -226,8 +226,8 @@ TEST_F(TestCase_Output, testPipeSetupAndSinkSwitch)
 
   // setup final mixer and splitter
   std::shared_ptr<MixerSplitter> pMixerSplitter = std::make_shared<MixerSplitter>();
-  pMixerSplitter->addSink( pPrimarySink ); // for Sepeaker+SPDIF, HDMI+SPDIF
-  pMixerSplitter->addSink( pSpeakerSink ); // for pass through's exceptional case such as accessibility
+  pMixerSplitter->attachSink( pPrimarySink ); // for Sepeaker+SPDIF, HDMI+SPDIF
+  pMixerSplitter->attachSink( pSpeakerSink ); // for pass through's exceptional case such as accessibility
 
   std::cout << "case 1: Source1(AC3) -> Player(Decoder) --> Pipe(VirtualizerA) --> MixerSplitter --> OutputManager(Primary:Speaker(SPKProtection), Concurrent:SPDIF(transcoder:true))" << std::endl;
   std::cout << "player, virtualizerA filter, Sink" << std::endl;

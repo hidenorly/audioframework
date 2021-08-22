@@ -117,8 +117,8 @@ public:
   virtual ~MixerSplitter();
 
   virtual std::vector<std::shared_ptr<ISink>> getAllOfSinks(void);
-  virtual void addSink(std::shared_ptr<ISink> pSink);
-  virtual bool removeSink(std::shared_ptr<ISink> pSink);
+  virtual void attachSink(std::shared_ptr<ISink> pSink);
+  virtual bool detachSink(std::shared_ptr<ISink> pSink);
 
   virtual std::vector<std::shared_ptr<ISink>> getAllOfSinkAdaptors(void);
   virtual std::shared_ptr<ISink> allocateSinkAdaptor(AudioFormat format = AudioFormat(), std::shared_ptr<IPipe> pPipe = nullptr);

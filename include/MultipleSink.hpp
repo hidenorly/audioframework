@@ -48,6 +48,9 @@ public:
   virtual ~MultipleSink();
   virtual void attachSink(std::shared_ptr<ISink> pSink, AudioFormat::ChannelMapper map);
   virtual bool detachSink(std::shared_ptr<ISink> pSink);
+  virtual std::vector<std::shared_ptr<ISink>> getAllOfSinks();
+  virtual bool hasRegisteredSink(std::shared_ptr<ISink> pSink);
+  virtual AudioFormat::ChannelMapper getChannelMapperBySink(std::shared_ptr<ISink> pSink);
   virtual void clearSinks();
 
   virtual void writePrimitive(IAudioBuffer& buf);

@@ -292,6 +292,14 @@ void PipeMultiThread::stop(void)
   }
 }
 
+void PipeMultiThread::stopAndFlush(void)
+{
+  // TODO : need to consider more
+  for( auto& pPipe : mPipes ){
+    pPipe->stopAndFlush();
+  }
+}
+
 bool PipeMultiThread::isRunning(void)
 {
   bool bRunning = false;

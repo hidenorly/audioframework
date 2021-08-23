@@ -79,6 +79,8 @@ protected:
   void testPipeMtLatencyPerformace(void);
 
   void testPipeLatencyPerformace2(void);
+
+  void testPipeFlush(void);
 };
 
 #endif /* __TESTCASE_PIPEANDFILTER_HPP__ */

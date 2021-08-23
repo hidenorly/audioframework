@@ -63,6 +63,7 @@ protected:
 
 public:
   virtual void write(IAudioBuffer& buf);
+  virtual void flush(void){};
   friend SinkCapture;
   friend SinkInjector;
   friend ReferenceSoundSinkSource;

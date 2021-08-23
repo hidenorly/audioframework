@@ -43,6 +43,7 @@ public:
 
   virtual void run(void);
   virtual void stop(void);
+  virtual void stopAndFlush(void);
   virtual bool isRunning(void);
 
   virtual void dump(void);

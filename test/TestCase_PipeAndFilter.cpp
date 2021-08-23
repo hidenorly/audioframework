@@ -1510,3 +1510,34 @@ TEST_F(TestCase_PipeAndFilter, testPipeLatencyPerformace2)
   std::cout << "stop latency                : " << latency/1000   << "usec" << std::endl;
 }
 
+TEST_F(TestCase_PipeAndFilter, testPipeFlush)
+{
+  class CounterSource : public Source
+  {
+  protected:
+    int mCounter;
+  public:
+    CounterSource():mCounter(0){};
+    virtual ~CounterSource(){};
+    virtual void readPrimitive(IAudioBuffer& buf){
+      ByteBuffer esRawBuf( 256, ++mCounter );
+      buf.setRawBuffer( esRawBuf );
+      buf.setAudioFormat( mFormat );
+    }
+    int getCount(void){
+      return mCounter;
+    }
+  };
+
+  std::shared_ptr<IPipe> pPipe = std::make_shared<Pipe>();
+  std::shared_ptr<CounterSource> pSource = std::make_shared<CounterSource>();
+  pPipe->attachSource( pSource );
+  pPipe->attachSink( std::make_shared<Sink>() );
+  pPipe->addFilterToTail( std::make_shared<PassThroughFilter>() );
+  pPipe->run();
+  std::this_thread::sleep_for(std::chrono::microseconds(1000)); // run 1msec
+  std::cout << "current source count is " << std::hex << pSource->getCount() << std::endl;
+  pPipe->stopAndFlush();
+  pPipe->dump();
+  pPipe->getSinkRef()->dump();
+}

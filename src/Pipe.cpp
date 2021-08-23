@@ -26,7 +26,7 @@
 #include <utility>
 #include <algorithm>
 
-Pipe::Pipe():IPipe(), mpSink(nullptr), mpSource(nullptr)
+Pipe::Pipe():IPipe(), mpSink(nullptr), mpSource(nullptr), mFlushRequest(false)
 {
 
 }
@@ -157,14 +157,26 @@ void Pipe::unlockToStop(void)
   std::shared_ptr<IUnlockable> pSource = std::dynamic_pointer_cast<IUnlockable>(mpSource);
   if( pSource ) pSource->unlock();
 
-  std::shared_ptr<IUnlockable> pSink = std::dynamic_pointer_cast<IUnlockable>(mpSink);
-  if( pSink ) pSink->unlock();
+  if( !mFlushRequest ){
+    std::shared_ptr<IUnlockable> pSink = std::dynamic_pointer_cast<IUnlockable>(mpSink);
+    if( pSink ) pSink->unlock();
+  }
 }
 
+void Pipe::stopAndFlush(void)
+{
+  // TODO: Need to consider more for PipeMultiThread's stopAndFlush() support
+  mFlushRequest = true;
+  stop();
+  if( mpSink ){
+    mpSink->flush();
+  }
+  mFlushRequest = false;
+}
 
 void Pipe::process(void)
 {
-  while(mbIsRunning && mpSource && mpSink){
+  while(mbIsRunning && mpSource && mpSink && !mFlushRequest){
     if( mpSource->getAudioFormat().isEncodingPcm() && mpSink->getAudioFormat().isEncodingPcm() ){
       // TODO: Should check not only filter format but also source/sink formats.
       float windowSizeUsec = getCommonWindowSizeUsec();
@@ -178,7 +190,7 @@ void Pipe::process(void)
       std::shared_ptr<AudioBuffer> pSinkOut = pInBuf;
 
       int nFilterSize = mFilters.size();
-      while( mbIsRunning && ( nFilterSize == mFilters.size() && (mpSource->getAudioFormat().isEncodingPcm() && mpSink->getAudioFormat().isEncodingPcm())) ) {
+      while( mbIsRunning && ( nFilterSize == mFilters.size() && (mpSource->getAudioFormat().isEncodingPcm() && mpSink->getAudioFormat().isEncodingPcm())) && !mFlushRequest) {
         // TODO: implement wait during muting and implement unlock for the mute wait
         mMutexSource.lock();
         mpSource->read( *pInBuf );
@@ -202,7 +214,7 @@ void Pipe::process(void)
       pOutBuf.reset();
       pSinkOut.reset();
     } else {
-      while( mbIsRunning && (mpSource->getAudioFormat().isEncodingCompressed() && mpSink->getAudioFormat().isEncodingCompressed()) ) {
+      while( mbIsRunning && (mpSource->getAudioFormat().isEncodingCompressed() && mpSink->getAudioFormat().isEncodingCompressed()) && !mFlushRequest) {
         CompressAudioBuffer buf;
         mMutexSource.lock();
         mpSource->read( buf );
@@ -293,3 +305,4 @@ void Pipe::mutePrimitive(bool bEnableMute, bool bUseZero)
     mpSource->setMuteEnabled( bEnableMute, bUseZero);
   }
 }
+

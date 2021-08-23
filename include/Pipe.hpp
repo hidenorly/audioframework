@@ -27,7 +27,6 @@
 #include "PipeAndFilterCommon.hpp"
 #include <memory>
 
-
 class IPipe : public ThreadBase, public IResourceConsumer, public IMutable
 {
 public:
@@ -52,6 +51,8 @@ public:
   virtual AudioFormat getFilterAudioFormat(AudioFormat theUsingFormat = AudioFormat()) = 0;
   virtual int getWindowSizeUsec(void) = 0;
   virtual int getLatencyUSec(void) = 0;
+
+  virtual void stopAndFlush(void) = 0;
 };
 
 class Pipe : public IPipe
@@ -63,6 +64,7 @@ protected:
   std::vector<std::shared_ptr<IFilter>> mFilters;
   std::shared_ptr<ISink> mpSink;
   std::shared_ptr<ISource> mpSource;
+  std::atomic<bool> mFlushRequest;
 
 public:
   Pipe();
@@ -87,6 +89,8 @@ public:
   virtual int getWindowSizeUsec(void);
   virtual int getLatencyUSec(void);
   virtual int stateResourceConsumption(void);
+
+  virtual void stopAndFlush(void);
 
 protected:
   // Should override process() if you want to support different window size processing by several threads, etc.

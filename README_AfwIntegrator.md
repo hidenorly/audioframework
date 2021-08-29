@@ -1,6 +1,6 @@
 # Expected audience of this document
 
-Expected audience of this document is to integrate this audio framework to your application such as Android audio HAL, Player, General Digital Audio Signal Processing Applications.
+Expected audience of this document is developer who integrates this audio framework to your application such as Android audio HAL, Player, General Digital Audio Signal Processing Applications.
 
 # How to integrate the audio framework.
 
@@ -14,11 +14,11 @@ And this audio framework provides 2 ways to integrate to your application.
 The shared object is so called ```.so``` (```.dylib```).
 The static object is ```.a```.
 
-To create shared object, you need to do ```$ build afwshared```
-To create static object, you need to do ```$ build afw```
+To create shared object, you need to do ```$ make afwshared```
+To create static object, you need to do ```$ make afw```
 
-The example makefiles to use shared object is ```build testshared``` and ```build fdk```.
-The exmaple makefile to use static object is ```build test```.
+The example makefiles to use shared object is ```make testshared``` and ```make fdk```.
+The exmaple makefile to use static object is ```make test```.
 
 # More detail of how to afw.
 

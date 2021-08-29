@@ -44,5 +44,5 @@ $ clang++ -I $(AFW_INC_DIR) $(AFW_SHARED_OBJECT)
 
 You can refer to complete separated project's Makefile example is as follows:
 
-https://github.com/hidenorly/DecoderPlugInFFmpeg : Decoder plug-in with FFmpeg
-https://github.com/hidenorly/SinkPlugInAlsa : Sink plug-in with Alsa
+* https://github.com/hidenorly/DecoderPlugInFFmpeg : Decoder plug-in with FFmpeg
+* https://github.com/hidenorly/SinkPlugInAlsa : Sink plug-in with Alsa

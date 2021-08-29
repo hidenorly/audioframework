@@ -96,7 +96,7 @@ Also you can use ```-o``` which output the result to file. ex. ```-o result.dat`
 
 # Other example of filter plu-in, Makefile, etc.
 
-* Filter example : refer to example_filter
+* Filter example : refer to ```example_filter/```
 
 * The makefile
 ```

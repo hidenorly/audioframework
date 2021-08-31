@@ -2,6 +2,9 @@
 
 Expected audience of this document is developer who develops digital audio processing's output implementation, called "Sink".
 
+Signal flow is that Source -> Pipe -> Sink.
+In the Pipe, there can be filters which are actual digtal signal processings.
+
 # What's Sink plug-in?
 
 The Sink is implementation to output the digital audio signal processing result in this audio framework.
@@ -69,14 +72,14 @@ $ bin/fdk_exec -e PCM_16BIT -r 48000 -c 2 -s lib/sink-plugin/libsink_example.dyl
 * Without specifying ```-i``` and ```-u```, the default source data is ```PcmSource``` which generates sin wave.
 * Without specifying ```-f```, the default filter is passthrough filter. No any processing by it.
 
-Then you need to specify like ```-i inputdata.dat``` which means reading the binary file and just use the data as the source data which is input to your filter.
+Then you need to specify like ```-i inputdata.dat``` which means reading the binary file and just use the data as the source data.
 
 Please note that if you specify ```-o``` and ```-s```, the ```-o``` is prioritized than ```-s```.
 Then if you'd like to test your sink plug-in, please don't use ```-o```.
 
-# Other example of sink plu-in, Makefile, etc.
+# Other example of sink plug-in, Makefile, etc.
 
-* Filter example : refer to ```example_sink/```
+* Sink example : refer to ```example_sink/```
 
 * The makefile
 ```

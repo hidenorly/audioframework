@@ -75,14 +75,15 @@ void* getPlugInInstance(void)
   FilterExampleReverb* pFilter = new FilterExampleReverb();
   return reinterpret_cast<void*>(dynamic_cast<IPlugIn*>(pFilter));
 }
-};```
+};
+```
 
 Your implementation must instantiate your plug-in class and reinterpret_cast to void* after cast to IPlugIn* as the above example.
 
 
 # Note that
 
-* For Filter plug-in develop, you need to extend from FilterPlugIn.
-* For Source plug-in develop, you need to extend from SourcePlugIn.
-* For Sink plug-in develop, you need to extend from SinkPlugIn.
-* For Codec plug-in develop, you need to extend from IDecoder.
+* For Filter plug-in develop, your plug-in class should be derived from FilterPlugIn class.
+* For Source plug-in develop, your plug-in class should be derived from SourcePlugIn class.
+* For Sink plug-in develop, your plug-in class should be derived from SinkPlugIn class.
+* For Codec plug-in develop, your plug-in class should be derived from IDecoder class.

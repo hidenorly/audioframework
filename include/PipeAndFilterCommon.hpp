@@ -66,7 +66,7 @@ public:
   virtual ~ISourceSinkCommon(){};
   virtual std::string toString(void){ return std::string("ISourceSinkCommon"); };
   virtual AudioFormat getAudioFormat(void) = 0;
-  virtual long getPresentationTime(void){ return 0;};
+  virtual long getPresentationTime(void){ return 0;}; // usec
 };
 
 #endif /* __PIPEANDFILTER_COMMON_HPP__ */

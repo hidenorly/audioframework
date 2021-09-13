@@ -22,7 +22,9 @@
 #include <string>
 #include <functional>
 
+#if USE_PARAMETERMANAGER_ADMINISTRATIVE_API
 #include "Stream.hpp"
+#endif /* USE_PARAMETERMANAGER_ADMINISTRATIVE_API */
 
 class ParameterManager;
 
@@ -96,10 +98,12 @@ public:
   int registerCallback(std::string key, CALLBACK callback);
   void unregisterCallback(int callbackId);
 
+#if USE_PARAMETERMANAGER_ADMINISTRATIVE_API
   // administrative API
   bool storeToStream(IStream* pStream);
   bool restoreFromStream(IStream* pStream, bool bOverride = true);
   void resetAllOfParams(void);
+#endif /* USE_PARAMETERMANAGER_ADMINISTRATIVE_API */
 
 protected:
   int mListnerId;

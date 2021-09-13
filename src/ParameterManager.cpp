@@ -14,6 +14,8 @@
    limitations under the License.
 */
 
+#define USE_PARAMETERMANAGER_ADMINISTRATIVE_API 1
+
 #include "ParameterManager.hpp"
 #include "StringTokenizer.hpp"
 #include "StringUtil.hpp"

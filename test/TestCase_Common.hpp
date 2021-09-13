@@ -17,6 +17,8 @@
 #ifndef __TESTCASE_COMMON_HPP__
 #define __TESTCASE_COMMON_HPP__
 
+#define USE_PARAMETERMANAGER_ADMINISTRATIVE_API 1
+
 #include <gtest/gtest.h>
 
 #include "Pipe.hpp"

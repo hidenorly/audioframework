@@ -82,7 +82,7 @@ public:
   virtual int getLatencyUSec(void);
   virtual int64_t getSinkPts(void);
 
-  virtual void dump(void) = 0;
+  virtual void dump(void){};
   virtual int stateResourceConsumption(void){return 0;};
 };
 

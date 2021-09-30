@@ -77,11 +77,11 @@ public:
   virtual ~ParameterManager();
   // for all of ParameterManager users
   static std::weak_ptr<ParameterManager> getManager(void);
-  void setParameter(std::string key, std::string value);
-  void setParameterInt(std::string key, int value);
-  void setParameterFloat(std::string key, float value);
-  void setParameterBool(std::string key, bool value);
-  void setParameters(std::vector<ParameterManager::Param>& params);
+  bool setParameter(std::string key, std::string value);
+  bool setParameterInt(std::string key, int value);
+  bool setParameterFloat(std::string key, float value);
+  bool setParameterBool(std::string key, bool value);
+  bool setParameters(std::vector<ParameterManager::Param>& params);
 
   void setParameterRule(std::string key, ParamRule rule);
   ParamRule getParameterRule(std::string key);

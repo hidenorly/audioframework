@@ -50,22 +50,24 @@ void ParameterManager::executeNotify(std::string key, std::string value, std::ve
   }
 }
 
-void ParameterManager::setParameter(std::string key, std::string value)
+bool ParameterManager::setParameter(std::string key, std::string value)
 {
-  bool bChanged = true;
+  bool result = false;
 
   key = StringUtil::trim(key);
   value = StringUtil::trim(value);
 
   if( filterValueWithRule( key, value ) ){
+    bool bChanged = true;
     if( mParams.contains( key ) ){
       // check ro.* (=read only)
-      if( 0 == key.find( "ro." ) ) return;
+      if( 0 == key.find( "ro." ) ) return result;
 
       bChanged = ( mParams[ key ] != value );
     }
 
     mParams.insert_or_assign( key, value );
+    result = true;
 
     if( bChanged ) {
       for( auto& [aKey, listeners] : mWildCardListeners ){
@@ -79,28 +81,33 @@ void ParameterManager::setParameter(std::string key, std::string value)
       }
     }
   }
+  return result;
 }
 
-void ParameterManager::setParameterInt(std::string key, int value)
+bool ParameterManager::setParameterInt(std::string key, int value)
 {
-  setParameter( key, std::to_string(value) );
+  return setParameter( key, std::to_string(value) );
 }
 
-void ParameterManager::setParameterFloat(std::string key, float value)
+bool ParameterManager::setParameterFloat(std::string key, float value)
 {
-  setParameter( key, std::to_string(value) );
+  return setParameter( key, std::to_string(value) );
 }
 
-void ParameterManager::setParameterBool(std::string key, bool value)
+bool ParameterManager::setParameterBool(std::string key, bool value)
 {
-  setParameter( key, value ? "true" : "false" );
+  return setParameter( key, value ? "true" : "false" );
 }
 
-void ParameterManager::setParameters(std::vector<ParameterManager::Param>& params)
+bool ParameterManager::setParameters(std::vector<ParameterManager::Param>& params)
 {
+  bool result = true;
+
   for( auto& aParam : params ){
-    setParameter( aParam.key, aParam.value );
+    result &= setParameter( aParam.key, aParam.value );
   }
+
+  return result;
 }
 
 void ParameterManager::setParameterRule(std::string key, ParamRule rule)

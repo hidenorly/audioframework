@@ -98,7 +98,7 @@ TEST_F(TestCase_System, testParameterManager)
   }
 
   std::cout << "store to stream" << std::endl;
-  FileStream* pFileStream = new FileStream( paramFilePath );
+  std::shared_ptr<FileStream> pFileStream = std::make_shared<FileStream>( paramFilePath );
   pParams->storeToStream( pFileStream );
   pFileStream->close();
 
@@ -106,7 +106,7 @@ TEST_F(TestCase_System, testParameterManager)
   pParams->resetAllOfParams();
 
   std::cout << "restore from stream" << std::endl;
-  pFileStream = new FileStream( paramFilePath );
+  pFileStream = std::make_shared<FileStream>( paramFilePath );
   pParams->restoreFromStream( pFileStream );
   pFileStream->close();
 
@@ -116,7 +116,7 @@ TEST_F(TestCase_System, testParameterManager)
   // non-override restore. This helps to implement default params and user params load. Load current user config value(override=true) and Load the default(preset) value (override=false).
   pParams->setParameter("paramA", "XXX");
   std::cout << "restore from stream" << std::endl;
-  pFileStream = new FileStream( paramFilePath );
+  pFileStream = std::make_shared<FileStream>( paramFilePath );
   pParams->restoreFromStream( pFileStream, false ); // no override
   pFileStream->close();
   EXPECT_EQ( pParams->getParameter("paramA"), "XXX");

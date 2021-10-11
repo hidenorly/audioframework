@@ -20,6 +20,7 @@
 #include <map>
 #include <vector>
 #include <string>
+#include <memory>
 #include <functional>
 
 #if USE_PARAMETERMANAGER_ADMINISTRATIVE_API
@@ -100,8 +101,8 @@ public:
 
 #if USE_PARAMETERMANAGER_ADMINISTRATIVE_API
   // administrative API
-  bool storeToStream(IStream* pStream);
-  bool restoreFromStream(IStream* pStream, bool bOverride = true);
+  bool storeToStream(std::shared_ptr<IStream> pStream);
+  bool restoreFromStream(std::shared_ptr<IStream> pStream, bool bOverride = true);
   void resetAllOfParams(void);
 #endif /* USE_PARAMETERMANAGER_ADMINISTRATIVE_API */
 

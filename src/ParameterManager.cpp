@@ -314,7 +314,7 @@ void ParameterManager::unregisterCallback(int callbackId)
 }
 
 
-bool ParameterManager::storeToStream(IStream* pStream)
+bool ParameterManager::storeToStream(std::shared_ptr<IStream> pStream)
 {
   bool result = false;
   if( pStream ){
@@ -327,7 +327,7 @@ bool ParameterManager::storeToStream(IStream* pStream)
   return result;
 }
 
-bool ParameterManager::restoreFromStream(IStream* pStream, bool bOverride)
+bool ParameterManager::restoreFromStream(std::shared_ptr<IStream> pStream, bool bOverride)
 {
   bool result = false;
 

@@ -1088,6 +1088,18 @@ TEST_F(TestCase_PipeAndFilter, testPerChannelVolumeWithMultiSink)
   pPipe->clearFilters();
 }
 
+TEST_F(TestCase_PipeAndFilter, testGetChannelVolume)
+{
+  std::vector<float> volumes;
+  volumes.push_back( 100.0f );
+  volumes.push_back( 0.0f );
+
+  Volume::CHANNEL_VOLUME perChannelVolume = Volume::getChannelVolume( AudioFormat::CHANNEL::CHANNEL_STEREO, volumes );
+  EXPECT_EQ( perChannelVolume[ AudioFormat::CH::L ], 100.0f );
+  EXPECT_EQ( perChannelVolume[ AudioFormat::CH::R ], 0.0f );
+}
+
+
 TEST_F(TestCase_PipeAndFilter, testEncodedSink)
 {
   // Signal flow : CompressedSource -> Pipe -> EncodedSink -> CompressedSink

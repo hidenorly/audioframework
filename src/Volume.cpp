@@ -134,3 +134,21 @@ float Volume::getVolumeMax(std::vector<float> volumes)
   }
   return result;
 }
+
+Volume::CHANNEL_VOLUME Volume::getChannelVolume(AudioFormat::CHANNEL channel, std::vector<float> channelVolumes)
+{
+  CHANNEL_VOLUME result;
+
+  int numOfChannels = AudioFormat::getNumberOfChannels( channel );
+  assert( channelVolumes.size() == numOfChannels );
+
+  AudioFormat::ChannelMapper chMapper = AudioFormat::getSameChannelMapper( channel );
+  assert( chMapper.size() == numOfChannels );
+
+  for( auto& [ aChannel, _channel ] : chMapper ){
+    result[ aChannel ] = channelVolumes[ AudioFormat::getOffSetInSample( channel, aChannel) ];
+  }
+
+  return result;
+}
+

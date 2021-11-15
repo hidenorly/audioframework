@@ -36,6 +36,8 @@ public:
   static bool isVolumeRequired(AudioFormat format, CHANNEL_VOLUME channelVolumes);
   static std::vector<float> getPerChannelVolumes(AudioFormat format, CHANNEL_VOLUME channelVolumes);
   static float getVolumeMax(std::vector<float> volumes);
+
+  static CHANNEL_VOLUME getChannelVolume(AudioFormat::CHANNEL channel, std::vector<float> channelVolumes);
 };
 
 #endif /* __VOLUME_HPP__ */

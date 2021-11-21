@@ -389,12 +389,13 @@ $ brew install ccache
 ```
 $ brew install cmake
 $ git clone https://github.com/google/googletest.git
+$ cd googletest
 $ mkdir build
 $ cd build
-$ cmake
+$ cmake -DCMAKE_CXX_COMPILER="c++" -DCMAKE_CXX_FLAGS="-std=c++11 -stdlib=libc++" ../
+$ make
+$ sudo make install
 ```
-
-And you should install gtest to the library path.
 
 
 ## For Ubuntu 20.04LTS

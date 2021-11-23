@@ -109,7 +109,7 @@ public:
   virtual void append(IAudioBuffer& buf);
 
   /* @desc change AudioFormat. Usually this might be useful after setrawBuffer if the format is different */
-  virtual void setAudioFormat( AudioFormat format );
+  virtual void setAudioFormat( AudioFormat format, bool bForceAndSilent = false );
 
   /* @desc get number of samples which this instance has */
   virtual int getNumberOfSamples(void);
@@ -132,7 +132,7 @@ public:
 
   /* @desc change AudioFormat.
            Note that buffer will be cleared if format is different from this instance's current format. */
-  virtual void setAudioFormat( AudioFormat format );
+  virtual void setAudioFormat( AudioFormat format, bool bForceAndSilent = false );
 
   /* @desc change buffer's sample size.
            Specifying smaller then current means cut off the data.
@@ -176,7 +176,7 @@ public:
   CompressAudioBuffer& operator=(CompressAudioBuffer& buf);
 
   /* @desc change AudioFormat. Usually */
-  virtual void setAudioFormat( AudioFormat format );
+  virtual void setAudioFormat( AudioFormat format, bool bForceAndSilent = false );
 
 
   virtual void append(IAudioBuffer& buf);

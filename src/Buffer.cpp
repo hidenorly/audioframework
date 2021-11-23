@@ -120,8 +120,9 @@ void IAudioBuffer::append(IAudioBuffer& buf)
   }
 }
 
-void IAudioBuffer::setAudioFormat( AudioFormat format )
+void IAudioBuffer::setAudioFormat( AudioFormat format, bool bForceAndSilent )
 {
+  bForceAndSilent;
   mFormat = format;
 }
 
@@ -165,12 +166,16 @@ int AudioBuffer::getWindowSizeUsec(void)
   return 1000 * getNumberOfSamples() / mFormat.getSamplingRate();
 }
 
-void AudioBuffer::setAudioFormat( AudioFormat format )
+void AudioBuffer::setAudioFormat( AudioFormat format, bool bForceAndSilent )
 {
-  bool bFormatChanged = !format.equal( mFormat );
-  int samples = getNumberOfSamples();
-  mFormat = format;
-  resize( samples, bFormatChanged );
+  if( !bForceAndSilent ){
+    bool bFormatChanged = !format.equal( mFormat );
+    int samples = getNumberOfSamples();
+    mFormat = format;
+    resize( samples, bFormatChanged );
+  } else {
+    mFormat = format;
+  }
 }
 
 void AudioBuffer::resize( int samples, bool bClear )
@@ -263,12 +268,14 @@ CompressAudioBuffer& CompressAudioBuffer::operator=(CompressAudioBuffer& buf)
   return *this;
 }
 
-void CompressAudioBuffer::setAudioFormat( AudioFormat format )
+void CompressAudioBuffer::setAudioFormat( AudioFormat format, bool bForceAndSilent )
 {
-  if( !mFormat.equal(format) ){
-    int nChunkSize = mBuf.size();
-    mBuf.clear();
-    mBuf = ByteBuffer( nChunkSize, 0 );
+  if( !bForceAndSilent ){
+    if( !mFormat.equal(format) ){
+      int nChunkSize = mBuf.size();
+      mBuf.clear();
+      mBuf = ByteBuffer( nChunkSize, 0 );
+    }
   }
   mFormat = format;
 }

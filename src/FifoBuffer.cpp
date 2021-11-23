@@ -34,6 +34,11 @@ int FifoBufferBase::getBufferedSamples(void)
   return mBuf.size() ? ( mBuf.size() / mFormat.getChannelsSampleByte() ) : 0;
 }
 
+int FifoBufferBase::getBufferedBytes(void)
+{
+  return mBuf.size();
+}
+
 void FifoBufferBase::setFifoSizeLimit(int nSampleLimit)
 {
   int nChannelSampleByte = mFormat.getChannelsSampleByte();

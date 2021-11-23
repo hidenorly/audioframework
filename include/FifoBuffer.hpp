@@ -43,6 +43,7 @@ protected:
 
 public:
   int getBufferedSamples(void);
+  int getBufferedBytes(void);
   void setFifoSizeLimit(int nSampleLimit);
   AudioFormat getAudioFormat(void){ return mFormat; };
   void clearBuffer(void);

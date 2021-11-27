@@ -44,6 +44,7 @@ public:
   virtual void read(IAudioBuffer& buf);
   virtual int getLatencyUSec(void);
   virtual int64_t getSourcePts(void);
+  virtual long getPresentationTime(void){ return getSourcePts(); };
   virtual AudioFormat getAudioFormat(void);
   virtual int stateResourceConsumption(void){return 0;};
 

@@ -81,6 +81,7 @@ public:
 
   virtual int getLatencyUSec(void);
   virtual int64_t getSinkPts(void);
+  virtual long getPresentationTime(void){ return getSinkPts(); };
 
   virtual void dump(void){};
   virtual int stateResourceConsumption(void){return 0;};

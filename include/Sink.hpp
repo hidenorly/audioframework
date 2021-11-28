@@ -51,9 +51,6 @@ public:
 
 protected:
   PRESENTATION mPresentation;
-  float mVolume;
-  bool mIsPerChannelVolume;
-  std::vector<float> mPerChannelVolumes;
   int mLatencyUsec;
   int64_t mSinkPosition;
 
@@ -73,11 +70,6 @@ public:
 
   virtual bool setPresentation(PRESENTATION presentation);
   virtual PRESENTATION getPresentation(void);
-
-  virtual float getVolume(void);
-  virtual bool setVolume(float volumePercentage);
-  virtual bool setVolume(Volume::CHANNEL_VOLUME perChannelVolumes);
-  virtual bool setVolume(std::vector<float> perChannelVolumes);
 
   virtual int getLatencyUSec(void);
   virtual int64_t getSinkPts(void);

@@ -19,6 +19,7 @@
 
 #include "AudioFormat.hpp"
 #include "ResourceManager.hpp"
+#include "Volume.hpp"
 #include <string>
 
 /* block-able class should implement this */
@@ -61,12 +62,22 @@ public:
 /* Common interfaces on ISink and ISource */
 class ISourceSinkCommon : public AudioBase, public IResourceConsumer, public IMutable
 {
+protected:
+  float mVolume;
+  bool mIsPerChannelVolume;
+  std::vector<float> mPerChannelVolumes;
+
 public:
-  ISourceSinkCommon():AudioBase(), IResourceConsumer(), IMutable(){};
+  ISourceSinkCommon():AudioBase(), IResourceConsumer(), IMutable(), mVolume(100.0f), mIsPerChannelVolume(false){};
   virtual ~ISourceSinkCommon(){};
   virtual std::string toString(void){ return std::string("ISourceSinkCommon"); };
   virtual AudioFormat getAudioFormat(void) = 0;
   virtual long getPresentationTime(void){ return 0;}; // usec
+
+  virtual float getVolume(void);
+  virtual bool setVolume(float volumePercentage);
+  virtual bool setVolume(Volume::CHANNEL_VOLUME perChannelVolumes);
+  virtual bool setVolume(std::vector<float> perChannelVolumes);
 };
 
 #endif /* __PIPEANDFILTER_COMMON_HPP__ */

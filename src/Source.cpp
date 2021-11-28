@@ -29,6 +29,7 @@ ISource::~ISource()
 
 void ISource::read(IAudioBuffer& buf)
 {
+  // TODO: Handle volume as same as ISink
   AudioBuffer* pBuf = dynamic_cast<AudioBuffer*>(&buf);
   if( pBuf ){
     int nSamples = pBuf->getNumberOfSamples();

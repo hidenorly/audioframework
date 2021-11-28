@@ -18,7 +18,7 @@
 #include "Util.hpp"
 #include "Volume.hpp"
 
-ISink::ISink() : ISourceSinkCommon(), mVolume(100.0f), mIsPerChannelVolume(false), mLatencyUsec(0), mSinkPosition(0)
+ISink::ISink() : ISourceSinkCommon(), mLatencyUsec(0), mSinkPosition(0)
 {
 
 }
@@ -57,30 +57,6 @@ bool ISink::setPresentation(PRESENTATION presentation)
 ISink::PRESENTATION ISink::getPresentation(void)
 {
   return mPresentation;
-}
-
-float ISink::getVolume(void)
-{
-  return getMuteEnabled() ? 0.0f : !mIsPerChannelVolume ? mVolume : Volume::getVolumeMax(mPerChannelVolumes);
-}
-
-bool ISink::setVolume(float volumePercentage)
-{
-  mIsPerChannelVolume = false;
-  mVolume = volumePercentage;
-  return true;
-}
-
-bool ISink::setVolume(Volume::CHANNEL_VOLUME perChannelVolumes)
-{
-  return setVolume( Volume::getPerChannelVolumes(getAudioFormat(), perChannelVolumes) );
-}
-
-bool ISink::setVolume(std::vector<float> perChannelVolumes)
-{
-  mIsPerChannelVolume = true;
-  mPerChannelVolumes = perChannelVolumes;
-  return true;
 }
 
 

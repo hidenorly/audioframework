@@ -25,3 +25,28 @@ void IMutable::setMuteEnabled(bool bEnableMute, bool bUseZero)
     mutePrimitive(bEnableMute, bUseZero);
   }
 }
+
+
+float ISourceSinkCommon::getVolume(void)
+{
+  return getMuteEnabled() ? 0.0f : !mIsPerChannelVolume ? mVolume : Volume::getVolumeMax(mPerChannelVolumes);
+}
+
+bool ISourceSinkCommon::setVolume(float volumePercentage)
+{
+  mIsPerChannelVolume = false;
+  mVolume = volumePercentage;
+  return true;
+}
+
+bool ISourceSinkCommon::setVolume(Volume::CHANNEL_VOLUME perChannelVolumes)
+{
+  return setVolume( Volume::getPerChannelVolumes(getAudioFormat(), perChannelVolumes) );
+}
+
+bool ISourceSinkCommon::setVolume(std::vector<float> perChannelVolumes)
+{
+  mIsPerChannelVolume = true;
+  mPerChannelVolumes = perChannelVolumes;
+  return true;
+}

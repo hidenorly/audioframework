@@ -30,9 +30,11 @@
 *.exe
 *.out
 *.app
+bin/
 
 #test.bin
 test*.bin
+TestProperties
 
 # For Mac
 .DS_Store

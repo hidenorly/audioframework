@@ -16,7 +16,7 @@
 
 #include "PipeAndFilterCommon.hpp"
 
-void IMutable::setMuteEnabled(bool bEnableMute, bool bUseZero)
+void IMuteable::setMuteEnabled(bool bEnableMute, bool bUseZero)
 {
   bool bChanged = ( bEnableMute != mMuteEnabled );
   mMuteEnabled = bEnableMute;

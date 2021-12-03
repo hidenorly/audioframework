@@ -31,7 +31,7 @@ public:
 };
 
 /* mute-able class should implement this */
-class IMutable
+class IMuteable
 {
 protected:
   bool mMuteEnabled;
@@ -42,8 +42,8 @@ protected:
   virtual void mutePrimitive(bool bEnableMute, bool bUseZero=false){};
 
 public:
-  IMutable():mMuteEnabled(false), mMuteUseZeroEnabled(false){};
-  virtual ~ IMutable(){};
+  IMuteable():mMuteEnabled(false), mMuteUseZeroEnabled(false){};
+  virtual ~ IMuteable(){};
 
   /*
     @desc get mute state
@@ -60,7 +60,7 @@ public:
 };
 
 /* Common interfaces on ISink and ISource */
-class ISourceSinkCommon : public AudioBase, public IResourceConsumer, public IMutable
+class ISourceSinkCommon : public AudioBase, public IResourceConsumer, public IMuteable
 {
 protected:
   float mVolume;
@@ -68,7 +68,7 @@ protected:
   std::vector<float> mPerChannelVolumes;
 
 public:
-  ISourceSinkCommon():AudioBase(), IResourceConsumer(), IMutable(), mVolume(100.0f), mIsPerChannelVolume(false){};
+  ISourceSinkCommon():AudioBase(), IResourceConsumer(), IMuteable(), mVolume(100.0f), mIsPerChannelVolume(false){};
   virtual ~ISourceSinkCommon(){};
   virtual std::string toString(void){ return std::string("ISourceSinkCommon"); };
   virtual AudioFormat getAudioFormat(void) = 0;

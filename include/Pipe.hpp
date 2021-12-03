@@ -27,7 +27,7 @@
 #include "PipeAndFilterCommon.hpp"
 #include <memory>
 
-class IPipe : public ThreadBase, public IResourceConsumer, public IMutable
+class IPipe : public ThreadBase, public IResourceConsumer, public IMuteable
 {
 public:
   IPipe():ThreadBase(){};

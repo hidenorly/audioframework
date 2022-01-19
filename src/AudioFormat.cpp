@@ -235,10 +235,49 @@ AudioFormat::ENCODING AudioFormat::getEncodingFromString(std::string encoding)
   if( encoding == "PCM_32BIT" ) return AudioFormat::ENCODING::PCM_32BIT;
   if( encoding == "PCM_8BIT" ) return AudioFormat::ENCODING::PCM_8BIT;
   if( encoding == "PCM_24BIT" ) return AudioFormat::ENCODING::PCM_24BIT_PACKED;
+
+  // alternative
+  if( encoding.ends_with( "MP3" ) ) return AudioFormat::ENCODING::COMPRESSED_MP3;
+  if( encoding.ends_with( "MP2" ) ) return AudioFormat::ENCODING::COMPRESSED_MP2;
+  if( encoding.ends_with( "AAC" ) ) return AudioFormat::ENCODING::COMPRESSED_AAC;
+  if( encoding.ends_with( "AAC_LC" ) ) return AudioFormat::ENCODING::COMPRESSED_AAC_LC;
+  if( encoding.ends_with( "AAC_LATM" ) ) return AudioFormat::ENCODING::COMPRESSED_AAC_LATM;
+  if( encoding.ends_with( "AAC_ADTS" ) ) return AudioFormat::ENCODING::COMPRESSED_AAC_ADTS;
+  if( encoding.ends_with( "AAC_ADIF" ) ) return AudioFormat::ENCODING::COMPRESSED_AAC_ADIF;
+  if( encoding.ends_with( "HE_AAC_V1" ) ) return AudioFormat::ENCODING::COMPRESSED_HE_AAC_V1;
+  if( encoding.ends_with( "HE_AAC_V2" ) ) return AudioFormat::ENCODING::COMPRESSED_HE_AAC_V2;
+  if( encoding.ends_with( "ALAC" ) ) return AudioFormat::ENCODING::COMPRESSED_ALAC;
+  if( encoding.ends_with( "FLAC" ) ) return AudioFormat::ENCODING::COMPRESSED_FLAC;
+  if( encoding.ends_with( "DSD" ) ) return AudioFormat::ENCODING::COMPRESSED_DSD;
+  if( encoding.ends_with( "VORBIS" ) ) return AudioFormat::ENCODING::COMPRESSED_VORBIS;
+  if( encoding.ends_with( "OPUS" ) ) return AudioFormat::ENCODING::COMPRESSED_OPUS;
+  if( encoding.ends_with( "CELT" ) ) return AudioFormat::ENCODING::COMPRESSED_CELT;
+  if( encoding.ends_with( "EAC3" ) || encoding.ends_with( "E_AC3" ) ) return AudioFormat::ENCODING::COMPRESSED_E_AC3;
+  if( encoding.ends_with( "AC3" ) ) return AudioFormat::ENCODING::COMPRESSED_AC3;
+  if( encoding.ends_with( "AC4" ) ) return AudioFormat::ENCODING::COMPRESSED_AC4;
+  if( encoding.ends_with( "DOLBY_TRUEHD" ) ) return AudioFormat::ENCODING::COMPRESSED_DOLBY_TRUEHD;
+  if( encoding.ends_with( "MAT" ) ) return AudioFormat::ENCODING::COMPRESSED_MAT;
+  if( encoding.ends_with( "DTS" ) ) return AudioFormat::ENCODING::COMPRESSED_DTS;
+  if( encoding.ends_with( "DTS_HD" ) ) return AudioFormat::ENCODING::COMPRESSED_DTS_HD;
+  if( encoding.ends_with( "WMA" ) ) return AudioFormat::ENCODING::COMPRESSED_WMA;
+  if( encoding.ends_with( "WMA_PRO" ) ) return AudioFormat::ENCODING::COMPRESSED_WMA_PRO;
+  if( encoding.ends_with( "SBC" ) ) return AudioFormat::ENCODING::COMPRESSED_SBC;
+  if( encoding.ends_with( "APTX" ) ) return AudioFormat::ENCODING::COMPRESSED_APTX;
+  if( encoding.ends_with( "APTX_HD" ) ) return AudioFormat::ENCODING::COMPRESSED_APTX_HD;
+  if( encoding.ends_with( "LDAC" ) ) return AudioFormat::ENCODING::COMPRESSED_LDAC;
+  if( encoding.ends_with( "LHDC" ) ) return AudioFormat::ENCODING::COMPRESSED_LHDC;
+  if( encoding.ends_with( "LHDC_LL" ) ) return AudioFormat::ENCODING::COMPRESSED_LHDC_LL;
+  if( encoding.ends_with( "LC3" ) ) return AudioFormat::ENCODING::COMPRESSED_LC3;
+  if( encoding.ends_with( "PDM_SACD" ) ) return AudioFormat::ENCODING::PDM_SACD;
+  if( encoding.ends_with( "ATRAC" ) ) return AudioFormat::ENCODING::COMPRESSED_ATRAC;
+  if( encoding.ends_with( "DRA" ) ) return AudioFormat::ENCODING::COMPRESSED_DRA;
+
+  // former
   if( encoding.starts_with("COMPRESSED_") ){
     int nCompressedEncoding = std::stoi( encoding.substr(11, encoding.size()) );
     return (AudioFormat::ENCODING)(AudioFormat::ENCODING::COMPRESSED + nCompressedEncoding);
   }
+
   return AudioFormat::ENCODING::PCM_UNKNOWN;
 }
 
@@ -377,7 +416,7 @@ int AudioFormat::getOffSetByteInSample(AudioFormat::CH ch)
 
 std::string AudioFormat::toString(void)
 {
-  std::string result = "encoding:" + getEncodingString() + " channel:" + std::to_string(getNumberOfChannels()) + " samplingRate:" + std::to_string(getSamplingRate());
+  std::string result = "encoding:" + getEncodingString() + " channel:" + std::to_string(getNumberOfChannels()) + "(enum:" + std::to_string( (int)mChannel ) + ") samplingRate:" + std::to_string(getSamplingRate());
   return result;
 }
 

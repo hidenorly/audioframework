@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2021 hidenorly
+  Copyright (C) 2021, 2022 hidenorly
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@
 #include "ParameterManager.hpp"
 #include "Media.hpp"
 #include "Decoder.hpp"
+#include "StringUtil.hpp"
 #include <filesystem>
 
 AudioFormat getAudioFormatFromOpts( std::string encoding, std::string samplingRate, std::string channels )

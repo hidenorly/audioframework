@@ -1,5 +1,5 @@
 /* 
-  Copyright (C) 2021 hidenorly
+  Copyright (C) 2021, 2023 hidenorly
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 #ifndef __THREAD_BASE_HPP__
 #define __THREAD_BASE_HPP__
 
+#include <memory>
 #include <vector>
 #include <mutex>
 #include <thread>

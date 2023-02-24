@@ -38,3 +38,4 @@ TestProperties
 
 # For Mac
 .DS_Store
+out/*

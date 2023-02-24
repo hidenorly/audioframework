@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2021 hidenorly
+  Copyright (C) 2021, 2023 hidenorly
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ std::shared_ptr<AudioBuffer> ChannelMuxer::perChannelMux(std::vector<std::shared
 
     bool isSameFormatSamples = true;
     for( auto& pBuf : pSrcBufs ){
-      isSameFormatSamples = isSameFormatSamples & srcFormat.equal( pBuf->getAudioFormat() ) & ( nSamples == pBuf->getNumberOfSamples() );
+      isSameFormatSamples = isSameFormatSamples && srcFormat.equal( pBuf->getAudioFormat() ) && ( nSamples == pBuf->getNumberOfSamples() );
       if( !isSameFormatSamples ) break;
     }
     if( isSameFormatSamples ){
@@ -72,7 +72,7 @@ std::shared_ptr<AudioBuffer> ChannelMuxer::perChannelMux(std::vector<std::shared
 
     bool isSameEncodingSamples = true;
     for( auto& pBuf : pSrcBufs ){
-      isSameEncodingSamples = isSameEncodingSamples & ( srcFormat.getEncoding() == pBuf->getAudioFormat().getEncoding() ) & ( nSamples == pBuf->getNumberOfSamples() );
+      isSameEncodingSamples = isSameEncodingSamples && ( srcFormat.getEncoding() == pBuf->getAudioFormat().getEncoding() ) && ( nSamples == pBuf->getNumberOfSamples() );
       if( !isSameEncodingSamples ) break;
     }
     if( isSameEncodingSamples ){

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2021 hidenorly
+  Copyright (C) 2021, 2023  hidenorly
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -256,7 +256,7 @@ std::shared_ptr<MixerSplitter::SourceSinkMapper> MixerSplitter::getSourceSinkMap
 bool MixerSplitter::conditionalMap(std::shared_ptr<ISink> srcSink, std::shared_ptr<ISink> dstSink, std::shared_ptr<MixerSplitter::MapCondition> condition)
 {
   mMutexSourceSink.lock();
-  bool result = isSourceAvailableLocked(srcSink) & isSinkAvailableLocked(dstSink);
+  bool result = isSourceAvailableLocked(srcSink) && isSinkAvailableLocked(dstSink);
   if( result ){
     mSourceSinkMapper.push_back( std::make_shared<SourceSinkConditionMapper>(srcSink, dstSink, condition) );
   }

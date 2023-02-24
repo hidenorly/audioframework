@@ -122,7 +122,6 @@ void IAudioBuffer::append(IAudioBuffer& buf)
 
 void IAudioBuffer::setAudioFormat( AudioFormat format, bool bForceAndSilent )
 {
-  bForceAndSilent;
   mFormat = format;
 }
 

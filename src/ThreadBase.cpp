@@ -16,6 +16,7 @@
 
 #include "ThreadBase.hpp"
 #include <iostream>
+#include <algorithm>
 
 #ifndef ENABLE_PTHREAD_CANCEL
 #define ENABLE_PTHREAD_CANCEL 1

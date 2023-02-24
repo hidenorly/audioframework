@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2021 hidenorly
+  Copyright (C) 2021, 2023 hidenorly
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 #include "AccousticEchoCancelFilter.hpp"
 #include "AccousticEchoCancelFilterPrimitive.hpp"
 #include <iostream>
+#include <cassert>
 
 AccousticEchoCancelFilter::AccousticEchoCancelFilter(void)
 {
@@ -58,5 +59,6 @@ void AccousticEchoCancelFilter::process(AudioBuffer& inBuf, AudioBuffer& refBuf)
       default:
         break;
     }
+    assert( true == bHandled );
   }
 }

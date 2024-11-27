@@ -404,3 +404,22 @@ $ sudo make install
 $ sudo apt-get install -y git build-essential ccache clang-11 googletest libgtest-dev
 ```
 
+## Docker
+
+* Build:
+
+```
+docker build -t afw .
+```
+
+* Execute:
+
+```
+docker run --rm afw
+```
+
+* Debug
+
+```
+docker run -it --rm afw bash
+```

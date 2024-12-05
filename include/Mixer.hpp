@@ -1,5 +1,5 @@
 /* 
-  Copyright (C) 2021 hidenorly
+  Copyright (C) 2021, 2024 hidenorly
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -23,10 +23,10 @@
 class Mixer
 {
 public:
-  static bool process( std::vector<AudioBuffer*> pInBuffers, AudioBuffer* pOutBuffer );
+  static bool process( std::vector<std::shared_ptr<AudioBuffer>> pInBuffers, std::shared_ptr<AudioBuffer> pOutBuffer );
 protected:
-  static bool doMix( std::vector<AudioBuffer*> pInBuffers, AudioBuffer* pOutBuffer );
-  static bool doMixPrimitive( AudioBuffer* pInBuffer1, AudioBuffer* pInBuffer2, AudioBuffer* pOutBuffer );
+  static bool doMix( std::vector<std::shared_ptr<AudioBuffer>> pInBuffers, std::shared_ptr<AudioBuffer> pOutBuffer );
+  static bool doMixPrimitive( std::shared_ptr<AudioBuffer> pInBuffer1, std::shared_ptr<AudioBuffer> pInBuffer2, std::shared_ptr<AudioBuffer> pOutBuffer );
 };
 
 #endif /* __MIXER_HPP__ */

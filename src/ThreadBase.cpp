@@ -1,5 +1,5 @@
 /* 
-  Copyright (C) 2021 hidenorly
+  Copyright (C) 2021, 2024 hidenorly
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@ void ThreadBase::run(void)
   mMutexThread.lock();
   if( !mbIsRunning && !mpThread ){
     mbIsRunning = true;
-    mpThread = new std::thread(_execute, this);
+    mpThread = std::make_shared<std::thread>(_execute, this);
   }
   mMutexThread.unlock();
   notifyRunnerStatusChanged();
@@ -74,12 +74,10 @@ void ThreadBase::stop(void)
           bJoined = false;
         }
         if( bJoined ){
-          delete mpThread;
           mpThread = nullptr;
         }
 #else
         mpThread->join();
-        delete mpThread;
         mpThread = nullptr;
 #endif /* ENABLE_PTHREAD_CANCEL */
       }

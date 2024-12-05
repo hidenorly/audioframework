@@ -1,5 +1,5 @@
 /* 
-  Copyright (C) 2021, 2023 hidenorly
+  Copyright (C) 2021, 2023, 2024 hidenorly
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ class ThreadBase
 {
 protected:
   std::mutex mMutexThread;
-  std::thread* mpThread;
+  std::shared_ptr<std::thread> mpThread;
   std::atomic<bool> mbIsRunning;
   bool mIsPreviousRunning;
 

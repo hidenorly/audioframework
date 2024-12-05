@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2021 hidenorly
+  Copyright (C) 2021, 2024 hidenorly
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -73,11 +73,11 @@ void PipeMixer::process(void)
     if( mpSink->getAudioFormat().isEncodingPcm() ){
       int nSamples = 256;
       AudioFormat outFormat = mpSink->getAudioFormat();
-      AudioBuffer outBuf( outFormat, nSamples );
-      std::vector<AudioBuffer*> buffers;
+      std::shared_ptr<AudioBuffer> pOutBuf = std::make_shared<AudioBuffer>( outFormat, nSamples );
+      std::vector<std::shared_ptr<AudioBuffer>> buffers;
       int nCurrentPipeSize = mpInterPipeBridges.size();
       for(int i=0; i<nCurrentPipeSize; i++){
-        buffers.push_back( new AudioBuffer(outFormat, nSamples) );
+        buffers.push_back( std::make_shared<AudioBuffer>(outFormat, nSamples) );
       }
 
       while( mbIsRunning && (nCurrentPipeSize == mpInterPipeBridges.size()) ){
@@ -97,16 +97,13 @@ void PipeMixer::process(void)
         }
         mMutexPipe.unlock();
         if( mbIsRunning ){
-          Mixer::process( buffers, &outBuf );
+          Mixer::process( buffers, pOutBuf );
         }
         if( mbIsRunning && mpSink ){
-          mpSink->write( outBuf );
+          mpSink->write( *pOutBuf );
         }
       }
 
-      for( AudioBuffer* pBuffer : buffers ){
-        delete pBuffer;
-      }
       buffers.clear();
     } else {
       CompressAudioBuffer buf;

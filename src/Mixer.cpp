@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2021 hidenorly
+  Copyright (C) 2021, 2024 hidenorly
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -25,23 +25,23 @@
 
 #if USE_TINY_MIXER_IMPL
 
-bool Mixer::process( std::vector<AudioBuffer*> pInBuffers, AudioBuffer* pOutBuffer )
+bool Mixer::process( std::vector<std::shared_ptr<AudioBuffer>> pInBuffers, std::shared_ptr<AudioBuffer> pOutBuffer )
 {
   bool result = false;
   if( !pInBuffers.empty() && pOutBuffer ){
     // normalize buffer format (allocate)
     AudioFormat dstFormat = pOutBuffer->getAudioFormat();
-    std::vector<AudioBuffer*> normalizedInBuffers;
+    std::vector<std::shared_ptr<AudioBuffer>> normalizedInBuffers;
     normalizedInBuffers.reserve( pInBuffers.size() );
-    std::vector<AudioBuffer*> allocatedBufferPointers;
+    std::vector<std::shared_ptr<AudioBuffer>> allocatedBufferPointers;
     allocatedBufferPointers.reserve( pInBuffers.size() );
     int nSamples = pOutBuffer->getNumberOfSamples();
     // format convert if different format
-    for(AudioBuffer* pBuffer : pInBuffers){
+    for(std::shared_ptr<AudioBuffer> pBuffer : pInBuffers){
       if( dstFormat.equal( pBuffer->getAudioFormat() ) ){
         normalizedInBuffers.push_back( pBuffer );
       } else {
-        AudioBuffer* pTmpBuffer = new AudioBuffer( dstFormat, nSamples);
+        std::shared_ptr<AudioBuffer> pTmpBuffer = std::make_shared<AudioBuffer>( dstFormat, nSamples);
         if( AudioFormatAdaptor::convert(*pBuffer, *pTmpBuffer ) ){
           normalizedInBuffers.push_back( pTmpBuffer );
         }
@@ -56,10 +56,6 @@ bool Mixer::process( std::vector<AudioBuffer*> pInBuffers, AudioBuffer* pOutBuff
       result = true;
       *pOutBuffer = *normalizedInBuffers[0];
     }
-    // release temporary buffer
-    for(AudioBuffer* pBuffer : allocatedBufferPointers){
-      delete pBuffer;
-    }
     allocatedBufferPointers.clear();
   }
 
@@ -67,21 +63,21 @@ bool Mixer::process( std::vector<AudioBuffer*> pInBuffers, AudioBuffer* pOutBuff
 }
 
 
-bool Mixer::doMix( std::vector<AudioBuffer*> pInBuffers, AudioBuffer* pOutBuffer )
+bool Mixer::doMix( std::vector<std::shared_ptr<AudioBuffer>> pInBuffers, std::shared_ptr<AudioBuffer> pOutBuffer )
 {
   bool result = false;
-  AudioBuffer* pFinalOutBuffer = pOutBuffer;
+  std::shared_ptr<AudioBuffer> pFinalOutBuffer = pOutBuffer;
   if( !pInBuffers.empty() && pOutBuffer ){
     AudioFormat format = pOutBuffer->getAudioFormat();
     int nSamples = pOutBuffer->getNumberOfSamples();
     // loop a+b=c
-    AudioBuffer tmpIn1Buffer( format, nSamples );
-    tmpIn1Buffer = *pInBuffers[0];
-    AudioBuffer* pInBuffer1 = &tmpIn1Buffer;
-    AudioBuffer tmpOutBuffer( format, nSamples );
-    AudioBuffer* pOutBuffer = &tmpOutBuffer;
+    std::shared_ptr<AudioBuffer> tmpIn1Buffer = std::make_shared<AudioBuffer>( format, nSamples );
+    *tmpIn1Buffer = *pInBuffers[0];
+    std::shared_ptr<AudioBuffer> pInBuffer1 = tmpIn1Buffer;
+    std::shared_ptr<AudioBuffer> tmpOutBuffer = std::make_shared<AudioBuffer>( format, nSamples );
+    std::shared_ptr<AudioBuffer> pOutBuffer = tmpOutBuffer;
     for(int i=1; i<pInBuffers.size(); i++){
-      AudioBuffer* pInBuffer2 = pInBuffers[i];
+      std::shared_ptr<AudioBuffer> pInBuffer2 = pInBuffers[i];
       result = doMixPrimitive( pInBuffer1, pInBuffer2, pOutBuffer );
       if( (i+1) == pInBuffers.size() ){
         // end then copy to the final buffer
@@ -95,7 +91,7 @@ bool Mixer::doMix( std::vector<AudioBuffer*> pInBuffers, AudioBuffer* pOutBuffer
   return result;
 }
 
-bool Mixer::doMixPrimitive( AudioBuffer* pInBuffer1, AudioBuffer* pInBuffer2, AudioBuffer* pOutBuffer )
+bool Mixer::doMixPrimitive( std::shared_ptr<AudioBuffer> pInBuffer1, std::shared_ptr<AudioBuffer> pInBuffer2, std::shared_ptr<AudioBuffer> pOutBuffer )
 {
   bool bHandled = false;
 

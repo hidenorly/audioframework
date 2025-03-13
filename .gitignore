@@ -39,3 +39,6 @@ TestProperties
 # For Mac
 .DS_Store
 out/*
+
+# static code anlysis
+infer-out/*

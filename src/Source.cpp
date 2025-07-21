@@ -1,5 +1,5 @@
 /* 
-  Copyright (C) 2021 hidenorly
+  Copyright (C) 2021, 2024 hidenorly
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ ISource::~ISource()
 
 void ISource::read(IAudioBuffer& buf)
 {
+  std::lock_guard<std::mutex> lock(mMutexRead);
   // TODO: Handle volume as same as ISink
   AudioBuffer* pBuf = dynamic_cast<AudioBuffer*>(&buf);
   if( pBuf ){

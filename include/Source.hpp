@@ -1,5 +1,5 @@
 /* 
-  Copyright (C) 2021 hidenorly
+  Copyright (C) 2021, 2024 hidenorly
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@
 
 #include <string>
 #include <memory>
+#include <mutex>
 #include "Buffer.hpp"
 #include "AudioFormat.hpp"
 #include "PipeAndFilterCommon.hpp"
@@ -33,6 +34,7 @@ protected:
   int mLatencyUsec;
   int64_t mSourcePosition;
   AudioFormat mFormat;
+  std::mutex mMutexRead;
 
 protected:
   virtual void readPrimitive(IAudioBuffer& buf) = 0;

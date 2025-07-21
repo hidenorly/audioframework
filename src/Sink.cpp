@@ -1,5 +1,5 @@
 /* 
-  Copyright (C) 2021 hidenorly
+  Copyright (C) 2021, 2024 hidenorly
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -66,6 +66,7 @@ void ISink::mutePrimitive(bool bEnableMute, bool bUseZero)
 
 void ISink::write(IAudioBuffer& buf)
 {
+  std::lock_guard<std::mutex> lock(mMutexWrite);
   int nSamples = 0;
   AudioFormat format;
   AudioBuffer* pBuf = dynamic_cast<AudioBuffer*>(&buf);
